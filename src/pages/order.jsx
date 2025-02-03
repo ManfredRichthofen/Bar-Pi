@@ -1,17 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import {
-  Typography,
-  Button,
-  Space,
-  message,
-  Card,
-  Spin,
-  Alert,
-  Image,
-  InputNumber,
-  Form,
-  Tag,
-} from 'antd';
 import { BeakerIcon, XCircle, PlayCircle } from 'lucide-react';
 import { Navigate, useLocation, useNavigate } from 'react-router-dom';
 import useAuthStore from '../store/authStore';
@@ -20,15 +7,13 @@ import DrinkCustomizer from '../components/DrinkCustomizer';
 import glassService from '../services/glass.service';
 import IngredientRequirements from '../components/IngredientRequirements';
 import GlassSelector from '../components/GlassSelector';
-
-const { Title, Text } = Typography;
+import ingredientService from '../services/ingredient.service';
 
 const Order = () => {
   const [loading, setLoading] = useState(false);
   const [checking, setChecking] = useState(false);
   const [feasibilityResult, setFeasibilityResult] = useState(null);
   const [amountToProduce, setAmountToProduce] = useState(null);
-  const [form] = Form.useForm();
   const token = useAuthStore((state) => state.token);
   const location = useLocation();
   const navigate = useNavigate();
@@ -39,6 +24,18 @@ const Order = () => {
   });
   const [selectedGlass, setSelectedGlass] = useState(null);
 
+  // Toast notification helper
+  const showToast = (message, type = 'info') => {
+    const toast = document.getElementById('toast-container');
+    if (toast) {
+      const alert = document.createElement('div');
+      alert.className = `alert ${type === 'error' ? 'alert-error' : type === 'success' ? 'alert-success' : 'alert-info'}`;
+      alert.innerHTML = `<span>${message}</span>`;
+      toast.appendChild(alert);
+      setTimeout(() => alert.remove(), 3000);
+    }
+  };
+
   useEffect(() => {
     if (recipe) {
       if (recipe.defaultGlass) {
@@ -48,7 +45,6 @@ const Order = () => {
         setSelectedGlass(null);
         setAmountToProduce(250);
       }
-      form.setFieldValue('amount', amountToProduce);
       checkFeasibility(recipe.id, getOrderConfig());
     }
   }, [recipe]);
@@ -81,14 +77,13 @@ const Order = () => {
       setFeasibilityResult(result);
       return result;
     } catch (error) {
-      message.error('Failed to check drink feasibility');
+      showToast('Failed to check drink feasibility', 'error');
       return false;
     } finally {
       setChecking(false);
     }
   };
 
-  // Helper function to check if all ingredients are available
   const areAllIngredientsAvailable = (requiredIngredients) => {
     if (!requiredIngredients) return false;
     return !requiredIngredients.some((item) => item.amountMissing > 0);
@@ -97,24 +92,22 @@ const Order = () => {
   const orderDrink = async (recipeId, orderConfig) => {
     setLoading(true);
     try {
-      // First check if the drink is feasible
       const isFeasible = await checkFeasibility(recipeId, orderConfig);
       if (!isFeasible?.feasible) {
-        message.error('This drink cannot be made at the moment');
+        showToast('This drink cannot be made at the moment', 'error');
         return;
       }
 
-      // Check if all ingredients are available
       if (!areAllIngredientsAvailable(isFeasible.requiredIngredients)) {
-        message.error('Some ingredients are missing or insufficient');
+        showToast('Some ingredients are missing or insufficient', 'error');
         return;
       }
 
       await cocktailService.order(recipeId, orderConfig, false, token);
-      message.success('Drink ordered successfully');
+      showToast('Drink ordered successfully', 'success');
       navigate('/drinks');
     } catch (error) {
-      message.error('Failed to order drink');
+      showToast('Failed to order drink', 'error');
     } finally {
       setLoading(false);
     }
@@ -128,18 +121,18 @@ const Order = () => {
   const cancelOrder = async () => {
     try {
       await cocktailService.cancelCocktail(token);
-      message.success('Order cancelled');
+      showToast('Order cancelled', 'success');
     } catch (error) {
-      message.error('Failed to cancel order');
+      showToast('Failed to cancel order', 'error');
     }
   };
 
   const continueProduction = async () => {
     try {
       await cocktailService.continueProduction(token);
-      message.success('Production continued');
+      showToast('Production continued', 'success');
     } catch (error) {
-      message.error('Failed to continue production');
+      showToast('Failed to continue production', 'error');
     }
   };
 
@@ -154,13 +147,8 @@ const Order = () => {
     setAmountToProduce(value);
   };
 
-  if (!token) {
-    return <Navigate to="/login" />;
-  }
-
-  if (!recipe) {
-    return <Navigate to="/drinks" />;
-  }
+  if (!token) return <Navigate to="/login" />;
+  if (!recipe) return <Navigate to="/drinks" />;
 
   const canOrderDrink =
     feasibilityResult?.feasible &&
@@ -183,71 +171,70 @@ const Order = () => {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8 py-4 sm:py-8 pt-20 sm:pt-24 min-h-screen">
-      <div className="flex justify-between items-center mb-4 sm:mb-6">
-        <Title level={2} className="text-xl sm:text-2xl">
-          Drink Production
-        </Title>
-      </div>
+    <>
+      {/* Toast container */}
+      <div id="toast-container" className="toast toast-end z-50"></div>
 
-      <Form form={form}>
-        <Card className="mb-4 sm:mb-6">
-          <div className="flex flex-col lg:flex-row gap-4 lg:gap-6">
-            {recipe.image && (
-              <div className="w-full lg:w-1/3">
-                <Image
-                  className="w-full rounded-lg object-cover max-h-[300px] lg:max-h-none"
-                  src={recipe.image}
-                  alt={recipe.name}
-                />
-              </div>
-            )}
+      <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8 py-4 sm:py-8 pt-20 sm:pt-24 min-h-screen">
+        <div className="flex justify-between items-center mb-4 sm:mb-6">
+          <h2 className="text-2xl font-bold">Drink Production</h2>
+        </div>
 
-            <div className="flex-1">
-              <Title level={3} className="text-lg sm:text-xl mb-2">
-                {recipe.name}
-              </Title>
-              {recipe.description && (
-                <Text className="block mb-4 text-sm sm:text-base">
-                  {recipe.description}
-                </Text>
+        <div className="card bg-base-100 shadow-xl mb-6">
+          <div className="card-body">
+            <div className="flex flex-col lg:flex-row gap-4 lg:gap-6">
+              {recipe.image && (
+                <div className="w-full lg:w-1/3">
+                  <figure>
+                    <img
+                      className="w-full rounded-lg object-cover max-h-[300px] lg:max-h-none"
+                      src={recipe.image}
+                      alt={recipe.name}
+                    />
+                  </figure>
+                </div>
               )}
 
-              <GlassSelector
-                selectedGlass={selectedGlass}
-                customAmount={amountToProduce}
-                onGlassChange={handleGlassChange}
-                onCustomAmountChange={handleCustomAmountChange}
-                defaultGlass={recipe.defaultGlass}
-                token={token}
-              />
+              <div className="flex-1">
+                <h3 className="text-xl font-bold mb-2">{recipe.name}</h3>
+                {recipe.description && (
+                  <p className="mb-4 text-base-content/70">{recipe.description}</p>
+                )}
 
-              <Space className="w-full mt-4" size="small">
-                <Button
-                  type="primary"
-                  icon={<BeakerIcon size={16} />}
-                  onClick={handleMakeDrink}
-                  loading={loading}
-                  disabled={!canOrderDrink}
-                  className="flex items-center gap-1 text-sm sm:text-base"
-                >
-                  {feasibilityResult
-                    ? `Make Drink (${feasibilityResult.totalAmountInMl}ml)`
-                    : 'Make Drink'}
-                </Button>
-                <Button
-                  onClick={() => navigate('/drinks')}
-                  className="text-sm sm:text-base"
-                >
-                  Back to Drinks
-                </Button>
-              </Space>
+                <GlassSelector
+                  selectedGlass={selectedGlass}
+                  customAmount={amountToProduce}
+                  onGlassChange={handleGlassChange}
+                  onCustomAmountChange={handleCustomAmountChange}
+                  defaultGlass={recipe.defaultGlass}
+                  token={token}
+                />
+
+                <div className="flex gap-2 mt-4">
+                  <button
+                    className={`btn btn-primary ${loading ? 'loading' : ''}`}
+                    onClick={handleMakeDrink}
+                    disabled={!canOrderDrink}
+                  >
+                    <BeakerIcon size={16} />
+                    {feasibilityResult
+                      ? `Make Drink (${feasibilityResult.totalAmountInMl}ml)`
+                      : 'Make Drink'}
+                  </button>
+                  <button
+                    className="btn btn-ghost"
+                    onClick={() => navigate('/drinks')}
+                  >
+                    Back to Drinks
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
-        </Card>
+        </div>
 
         <DrinkCustomizer
-          disableBoosting={!recipe?.boostable}
+          disableBoosting={!ingredientService.hasBoostableIngredients(feasibilityResult?.requiredIngredients)}
           customizations={customizations}
           onCustomizationsChange={setCustomizations}
           availableIngredients={
@@ -256,184 +243,162 @@ const Order = () => {
               ?.filter((ing) => ing.type === 'automated') || []
           }
         />
-      </Form>
 
-      {checking ? (
-        <Card className="mb-4 sm:mb-6">
-          <div className="flex justify-center py-4">
-            <Spin size="large" />
+        {checking ? (
+          <div className="card bg-base-100 shadow-xl mb-6">
+            <div className="card-body flex items-center justify-center">
+              <span className="loading loading-spinner loading-lg"></span>
+            </div>
           </div>
-        </Card>
-      ) : (
-        feasibilityResult && (
-          <>
-            <Card className="mb-4 sm:mb-6">
-              <Title level={4} className="text-lg sm:text-xl">
-                Feasibility Check Result
-              </Title>
-              <Alert
-                message={
-                  feasibilityResult.feasible
-                    ? 'Drink can be made'
-                    : 'Drink cannot be made'
-                }
-                description={
-                  feasibilityResult.feasible
-                    ? `Total amount: ${feasibilityResult.totalAmountInMl}ml`
-                    : feasibilityResult.reason
-                }
-                type={feasibilityResult.feasible ? 'success' : 'error'}
-                showIcon
-                className="mb-4"
-              />
-            </Card>
-
-            {feasibilityResult.requiredIngredients?.length > 0 && (
-              <IngredientRequirements
-                requiredIngredients={feasibilityResult.requiredIngredients}
-              />
-            )}
-
-            {feasibilityResult.requiredIngredients?.length > 0 &&
-              (() => {
-                const ingredients = organizeIngredients(
-                  feasibilityResult.requiredIngredients,
-                );
-                return (
-                  <div className="space-y-4">
-                    {/* Automated Ingredients */}
-                    {ingredients.automated.length > 0 && (
-                      <Card className="mb-4">
-                        <Title level={5} className="text-base sm:text-lg">
-                          Automated Ingredients
-                        </Title>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-                          {ingredients.automated.map((item, index) => (
-                            <Card
-                              size="small"
-                              key={index}
-                              className="bg-gray-50"
-                            >
-                              <div className="flex justify-between items-center">
-                                <div>
-                                  <Text strong className="text-sm sm:text-base">
-                                    {item.ingredient.name}
-                                  </Text>
-                                  <div className="text-xs sm:text-sm text-gray-500">
-                                    Required: {item.amountRequired}
-                                    {item.ingredient.unit}
-                                    {item.amountMissing > 0 && (
-                                      <div className="text-red-500">
-                                        Missing: {item.amountMissing}
-                                        {item.ingredient.unit}
-                                      </div>
-                                    )}
-                                  </div>
-                                </div>
-                              </div>
-                            </Card>
-                          ))}
-                        </div>
-                      </Card>
-                    )}
-
-                    {/* Manual Ingredients */}
-                    {ingredients.manual.length > 0 && (
-                      <Card className="mb-4">
-                        <Title level={5} className="text-base sm:text-lg">
-                          Manual Ingredients
-                        </Title>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-                          {ingredients.manual.map((item, index) => (
-                            <Card
-                              size="small"
-                              key={index}
-                              className="bg-gray-50"
-                            >
-                              <div className="flex justify-between items-center">
-                                <div>
-                                  <Text strong className="text-sm sm:text-base">
-                                    {item.ingredient.name}
-                                  </Text>
-                                  <div className="text-xs sm:text-sm text-gray-500">
-                                    {item.amount}
-                                    {item.ingredient.unit}
-                                  </div>
-                                </div>
-                                <Tag
-                                  color={
-                                    item.ingredient.inBar ? 'success' : 'error'
-                                  }
-                                  className="text-xs sm:text-sm"
-                                >
-                                  {item.ingredient.inBar
-                                    ? 'In Bar'
-                                    : 'Not In Bar'}
-                                </Tag>
-                              </div>
-                            </Card>
-                          ))}
-                        </div>
-                      </Card>
-                    )}
-
-                    {/* Missing Ingredients Warning */}
-                    {ingredients.notInBar.length > 0 && (
-                      <Alert
-                        message="Missing Ingredients"
-                        description={
-                          <div>
-                            <Text className="text-sm sm:text-base">
-                              The following ingredients are not available in the
-                              bar:
-                            </Text>
-                            <ul className="mt-2 text-sm">
-                              {ingredients.notInBar.map((item, index) => (
-                                <li key={index}>
-                                  {item.ingredient.name} ({item.amount}
-                                  {item.ingredient.unit})
-                                </li>
-                              ))}
-                            </ul>
-                          </div>
-                        }
-                        type="warning"
-                        showIcon
-                      />
-                    )}
+        ) : (
+          feasibilityResult && (
+            <>
+              <div className="card bg-base-100 shadow-xl mb-6">
+                <div className="card-body">
+                  <h4 className="text-xl font-bold">Feasibility Check Result</h4>
+                  <div className={`alert ${feasibilityResult.feasible ? 'alert-success' : 'alert-error'}`}>
+                    <div>
+                      {feasibilityResult.feasible ? (
+                        <>
+                          <span>Drink can be made</span>
+                          <span className="text-sm">
+                            Total amount: {feasibilityResult.totalAmountInMl}ml
+                          </span>
+                        </>
+                      ) : (
+                        <span>{feasibilityResult.reason}</span>
+                      )}
+                    </div>
                   </div>
-                );
-              })()}
-          </>
-        )
-      )}
+                </div>
+              </div>
 
-      <Card>
-        <Space direction="vertical" className="w-full">
-          <Title level={4} className="text-lg sm:text-xl">
-            Production Controls
-          </Title>
-          <Space wrap>
-            <Button
-              type="primary"
-              icon={<PlayCircle size={16} />}
-              onClick={continueProduction}
-              className="flex items-center gap-1 text-sm sm:text-base"
-            >
-              Continue Production
-            </Button>
-            <Button
-              danger
-              icon={<XCircle size={16} />}
-              onClick={cancelOrder}
-              className="flex items-center gap-1 text-sm sm:text-base"
-            >
-              Cancel Production
-            </Button>
-          </Space>
-        </Space>
-      </Card>
-    </div>
+              {feasibilityResult.requiredIngredients?.length > 0 && (
+                <>
+                  <IngredientRequirements
+                    requiredIngredients={feasibilityResult.requiredIngredients}
+                  />
+
+                  {(() => {
+                    const ingredients = organizeIngredients(
+                      feasibilityResult.requiredIngredients
+                    );
+                    return (
+                      <div className="space-y-4">
+                        {ingredients.automated.length > 0 && (
+                          <div className="card bg-base-100 shadow-xl mb-6">
+                            <div className="card-body">
+                              <h5 className="text-lg font-bold">Automated Ingredients</h5>
+                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                {ingredients.automated.map((item, index) => (
+                                  <div key={index} className="card bg-base-200">
+                                    <div className="card-body p-4">
+                                      <div className="flex justify-between items-center">
+                                        <div>
+                                          <p className="font-semibold">
+                                            {item.ingredient.name}
+                                          </p>
+                                          <div className="text-sm opacity-70">
+                                            Required: {item.amountRequired}
+                                            {item.ingredient.unit}
+                                            {item.amountMissing > 0 && (
+                                              <div className="text-error">
+                                                Missing: {item.amountMissing}
+                                                {item.ingredient.unit}
+                                              </div>
+                                            )}
+                                          </div>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Manual Ingredients Section */}
+                        {ingredients.manual.length > 0 && (
+                          <div className="card bg-base-100 shadow-xl mb-6">
+                            <div className="card-body">
+                              <h5 className="text-lg font-bold">Manual Ingredients</h5>
+                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                {ingredients.manual.map((item, index) => (
+                                  <div key={index} className="card bg-base-200">
+                                    <div className="card-body p-4">
+                                      <div className="flex justify-between items-center">
+                                        <div>
+                                          <p className="font-semibold">
+                                            {item.ingredient.name}
+                                          </p>
+                                          <p className="text-sm opacity-70">
+                                            {item.amount}
+                                            {item.ingredient.unit}
+                                          </p>
+                                        </div>
+                                        <div className={`badge ${
+                                          item.ingredient.inBar ? 'badge-success' : 'badge-error'
+                                        }`}>
+                                          {item.ingredient.inBar ? 'In Bar' : 'Not In Bar'}
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          </div>
+                        )}
+
+                        {ingredients.notInBar.length > 0 && (
+                          <div className="alert alert-warning">
+                            <div>
+                              <h6 className="font-bold">Missing Ingredients</h6>
+                              <p>The following ingredients are not available in the bar:</p>
+                              <ul className="mt-2 list-disc list-inside">
+                                {ingredients.notInBar.map((item, index) => (
+                                  <li key={index}>
+                                    {item.ingredient.name} ({item.amount}
+                                    {item.ingredient.unit})
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })()}
+                </>
+              )}
+            </>
+          )
+        )}
+
+        <div className="card bg-base-100 shadow-xl">
+          <div className="card-body">
+            <h4 className="text-xl font-bold">Production Controls</h4>
+            <div className="flex gap-2 flex-wrap">
+              <button
+                className="btn btn-primary"
+                onClick={continueProduction}
+              >
+                <PlayCircle size={16} />
+                Continue Production
+              </button>
+              <button
+                className="btn btn-error"
+                onClick={cancelOrder}
+              >
+                <XCircle size={16} />
+                Cancel Production
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </>
   );
 };
 

@@ -1,9 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Select, Form, InputNumber, Space, Typography, Spin } from 'antd';
 import { GlassWater } from 'lucide-react';
 import glassService from '../services/glass.service';
-
-const { Text } = Typography;
 
 const GlassSelector = ({
   selectedGlass,
@@ -16,14 +13,12 @@ const GlassSelector = ({
   const [glasses, setGlasses] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // Initial fetch of glasses and default selection
   useEffect(() => {
     const fetchGlasses = async () => {
       try {
         const response = await glassService.getGlasses(token);
         setGlasses(response);
 
-        // If no glass is selected and we have a default glass, select it
         if (!selectedGlass && defaultGlass) {
           const defaultGlassFromList = response.find(
             (g) => g.id === defaultGlass.id,
@@ -43,87 +38,71 @@ const GlassSelector = ({
     if (token) {
       fetchGlasses();
     }
-  }, [token]); // Only run on token change to avoid infinite loops
-
-  const formatGlassOption = (glass) => {
-    const isDefault = defaultGlass?.id === glass.id;
-    return {
-      label: (
-        <div className="flex justify-between items-center">
-          <span>{glass.name}</span>
-          <span className="text-gray-500">
-            {isDefault ? '(Default) ' : ''}
-            {glass.sizeInMl}ml
-          </span>
-        </div>
-      ),
-      value: glass.id,
-    };
-  };
+  }, [token]);
 
   if (loading) {
     return (
       <div className="flex items-center gap-2">
         <GlassWater size={16} />
-        <Spin size="small" />
+        <span className="loading loading-spinner loading-sm"></span>
       </div>
     );
   }
 
-  const glassOptions = glasses.map(formatGlassOption);
-
   return (
-    <Space direction="vertical" className="w-full">
-      <Form.Item
-        label={
-          <div className="flex items-center gap-2">
-            <GlassWater size={16} />
-            <span>Glass Size</span>
-          </div>
-        }
-      >
-        <Space>
-          <Select
-            value={selectedGlass?.id || 'custom'}
-            onChange={(value) => {
-              if (value === 'custom') {
-                onGlassChange(null);
-              } else {
-                const glass = glasses.find((g) => g.id === value);
-                onGlassChange(glass);
-                onCustomAmountChange(glass.sizeInMl);
-              }
-            }}
-            style={{ width: 250 }}
-            placeholder="Select a glass"
-            options={[
-              ...glassOptions,
-              {
-                label: 'Custom Amount',
-                value: 'custom',
-              },
-            ]}
-          />
+    <div className="form-control w-full">
+      <label className="label">
+        <span className="label-text flex items-center gap-2">
+          <GlassWater size={16} />
+          Glass Size
+        </span>
+      </label>
+      
+      <div className="flex gap-2">
+        <select
+          className="select select-bordered"
+          value={selectedGlass?.id || 'custom'}
+          onChange={(e) => {
+            if (e.target.value === 'custom') {
+              onGlassChange(null);
+            } else {
+              const glass = glasses.find((g) => g.id === e.target.value);
+              onGlassChange(glass);
+              onCustomAmountChange(glass.sizeInMl);
+            }
+          }}
+        >
+          <option value="custom">Custom Amount</option>
+          {glasses.map((glass) => (
+            <option key={glass.id} value={glass.id}>
+              {glass.name} {defaultGlass?.id === glass.id ? '(Default)' : ''} - {glass.sizeInMl}ml
+            </option>
+          ))}
+        </select>
 
-          {!selectedGlass && (
-            <InputNumber
+        {!selectedGlass && (
+          <div className="join">
+            <input
+              type="number"
               min={10}
               max={5000}
               value={customAmount}
-              onChange={onCustomAmountChange}
-              addonAfter="ml"
-              style={{ width: 120 }}
+              onChange={(e) => onCustomAmountChange(parseFloat(e.target.value))}
+              className="input input-bordered join-item w-24"
             />
-          )}
-        </Space>
-      </Form.Item>
+            <span className="join-item btn btn-disabled">ml</span>
+          </div>
+        )}
+      </div>
 
       {selectedGlass && (
-        <Text type="secondary" className="block">
-          {selectedGlass.description}
-        </Text>
+        <label className="label">
+          <span className="label-text-alt text-base-content/70">
+            {selectedGlass.description}
+          </span>
+        </label>
       )}
-    </Space>
+    </div>
   );
 };
 

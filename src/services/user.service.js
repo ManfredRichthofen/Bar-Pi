@@ -7,7 +7,9 @@ const API_PATH = 'api/user/';
 
 class UserService {
   getAllUsers() {
-    return axios.get(API_PATH).then((response) => response.data);
+    const token = localStorage.getItem('token');
+    const headers = token ? { Authorization: `Bearer ${token}` } : {};
+    return axios.get(API_PATH, { headers }).then((response) => response.data);
   }
 
   getUser(userId) {
@@ -34,8 +36,9 @@ class UserService {
     return axios.put(API_PATH + String(id), updateRequest);
   }
 
-  createUser(createUser) {
-    return axios.post(API_PATH, createUser);
+  createUser(createUser, token = null) {
+    const headers = token ? { Authorization: `Bearer ${token}` } : {};
+    return axios.post(API_PATH, createUser, { headers });
   }
 }
 

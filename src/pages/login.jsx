@@ -1,18 +1,17 @@
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import {
-  UserOutlined,
-  LockOutlined,
-  ArrowRightOutlined,
-} from '@ant-design/icons';
-import { Form } from 'antd';
 import useAuthStore from '../store/authStore';
 import logoFull from '../assets/logo-full.svg';
 import backgroundS from '../assets/login/background_s.jpg';
 import backgroundM from '../assets/login/background_m.jpg';
 import backgroundL from '../assets/login/background_l.jpg';
 import backgroundXL from '../assets/login/background_xl.jpg';
+import {
+  User,
+  KeyRound,
+  ArrowRight
+} from 'lucide-react';
 
 const Login = () => {
   const { t } = useTranslation();
@@ -75,61 +74,60 @@ const Login = () => {
             </div>
           )}
 
-          {/* Login Form */}
-          <Form
+          {/* Login Form - Replace Form with regular form element */}
+          <form
             name="login"
-            onFinish={onSubmit}
-            layout="vertical"
-            requiredMark={false}
+            onSubmit={(e) => {
+              e.preventDefault();
+              const formData = new FormData(e.target);
+              onSubmit({
+                username: formData.get('username'),
+                password: formData.get('password'),
+                remember: formData.get('remember') === 'on'
+              });
+            }}
+            className="space-y-4"
           >
-            {/* Username Field */}
-            <div className="form-control w-full mb-4">
-              <Form.Item
-                name="username"
-                rules={[
-                  { required: true, message: t('errors_field_required') },
-                ]}
-              >
-                <div className="input-group">
-                  <span>
-                    <UserOutlined />
-                  </span>
-                  <input
-                    type="text"
-                    placeholder={t('login_username_field_label')}
-                    className="input input-bordered w-full"
-                  />
-                </div>
-              </Form.Item>
+            {/* Username Field - Remove Form.Item */}
+            <div className="form-control w-full">
+              <div className="input-group">
+                <span>
+                  <User className="w-5 h-5" />
+                </span>
+                <input
+                  type="text"
+                  name="username"
+                  placeholder={t('login_username_field_label')}
+                  className="input input-bordered w-full"
+                  required
+                />
+              </div>
             </div>
 
-            {/* Password Field */}
-            <div className="form-control w-full mb-6">
-              <Form.Item
-                name="password"
-                rules={[
-                  { required: true, message: t('errors_field_required') },
-                ]}
-              >
-                <div className="input-group">
-                  <span>
-                    <LockOutlined />
-                  </span>
-                  <input
-                    type="password"
-                    placeholder={t('login_password_field_label')}
-                    className="input input-bordered w-full"
-                  />
-                </div>
-              </Form.Item>
+            {/* Password Field - Remove Form.Item */}
+            <div className="form-control w-full">
+              <div className="input-group">
+                <span>
+                  <KeyRound className="w-5 h-5" />
+                </span>
+                <input
+                  type="password"
+                  name="password"
+                  placeholder={t('login_password_field_label')}
+                  className="input input-bordered w-full"
+                  required
+                />
+              </div>
             </div>
 
             {/* Remember Me and Forgot Password */}
-            <div className="flex justify-between items-center mb-6">
+            <div className="flex justify-between items-center">
               <label className="label cursor-pointer">
-                <Form.Item name="remember" valuePropName="checked" noStyle>
-                  <input type="checkbox" className="checkbox checkbox-sm" />
-                </Form.Item>
+                <input
+                  type="checkbox"
+                  name="remember"
+                  className="checkbox checkbox-sm"
+                />
                 <span className="label-text ml-2">
                   {t('login_remember_me') || 'Remember me'}
                 </span>
@@ -146,7 +144,7 @@ const Login = () => {
               className={`btn btn-primary w-full ${loading ? 'loading' : ''}`}
               disabled={loading}
             >
-              {!loading && <ArrowRightOutlined />}
+              {!loading && <ArrowRight className="w-5 h-5" />}
               {loading
                 ? t('login_logging_in') || 'Signing you in...'
                 : t('login_btn_label') || 'Sign in to your account'}
@@ -161,7 +159,7 @@ const Login = () => {
                 </a>
               </p>
             </div>
-          </Form>
+          </form>
         </div>
       </div>
     </div>

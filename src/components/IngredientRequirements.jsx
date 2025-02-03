@@ -1,8 +1,5 @@
 import React from 'react';
-import { Card, Typography, List } from 'antd';
 import { CheckCircle, XCircle } from 'lucide-react';
-
-const { Title, Text } = Typography;
 
 const IngredientRequirements = ({ requiredIngredients }) => {
   const insufficientIngredients = requiredIngredients.filter(
@@ -11,42 +8,37 @@ const IngredientRequirements = ({ requiredIngredients }) => {
   const isFulfilled = insufficientIngredients.length === 0;
 
   return (
-    <Card
-      className={`mb-4 ${isFulfilled ? 'bg-blue-50' : 'bg-yellow-50'}`}
-      title={
-        <div className="flex items-center gap-2">
+    <div className={`card shadow-xl mb-4 ${isFulfilled ? 'bg-success/10' : 'bg-warning/10'}`}>
+      <div className="card-body">
+        <div className="flex items-center gap-2 mb-4">
           {isFulfilled ? (
-            <CheckCircle className="text-green-500" size={20} />
+            <CheckCircle className="text-success" size={20} />
           ) : (
-            <XCircle className="text-red-500" size={20} />
+            <XCircle className="text-error" size={20} />
           )}
-          <Title level={5} style={{ margin: 0 }}>
+          <h3 className="card-title text-lg">
             {isFulfilled ? 'All ingredients available' : 'Missing ingredients'}
-          </Title>
+          </h3>
         </div>
-      }
-    >
-      <List
-        size="small"
-        dataSource={isFulfilled ? requiredIngredients : insufficientIngredients}
-        renderItem={(item) => (
-          <List.Item>
-            <div className="flex justify-between w-full">
-              <Text>{item.ingredient.name}</Text>
-              <Text strong>
+
+        <div className="space-y-2">
+          {(isFulfilled ? requiredIngredients : insufficientIngredients).map((item, index) => (
+            <div key={index} className="flex justify-between w-full p-2 bg-base-200 rounded-lg">
+              <span>{item.ingredient.name}</span>
+              <span className="font-semibold">
                 {item.amountRequired} {item.ingredient.unit}
                 {!isFulfilled && item.amountMissing > 0 && (
-                  <span className="text-red-500">
+                  <span className="text-error">
                     {' '}
                     (missing: {item.amountMissing} {item.ingredient.unit})
                   </span>
                 )}
-              </Text>
+              </span>
             </div>
-          </List.Item>
-        )}
-      />
-    </Card>
+          ))}
+        </div>
+      </div>
+    </div>
   );
 };
 

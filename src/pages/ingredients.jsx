@@ -1,17 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import {
-  Typography,
-  Button,
-  Table,
-  Tag,
-  Space,
-  Modal,
-  Form,
-  Input,
-  Select,
-  message,
-  Tabs,
-} from 'antd';
 import { PlusCircle, Edit, Trash2, Image as ImageIcon, X } from 'lucide-react';
 import { Navigate } from 'react-router-dom';
 import useAuthStore from '../store/authStore';
@@ -19,8 +6,6 @@ import ingredientService, {
   ingredientDtoMapper,
 } from '../services/ingredient.service';
 import { useForm } from 'react-hook-form';
-
-const { Title } = Typography;
 
 const Ingredients = () => {
   const [ingredients, setIngredients] = useState([]);
@@ -60,21 +45,35 @@ const Ingredients = () => {
       );
       setIngredients(data);
     } catch (error) {
-      message.error('Failed to fetch ingredients');
+      showToast('Failed to fetch ingredients');
     } finally {
       setLoading(false);
     }
   };
 
+  const showToast = (message, type = 'error') => {
+    const toast = document.createElement('div');
+    toast.className = `toast toast-top toast-end`;
+    
+    const alert = document.createElement('div');
+    alert.className = `alert ${type === 'error' ? 'alert-error' : 'alert-success'}`;
+    alert.textContent = message;
+    
+    toast.appendChild(alert);
+    document.body.appendChild(toast);
+    
+    setTimeout(() => {
+      document.body.removeChild(toast);
+    }, 3000);
+  };
+
   const handleAddEdit = async (values) => {
     try {
-      // Validate required fields
       if (!values.name?.trim()) {
-        message.error('Name is required');
+        showToast('Name is required');
         return;
       }
 
-      // Convert all number fields to numbers before passing to DTO mapper
       const processedValues = {
         ...values,
         name: values.name.trim(),
@@ -90,31 +89,28 @@ const Ingredients = () => {
         unit: values.unit || 'ml',
       };
 
-      // Validate numeric fields
       if (
         processedValues.alcoholContent < 0 ||
         processedValues.alcoholContent > 100
       ) {
-        message.error('Alcohol content must be between 0 and 100');
+        showToast('Alcohol content must be between 0 and 100');
         return;
       }
 
       if (processedValues.bottleSize < 0) {
-        message.error('Bottle size must be positive');
+        showToast('Bottle size must be positive');
         return;
       }
 
       if (processedValues.pumpTimeMultiplier <= 0) {
-        message.error('Pump time multiplier must be greater than 0');
+        showToast('Pump time multiplier must be greater than 0');
         return;
       }
 
       console.log('Processed values:', processedValues);
 
       if (editingIngredient) {
-        const updateDto =
-          ingredientDtoMapper.toIngredientCreateDto(processedValues);
-        console.log('Update DTO:', updateDto);
+        const updateDto = ingredientDtoMapper.toIngredientCreateDto(processedValues);
         await ingredientService.updateIngredient(
           editingIngredient.id,
           updateDto,
@@ -122,10 +118,9 @@ const Ingredients = () => {
           token,
           values.removeImage,
         );
-        message.success('Ingredient updated successfully');
+        showToast('Ingredient updated successfully', 'success');
       } else {
-        const createDto =
-          ingredientDtoMapper.toIngredientCreateDto(processedValues);
+        const createDto = ingredientDtoMapper.toIngredientCreateDto(processedValues);
         console.log('Create DTO:', createDto);
         try {
           const response = await ingredientService.createIngredient(
@@ -134,14 +129,14 @@ const Ingredients = () => {
             token,
           );
           console.log('Create response:', response);
-          message.success('Ingredient added successfully');
+          showToast('Ingredient added successfully', 'success');
         } catch (error) {
           if (error.response?.data?.message) {
-            message.error(`Server error: ${error.response.data.message}`);
+            showToast(`Server error: ${error.response.data.message}`);
           } else if (error.response?.status === 400) {
-            message.error('Invalid input data. Please check all fields.');
+            showToast('Invalid input data. Please check all fields.');
           } else {
-            message.error('Failed to create ingredient');
+            showToast('Failed to create ingredient');
           }
           console.error('Create error details:', {
             data: error.response?.data,
@@ -168,11 +163,9 @@ const Ingredients = () => {
     } catch (error) {
       console.error('Error saving ingredient:', error);
       if (error.response?.data?.message) {
-        message.error(`Error: ${error.response.data.message}`);
+        showToast(`Error: ${error.response.data.message}`);
       } else {
-        message.error(
-          'Failed to save ingredient. Please check your input and try again.',
-        );
+        showToast('Failed to save ingredient. Please check your input and try again.');
       }
     }
   };
@@ -180,10 +173,10 @@ const Ingredients = () => {
   const handleDelete = async (id) => {
     try {
       await ingredientService.deleteIngredient(id, token);
-      message.success('Ingredient deleted successfully');
+      showToast('Ingredient deleted successfully', 'success');
       fetchIngredients();
     } catch (error) {
-      message.error('Failed to delete ingredient');
+      showToast('Failed to delete ingredient');
     }
   };
 
@@ -350,7 +343,6 @@ const Ingredients = () => {
                 </div>
               </div>
 
-              {/* Image Upload Section - Moved and Resized */}
               <div className="form-control w-full">
                 <label className="label">
                   <span className="label-text font-medium">

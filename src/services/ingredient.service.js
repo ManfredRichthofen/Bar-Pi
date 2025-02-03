@@ -1,7 +1,6 @@
-import axios from 'axios';
 import config from './config';
-
 const API_PATH = 'api/ingredient/';
+import axios from 'axios';
 axios.defaults.baseURL = config.API_BASE_URL;
 
 class IngredientService {
@@ -18,6 +17,24 @@ class IngredientService {
     return axios.get(API_PATH, this.getAuthHeader(token)).then((response) => {
       response.data = response.data.map((x) => this.afterIngredientLoad(x));
       return response.data;
+    });
+  }
+
+  async getBoostableIngredients(token) {
+    const response = await axios.get(`${API_URL}/ingredients/boostable`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    return response.data;
+  }
+
+  hasBoostableIngredients(ingredients) {
+    if (!ingredients || !Array.isArray(ingredients)) return false;
+    return ingredients.some(item => {
+      const ingredient = item.ingredient;
+      return ingredient && (
+        ingredient.type === 'automated' && 
+        ingredient.alcoholContent > 0
+      );
     });
   }
 
