@@ -86,28 +86,31 @@ class IngredientService {
       uploadData.append('image', image);
     }
 
-    return axios.post(API_PATH, uploadData, {
-      ...this.getAuthHeader(token),
-      headers: {
-        ...this.getAuthHeader(token).headers,
-        'Content-Type': 'multipart/form-data',
-      },
-    }).then((response) => {
-      console.log('Create response:', response);
-      return response;
-    }).catch((error) => {
-      if (error.response) {
-        console.error('Server error details:', {
-          status: error.response.status,
-          data: error.response.data,
-          headers: error.response.headers,
-          requestData: createIngredient
-        });
-      }
-      console.error('Error config:', error.config);
-      console.error('Full error:', error);
-      throw error;
-    });
+    return axios
+      .post(API_PATH, uploadData, {
+        ...this.getAuthHeader(token),
+        headers: {
+          ...this.getAuthHeader(token).headers,
+          'Content-Type': 'multipart/form-data',
+        },
+      })
+      .then((response) => {
+        console.log('Create response:', response);
+        return response;
+      })
+      .catch((error) => {
+        if (error.response) {
+          console.error('Server error details:', {
+            status: error.response.status,
+            data: error.response.data,
+            headers: error.response.headers,
+            requestData: createIngredient,
+          });
+        }
+        console.error('Error config:', error.config);
+        console.error('Full error:', error);
+        throw error;
+      });
   }
 
   deleteIngredient(id, token) {
@@ -146,7 +149,7 @@ class IngredientDtoMapper {
       return {
         type: ingredient.type,
         name: ingredient.name,
-        parentGroupId: ingredient.parentGroupId
+        parentGroupId: ingredient.parentGroupId,
       };
     } else if (ingredient.type === 'manual') {
       return {
@@ -154,7 +157,7 @@ class IngredientDtoMapper {
         parentGroupId: ingredient.parentGroupId,
         type: ingredient.type,
         unit: ingredient.unit,
-        alcoholContent: ingredient.alcoholContent
+        alcoholContent: ingredient.alcoholContent,
       };
     } else if (ingredient.type === 'automated') {
       return {
@@ -163,7 +166,7 @@ class IngredientDtoMapper {
         name: ingredient.name,
         bottleSize: ingredient.bottleSize,
         parentGroupId: ingredient.parentGroupId,
-        pumpTimeMultiplier: ingredient.pumpTimeMultiplier
+        pumpTimeMultiplier: ingredient.pumpTimeMultiplier,
       };
     }
     throw new Error('Unknown ingredient type: ' + ingredient.type);
@@ -175,10 +178,12 @@ class IngredientDtoMapper {
       id: ingredient.id,
       type: ingredient.type,
       name: ingredient.name.trim(),
-      parentGroupId: ingredient.parentGroupId ? Number(ingredient.parentGroupId) : null,
+      parentGroupId: ingredient.parentGroupId
+        ? Number(ingredient.parentGroupId)
+        : null,
       parentGroupName: ingredient.parentGroupName || null,
       inBar: ingredient.inBar ?? false,
-      hasImage: ingredient.hasImage ?? false
+      hasImage: ingredient.hasImage ?? false,
     };
 
     if (ingredient.type === 'group') {
@@ -191,7 +196,7 @@ class IngredientDtoMapper {
         bottleSize: null,
         pumpTimeMultiplier: null,
         onPump: false,
-        pumpNumber: null
+        pumpNumber: null,
       };
     } else if (ingredient.type === 'automated') {
       return {
@@ -201,7 +206,7 @@ class IngredientDtoMapper {
         pumpTimeMultiplier: Number(ingredient.pumpTimeMultiplier) || 1,
         unit: 'ml',
         onPump: ingredient.onPump ?? false,
-        pumpNumber: ingredient.pumpNumber || null
+        pumpNumber: ingredient.pumpNumber || null,
       };
     }
     throw new Error('Unknown ingredient type: ' + ingredient.type);

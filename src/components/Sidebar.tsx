@@ -91,16 +91,18 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed, onCollapse }) => {
       }`}
       style={{
         maxHeight: 'calc(100vh - 64px)',
-        height: '100%'
+        height: '100%',
       }}
     >
-      <div 
+      <div
         className={`transition-colors transition-all duration-300 h-full flex flex-col bg-base-100 relative border-r border-base-200 ${
           collapsed ? 'opacity-0' : 'opacity-100'
         }`}
       >
         <div className="h-14 flex items-center justify-between px-6 transition-colors duration-300 bg-base-100 border-b border-base-200">
-          <span className="text-base font-semibold text-base-content/90">Menu</span>
+          <span className="text-base font-semibold text-base-content/90">
+            Menu
+          </span>
           <button
             onClick={() => onCollapse(true)}
             className="btn btn-ghost btn-sm btn-square hover:bg-base-200/80 active:bg-base-300"
@@ -121,8 +123,8 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed, onCollapse }) => {
                     <a
                       className={`flex items-center gap-3 px-4 py-2.5 rounded-lg transition-all duration-300 
                         ${
-                          location.pathname === item.key 
-                            ? 'bg-primary/10 text-primary hover:bg-primary/15 shadow-sm' 
+                          location.pathname === item.key
+                            ? 'bg-primary/10 text-primary hover:bg-primary/15 shadow-sm'
                             : 'text-base-content/70 hover:text-base-content hover:bg-base-200/70'
                         }
                         active:scale-[0.98] active:bg-base-300`}
@@ -132,10 +134,10 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed, onCollapse }) => {
                         size: 18,
                         strokeWidth: 2,
                         className: `transition-colors duration-300 ${
-                          location.pathname === item.key 
-                            ? 'text-primary' 
+                          location.pathname === item.key
+                            ? 'text-primary'
                             : 'text-base-content/60 group-hover:text-base-content'
-                        }`
+                        }`,
                       })}
                       <span className="font-medium text-sm">{item.label}</span>
                     </a>

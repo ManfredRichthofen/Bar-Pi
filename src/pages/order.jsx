@@ -185,7 +185,9 @@ const Order = () => {
   return (
     <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8 py-4 sm:py-8 pt-20 sm:pt-24 min-h-screen">
       <div className="flex justify-between items-center mb-4 sm:mb-6">
-        <Title level={2} className="text-xl sm:text-2xl">Drink Production</Title>
+        <Title level={2} className="text-xl sm:text-2xl">
+          Drink Production
+        </Title>
       </div>
 
       <Form form={form}>
@@ -202,9 +204,13 @@ const Order = () => {
             )}
 
             <div className="flex-1">
-              <Title level={3} className="text-lg sm:text-xl mb-2">{recipe.name}</Title>
+              <Title level={3} className="text-lg sm:text-xl mb-2">
+                {recipe.name}
+              </Title>
               {recipe.description && (
-                <Text className="block mb-4 text-sm sm:text-base">{recipe.description}</Text>
+                <Text className="block mb-4 text-sm sm:text-base">
+                  {recipe.description}
+                </Text>
               )}
 
               <GlassSelector
@@ -229,7 +235,10 @@ const Order = () => {
                     ? `Make Drink (${feasibilityResult.totalAmountInMl}ml)`
                     : 'Make Drink'}
                 </Button>
-                <Button onClick={() => navigate('/drinks')} className="text-sm sm:text-base">
+                <Button
+                  onClick={() => navigate('/drinks')}
+                  className="text-sm sm:text-base"
+                >
                   Back to Drinks
                 </Button>
               </Space>
@@ -259,7 +268,9 @@ const Order = () => {
         feasibilityResult && (
           <>
             <Card className="mb-4 sm:mb-6">
-              <Title level={4} className="text-lg sm:text-xl">Feasibility Check Result</Title>
+              <Title level={4} className="text-lg sm:text-xl">
+                Feasibility Check Result
+              </Title>
               <Alert
                 message={
                   feasibilityResult.feasible
@@ -293,7 +304,9 @@ const Order = () => {
                     {/* Automated Ingredients */}
                     {ingredients.automated.length > 0 && (
                       <Card className="mb-4">
-                        <Title level={5} className="text-base sm:text-lg">Automated Ingredients</Title>
+                        <Title level={5} className="text-base sm:text-lg">
+                          Automated Ingredients
+                        </Title>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                           {ingredients.automated.map((item, index) => (
                             <Card
@@ -303,7 +316,9 @@ const Order = () => {
                             >
                               <div className="flex justify-between items-center">
                                 <div>
-                                  <Text strong className="text-sm sm:text-base">{item.ingredient.name}</Text>
+                                  <Text strong className="text-sm sm:text-base">
+                                    {item.ingredient.name}
+                                  </Text>
                                   <div className="text-xs sm:text-sm text-gray-500">
                                     Required: {item.amountRequired}
                                     {item.ingredient.unit}
@@ -325,7 +340,9 @@ const Order = () => {
                     {/* Manual Ingredients */}
                     {ingredients.manual.length > 0 && (
                       <Card className="mb-4">
-                        <Title level={5} className="text-base sm:text-lg">Manual Ingredients</Title>
+                        <Title level={5} className="text-base sm:text-lg">
+                          Manual Ingredients
+                        </Title>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                           {ingredients.manual.map((item, index) => (
                             <Card
@@ -335,7 +352,9 @@ const Order = () => {
                             >
                               <div className="flex justify-between items-center">
                                 <div>
-                                  <Text strong className="text-sm sm:text-base">{item.ingredient.name}</Text>
+                                  <Text strong className="text-sm sm:text-base">
+                                    {item.ingredient.name}
+                                  </Text>
                                   <div className="text-xs sm:text-sm text-gray-500">
                                     {item.amount}
                                     {item.ingredient.unit}
@@ -391,7 +410,9 @@ const Order = () => {
 
       <Card>
         <Space direction="vertical" className="w-full">
-          <Title level={4} className="text-lg sm:text-xl">Production Controls</Title>
+          <Title level={4} className="text-lg sm:text-xl">
+            Production Controls
+          </Title>
           <Space wrap>
             <Button
               type="primary"

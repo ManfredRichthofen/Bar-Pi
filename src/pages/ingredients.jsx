@@ -36,8 +36,8 @@ const Ingredients = () => {
       unit: 'ml',
       image: null,
       imagePreview: null,
-      removeImage: false
-    }
+      removeImage: false,
+    },
   });
   const token = useAuthStore((state) => state.token);
 
@@ -78,16 +78,23 @@ const Ingredients = () => {
       const processedValues = {
         ...values,
         name: values.name.trim(),
-        alcoholContent: values.alcoholContent ? parseFloat(values.alcoholContent) : 0,
+        alcoholContent: values.alcoholContent
+          ? parseFloat(values.alcoholContent)
+          : 0,
         bottleSize: values.bottleSize ? parseInt(values.bottleSize) : 0,
-        pumpTimeMultiplier: values.pumpTimeMultiplier ? parseFloat(values.pumpTimeMultiplier) : 1,
+        pumpTimeMultiplier: values.pumpTimeMultiplier
+          ? parseFloat(values.pumpTimeMultiplier)
+          : 1,
         parentGroupId: values.parentGroupId || null,
         type: values.type || 'manual',
-        unit: values.unit || 'ml'
+        unit: values.unit || 'ml',
       };
 
       // Validate numeric fields
-      if (processedValues.alcoholContent < 0 || processedValues.alcoholContent > 100) {
+      if (
+        processedValues.alcoholContent < 0 ||
+        processedValues.alcoholContent > 100
+      ) {
         message.error('Alcohol content must be between 0 and 100');
         return;
       }
@@ -105,18 +112,20 @@ const Ingredients = () => {
       console.log('Processed values:', processedValues);
 
       if (editingIngredient) {
-        const updateDto = ingredientDtoMapper.toIngredientCreateDto(processedValues);
+        const updateDto =
+          ingredientDtoMapper.toIngredientCreateDto(processedValues);
         console.log('Update DTO:', updateDto);
         await ingredientService.updateIngredient(
           editingIngredient.id,
           updateDto,
           values.image,
           token,
-          values.removeImage
+          values.removeImage,
         );
         message.success('Ingredient updated successfully');
       } else {
-        const createDto = ingredientDtoMapper.toIngredientCreateDto(processedValues);
+        const createDto =
+          ingredientDtoMapper.toIngredientCreateDto(processedValues);
         console.log('Create DTO:', createDto);
         try {
           const response = await ingredientService.createIngredient(
@@ -153,7 +162,7 @@ const Ingredients = () => {
         unit: 'ml',
         image: null,
         imagePreview: null,
-        removeImage: false
+        removeImage: false,
       });
       fetchIngredients();
     } catch (error) {
@@ -161,7 +170,9 @@ const Ingredients = () => {
       if (error.response?.data?.message) {
         message.error(`Error: ${error.response.data.message}`);
       } else {
-        message.error('Failed to save ingredient. Please check your input and try again.');
+        message.error(
+          'Failed to save ingredient. Please check your input and try again.',
+        );
       }
     }
   };
@@ -249,7 +260,7 @@ const Ingredients = () => {
               type: 'manual',
               alcoholContent: 0,
               bottleSize: 0,
-              pumpTimeMultiplier: 1
+              pumpTimeMultiplier: 1,
             });
             setIsModalVisible(true);
           }}
@@ -297,14 +308,14 @@ const Ingredients = () => {
               <h3 className="text-xl font-bold">
                 {editingIngredient ? 'Edit Ingredient' : 'Add Ingredient'}
               </h3>
-              <button 
-                className="btn btn-sm btn-circle btn-ghost" 
+              <button
+                className="btn btn-sm btn-circle btn-ghost"
                 onClick={() => setIsModalVisible(false)}
               >
                 ✕
               </button>
             </div>
-            
+
             <form onSubmit={handleSubmit(handleAddEdit)} className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="form-control w-full">
@@ -323,8 +334,8 @@ const Ingredients = () => {
                   <label className="label">
                     <span className="label-text font-medium">Parent Group</span>
                   </label>
-                  <select 
-                    className="select select-bordered w-full" 
+                  <select
+                    className="select select-bordered w-full"
                     {...register('parentGroupId')}
                   >
                     <option value="">Select a group</option>
@@ -342,7 +353,9 @@ const Ingredients = () => {
               {/* Image Upload Section - Moved and Resized */}
               <div className="form-control w-full">
                 <label className="label">
-                  <span className="label-text font-medium">Ingredient Image</span>
+                  <span className="label-text font-medium">
+                    Ingredient Image
+                  </span>
                 </label>
                 <div className="flex items-center gap-4">
                   {watch('imagePreview') ? (
@@ -431,7 +444,9 @@ const Ingredients = () => {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="form-control w-full">
                       <label className="label">
-                        <span className="label-text font-medium">Alcohol Content (%)</span>
+                        <span className="label-text font-medium">
+                          Alcohol Content (%)
+                        </span>
                       </label>
                       <input
                         type="number"
@@ -444,7 +459,7 @@ const Ingredients = () => {
                           required: true,
                           valueAsNumber: true,
                           min: 0,
-                          max: 100
+                          max: 100,
                         })}
                       />
                     </div>
@@ -452,8 +467,8 @@ const Ingredients = () => {
                       <label className="label">
                         <span className="label-text font-medium">Unit</span>
                       </label>
-                      <select 
-                        className="select select-bordered w-full" 
+                      <select
+                        className="select select-bordered w-full"
                         {...register('unit', { required: true })}
                       >
                         <option value="ml">Milliliter (ml)</option>
@@ -468,7 +483,9 @@ const Ingredients = () => {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="form-control w-full">
                       <label className="label">
-                        <span className="label-text font-medium">Alcohol Content (%)</span>
+                        <span className="label-text font-medium">
+                          Alcohol Content (%)
+                        </span>
                       </label>
                       <input
                         type="number"
@@ -481,13 +498,15 @@ const Ingredients = () => {
                           required: true,
                           valueAsNumber: true,
                           min: 0,
-                          max: 100
+                          max: 100,
                         })}
                       />
                     </div>
                     <div className="form-control w-full">
                       <label className="label">
-                        <span className="label-text font-medium">Bottle Size (ml)</span>
+                        <span className="label-text font-medium">
+                          Bottle Size (ml)
+                        </span>
                       </label>
                       <input
                         type="number"
@@ -498,13 +517,15 @@ const Ingredients = () => {
                         {...register('bottleSize', {
                           required: true,
                           valueAsNumber: true,
-                          min: 0
+                          min: 0,
                         })}
                       />
                     </div>
                     <div className="form-control w-full md:col-span-2">
                       <label className="label">
-                        <span className="label-text font-medium">Pump Time Multiplier</span>
+                        <span className="label-text font-medium">
+                          Pump Time Multiplier
+                        </span>
                       </label>
                       <input
                         type="number"
@@ -515,7 +536,7 @@ const Ingredients = () => {
                         {...register('pumpTimeMultiplier', {
                           required: true,
                           valueAsNumber: true,
-                          min: 0
+                          min: 0,
                         })}
                       />
                     </div>

@@ -113,9 +113,9 @@ const HeaderBar: React.FC<HeaderBarProps> = ({ collapsed, onToggle }) => {
 
         <div className="flex items-center gap-2">
           <div className="dropdown dropdown-end">
-            <div 
+            <div
               tabIndex={0}
-              role="button" 
+              role="button"
               className="flex items-center gap-2 px-3 py-2"
             >
               <div className="w-8 h-8 flex items-center justify-center">
@@ -130,15 +130,24 @@ const HeaderBar: React.FC<HeaderBarProps> = ({ collapsed, onToggle }) => {
                 </p>
               </div>
             </div>
-            <ul tabIndex={0} className="dropdown-content z-[1] menu p-2 shadow-lg bg-base-100 rounded-box w-52">
+            <ul
+              tabIndex={0}
+              className="dropdown-content z-[1] menu p-2 shadow-lg bg-base-100 rounded-box w-52"
+            >
               <li>
-                <a onClick={() => navigate('/profile')} className="flex items-center gap-2">
+                <a
+                  onClick={() => navigate('/profile')}
+                  className="flex items-center gap-2"
+                >
                   <User size={16} />
                   Profile
                 </a>
               </li>
               <li>
-                <a onClick={() => navigate('/settings')} className="flex items-center gap-2">
+                <a
+                  onClick={() => navigate('/settings')}
+                  className="flex items-center gap-2"
+                >
                   <Settings size={16} />
                   Settings
                 </a>
@@ -154,13 +163,20 @@ const HeaderBar: React.FC<HeaderBarProps> = ({ collapsed, onToggle }) => {
                     type="checkbox"
                     className="toggle toggle-sm ml-auto"
                     onChange={toggleTheme}
-                    checked={document.querySelector('html')?.getAttribute('data-theme') === 'dark'}
+                    checked={
+                      document
+                        .querySelector('html')
+                        ?.getAttribute('data-theme') === 'dark'
+                    }
                   />
                 </label>
               </li>
               <div className="divider my-1"></div>
               <li>
-                <a onClick={handleLogout} className="text-error flex items-center gap-2">
+                <a
+                  onClick={handleLogout}
+                  className="text-error flex items-center gap-2"
+                >
                   <LogOut size={16} />
                   Logout
                 </a>

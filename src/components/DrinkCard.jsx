@@ -34,14 +34,19 @@ const DrinkCard = ({ recipe }) => {
             />
           ) : (
             <div className="w-full h-full bg-base-200 flex items-center justify-center">
-              <span className="text-base-content/60 text-sm">No image available</span>
+              <span className="text-base-content/60 text-sm">
+                No image available
+              </span>
             </div>
           )}
         </figure>
-        
+
         <div className="card-body p-4">
           <div className="flex items-center justify-between gap-2 mb-2">
-            <h3 className="card-title text-base sm:text-lg truncate" title={recipe.name}>
+            <h3
+              className="card-title text-base sm:text-lg truncate"
+              title={recipe.name}
+            >
               {recipe.name}
             </h3>
             {recipe.alcoholic && (
@@ -52,7 +57,10 @@ const DrinkCard = ({ recipe }) => {
           </div>
 
           {recipe.description && (
-            <p className="text-base-content/70 mb-3 line-clamp-2 text-xs sm:text-sm" title={recipe.description}>
+            <p
+              className="text-base-content/70 mb-3 line-clamp-2 text-xs sm:text-sm"
+              title={recipe.description}
+            >
               {recipe.description}
             </p>
           )}
@@ -80,9 +88,7 @@ const DrinkCard = ({ recipe }) => {
         <dialog open className="modal modal-open">
           <div className="modal-box max-w-4xl">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="font-bold text-lg sm:text-xl">
-                {recipe.name}
-              </h3>
+              <h3 className="font-bold text-lg sm:text-xl">{recipe.name}</h3>
               {recipe.alcoholic && (
                 <div className="badge badge-error text-xs sm:text-sm">
                   Alcoholic
@@ -104,48 +110,58 @@ const DrinkCard = ({ recipe }) => {
               <div className="flex-1">
                 {recipe.description && (
                   <div className="mb-4 sm:mb-6">
-                    <h4 className="font-bold text-base sm:text-lg mb-2">Description</h4>
+                    <h4 className="font-bold text-base sm:text-lg mb-2">
+                      Description
+                    </h4>
                     <p className="text-sm sm:text-base">{recipe.description}</p>
                   </div>
                 )}
 
                 <div className="mb-4 sm:mb-6">
-                  <h4 className="font-bold text-base sm:text-lg mb-2">Ingredients</h4>
+                  <h4 className="font-bold text-base sm:text-lg mb-2">
+                    Ingredients
+                  </h4>
                   <ul className="space-y-2">
                     {recipe.ingredients.map((ingredient, index) => (
                       <li key={index} className="text-sm sm:text-base">
-                        • {ingredient.name} - {ingredient.amount} {ingredient.unit}
+                        • {ingredient.name} - {ingredient.amount}{' '}
+                        {ingredient.unit}
                       </li>
                     ))}
                   </ul>
                 </div>
 
-                {recipe.productionSteps && recipe.productionSteps.length > 0 && (
-                  <div>
-                    <h4 className="font-bold text-base sm:text-lg mb-2">Instructions</h4>
-                    <ul className="space-y-2">
-                      {recipe.productionSteps.map((step, index) => (
-                        <li key={index} className="text-sm sm:text-base">
-                          {step.type === 'writtenInstruction' ? (
-                            <span>{index + 1}. {step.message}</span>
-                          ) : (
-                            step.type === 'addIngredients' && (
+                {recipe.productionSteps &&
+                  recipe.productionSteps.length > 0 && (
+                    <div>
+                      <h4 className="font-bold text-base sm:text-lg mb-2">
+                        Instructions
+                      </h4>
+                      <ul className="space-y-2">
+                        {recipe.productionSteps.map((step, index) => (
+                          <li key={index} className="text-sm sm:text-base">
+                            {step.type === 'writtenInstruction' ? (
                               <span>
-                                {index + 1}. Add:{' '}
-                                {step.stepIngredients
-                                  .map(
-                                    (si) =>
-                                      `${si.ingredient.name} (${si.amount} ${si.scale})`,
-                                  )
-                                  .join(', ')}
+                                {index + 1}. {step.message}
                               </span>
-                            )
-                          )}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
+                            ) : (
+                              step.type === 'addIngredients' && (
+                                <span>
+                                  {index + 1}. Add:{' '}
+                                  {step.stepIngredients
+                                    .map(
+                                      (si) =>
+                                        `${si.ingredient.name} (${si.amount} ${si.scale})`,
+                                    )
+                                    .join(', ')}
+                                </span>
+                              )
+                            )}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
               </div>
             </div>
 
@@ -157,10 +173,7 @@ const DrinkCard = ({ recipe }) => {
                 <BeakerIcon size={16} />
                 Make Drink
               </button>
-              <button
-                className="btn gap-2"
-                onClick={handleEditRecipe}
-              >
+              <button className="btn gap-2" onClick={handleEditRecipe}>
                 <PencilIcon size={16} />
                 Edit Recipe
               </button>
