@@ -1,0 +1,13 @@
+{
+  "login_password_field_label": "Password",
+  "login_username_field_label": "Username",
+  "login_remember_me": "Remember me",
+  "login_forgot_password": "Forgot your password?",
+  "login_no_account": "Don't have an account?",
+  "login_create_account": "Create one here",
+  "login_headline": "Welcome to the",
+  "login_subtitle": "Please sign in to your account",
+  "login_btn_label": "Sign in to your account",
+  "login_logging_in": "Signing you in...",
+  "errors_field_required": "This field is required"
+}
