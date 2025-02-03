@@ -1,6 +1,8 @@
-const API_PATH = 'api/ingredient/';
 import axios from 'axios';
-axios.defaults.baseURL = 'http://localhost:8080';
+import config from './config';
+
+const API_PATH = 'api/ingredient/';
+axios.defaults.baseURL = config.API_BASE_URL;
 
 class IngredientService {
   // Add auth token to headers for all requests

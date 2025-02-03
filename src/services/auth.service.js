@@ -1,6 +1,7 @@
 import axios from 'axios';
 
-axios.defaults.baseURL = 'http://localhost:8080';
+import config from './config';
+axios.defaults.baseURL = config.API_BASE_URL;
 
 const API_PATH = 'api/auth/';
 

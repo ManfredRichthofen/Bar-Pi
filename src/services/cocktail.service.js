@@ -1,5 +1,6 @@
 import axios from 'axios';
-axios.defaults.baseURL = 'http://localhost:8080';
+import config from './config';
+axios.defaults.baseURL = config.API_BASE_URL;
 
 import JsUtils from './JsUtils.js';
 
