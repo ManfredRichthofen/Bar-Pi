@@ -33,7 +33,6 @@ class WebsocketService {
     };
     const vm = this;
     this.stompClient.onConnect = async function () {
-      // Instead of using Vuex store mutations, we'll handle connection state differently
       vm.reconnectThrottleInSeconds = 5;
       vm.showReconnectDialog = false;
 

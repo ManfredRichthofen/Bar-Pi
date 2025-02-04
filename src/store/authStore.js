@@ -17,7 +17,6 @@ const useAuthStore = create((set) => ({
       const response = await AuthService.login(credentials);
       console.log('Login response:', response);
 
-      // Save token and expiration to localStorage
       localStorage.setItem('token', response.accessToken);
       localStorage.setItem('tokenExpiration', response.tokenExpiration);
 
@@ -27,28 +26,23 @@ const useAuthStore = create((set) => ({
         loading: false,
       });
 
-      return true; // Return success status
+      return true;
     } catch (error) {
       console.error('Login error:', error);
       set({
         error: error.message,
         loading: false,
       });
-      return false; // Return failure status
+      return false;
     }
   },
 
   logoutUser: () => {
     try {
-      // Clear all auth-related data from localStorage
       localStorage.removeItem('token');
       localStorage.removeItem('tokenExpiration');
-
-      // Clear session storage if you're using it
       sessionStorage.removeItem('token');
       sessionStorage.removeItem('tokenExpiration');
-
-      // Reset the store state
       set({
         token: null,
         tokenExpiration: null,
@@ -56,11 +50,9 @@ const useAuthStore = create((set) => ({
         loading: false,
       });
 
-      // Optionally, call the auth service logout if you have one
-      // await AuthService.logout();
     } catch (error) {
       console.error('Logout error:', error);
-      throw error; // Propagate error to be handled by the component
+      throw error;
     }
   },
 
@@ -80,7 +72,6 @@ const useAuthStore = create((set) => ({
           tokenExpiration,
         });
       } else {
-        // Token is expired, clear localStorage
         localStorage.removeItem('token');
         localStorage.removeItem('tokenExpiration');
         set({

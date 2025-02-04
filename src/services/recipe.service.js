@@ -1,5 +1,5 @@
 import axios from 'axios';
-import qs from 'qs'; // Import qs
+import qs from 'qs';
 import config from './config';
 axios.defaults.baseURL = config.API_BASE_URL;
 
@@ -88,7 +88,6 @@ class RecipeService {
                     imageResponse.headers['content-type'] || 'image/jpeg';
                   recipe.image = `data:${contentType};base64,${base64String}`;
                 } catch (error) {
-                  // Silently fail on image load error
                 }
               }
               return this.afterRecipeLoad(recipe);
@@ -151,7 +150,6 @@ class RecipeService {
               imageResponse.headers['content-type'] || 'image/jpeg';
             recipe.image = `data:${contentType};base64,${base64String}`;
           } catch (error) {
-            // Silently fail on image load error
           }
         }
 

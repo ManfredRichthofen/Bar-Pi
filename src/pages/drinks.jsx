@@ -35,8 +35,6 @@ const Drinks = () => {
       );
 
       if (response && response.content) {
-        // If it's a new search or page 0, replace the recipes
-        // Otherwise append to existing recipes
         if (pageNumber === 0) {
           setRecipes(response.content);
         } else {

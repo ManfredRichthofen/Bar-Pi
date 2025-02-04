@@ -84,18 +84,13 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed, onCollapse }) => {
     },
   ];
 
-  // Add effect to control body scroll
+  // Remove the body scroll effect since we don't want to prevent page scrolling
   useEffect(() => {
-    if (!collapsed) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = '';
+    // Only prevent scroll on the backdrop element
+    const backdrop = document.querySelector('.sidebar-backdrop');
+    if (backdrop) {
+      backdrop.addEventListener('touchmove', (e) => e.preventDefault());
     }
-    
-    // Cleanup
-    return () => {
-      document.body.style.overflow = '';
-    };
   }, [collapsed]);
 
   return (
@@ -103,7 +98,7 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed, onCollapse }) => {
       {/* Backdrop only shows on mobile */}
       {!collapsed && (
         <div 
-          className="fixed inset-0 bg-black/30 sm:hidden z-10 overflow-hidden"
+          className="sidebar-backdrop fixed inset-0 bg-black/30 sm:hidden z-10"
           onClick={() => onCollapse(true)}
         />
       )}
