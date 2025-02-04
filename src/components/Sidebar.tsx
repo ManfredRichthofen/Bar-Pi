@@ -136,7 +136,9 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed, onCollapse }) => {
                               : 'text-base-content/60 group-hover:text-base-content'
                           }`,
                         })}
-                        <span className="font-medium text-sm">{item.label}</span>
+                        <span className="font-medium text-sm">
+                          {item.label}
+                        </span>
                       </a>
                     </li>
                   ))}

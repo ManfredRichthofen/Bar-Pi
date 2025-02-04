@@ -156,7 +156,6 @@ const Order = () => {
     !checking &&
     areAllIngredientsAvailable(feasibilityResult?.requiredIngredients);
 
-  // Add this helper function to organize ingredients by status
   const organizeIngredients = (requiredIngredients) => {
     return {
       inBar: requiredIngredients.filter((item) => item.ingredient.inBar),
