@@ -13,6 +13,7 @@ import MainLayout from './components/Layout';
 import Ingredients from './pages/ingredients';
 import Order from './pages/order';
 import CreateUser from './pages/create-user';
+import Glasses from './pages/glasses';
 
 function App() {
   const reinitializeAuthState = useAuthStore(
@@ -46,6 +47,7 @@ function App() {
                   <Route path="/order" element={<Order />} />
                   <Route path="/settings" element={<Settings />} />
                   <Route path="/users" element={<CreateUser />} />
+                  <Route path="/glasses" element={<Glasses />} />
                   {/* Add more routes here */}
                 </Routes>
               </MainLayout>

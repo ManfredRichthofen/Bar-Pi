@@ -154,14 +154,13 @@ const HeaderBar: React.FC<HeaderBarProps> = ({ collapsed, onToggle }) => {
               </li>
               <li>
                 <label className="flex items-center gap-2 cursor-pointer">
-                  <span className="flex items-center gap-2">
-                    <Sun size={16} className="swap-on" />
-                    <Moon size={16} className="swap-off" />
-                    Theme
+                  <span className="flex items-left gap-2">Theme</span>
+                  <span className="flex items-right gap-2">
+                    <Sun size={16} />
                   </span>
                   <input
                     type="checkbox"
-                    className="toggle toggle-sm ml-auto"
+                    className="toggle theme-controller"
                     onChange={toggleTheme}
                     checked={
                       document
@@ -169,6 +168,9 @@ const HeaderBar: React.FC<HeaderBarProps> = ({ collapsed, onToggle }) => {
                         ?.getAttribute('data-theme') === 'dark'
                     }
                   />
+                  <span>
+                    <Moon size={16} />
+                  </span>
                 </label>
               </li>
               <div className="divider my-1"></div>

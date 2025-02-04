@@ -398,22 +398,6 @@ const Order = () => {
             </>
           )
         )}
-
-        <div className="card bg-base-100 shadow-xl">
-          <div className="card-body">
-            <h4 className="text-xl font-bold">Production Controls</h4>
-            <div className="flex gap-2 flex-wrap">
-              <button className="btn btn-primary" onClick={continueProduction}>
-                <PlayCircle size={16} />
-                Continue Production
-              </button>
-              <button className="btn btn-error" onClick={cancelOrder}>
-                <XCircle size={16} />
-                Cancel Production
-              </button>
-            </div>
-          </div>
-        </div>
       </div>
     </>
   );

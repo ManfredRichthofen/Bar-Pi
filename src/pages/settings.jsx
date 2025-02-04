@@ -43,24 +43,69 @@ const Settings = () => {
     <div className="p-4 max-w-4xl mx-auto">
       <h1 className="text-3xl font-bold mb-6">Settings</h1>
 
-      <div className="card bg-base-200 shadow-xl">
-        <div className="card-body">
-          <h2 className="card-title mb-4">Theme Settings</h2>
-
-          <div className="form-control w-full max-w-xs">
-            <label className="label">
-              <span className="label-text">Select Theme</span>
-            </label>
-            <select className="select select-bordered" data-choose-theme>
-              <option value="">Default</option>
-              {themes.map((theme) => (
-                <option key={theme} value={theme}>
-                  {theme}
-                </option>
-              ))}
-            </select>
-          </div>
+      <div className="dropdown mb-72">
+        <div tabIndex={0} role="button" className="btn m-1">
+          Theme
+          <svg
+            width="12px"
+            height="12px"
+            class="inline-block h-2 w-2 fill-current opacity-60"
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 2048 2048"
+          >
+            <path d="M1799 349l242 241-1017 1017L7 590l242-241 775 775 775-775z"></path>
+          </svg>
         </div>
+        <ul
+          tabIndex={0}
+          className="dropdown-content bg-base-300 rounded-box z-1 w-52 p-2 shadow-2xl"
+        >
+          <li>
+            <input
+              type="radio"
+              name="theme-dropdown"
+              class="theme-controller w-full btn btn-sm btn-block btn-ghost justify-start"
+              aria-label="Default"
+              value="default"
+            />
+          </li>
+          <li>
+            <input
+              type="radio"
+              name="theme-dropdown"
+              class="theme-controller w-full btn btn-sm btn-block btn-ghost justify-start"
+              aria-label="Retro"
+              value="retro"
+            />
+          </li>
+          <li>
+            <input
+              type="radio"
+              name="theme-dropdown"
+              class="theme-controller w-full btn btn-sm btn-block btn-ghost justify-start"
+              aria-label="Cyberpunk"
+              value="cyberpunk"
+            />
+          </li>
+          <li>
+            <input
+              type="radio"
+              name="theme-dropdown"
+              class="theme-controller w-full btn btn-sm btn-block btn-ghost justify-start"
+              aria-label="Valentine"
+              value="valentine"
+            />
+          </li>
+          <li>
+            <input
+              type="radio"
+              name="theme-dropdown"
+              class="theme-controller w-full btn btn-sm btn-block btn-ghost justify-start"
+              aria-label="Aqua"
+              value="aqua"
+            />
+          </li>
+        </ul>
       </div>
 
       <div className="card bg-base-200 shadow-xl mt-6">

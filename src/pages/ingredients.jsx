@@ -273,8 +273,8 @@ const Ingredients = () => {
         <button className="tab">Not In Bar</button>
       </div>
 
-      <div className="overflow-x-auto">
-        <table className="table table-zebra w-full">
+      <div className="card bg-base-100 shadow-xl overflow-x-auto ">
+        <table className="table w-full">
           <thead>
             <tr>
               {columns.map((col) => (
