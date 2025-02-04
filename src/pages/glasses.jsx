@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import GlassService from '../services/glass.service';
 import GlassModal from '../components/GlassModal';
 import useAuthStore from '../store/authStore';
+import { PlusCircle, Edit, Trash2 } from 'lucide-react';
 
 function Glasses() {
   const [glasses, setGlasses] = useState([]);
@@ -61,16 +62,21 @@ function Glasses() {
   };
 
   return (
-    <div className="p-4">
-      <div className="flex justify-between items-center mb-4">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pt-24 min-h-screen">
+      <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-bold">Glasses</h2>
         <button className="btn btn-primary" onClick={handleAdd}>
+          <PlusCircle size={16} className="mr-2" />
           Add Glass
         </button>
       </div>
 
+      <div className="tabs tabs-boxed mb-4">
+        <button className="tab tab-active">All Glasses</button>
+      </div>
+
       <div className="card bg-base-100 shadow-xl overflow-x-auto">
-        <table className="table">
+        <table className="table w-full">
           <thead>
             <tr>
               <th>Name</th>
@@ -83,19 +89,21 @@ function Glasses() {
               <tr key={glass.id}>
                 <td>{glass.name}</td>
                 <td>{glass.description}</td>
-                <td className="flex gap-2">
-                  <button
-                    className="btn btn-sm btn-outline"
-                    onClick={() => handleEdit(glass)}
-                  >
-                    Edit
-                  </button>
-                  <button
-                    className="btn btn-sm btn-error btn-outline"
-                    onClick={() => handleDelete(glass.id)}
-                  >
-                    Delete
-                  </button>
+                <td>
+                  <div className="flex gap-2">
+                    <button
+                      className="btn btn-ghost btn-sm"
+                      onClick={() => handleEdit(glass)}
+                    >
+                      <Edit size={16} />
+                    </button>
+                    <button
+                      className="btn btn-ghost btn-sm text-error"
+                      onClick={() => handleDelete(glass.id)}
+                    >
+                      <Trash2 size={16} />
+                    </button>
+                  </div>
                 </td>
               </tr>
             ))}
