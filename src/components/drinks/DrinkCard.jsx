@@ -15,7 +15,7 @@ const DrinkCard = ({ recipe }) => {
   };
 
   const handleEditRecipe = () => {
-    // TODO: Implement edit recipe functionality
+    // TODO: edit recipe
     console.log('Edit recipe:', recipe.id);
   };
 
