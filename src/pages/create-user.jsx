@@ -8,7 +8,7 @@ const CreateUser = () => {
   const [formData, setFormData] = useState({
     username: '',
     password: '',
-    role: 'USER' // Default role
+    role: 'USER', // Default role
   });
   const [error, setError] = useState('');
 
@@ -36,7 +36,7 @@ const CreateUser = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-    
+
     try {
       const token = localStorage.getItem('token');
       await UserService.createUser(formData, token);
@@ -45,7 +45,7 @@ const CreateUser = () => {
       setFormData({
         username: '',
         password: '',
-        role: 'USER'
+        role: 'USER',
       });
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to create user');
@@ -58,7 +58,7 @@ const CreateUser = () => {
         {/* Create User Form */}
         <div>
           <h1 className="text-2xl font-bold mb-6">Create New User</h1>
-          
+
           {error && (
             <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
               {error}
@@ -134,9 +134,7 @@ const CreateUser = () => {
                     <td className="px-6 py-4 whitespace-nowrap">
                       {user.username}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      {user.role}
-                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">{user.role}</td>
                   </tr>
                 ))}
               </tbody>
@@ -148,4 +146,4 @@ const CreateUser = () => {
   );
 };
 
-export default CreateUser; 
+export default CreateUser;

@@ -57,7 +57,7 @@ const GlassSelector = ({
           Glass Size
         </span>
       </label>
-      
+
       <div className="flex gap-2">
         <select
           className="select select-bordered"
@@ -75,7 +75,8 @@ const GlassSelector = ({
           <option value="custom">Custom Amount</option>
           {glasses.map((glass) => (
             <option key={glass.id} value={glass.id}>
-              {glass.name} {defaultGlass?.id === glass.id ? '(Default)' : ''} - {glass.sizeInMl}ml
+              {glass.name} {defaultGlass?.id === glass.id ? '(Default)' : ''} -{' '}
+              {glass.sizeInMl}ml
             </option>
           ))}
         </select>

@@ -7,11 +7,7 @@ import backgroundS from '../assets/login/background_s.jpg';
 import backgroundM from '../assets/login/background_m.jpg';
 import backgroundL from '../assets/login/background_l.jpg';
 import backgroundXL from '../assets/login/background_xl.jpg';
-import {
-  User,
-  KeyRound,
-  ArrowRight
-} from 'lucide-react';
+import { User, KeyRound, ArrowRight } from 'lucide-react';
 
 const Login = () => {
   const { t } = useTranslation();
@@ -83,7 +79,7 @@ const Login = () => {
               onSubmit({
                 username: formData.get('username'),
                 password: formData.get('password'),
-                remember: formData.get('remember') === 'on'
+                remember: formData.get('remember') === 'on',
               });
             }}
             className="space-y-4"

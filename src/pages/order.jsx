@@ -198,7 +198,9 @@ const Order = () => {
               <div className="flex-1">
                 <h3 className="text-xl font-bold mb-2">{recipe.name}</h3>
                 {recipe.description && (
-                  <p className="mb-4 text-base-content/70">{recipe.description}</p>
+                  <p className="mb-4 text-base-content/70">
+                    {recipe.description}
+                  </p>
                 )}
 
                 <GlassSelector
@@ -234,7 +236,11 @@ const Order = () => {
         </div>
 
         <DrinkCustomizer
-          disableBoosting={!ingredientService.hasBoostableIngredients(feasibilityResult?.requiredIngredients)}
+          disableBoosting={
+            !ingredientService.hasBoostableIngredients(
+              feasibilityResult?.requiredIngredients,
+            )
+          }
           customizations={customizations}
           onCustomizationsChange={setCustomizations}
           availableIngredients={
@@ -255,8 +261,12 @@ const Order = () => {
             <>
               <div className="card bg-base-100 shadow-xl mb-6">
                 <div className="card-body">
-                  <h4 className="text-xl font-bold">Feasibility Check Result</h4>
-                  <div className={`alert ${feasibilityResult.feasible ? 'alert-success' : 'alert-error'}`}>
+                  <h4 className="text-xl font-bold">
+                    Feasibility Check Result
+                  </h4>
+                  <div
+                    className={`alert ${feasibilityResult.feasible ? 'alert-success' : 'alert-error'}`}
+                  >
                     <div>
                       {feasibilityResult.feasible ? (
                         <>
@@ -281,14 +291,16 @@ const Order = () => {
 
                   {(() => {
                     const ingredients = organizeIngredients(
-                      feasibilityResult.requiredIngredients
+                      feasibilityResult.requiredIngredients,
                     );
                     return (
                       <div className="space-y-4">
                         {ingredients.automated.length > 0 && (
                           <div className="card bg-base-100 shadow-xl mb-6">
                             <div className="card-body">
-                              <h5 className="text-lg font-bold">Automated Ingredients</h5>
+                              <h5 className="text-lg font-bold">
+                                Automated Ingredients
+                              </h5>
                               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 {ingredients.automated.map((item, index) => (
                                   <div key={index} className="card bg-base-200">
@@ -322,7 +334,9 @@ const Order = () => {
                         {ingredients.manual.length > 0 && (
                           <div className="card bg-base-100 shadow-xl mb-6">
                             <div className="card-body">
-                              <h5 className="text-lg font-bold">Manual Ingredients</h5>
+                              <h5 className="text-lg font-bold">
+                                Manual Ingredients
+                              </h5>
                               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 {ingredients.manual.map((item, index) => (
                                   <div key={index} className="card bg-base-200">
@@ -337,10 +351,16 @@ const Order = () => {
                                             {item.ingredient.unit}
                                           </p>
                                         </div>
-                                        <div className={`badge ${
-                                          item.ingredient.inBar ? 'badge-success' : 'badge-error'
-                                        }`}>
-                                          {item.ingredient.inBar ? 'In Bar' : 'Not In Bar'}
+                                        <div
+                                          className={`badge ${
+                                            item.ingredient.inBar
+                                              ? 'badge-success'
+                                              : 'badge-error'
+                                          }`}
+                                        >
+                                          {item.ingredient.inBar
+                                            ? 'In Bar'
+                                            : 'Not In Bar'}
                                         </div>
                                       </div>
                                     </div>
@@ -355,7 +375,10 @@ const Order = () => {
                           <div className="alert alert-warning">
                             <div>
                               <h6 className="font-bold">Missing Ingredients</h6>
-                              <p>The following ingredients are not available in the bar:</p>
+                              <p>
+                                The following ingredients are not available in
+                                the bar:
+                              </p>
                               <ul className="mt-2 list-disc list-inside">
                                 {ingredients.notInBar.map((item, index) => (
                                   <li key={index}>
@@ -380,17 +403,11 @@ const Order = () => {
           <div className="card-body">
             <h4 className="text-xl font-bold">Production Controls</h4>
             <div className="flex gap-2 flex-wrap">
-              <button
-                className="btn btn-primary"
-                onClick={continueProduction}
-              >
+              <button className="btn btn-primary" onClick={continueProduction}>
                 <PlayCircle size={16} />
                 Continue Production
               </button>
-              <button
-                className="btn btn-error"
-                onClick={cancelOrder}
-              >
+              <button className="btn btn-error" onClick={cancelOrder}>
                 <XCircle size={16} />
                 Cancel Production
               </button>

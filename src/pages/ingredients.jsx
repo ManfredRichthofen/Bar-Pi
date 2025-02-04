@@ -54,14 +54,14 @@ const Ingredients = () => {
   const showToast = (message, type = 'error') => {
     const toast = document.createElement('div');
     toast.className = `toast toast-top toast-end`;
-    
+
     const alert = document.createElement('div');
     alert.className = `alert ${type === 'error' ? 'alert-error' : 'alert-success'}`;
     alert.textContent = message;
-    
+
     toast.appendChild(alert);
     document.body.appendChild(toast);
-    
+
     setTimeout(() => {
       document.body.removeChild(toast);
     }, 3000);
@@ -110,7 +110,8 @@ const Ingredients = () => {
       console.log('Processed values:', processedValues);
 
       if (editingIngredient) {
-        const updateDto = ingredientDtoMapper.toIngredientCreateDto(processedValues);
+        const updateDto =
+          ingredientDtoMapper.toIngredientCreateDto(processedValues);
         await ingredientService.updateIngredient(
           editingIngredient.id,
           updateDto,
@@ -120,7 +121,8 @@ const Ingredients = () => {
         );
         showToast('Ingredient updated successfully', 'success');
       } else {
-        const createDto = ingredientDtoMapper.toIngredientCreateDto(processedValues);
+        const createDto =
+          ingredientDtoMapper.toIngredientCreateDto(processedValues);
         console.log('Create DTO:', createDto);
         try {
           const response = await ingredientService.createIngredient(
@@ -165,7 +167,9 @@ const Ingredients = () => {
       if (error.response?.data?.message) {
         showToast(`Error: ${error.response.data.message}`);
       } else {
-        showToast('Failed to save ingredient. Please check your input and try again.');
+        showToast(
+          'Failed to save ingredient. Please check your input and try again.',
+        );
       }
     }
   };

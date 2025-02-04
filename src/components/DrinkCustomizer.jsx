@@ -56,21 +56,36 @@ const DrinkCustomizer = ({
     <div className="card bg-base-100 shadow-xl mb-6">
       <div className="card-body">
         <div className="collapse collapse-arrow">
-          <input type="checkbox" className="peer" /> 
+          <input type="checkbox" className="peer" />
           <div className="collapse-title text-xl font-medium peer-checked:bg-base-200">
             Customize Drink
           </div>
           <div className="collapse-content peer-checked:bg-base-200">
             <div className="mb-6">
-              <h3 className="text-lg font-bold mb-2">Alcohol Content Adjustment</h3>
+              <h3 className="text-lg font-bold mb-2">
+                Alcohol Content Adjustment
+              </h3>
               {disableBoosting ? (
                 <div className="alert alert-warning mb-2">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="stroke-current shrink-0 h-6 w-6"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                    />
+                  </svg>
                   <span>This drink's strength cannot be adjusted</span>
                 </div>
               ) : (
                 <p className="text-base-content/70 mb-2">
-                  Adjust the strength of your drink by modifying the alcohol content
+                  Adjust the strength of your drink by modifying the alcohol
+                  content
                 </p>
               )}
               <div className="flex items-center gap-4">
@@ -84,15 +99,17 @@ const DrinkCustomizer = ({
                   className={`range flex-1 ${disableBoosting ? 'opacity-50' : ''}`}
                   disabled={disableBoosting}
                 />
-                <div className={`badge badge-lg ${disableBoosting ? 'opacity-50' : ''}`}>
-                  {customizations.boost === 100 ? (
-                    'Normal'
-                  ) : (
-                    `${customizations.boost > 100 ? '+' : ''}${customizations.boost - 100}%`
-                  )}
+                <div
+                  className={`badge badge-lg ${disableBoosting ? 'opacity-50' : ''}`}
+                >
+                  {customizations.boost === 100
+                    ? 'Normal'
+                    : `${customizations.boost > 100 ? '+' : ''}${customizations.boost - 100}%`}
                 </div>
               </div>
-              <div className={`w-full flex justify-between text-xs px-2 mt-1 text-base-content/70 ${disableBoosting ? 'opacity-50' : ''}`}>
+              <div
+                className={`w-full flex justify-between text-xs px-2 mt-1 text-base-content/70 ${disableBoosting ? 'opacity-50' : ''}`}
+              >
                 <span>No Alcohol</span>
                 <span>Normal</span>
                 <span>Double</span>

@@ -29,10 +29,11 @@ class IngredientService {
 
   hasBoostableIngredients(ingredients) {
     if (!ingredients || !Array.isArray(ingredients)) return false;
-    return ingredients.some(item => {
+    return ingredients.some((item) => {
       const ingredient = item.ingredient;
-      return ingredient && (
-        ingredient.type === 'automated' && 
+      return (
+        ingredient &&
+        ingredient.type === 'automated' &&
         ingredient.alcoholContent > 0
       );
     });
