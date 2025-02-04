@@ -7,24 +7,14 @@ import PumpCard from '../components/pumps/pumpCard';
 import PumpSetupTypeSelector from '../components/pumps/pumpSelector';
 
 // Import Lucide icons
-import { 
-  PlusCircle, 
-  PlayCircle, 
-  StopCircle, 
-  AlertCircle 
-} from 'lucide-react';
+import { PlusCircle, PlayCircle, StopCircle, AlertCircle } from 'lucide-react';
 
 const Pumps = () => {
   const [showAddDialog, setShowAddDialog] = useState(false);
   const token = useAuthStore((state) => state.token);
-  
-  const {
-    pumps,
-    isAllowReversePumping,
-    loading,
-    error,
-    fetchPumps
-  } = usePumpStore();
+
+  const { pumps, isAllowReversePumping, loading, error, fetchPumps } =
+    usePumpStore();
 
   // Fetch pumps on component mount
   useEffect(() => {
@@ -43,7 +33,7 @@ const Pumps = () => {
 
     const content = document.createElement('div');
     content.className = 'flex items-center gap-2';
-    
+
     // Add icon based on type
     const icon = document.createElement('span');
     if (type === 'success') {
@@ -86,10 +76,7 @@ const Pumps = () => {
     // Pass token if your PumpService requires it
     PumpService.startPump(null, token)
       .then(() => {
-        showToast(
-          'All pumps started successfully',
-          'success'
-        );
+        showToast('All pumps started successfully', 'success');
       })
       .catch((err) => {
         showToast('Failed to start pumps');
@@ -101,10 +88,7 @@ const Pumps = () => {
   const onClickTurnOffAllPumps = () => {
     PumpService.stopPump(null, token)
       .then(() => {
-        showToast(
-          'All pumps stopped successfully',
-          'success'
-        );
+        showToast('All pumps stopped successfully', 'success');
       })
       .catch((err) => {
         showToast('Failed to stop pumps');
@@ -132,7 +116,7 @@ const Pumps = () => {
       {/* Header */}
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-bold">Pump Management</h2>
-        
+
         {/* Action Buttons */}
         <div className="join">
           <button

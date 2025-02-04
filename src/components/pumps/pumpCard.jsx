@@ -25,7 +25,7 @@ const showToast = (message, type = 'success') => {
 
   const content = document.createElement('div');
   content.className = 'flex items-center gap-2';
-  
+
   // Add icon based on type
   const icon = document.createElement('span');
   if (type === 'success') {
@@ -65,15 +65,15 @@ const showToast = (message, type = 'success') => {
 
 // You might want to create a custom StepperMotorIcon component
 const StepperMotorIcon = ({ width = 24, height = 24, className = '' }) => (
-  <svg 
-    width={width} 
-    height={height} 
-    viewBox="0 0 24 24" 
-    fill="none" 
-    stroke="currentColor" 
-    strokeWidth="2" 
-    strokeLinecap="round" 
-    strokeLinejoin="round" 
+  <svg
+    width={width}
+    height={height}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
     className={className}
   >
     <circle cx="12" cy="12" r="10" />
@@ -93,21 +93,25 @@ const CPumpCard = ({ pump, showDetailed = false }) => {
   const [runningBtnLoading, setRunningBtnLoading] = useState(false);
   const [pumpJobState, setPumpJobState] = useState({
     lastJobId: null,
-    runningState: null
+    runningState: null,
   });
 
   // Subscribe to WebSocket updates when pump changes
   useEffect(() => {
     const topic = `/user/topic/pump/runningstate/${pump.id}`;
     // Subscribe with a callback that parses the incoming data
-    WebSocketService.subscribe(topic, (data) => {
-      try {
-        const parsed = JSON.parse(data.body);
-        setPumpJobState(parsed);
-      } catch (err) {
-        console.error('Error parsing pump job state', err);
-      }
-    }, true);
+    WebSocketService.subscribe(
+      topic,
+      (data) => {
+        try {
+          const parsed = JSON.parse(data.body);
+          setPumpJobState(parsed);
+        } catch (err) {
+          console.error('Error parsing pump job state', err);
+        }
+      },
+      true,
+    );
 
     // Cleanup subscription on unmount or when pump.id changes
     return () => {
@@ -121,7 +125,10 @@ const CPumpCard = ({ pump, showDetailed = false }) => {
     if ((attr === undefined || attr === null) && attr !== 0) {
       return { className: 'text-red-500', label: missingText };
     } else {
-      return { className: 'text-inherit', label: `${attr}${suffix ? ' ' + suffix : ''}` };
+      return {
+        className: 'text-inherit',
+        label: `${attr}${suffix ? ' ' + suffix : ''}`,
+      };
     }
   };
 
@@ -130,7 +137,10 @@ const CPumpCard = ({ pump, showDetailed = false }) => {
     if (!pin) {
       return { className: 'text-red-500', label: missingText };
     } else {
-      return { className: 'text-inherit', label: `${pin.boardName} / ${pin.pinName}` };
+      return {
+        className: 'text-inherit',
+        label: `${pin.boardName} / ${pin.pinName}`,
+      };
     }
   };
 
@@ -155,7 +165,13 @@ const CPumpCard = ({ pump, showDetailed = false }) => {
     if (pump.type === 'dc') {
       return <Droplet size={16} className="inline-block mr-1" />;
     } else if (pump.type === 'stepper') {
-      return <StepperMotorIcon width={16} height={16} className="inline-block mr-1" />;
+      return (
+        <StepperMotorIcon
+          width={16}
+          height={16}
+          className="inline-block mr-1"
+        />
+      );
     } else {
       return <Hexagon size={16} className="inline-block mr-1" />;
     }
@@ -163,19 +179,23 @@ const CPumpCard = ({ pump, showDetailed = false }) => {
 
   // progressBar computation (simulate q-linear-progress)
   const progressBar = (() => {
-    const abortVal = { value: pump.pumpedUp ? 1 : 0, query: false, reverse: false };
+    const abortVal = {
+      value: pump.pumpedUp ? 1 : 0,
+      query: false,
+      reverse: false,
+    };
     if (!pumpJobState.runningState) {
       return abortVal;
     }
     const runningState = pumpJobState.runningState;
     let value = runningState.forward
       ? runningState.percentage
-      : (100 - runningState.percentage);
+      : 100 - runningState.percentage;
     value = value / 100;
     return {
       value,
       query: runningState.runInfinity,
-      reverse: runningState.forward && runningState.runInfinity
+      reverse: runningState.forward && runningState.runInfinity,
     };
   })();
 
@@ -239,12 +259,14 @@ const CPumpCard = ({ pump, showDetailed = false }) => {
   const onClickPumpUp = (reverse) => {
     if (reverse) {
       setPumpDownBtnLoading(true);
-      PumpService.pumpDown(pump.id, token)
-        .finally(() => setPumpDownBtnLoading(false));
+      PumpService.pumpDown(pump.id, token).finally(() =>
+        setPumpDownBtnLoading(false),
+      );
     } else {
       setPumpUpBtnLoading(true);
-      PumpService.pumpUp(pump.id, token)
-        .finally(() => setPumpUpBtnLoading(false));
+      PumpService.pumpUp(pump.id, token).finally(() =>
+        setPumpUpBtnLoading(false),
+      );
     }
   };
 
@@ -340,10 +362,11 @@ const CPumpCard = ({ pump, showDetailed = false }) => {
               className={`btn btn-sm join-item ${runningBtnLoading ? 'loading' : ''}`}
               title={pumpJobState.runningState ? 'Stop Pump' : 'Start Pump'}
             >
-              {pumpJobState.runningState ? 
-                <StopCircle className="h-4 w-4" /> : 
+              {pumpJobState.runningState ? (
+                <StopCircle className="h-4 w-4" />
+              ) : (
                 <PlayCircle className="h-4 w-4" />
-              }
+              )}
             </button>
           </div>
         </div>

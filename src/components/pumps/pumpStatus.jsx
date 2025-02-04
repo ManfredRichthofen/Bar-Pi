@@ -39,7 +39,8 @@ const PumpStatus = (props) => {
 
   // Derived values with null checks
   const nrPumps = pumps?.length || 0;
-  const nrIngredientsInstalled = pumps?.filter((x) => !!x.currentIngredient).length || 0;
+  const nrIngredientsInstalled =
+    pumps?.filter((x) => !!x.currentIngredient).length || 0;
 
   const reversePumpingStatus = reversePumpSettings?.enable
     ? t('pump_status_reverse_pumping_status_enabled')
@@ -68,13 +69,19 @@ const PumpStatus = (props) => {
                 {t('pump_status_pumps_headline')}
               </h3>
               <div className="grid grid-cols-2 gap-y-2">
-                <div className="text-sm">{t('pump_status_pumps_installed')}</div>
+                <div className="text-sm">
+                  {t('pump_status_pumps_installed')}
+                </div>
                 <div className="text-right">
                   <span className="badge badge-primary">{nrPumps}</span>
                 </div>
-                <div className="text-sm">{t('pump_status_pumps_ingredients_installed')}</div>
+                <div className="text-sm">
+                  {t('pump_status_pumps_ingredients_installed')}
+                </div>
                 <div className="text-right">
-                  <span className="badge badge-primary">{nrIngredientsInstalled}</span>
+                  <span className="badge badge-primary">
+                    {nrIngredientsInstalled}
+                  </span>
                 </div>
               </div>
             </div>
@@ -94,24 +101,33 @@ const PumpStatus = (props) => {
                 </button>
               </div>
               <div className="grid grid-cols-2 gap-y-2">
-                <div className="text-sm">{t('pump_status_reverse_pumping')}</div>
+                <div className="text-sm">
+                  {t('pump_status_reverse_pumping')}
+                </div>
                 <div className="text-right">
-                  <span className={`badge ${reversePumpSettings?.enable ? 'badge-success' : 'badge-error'}`}>
+                  <span
+                    className={`badge ${reversePumpSettings?.enable ? 'badge-success' : 'badge-error'}`}
+                  >
                     {reversePumpingStatus}
                   </span>
                 </div>
                 {reversePumpSettings?.enable && (
                   <>
-                    <div className="text-sm">{t('pump_status_reverse_pumping_overshoot')}</div>
+                    <div className="text-sm">
+                      {t('pump_status_reverse_pumping_overshoot')}
+                    </div>
                     <div className="text-right">
                       <span className="badge badge-ghost">
                         {reversePumpSettings?.settings?.overshoot || 0}%
                       </span>
                     </div>
-                    <div className="text-sm">{t('pump_status_reverse_pumping_timer')}</div>
+                    <div className="text-sm">
+                      {t('pump_status_reverse_pumping_timer')}
+                    </div>
                     <div className="text-right">
                       <span className="badge badge-ghost">
-                        {reversePumpSettings?.settings?.autoPumpBackTimer || 0} min
+                        {reversePumpSettings?.settings?.autoPumpBackTimer || 0}{' '}
+                        min
                       </span>
                     </div>
                   </>
@@ -134,17 +150,25 @@ const PumpStatus = (props) => {
                 </button>
               </div>
               <div className="grid grid-cols-2 gap-y-2">
-                <div className="text-sm">{t('pump_status_load_cell_status')}</div>
+                <div className="text-sm">
+                  {t('pump_status_load_cell_status')}
+                </div>
                 <div className="text-right">
-                  <span className={`badge ${loadCellSettings?.enable ? 'badge-success' : 'badge-error'}`}>
+                  <span
+                    className={`badge ${loadCellSettings?.enable ? 'badge-success' : 'badge-error'}`}
+                  >
                     {loadCellStatus}
                   </span>
                 </div>
                 {loadCellSettings?.enable && (
                   <>
-                    <div className="text-sm">{t('pump_status_load_cell_calibrated')}</div>
+                    <div className="text-sm">
+                      {t('pump_status_load_cell_calibrated')}
+                    </div>
                     <div className="text-right">
-                      <span className={`badge ${loadCellSettings?.calibrated ? 'badge-success' : 'badge-error'}`}>
+                      <span
+                        className={`badge ${loadCellSettings?.calibrated ? 'badge-success' : 'badge-error'}`}
+                      >
                         {loadCellCalibrated}
                       </span>
                     </div>

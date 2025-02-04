@@ -7,15 +7,15 @@ import useAuthStore from '../../store/authStore';
 
 // Add StepperMotorIcon component
 const StepperMotorIcon = ({ width = 24, height = 24, className = '' }) => (
-  <svg 
-    width={width} 
-    height={height} 
-    viewBox="0 0 24 24" 
-    fill="none" 
-    stroke="currentColor" 
-    strokeWidth="2" 
-    strokeLinecap="round" 
-    strokeLinejoin="round" 
+  <svg
+    width={width}
+    height={height}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
     className={className}
   >
     <circle cx="12" cy="12" r="10" />
@@ -127,7 +127,9 @@ const PumpSelector = ({ show, onClose }) => {
                 ) : (
                   <Hexagon size={32} className="mb-2" />
                 )}
-                <p className="font-bold">{t('component.pump_setup_type_selector.valve')}</p>
+                <p className="font-bold">
+                  {t('component.pump_setup_type_selector.valve')}
+                </p>
               </div>
             </div>
           </div>
@@ -146,7 +148,9 @@ const PumpSelector = ({ show, onClose }) => {
                 ) : (
                   <Droplet size={32} className="mb-2" />
                 )}
-                <p className="font-bold">{t('component.pump_setup_type_selector.dc_pump')}</p>
+                <p className="font-bold">
+                  {t('component.pump_setup_type_selector.dc_pump')}
+                </p>
               </div>
             </div>
           </div>
@@ -165,12 +169,14 @@ const PumpSelector = ({ show, onClose }) => {
                 ) : (
                   <StepperMotorIcon width={32} height={32} className="mb-2" />
                 )}
-                <p className="font-bold">{t('component.pump_setup_type_selector.stepper_pump')}</p>
+                <p className="font-bold">
+                  {t('component.pump_setup_type_selector.stepper_pump')}
+                </p>
               </div>
             </div>
           </div>
         </div>
-        
+
         {!loading && (
           <div className="modal-action">
             <button className="btn btn-secondary" onClick={handleClose}>

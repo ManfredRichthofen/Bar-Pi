@@ -1,5 +1,5 @@
 {
-  "login":{
+  "login": {
     "login_password_field_label": "Password",
     "login_username_field_label": "Username",
     "login_remember_me": "Remember me",

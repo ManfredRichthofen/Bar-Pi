@@ -8,7 +8,9 @@ const API_PATH = 'api/pump/';
 
 class PumpService {
   getAllPumps(token) {
-    return axios.get(API_PATH, { headers: authHeader(token) }).then((response) => response.data);
+    return axios
+      .get(API_PATH, { headers: authHeader(token) })
+      .then((response) => response.data);
   }
 
   createPump(createPump, token) {
@@ -16,17 +18,21 @@ class PumpService {
   }
 
   pumpUp(id, token) {
-    return axios.put(API_PATH + String(id) + '/pumpup', null, { headers: authHeader(token) });
+    return axios.put(API_PATH + String(id) + '/pumpup', null, {
+      headers: authHeader(token),
+    });
   }
 
   pumpDown(id, token) {
-    return axios.put(API_PATH + String(id) + '/pumpback', null, { headers: authHeader(token) });
+    return axios.put(API_PATH + String(id) + '/pumpback', null, {
+      headers: authHeader(token),
+    });
   }
 
   dispatchPumpAdvice(id, advice, token) {
     return axios
       .put(API_PATH + String(id) + '/runjob', advice, {
-        headers: authHeader(token)
+        headers: authHeader(token),
       })
       .then((response) => response.data);
   }
@@ -34,7 +40,7 @@ class PumpService {
   getMetrics(jobId, token) {
     return axios
       .get(API_PATH + 'jobmetrics/' + String(jobId), {
-        headers: authHeader(token)
+        headers: authHeader(token),
       })
       .then((response) => response.data);
   }
@@ -42,7 +48,7 @@ class PumpService {
   startPump(id, token) {
     const config = {
       params: { id },
-      headers: authHeader(token)
+      headers: authHeader(token),
     };
     return axios.put(API_PATH + 'start', null, config);
   }
@@ -50,7 +56,7 @@ class PumpService {
   stopPump(id, token) {
     const config = {
       params: { id },
-      headers: authHeader(token)
+      headers: authHeader(token),
     };
     return axios.put(API_PATH + 'stop', null, config);
   }
@@ -58,21 +64,23 @@ class PumpService {
   patchPump(id, patchPump, token) {
     return axios
       .patch(API_PATH + String(id), patchPump, {
-        headers: authHeader(token)
+        headers: authHeader(token),
       })
       .then((response) => response.data);
   }
 
   deletePump(id, token) {
     return axios.delete(API_PATH + String(id), {
-      headers: authHeader(token)
+      headers: authHeader(token),
     });
   }
 
   getPump(id, token) {
-    return axios.get(API_PATH + String(id), {
-      headers: authHeader(token)
-    }).then((response) => response.data);
+    return axios
+      .get(API_PATH + String(id), {
+        headers: authHeader(token),
+      })
+      .then((response) => response.data);
   }
 }
 

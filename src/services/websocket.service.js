@@ -25,9 +25,9 @@ class WebsocketService {
 
   async connectWebsocket(token) {
     this.stompClient = Stomp.over(
-      () => new SockJS(getFormattedServerAddress() + '/websocket')
+      () => new SockJS(getFormattedServerAddress() + '/websocket'),
     );
-    
+
     this.stompClient.connectHeaders = {
       Authorization: authHeader(token),
     };
