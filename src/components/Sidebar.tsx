@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import {
   GlassWater,
   Heart,
@@ -84,12 +84,26 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed, onCollapse }) => {
     },
   ];
 
+  // Add effect to control body scroll
+  useEffect(() => {
+    if (!collapsed) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    
+    // Cleanup
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [collapsed]);
+
   return (
     <>
       {/* Backdrop only shows on mobile */}
       {!collapsed && (
         <div 
-          className="fixed inset-0 bg-black/30 sm:hidden z-10"
+          className="fixed inset-0 bg-black/30 sm:hidden z-10 overflow-hidden"
           onClick={() => onCollapse(true)}
         />
       )}
@@ -114,8 +128,8 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed, onCollapse }) => {
             </button>
           </div>
 
-          <div className="flex-1 overflow-y-auto">
-            <ul className="menu menu-sm p-3 sm:p-4 gap-2 transition-colors duration-300 bg-base-100">
+          <div className="flex-1 overflow-y-auto overflow-x-hidden">
+            <ul className="menu menu-sm p-3 sm:p-4 gap-2 transition-colors duration-300 bg-base-100 min-h-full">
               {menuItems.map((group) => (
                 <li key={group.group} className="mb-4 sm:mb-6">
                   <h2 className="menu-title text-xs font-semibold tracking-wider text-base-content/50 px-2 mb-2 sm:mb-3 uppercase">
