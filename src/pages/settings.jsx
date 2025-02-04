@@ -57,21 +57,27 @@ const Settings = () => {
 
   return (
     <div className="p-4 max-w-4xl mx-auto">
-      <h1 className="text-3xl font-bold mb-8">{t('settings.title', 'Settings')}</h1>
+      <h1 className="text-3xl font-bold mb-8">
+        {t('settings.title', 'Settings')}
+      </h1>
 
       <div className="space-y-6">
         {/* General Settings Card */}
         <div className="card bg-base-200 shadow-xl">
           <div className="card-body">
-            <h2 className="card-title mb-6">{t('settings.general', 'General Settings')}</h2>
+            <h2 className="card-title mb-6">
+              {t('settings.general', 'General Settings')}
+            </h2>
 
             <div className="space-y-6">
               {/* Language Dropdown */}
               <div className="form-control">
                 <label className="label">
-                  <span className="label-text font-medium">{t('settings.language', 'Language')}</span>
+                  <span className="label-text font-medium">
+                    {t('settings.language', 'Language')}
+                  </span>
                 </label>
-                <select 
+                <select
                   className="select select-bordered w-full"
                   value={i18n.language}
                   onChange={(e) => handleLanguageChange(e.target.value)}
@@ -89,12 +95,16 @@ const Settings = () => {
               {/* Notification Settings */}
               <div className="space-y-4">
                 <label className="label cursor-pointer justify-between">
-                  <span className="label-text">{t('settings.notifications', 'Enable Notifications')}</span>
+                  <span className="label-text">
+                    {t('settings.notifications', 'Enable Notifications')}
+                  </span>
                   <input type="checkbox" className="toggle toggle-primary" />
                 </label>
-                
+
                 <label className="label cursor-pointer justify-between">
-                  <span className="label-text">{t('settings.soundEffects', 'Sound Effects')}</span>
+                  <span className="label-text">
+                    {t('settings.soundEffects', 'Sound Effects')}
+                  </span>
                   <input type="checkbox" className="toggle toggle-primary" />
                 </label>
               </div>
@@ -105,8 +115,10 @@ const Settings = () => {
         {/* Theme Selector Card */}
         <div className="card bg-base-200 shadow-xl">
           <div className="card-body">
-            <h2 className="card-title mb-6">{t('settings.appearance', 'Appearance')}</h2>
-            
+            <h2 className="card-title mb-6">
+              {t('settings.appearance', 'Appearance')}
+            </h2>
+
             <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
               {themes.map((theme) => (
                 <button

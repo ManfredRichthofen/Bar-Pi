@@ -91,7 +91,6 @@ const HeaderBar: React.FC<HeaderBarProps> = ({ collapsed, onToggle }) => {
     }
   };
 
-
   return (
     <header className="fixed top-0 right-0 left-0 h-16 bg-base-100 border-b border-base-200 z-50">
       <div className="flex items-center justify-between h-full px-4">

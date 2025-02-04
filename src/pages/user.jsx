@@ -63,8 +63,8 @@ const UserPage = () => {
           <div className="card-body p-6">
             <div className="flex justify-between items-center mb-4">
               <h2 className="card-title">Existing Users</h2>
-              <button 
-                onClick={() => setIsModalOpen(true)} 
+              <button
+                onClick={() => setIsModalOpen(true)}
                 className="btn btn-primary btn-sm"
               >
                 Create New User
@@ -98,19 +98,22 @@ const UserPage = () => {
       </div>
 
       {/* Create User Modal */}
-      <dialog id="create_user_modal" className={`modal ${isModalOpen ? 'modal-open' : ''}`}>
+      <dialog
+        id="create_user_modal"
+        className={`modal ${isModalOpen ? 'modal-open' : ''}`}
+      >
         <div className="modal-box w-11/12 max-w-xl p-6">
           <form method="dialog">
-            <button 
+            <button
               className="btn btn-sm btn-circle btn-ghost absolute right-4 top-4"
               onClick={() => setIsModalOpen(false)}
             >
               ✕
             </button>
           </form>
-          
+
           <h3 className="font-bold text-lg mb-6">Create New User</h3>
-          
+
           {error && (
             <div className="alert alert-error mb-6">
               <svg
