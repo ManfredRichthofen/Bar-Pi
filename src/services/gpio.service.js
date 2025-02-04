@@ -1,5 +1,9 @@
-const API_PATH = 'api/gpio/';
 import axios from 'axios';
+import authHeader from './auth-header';
+import config from './config';
+axios.defaults.baseURL = config.API_BASE_URL;
+
+const API_PATH = 'api/gpio/';
 
 class GpioService {
   types = {
@@ -7,36 +11,53 @@ class GpioService {
     I2C: 'i2c',
   };
 
-  getBoardsByType(dType) {
-    return axios.get(API_PATH, { params: { dType } }).then((x) => x.data);
+  getBoardsByType(dType, token) {
+    return axios.get(API_PATH, { 
+      params: { dType },
+      headers: authHeader(token)
+    }).then((x) => x.data);
   }
 
-  getBoards() {
-    return axios.get(API_PATH).then((x) => x.data);
+  getBoards(token) {
+    return axios.get(API_PATH, {
+      headers: authHeader(token)
+    }).then((x) => x.data);
   }
 
-  getBoard(id) {
-    return axios.get(API_PATH + id).then((x) => x.data);
+  getBoard(id, token) {
+    return axios.get(API_PATH + id, {
+      headers: authHeader(token)
+    }).then((x) => x.data);
   }
 
-  createGpioBoard(gpioBoardDto) {
-    return axios.post(API_PATH, gpioBoardDto);
+  createGpioBoard(gpioBoardDto, token) {
+    return axios.post(API_PATH, gpioBoardDto, {
+      headers: authHeader(token)
+    });
   }
 
-  updateGpioBoard(id, gpioBoardDto) {
-    return axios.put(API_PATH + id, gpioBoardDto);
+  updateGpioBoard(id, gpioBoardDto, token) {
+    return axios.put(API_PATH + id, gpioBoardDto, {
+      headers: authHeader(token)
+    });
   }
 
-  deleteGpioBoard(id) {
-    return axios.delete(API_PATH + id);
+  deleteGpioBoard(id, token) {
+    return axios.delete(API_PATH + id, {
+      headers: authHeader(token)
+    });
   }
 
-  getBoardPins(boardId) {
-    return axios.get(API_PATH + boardId + '/pin').then((x) => x.data);
+  getBoardPins(boardId, token) {
+    return axios.get(API_PATH + boardId + '/pin', {
+      headers: authHeader(token)
+    }).then((x) => x.data);
   }
 
-  getGpioStatus() {
-    return axios.get(API_PATH + 'status').then((x) => x.data);
+  getGpioStatus(token) {
+    return axios.get(API_PATH + 'status', {
+      headers: authHeader(token)
+    }).then((x) => x.data);
   }
 }
 

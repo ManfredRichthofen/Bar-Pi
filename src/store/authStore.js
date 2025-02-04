@@ -3,7 +3,10 @@ import AuthService from '../services/auth.service.js';
 
 const useAuthStore = create((set) => ({
   token: null,
-  tokenExpiration: null,
+  user: null,
+  setToken: (token) => set({ token }),
+  setUser: (user) => set({ user }),
+  logout: () => set({ token: null, user: null }),
   error: null,
   loading: false,
 

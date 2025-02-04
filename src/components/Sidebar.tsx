@@ -91,7 +91,7 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed, onCollapse }) => {
       }`}
     >
       <div
-        className={`transition-colors transition-all duration-300 h-full flex flex-col bg-base-100 relative border-r border-base-200 ${
+        className={`transition-all duration-300 h-full flex flex-col bg-base-100 relative border-r border-base-200 ${
           collapsed ? 'opacity-0' : 'opacity-100'
         }`}
       >

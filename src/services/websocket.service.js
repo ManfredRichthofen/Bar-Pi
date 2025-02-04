@@ -1,7 +1,12 @@
 import { Stomp } from '@stomp/stompjs';
-import SockJS from 'sockjs-client';
+import SockJS from 'sockjs-client/dist/sockjs';
 import authHeader from './auth-header';
-import store from '../store';
+import useAuthStore from '../store/authStore';
+import config from './config';
+
+const getFormattedServerAddress = () => {
+  return config.API_BASE_URL;
+};
 
 class WebsocketService {
   subscriptions = new Map();
@@ -18,50 +23,50 @@ class WebsocketService {
     });
   }
 
-  async connectWebsocket() {
+  async connectWebsocket(token) {
     this.stompClient = Stomp.over(
-      () =>
-        new SockJS(
-          store().getters['auth/getFormattedServerAddress'] + '/websocket',
-        ),
+      () => new SockJS(getFormattedServerAddress() + '/websocket')
     );
+    
     this.stompClient.connectHeaders = {
-      Authorization: authHeader(),
+      Authorization: authHeader(token),
     };
     const vm = this;
     this.stompClient.onConnect = async function () {
-      store().commit('websocket/setReconnectThrottleInSeconds', 5);
-      store().commit('websocket/setShowReconnectDialog', false);
+      // Instead of using Vuex store mutations, we'll handle connection state differently
+      vm.reconnectThrottleInSeconds = 5;
+      vm.showReconnectDialog = false;
 
       for (const [path, callback] of vm.subscriptions.entries()) {
         const activeSub = vm.stompClient.subscribe(path, callback);
         vm.activeSubscriptions.set(path, activeSub);
       }
-      store().commit('websocket/setConnected', true);
+      vm.connected = true;
     };
+
     if (!process.env.DEV) {
       this.stompClient.debug = function (str) {};
     }
+
     for (const id of this.reconnectTasks) {
       clearTimeout(id);
     }
     this.reconnectTasks = [];
+
     this.stompClient.onWebSocketClose = function () {
       vm.stompClient = null;
-      store().commit('websocket/setConnected', false);
+      vm.connected = false;
       vm.activeSubscriptions.clear();
-      store().commit('websocket/setShowReconnectDialog', true);
-      const reconnectThrottle =
-        store().getters['websocket/getReconnectThrottleInSeconds'];
-      store().commit(
-        'websocket/setReconnectThrottleInSeconds',
-        (vm.reconnectThrottleInSeconds = Math.min(20, reconnectThrottle * 2)),
-      );
+      vm.showReconnectDialog = true;
+
+      const reconnectThrottle = vm.reconnectThrottleInSeconds || 5;
+      vm.reconnectThrottleInSeconds = Math.min(20, reconnectThrottle * 2);
+
       for (let i = reconnectThrottle; i > 0; i--) {
         vm.reconnectTasks.push(
           setTimeout(
             () => {
-              store().commit('websocket/setSecondsTillWebsocketReconnect', i);
+              vm.secondsTillWebsocketReconnect = i;
             },
             (reconnectThrottle - i) * 1000,
           ),
@@ -69,10 +74,11 @@ class WebsocketService {
       }
       vm.reconnectTasks.push(
         setTimeout(() => {
-          vm.connectWebsocket();
+          vm.connectWebsocket(token);
         }, reconnectThrottle * 1000),
       );
     };
+
     try {
       this.stompClient.activate();
     } catch (e) {
@@ -82,7 +88,7 @@ class WebsocketService {
 
   disconnectWebsocket() {
     if (this.stompClient != null) {
-      store().commit('websocket/setConnected', false);
+      this.connected = false;
       this.stompClient.onWebSocketClose = () => {};
       this.stompClient.deactivate();
       this.stompClient = null;
@@ -113,7 +119,7 @@ class WebsocketService {
         }
       };
       this.subscriptions.set(path, onMessage);
-      if (store().getters['websocket/isConnected']) {
+      if (this.connected) {
         const activeSub = this.stompClient.subscribe(path, onMessage);
         this.activeSubscriptions.set(path, activeSub);
       }
