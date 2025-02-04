@@ -1,3 +1,0 @@
-
-  const handleBoostChange = (event) => {
-    onCustomizationsChange({
