@@ -4,11 +4,11 @@ import {
   Heart,
   Settings,
   ArrowLeftToLine,
-  Coffee,
   BookText,
   Users,
   LayoutGrid,
   Gauge,
+  Martini,
 } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 
@@ -27,7 +27,7 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed, onCollapse }) => {
       items: [
         {
           key: '/drinks',
-          icon: <Coffee size={16} />,
+          icon: <Martini size={16} />,
           label: 'Drinks',
         },
         {
