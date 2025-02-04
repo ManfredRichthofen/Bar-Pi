@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { GlassWater } from 'lucide-react';
-import glassService from '../services/glass.service';
+import glassService from '../../services/glass.service';
 
 const GlassSelector = ({
   selectedGlass,
