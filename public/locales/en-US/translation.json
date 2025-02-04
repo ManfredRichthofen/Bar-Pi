@@ -13,26 +13,61 @@
     "errors_field_required": "This field is required"
   },
   "common": {
-    "edit": "Edit"
+    "edit": "Edit",
+    "close": "Close"
   },
-  "pump_status_headline": "Pump Status",
-  "pump_status_pumps_headline": "Pumps",
-  "pump_status_pumps_installed": "Pumps Installed",
-  "pump_status_pumps_ingredients_installed": "Ingredients Installed",
-  "pump_status_reverse_pumping_headline": "Reverse Pumping",
-  "pump_status_reverse_pumping": "Status",
-  "pump_status_reverse_pumping_status_enabled": "Enabled",
-  "pump_status_reverse_pumping_status_disabled": "Disabled",
-  "pump_status_reverse_pumping_overshoot": "Overshoot",
-  "pump_status_reverse_pumping_timer": "Timer",
-  "pump_status_load_cell_headline": "Load Cell",
-  "pump_status_load_cell_status": "Status",
-  "pump_status_load_cell_status_enabled": "Enabled",
-  "pump_status_load_cell_status_disabled": "Disabled",
-  "pump_status_load_cell_calibrated": "Calibrated",
-  "pump_status_load_cell_calibrated_yes": "Yes",
-  "pump_status_load_cell_calibrated_no": "No",
-  "pump_card_stop": "Stop",
-  "pump_card_reverse": "Reverse",
-  "pump_card_calibrate": "Calibrate"
+  "pump_status": {
+    "headline": "Pump Status",
+    "pumps_headline": "Pumps",
+    "pumps_installed": "Pumps Installed",
+    "pumps_ingredients_installed": "Ingredients Installed",
+    "reverse_pumping_headline": "Reverse Pumping",
+    "reverse_pumping": "Status",
+    "reverse_pumping_status_enabled": "Enabled",
+    "reverse_pumping_status_disabled": "Disabled",
+    "reverse_pumping_overshoot": "Overshoot",
+    "reverse_pumping_timer": "Timer",
+    "load_cell_headline": "Load Cell",
+    "load_cell_status": "Status",
+    "load_cell_status_enabled": "Enabled",
+    "load_cell_status_disabled": "Disabled",
+    "load_cell_calibrated": "Calibrated",
+    "load_cell_calibrated_yes": "Yes",
+    "load_cell_calibrated_no": "No"
+  },
+  "pump_card": {
+    "stop": "Stop",
+    "reverse": "Reverse",
+    "calibrate": "Calibrate",
+    "unnamed": "Pump #{{id}}",
+    "type_dc": "DC Pump",
+    "pump_card_type_stepper": "Stepper Pump",
+    "type_valve": "Valve",
+    "no_ingredient": "No ingredient assigned",
+    "state_pumped_up": "Pumped Up",
+    "state_pumped_down": "Pumped Down",
+    "state_running": "Running",
+    "state_ready": "Ready",
+    "state_incomplete": "Incomplete",
+    "ingredient": "Ingredient",
+    "filling_level": "Filling Level",
+    "pump_up": "Pump Up",
+    "pump_down": "Pump Down",
+    "start": "Start Pump"
+  },
+  "pump_selector": {
+    "headline": "Select Pump Type",
+    "valve": "Valve",
+    "dc_pump": "DC Pump",
+    "stepper_pump": "Stepper Pump"
+  },
+  "settings": {
+    "title": "Settings",
+    "appearance": "Appearance",
+    "theme": "Theme",
+    "language": "Language",
+    "general": "General Settings",
+    "notifications": "Enable Notifications",
+    "soundEffects": "Sound Effects"
+  }
 }

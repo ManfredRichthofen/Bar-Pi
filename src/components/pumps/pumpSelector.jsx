@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { Loader2, Droplet, Hexagon } from 'lucide-react';
 
 import PumpService from '../../services/pump.service';
@@ -33,23 +34,13 @@ const StepperMotorIcon = ({ width = 24, height = 24, className = '' }) => (
 const PumpSelector = ({ show, onClose }) => {
   const navigate = useNavigate();
   const token = useAuthStore((state) => state.token);
+  const { t } = useTranslation();
   const [stepperLoading, setStepperLoading] = useState(false);
   const [valveLoading, setValveLoading] = useState(false);
   const [dcLoading, setDcLoading] = useState(false);
 
   // A computed "loading" flag
   const loading = stepperLoading || valveLoading || dcLoading;
-
-  // Dummy translation function; replace with your i18n hook if needed
-  const t = (key) => {
-    const translations = {
-      'component.pump_setup_type_selector.headline': 'Select Pump Type',
-      'component.pump_setup_type_selector.valve': 'Valve',
-      'component.pump_setup_type_selector.dc_pump': 'DC Pump',
-      'component.pump_setup_type_selector.stepper_pump': 'Stepper Pump',
-    };
-    return translations[key] || key;
-  };
 
   const onClickAddPump = (type) => {
     if (loading) return;
@@ -109,7 +100,7 @@ const PumpSelector = ({ show, onClose }) => {
       <div className="modal-box w-full max-w-2xl">
         <div className="text-center mb-8">
           <h5 className="text-xl font-semibold">
-            {t('component.pump_setup_type_selector.headline')}
+            {t('pump_selector.headline')}
           </h5>
         </div>
         <div className="flex flex-wrap justify-center gap-8">
@@ -127,9 +118,7 @@ const PumpSelector = ({ show, onClose }) => {
                 ) : (
                   <Hexagon size={32} className="mb-2" />
                 )}
-                <p className="font-bold">
-                  {t('component.pump_setup_type_selector.valve')}
-                </p>
+                <p className="font-bold">{t('pump_selector.valve')}</p>
               </div>
             </div>
           </div>
@@ -148,9 +137,7 @@ const PumpSelector = ({ show, onClose }) => {
                 ) : (
                   <Droplet size={32} className="mb-2" />
                 )}
-                <p className="font-bold">
-                  {t('component.pump_setup_type_selector.dc_pump')}
-                </p>
+                <p className="font-bold">{t('pump_selector.dc_pump')}</p>
               </div>
             </div>
           </div>
@@ -169,9 +156,7 @@ const PumpSelector = ({ show, onClose }) => {
                 ) : (
                   <StepperMotorIcon width={32} height={32} className="mb-2" />
                 )}
-                <p className="font-bold">
-                  {t('component.pump_setup_type_selector.stepper_pump')}
-                </p>
+                <p className="font-bold">{t('pump_selector.stepper_pump')}</p>
               </div>
             </div>
           </div>
@@ -180,7 +165,7 @@ const PumpSelector = ({ show, onClose }) => {
         {!loading && (
           <div className="modal-action">
             <button className="btn btn-secondary" onClick={handleClose}>
-              Close
+              {t('common.close')}
             </button>
           </div>
         )}

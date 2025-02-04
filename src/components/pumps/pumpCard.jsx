@@ -1,6 +1,7 @@
 // CPumpCard.jsx
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import {
   Pencil,
   PlayCircle,
@@ -83,7 +84,8 @@ const StepperMotorIcon = ({ width = 24, height = 24, className = '' }) => (
   </svg>
 );
 
-const CPumpCard = ({ pump, showDetailed = false }) => {
+const PumpCard = ({ pump, showDetailed = false }) => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const token = useAuthStore((state) => state.token);
 
@@ -145,16 +147,16 @@ const CPumpCard = ({ pump, showDetailed = false }) => {
   };
 
   // --- Computed Values (converted from Vue computed) ---
-  const displayName = pump.name || `Pump #${pump.id}`; // fallback text
+  const displayName = pump.name || t('pump_card.unnamed', { id: pump.id });
 
   const printPumpType = (() => {
     switch (pump.type) {
       case 'dc':
-        return 'DC Pump'; // Replace with translation if needed
+        return t('pump_card.type_dc');
       case 'stepper':
-        return 'Stepper Pump';
+        return t('pump_card.type_stepper');
       case 'valve':
-        return 'Valve';
+        return t('pump_card.type_valve');
       default:
         return '';
     }
@@ -201,29 +203,31 @@ const CPumpCard = ({ pump, showDetailed = false }) => {
 
   const printIngredient = pump.currentIngredient
     ? pump.currentIngredient.name
-    : 'No ingredient assigned'; // or translation
+    : t('pump_card.no_ingredient');
 
   const pumpedUpState = (() => {
     if (pump.pumpedUp) {
-      return { color: 'bg-green-500', label: 'Pumped Up' };
+      return { color: 'badge-success', label: t('pump_card.state_pumped_up') };
     } else {
-      return { color: 'bg-red-500', label: 'Pumped Down' };
+      return { color: 'badge-error', label: t('pump_card.state_pumped_down') };
     }
   })();
 
   const pumpState = (() => {
-    // Default state based on pump.state
     let state = { color: '', label: '' };
     if (pumpJobState.runningState) {
-      state = { color: 'bg-green-500', label: 'Running' };
+      state = { color: 'badge-success', label: t('pump_card.state_running') };
     } else {
       switch (pump.state) {
         case 'READY':
-          state = { color: 'bg-green-500', label: 'Ready' };
+          state = { color: 'badge-success', label: t('pump_card.state_ready') };
           break;
         case 'INCOMPLETE':
         case 'TESTABLE':
-          state = { color: 'bg-red-500', label: 'Incomplete' };
+          state = {
+            color: 'badge-error',
+            label: t('pump_card.state_incomplete'),
+          };
           break;
         default:
           state = { color: '', label: pump.state };
@@ -287,7 +291,7 @@ const CPumpCard = ({ pump, showDetailed = false }) => {
             <button
               onClick={() => navigate(`/editpump/${pump.id}`)}
               className="btn btn-ghost btn-sm px-2"
-              title="Edit Pump"
+              title={t('common.edit')}
             >
               <Pencil className="h-4 w-4" />
             </button>
@@ -315,9 +319,13 @@ const CPumpCard = ({ pump, showDetailed = false }) => {
       {/* Basic Info */}
       <div className="card-body p-4">
         <div className="grid grid-cols-2 gap-2 text-sm">
-          <div className="text-base-content/70">Ingredient</div>
+          <div className="text-base-content/70">
+            {t('pump_card.ingredient')}
+          </div>
           <div className="text-right font-medium">{printIngredient}</div>
-          <div className="text-base-content/70">Filling Level</div>
+          <div className="text-base-content/70">
+            {t('pump_card.filling_level')}
+          </div>
           <div className="text-right font-medium">
             {getDisplayAttribute(pump.fillingLevelInMl, 'ml').label}
           </div>
@@ -342,7 +350,7 @@ const CPumpCard = ({ pump, showDetailed = false }) => {
                   onClick={() => onClickPumpUp(true)}
                   disabled={!!pumpJobState.runningState}
                   className={`btn btn-sm join-item ${pumpDownBtnLoading ? 'loading' : ''}`}
-                  title="Pump Down"
+                  title={t('pump_card.pump_down')}
                 >
                   <CornerUpLeft className="h-4 w-4" />
                 </button>
@@ -350,7 +358,7 @@ const CPumpCard = ({ pump, showDetailed = false }) => {
                   onClick={() => onClickPumpUp(false)}
                   disabled={!!pumpJobState.runningState}
                   className={`btn btn-sm join-item ${pumpUpBtnLoading ? 'loading' : ''}`}
-                  title="Pump Up"
+                  title={t('pump_card.pump_up')}
                 >
                   <CornerUpRight className="h-4 w-4" />
                 </button>
@@ -360,7 +368,11 @@ const CPumpCard = ({ pump, showDetailed = false }) => {
               onClick={onClickTurnOnOrOffPump}
               disabled={runningBtnLoading}
               className={`btn btn-sm join-item ${runningBtnLoading ? 'loading' : ''}`}
-              title={pumpJobState.runningState ? 'Stop Pump' : 'Start Pump'}
+              title={
+                pumpJobState.runningState
+                  ? t('pump_card.stop')
+                  : t('pump_card.start')
+              }
             >
               {pumpJobState.runningState ? (
                 <StopCircle className="h-4 w-4" />
@@ -375,4 +387,4 @@ const CPumpCard = ({ pump, showDetailed = false }) => {
   );
 };
 
-export default CPumpCard;
+export default PumpCard;

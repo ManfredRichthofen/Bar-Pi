@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { User, LogOut, Settings, Menu, Moon, Sun } from 'lucide-react';
+import { User, LogOut, Settings, Menu } from 'lucide-react';
 import useAuthStore from '../store/authStore';
 import { useNavigate } from 'react-router-dom';
 import userService from '../services/user.service';
@@ -91,12 +91,6 @@ const HeaderBar: React.FC<HeaderBarProps> = ({ collapsed, onToggle }) => {
     }
   };
 
-  const toggleTheme = () => {
-    const html = document.querySelector('html');
-    const currentTheme = html?.getAttribute('data-theme');
-    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-    html?.setAttribute('data-theme', newTheme);
-  };
 
   return (
     <header className="fixed top-0 right-0 left-0 h-16 bg-base-100 border-b border-base-200 z-50">
@@ -151,27 +145,6 @@ const HeaderBar: React.FC<HeaderBarProps> = ({ collapsed, onToggle }) => {
                   <Settings size={16} />
                   Settings
                 </a>
-              </li>
-              <li>
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <span className="flex items-left gap-2">Theme</span>
-                  <span className="flex items-right gap-2">
-                    <Sun size={16} />
-                  </span>
-                  <input
-                    type="checkbox"
-                    className="toggle theme-controller"
-                    onChange={toggleTheme}
-                    checked={
-                      document
-                        .querySelector('html')
-                        ?.getAttribute('data-theme') === 'dark'
-                    }
-                  />
-                  <span>
-                    <Moon size={16} />
-                  </span>
-                </label>
               </li>
               <div className="divider my-1"></div>
               <li>

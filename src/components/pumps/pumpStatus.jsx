@@ -43,40 +43,40 @@ const PumpStatus = (props) => {
     pumps?.filter((x) => !!x.currentIngredient).length || 0;
 
   const reversePumpingStatus = reversePumpSettings?.enable
-    ? t('pump_status_reverse_pumping_status_enabled')
-    : t('pump_status_reverse_pumping_status_disabled');
+    ? t('pump_status.reverse_pumping_status_enabled')
+    : t('pump_status.reverse_pumping_status_disabled');
 
   const loadCellStatus = loadCellSettings?.enable
-    ? t('pump_status_load_cell_status_enabled')
-    : t('pump_status_load_cell_status_disabled');
+    ? t('pump_status.load_cell_status_enabled')
+    : t('pump_status.load_cell_status_disabled');
 
   const loadCellCalibrated = loadCellSettings?.calibrated
-    ? t('pump_status_load_cell_calibrated_yes')
-    : t('pump_status_load_cell_calibrated_no');
+    ? t('pump_status.load_cell_calibrated_yes')
+    : t('pump_status.load_cell_calibrated_no');
 
   return (
     <div className="card bg-base-100 shadow-lg">
       <div className="collapse collapse-arrow">
         <input type="checkbox" defaultChecked={window.innerWidth > 768} />
         <div className="collapse-title bg-base-200 rounded-t-2xl font-semibold text-lg flex items-center">
-          {t('pump_status_headline')}
+          {t('pump_status.headline')}
         </div>
         <div className="collapse-content px-0 pt-0">
           <div className="flex flex-col divide-y divide-base-200">
             {/* Pumps Summary */}
             <div className="p-4">
               <h3 className="font-medium mb-3 text-base-content/70 text-sm">
-                {t('pump_status_pumps_headline')}
+                {t('pump_status.pumps_headline')}
               </h3>
               <div className="grid grid-cols-2 gap-y-2">
                 <div className="text-sm">
-                  {t('pump_status_pumps_installed')}
+                  {t('pump_status.pumps_installed')}
                 </div>
                 <div className="text-right">
                   <span className="badge badge-primary">{nrPumps}</span>
                 </div>
                 <div className="text-sm">
-                  {t('pump_status_pumps_ingredients_installed')}
+                  {t('pump_status.pumps_ingredients_installed')}
                 </div>
                 <div className="text-right">
                   <span className="badge badge-primary">
@@ -90,7 +90,7 @@ const PumpStatus = (props) => {
             <div className="p-4">
               <div className="flex justify-between items-center mb-3">
                 <h3 className="font-medium text-base-content/70 text-sm">
-                  {t('pump_status_reverse_pumping_headline')}
+                  {t('pump_status.reverse_pumping_headline')}
                 </h3>
                 <button
                   className="btn btn-ghost btn-xs"
@@ -102,7 +102,7 @@ const PumpStatus = (props) => {
               </div>
               <div className="grid grid-cols-2 gap-y-2">
                 <div className="text-sm">
-                  {t('pump_status_reverse_pumping')}
+                  {t('pump_status.reverse_pumping')}
                 </div>
                 <div className="text-right">
                   <span
@@ -114,7 +114,7 @@ const PumpStatus = (props) => {
                 {reversePumpSettings?.enable && (
                   <>
                     <div className="text-sm">
-                      {t('pump_status_reverse_pumping_overshoot')}
+                      {t('pump_status.reverse_pumping_overshoot')}
                     </div>
                     <div className="text-right">
                       <span className="badge badge-ghost">
@@ -122,7 +122,7 @@ const PumpStatus = (props) => {
                       </span>
                     </div>
                     <div className="text-sm">
-                      {t('pump_status_reverse_pumping_timer')}
+                      {t('pump_status.reverse_pumping_timer')}
                     </div>
                     <div className="text-right">
                       <span className="badge badge-ghost">
@@ -139,7 +139,7 @@ const PumpStatus = (props) => {
             <div className="p-4">
               <div className="flex justify-between items-center mb-3">
                 <h3 className="font-medium text-base-content/70 text-sm">
-                  {t('pump_status_load_cell_headline')}
+                  {t('pump_status.load_cell_headline')}
                 </h3>
                 <button
                   className="btn btn-ghost btn-xs"
@@ -151,7 +151,7 @@ const PumpStatus = (props) => {
               </div>
               <div className="grid grid-cols-2 gap-y-2">
                 <div className="text-sm">
-                  {t('pump_status_load_cell_status')}
+                  {t('pump_status.load_cell_status')}
                 </div>
                 <div className="text-right">
                   <span
@@ -163,7 +163,7 @@ const PumpStatus = (props) => {
                 {loadCellSettings?.enable && (
                   <>
                     <div className="text-sm">
-                      {t('pump_status_load_cell_calibrated')}
+                      {t('pump_status.load_cell_calibrated')}
                     </div>
                     <div className="text-right">
                       <span
