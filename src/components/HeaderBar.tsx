@@ -93,8 +93,8 @@ const HeaderBar: React.FC<HeaderBarProps> = ({ collapsed, onToggle }) => {
 
   return (
     <header className="fixed top-0 right-0 left-0 h-16 bg-base-100 border-b border-base-200 z-50">
-      <div className="flex items-center justify-between h-full px-4">
-        <div className="flex items-center gap-4">
+      <div className="flex items-center justify-between h-full px-3 sm:px-4">
+        <div className="flex items-center gap-2 sm:gap-4">
           <button
             onClick={onToggle}
             className="btn btn-ghost btn-sm btn-square"
@@ -102,6 +102,11 @@ const HeaderBar: React.FC<HeaderBarProps> = ({ collapsed, onToggle }) => {
           >
             <Menu size={20} className="text-base-content/70" />
           </button>
+          
+          {/* Show title when sidebar is collapsed or on mobile */}
+          <h1 className={`text-lg sm:text-xl font-semibold ${!collapsed && 'lg:hidden'}`}>
+            What to name it
+          </h1>
         </div>
 
         <div className="flex items-center gap-2">
@@ -109,12 +114,12 @@ const HeaderBar: React.FC<HeaderBarProps> = ({ collapsed, onToggle }) => {
             <div
               tabIndex={0}
               role="button"
-              className="flex items-center gap-2 px-3 py-2"
+              className="flex items-center gap-2 px-2 sm:px-3 py-2"
             >
               <div className="w-8 h-8 flex items-center justify-center">
                 <User size={20} className="text-base-content/70" />
               </div>
-              <div className="hidden md:block text-left">
+              <div className="hidden sm:block text-left">
                 <p className="text-sm font-semibold text-base-content m-0">
                   {loading ? 'Loading...' : userData?.username || 'Guest'}
                 </p>
@@ -125,34 +130,34 @@ const HeaderBar: React.FC<HeaderBarProps> = ({ collapsed, onToggle }) => {
             </div>
             <ul
               tabIndex={0}
-              className="dropdown-content z-[1] menu p-2 shadow-lg bg-base-100 rounded-box w-52"
+              className="dropdown-content z-[1] menu p-2 shadow-lg bg-base-100 rounded-box w-52 mt-2"
             >
               <li>
                 <a
                   onClick={() => navigate('/profile')}
-                  className="flex items-center gap-2"
+                  className="flex items-center gap-2 py-2"
                 >
                   <User size={16} />
-                  Profile
+                  <span className="text-sm">Profile</span>
                 </a>
               </li>
               <li>
                 <a
                   onClick={() => navigate('/settings')}
-                  className="flex items-center gap-2"
+                  className="flex items-center gap-2 py-2"
                 >
                   <Settings size={16} />
-                  Settings
+                  <span className="text-sm">Settings</span>
                 </a>
               </li>
               <div className="divider my-1"></div>
               <li>
                 <a
                   onClick={handleLogout}
-                  className="text-error flex items-center gap-2"
+                  className="text-error flex items-center gap-2 py-2"
                 >
                   <LogOut size={16} />
-                  Logout
+                  <span className="text-sm">Logout</span>
                 </a>
               </li>
             </ul>

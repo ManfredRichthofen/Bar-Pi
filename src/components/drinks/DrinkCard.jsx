@@ -25,7 +25,7 @@ const DrinkCard = ({ recipe }) => {
         onClick={showModal}
         className="card bg-base-100 shadow-md hover:shadow-lg hover:-translate-y-1 transition-all duration-200 h-full cursor-pointer"
       >
-        <figure className="aspect-[4/3]">
+        <figure className="aspect-[4/3] sm:aspect-[16/9]">
           {recipe.image ? (
             <img
               src={recipe.image}
@@ -41,16 +41,16 @@ const DrinkCard = ({ recipe }) => {
           )}
         </figure>
 
-        <div className="card-body p-4">
-          <div className="flex items-center justify-between gap-2 mb-2">
+        <div className="card-body p-3 sm:p-4">
+          <div className="flex items-center justify-between gap-2 mb-1 sm:mb-2">
             <h3
-              className="card-title text-base sm:text-lg truncate"
+              className="card-title text-sm sm:text-base truncate"
               title={recipe.name}
             >
               {recipe.name}
             </h3>
             {recipe.alcoholic && (
-              <div className="badge badge-error text-xs sm:text-sm">
+              <div className="badge badge-error text-xs whitespace-nowrap">
                 Alcoholic
               </div>
             )}
@@ -58,7 +58,7 @@ const DrinkCard = ({ recipe }) => {
 
           {recipe.description && (
             <p
-              className="text-base-content/70 mb-3 line-clamp-2 text-xs sm:text-sm"
+              className="text-base-content/70 mb-2 sm:mb-3 line-clamp-2 text-xs sm:text-sm"
               title={recipe.description}
             >
               {recipe.description}
@@ -66,14 +66,12 @@ const DrinkCard = ({ recipe }) => {
           )}
 
           <div className="mt-auto">
-            <p className="font-semibold text-xs sm:text-sm mb-1">
-              Ingredients:
-            </p>
-            <ul className="space-y-0.5">
+            <p className="font-semibold text-xs mb-1">Ingredients:</p>
+            <ul className="space-y-0.5 text-xs">
               {recipe.ingredients.map((ingredient, index) => (
                 <li
                   key={index}
-                  className="text-xs"
+                  className="truncate"
                   title={`${ingredient.name} - ${ingredient.amount} ${ingredient.unit}`}
                 >
                   • {ingredient.name} - {ingredient.amount} {ingredient.unit}
@@ -86,28 +84,30 @@ const DrinkCard = ({ recipe }) => {
 
       {isModalOpen && (
         <dialog open className="modal modal-open">
-          <div className="modal-box max-w-4xl">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="font-bold text-lg sm:text-xl">{recipe.name}</h3>
-              {recipe.alcoholic && (
-                <div className="badge badge-error text-xs sm:text-sm">
-                  Alcoholic
-                </div>
-              )}
-            </div>
-
-            <div className="flex flex-col md:flex-row gap-4 sm:gap-6">
+          <div className="modal-box max-w-3xl mx-4">
+            <div className="flex flex-col sm:flex-row gap-4">
               {recipe.image && (
-                <div className="w-full md:w-1/2">
+                <div className="w-full sm:w-1/2">
                   <img
-                    className="w-full rounded-lg object-cover"
+                    className="w-full rounded-lg object-cover aspect-[4/3]"
                     src={recipe.image}
                     alt={recipe.name}
                   />
                 </div>
               )}
 
-              <div className="flex-1">
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center justify-between gap-2 mb-3">
+                  <h3 className="font-bold text-lg sm:text-xl truncate">
+                    {recipe.name}
+                  </h3>
+                  {recipe.alcoholic && (
+                    <div className="badge badge-error text-xs whitespace-nowrap">
+                      Alcoholic
+                    </div>
+                  )}
+                </div>
+
                 {recipe.description && (
                   <div className="mb-4 sm:mb-6">
                     <h4 className="font-bold text-base sm:text-lg mb-2">
@@ -165,19 +165,25 @@ const DrinkCard = ({ recipe }) => {
               </div>
             </div>
 
-            <div className="modal-action">
+            <div className="modal-action mt-4 flex-wrap gap-2">
               <button
-                className="btn btn-primary gap-2"
+                className="btn btn-primary gap-2 flex-1 sm:flex-none"
                 onClick={handleMakeDrink}
               >
                 <BeakerIcon size={16} />
                 Make Drink
               </button>
-              <button className="btn gap-2" onClick={handleEditRecipe}>
+              <button 
+                className="btn gap-2 flex-1 sm:flex-none" 
+                onClick={handleEditRecipe}
+              >
                 <PencilIcon size={16} />
                 Edit Recipe
               </button>
-              <button className="btn" onClick={handleCancel}>
+              <button 
+                className="btn w-full sm:w-auto" 
+                onClick={handleCancel}
+              >
                 Close
               </button>
             </div>

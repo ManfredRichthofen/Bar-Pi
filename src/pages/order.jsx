@@ -174,19 +174,19 @@ const Order = () => {
       {/* Toast container */}
       <div id="toast-container" className="toast toast-end z-50"></div>
 
-      <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8 py-4 sm:py-8 pt-20 sm:pt-24 min-h-screen">
-        <div className="flex justify-between items-center mb-4 sm:mb-6">
-          <h2 className="text-2xl font-bold">Drink Production</h2>
+      <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-8 py-4 pt-20 sm:pt-24 min-h-screen">
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-xl sm:text-2xl font-bold">Drink Production</h2>
         </div>
 
-        <div className="card bg-base-100 shadow-xl mb-6">
-          <div className="card-body">
-            <div className="flex flex-col lg:flex-row gap-4 lg:gap-6">
+        <div className="card bg-base-100 shadow-xl mb-4 sm:mb-6">
+          <div className="card-body p-3 sm:p-6">
+            <div className="flex flex-col lg:flex-row gap-4">
               {recipe.image && (
                 <div className="w-full lg:w-1/3">
                   <figure>
                     <img
-                      className="w-full rounded-lg object-cover max-h-[300px] lg:max-h-none"
+                      className="w-full rounded-lg object-cover max-h-[200px] sm:max-h-[300px] lg:max-h-none"
                       src={recipe.image}
                       alt={recipe.name}
                     />
@@ -194,10 +194,10 @@ const Order = () => {
                 </div>
               )}
 
-              <div className="flex-1">
-                <h3 className="text-xl font-bold mb-2">{recipe.name}</h3>
+              <div className="flex-1 min-w-0">
+                <h3 className="text-lg sm:text-xl font-bold mb-2">{recipe.name}</h3>
                 {recipe.description && (
-                  <p className="mb-4 text-base-content/70">
+                  <p className="mb-3 sm:mb-4 text-base-content/70 text-sm">
                     {recipe.description}
                   </p>
                 )}
@@ -211,9 +211,9 @@ const Order = () => {
                   token={token}
                 />
 
-                <div className="flex gap-2 mt-4">
+                <div className="flex flex-wrap gap-2 mt-4">
                   <button
-                    className={`btn btn-primary ${loading ? 'loading' : ''}`}
+                    className={`btn btn-primary flex-1 sm:flex-none ${loading ? 'loading' : ''}`}
                     onClick={handleMakeDrink}
                     disabled={!canOrderDrink}
                   >
@@ -223,7 +223,7 @@ const Order = () => {
                       : 'Make Drink'}
                   </button>
                   <button
-                    className="btn btn-ghost"
+                    className="btn btn-ghost flex-1 sm:flex-none"
                     onClick={() => navigate('/drinks')}
                   >
                     Back to Drinks

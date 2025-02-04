@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import GlassService from '../services/glass.service';
-import GlassModal from '../components/GlassModal';
+import GlassModal from '../components/glasses/GlassModal';
 import useAuthStore from '../store/authStore';
 import { PlusCircle, Edit, Trash2 } from 'lucide-react';
 

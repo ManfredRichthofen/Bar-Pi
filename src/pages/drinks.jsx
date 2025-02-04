@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import useAuthStore from '../store/authStore';
 import RecipeService from '../services/recipe.service.js';
 import { Navigate } from 'react-router-dom';
-import DrinkCard from '../components/DrinkCard';
+import DrinkCard from '../components/drinks/DrinkCard.jsx';
 import InfiniteScroll from 'react-infinite-scroll-component';
 
 const Drinks = () => {

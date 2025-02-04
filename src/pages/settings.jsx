@@ -56,20 +56,20 @@ const Settings = () => {
   };
 
   return (
-    <div className="p-4 max-w-4xl mx-auto">
-      <h1 className="text-3xl font-bold mb-8">
+    <div className="p-3 sm:p-4 max-w-4xl mx-auto pt-20 sm:pt-24">
+      <h1 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-8">
         {t('settings.title', 'Settings')}
       </h1>
 
-      <div className="space-y-6">
+      <div className="space-y-4 sm:space-y-6">
         {/* General Settings Card */}
         <div className="card bg-base-200 shadow-xl">
-          <div className="card-body">
-            <h2 className="card-title mb-6">
+          <div className="card-body p-4 sm:p-6">
+            <h2 className="card-title text-lg sm:text-xl mb-4 sm:mb-6">
               {t('settings.general', 'General Settings')}
             </h2>
 
-            <div className="space-y-6">
+            <div className="space-y-4 sm:space-y-6">
               {/* Language Dropdown */}
               <div className="form-control">
                 <label className="label">
@@ -78,7 +78,7 @@ const Settings = () => {
                   </span>
                 </label>
                 <select
-                  className="select select-bordered w-full"
+                  className="select select-bordered w-full text-sm sm:text-base"
                   value={i18n.language}
                   onChange={(e) => handleLanguageChange(e.target.value)}
                 >
@@ -90,22 +90,28 @@ const Settings = () => {
                 </select>
               </div>
 
-              <div className="divider"></div>
+              <div className="divider my-2 sm:my-4"></div>
 
               {/* Notification Settings */}
-              <div className="space-y-4">
-                <label className="label cursor-pointer justify-between">
-                  <span className="label-text">
+              <div className="space-y-3 sm:space-y-4">
+                <label className="label cursor-pointer justify-between py-2">
+                  <span className="label-text text-sm sm:text-base mr-4">
                     {t('settings.notifications', 'Enable Notifications')}
                   </span>
-                  <input type="checkbox" className="toggle toggle-primary" />
+                  <input 
+                    type="checkbox" 
+                    className="toggle toggle-primary toggle-sm sm:toggle-md" 
+                  />
                 </label>
 
-                <label className="label cursor-pointer justify-between">
-                  <span className="label-text">
+                <label className="label cursor-pointer justify-between py-2">
+                  <span className="label-text text-sm sm:text-base mr-4">
                     {t('settings.soundEffects', 'Sound Effects')}
                   </span>
-                  <input type="checkbox" className="toggle toggle-primary" />
+                  <input 
+                    type="checkbox" 
+                    className="toggle toggle-primary toggle-sm sm:toggle-md" 
+                  />
                 </label>
               </div>
             </div>
@@ -114,18 +120,18 @@ const Settings = () => {
 
         {/* Theme Selector Card */}
         <div className="card bg-base-200 shadow-xl">
-          <div className="card-body">
-            <h2 className="card-title mb-6">
+          <div className="card-body p-4 sm:p-6">
+            <h2 className="card-title text-lg sm:text-xl mb-4 sm:mb-6">
               {t('settings.appearance', 'Appearance')}
             </h2>
 
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
               {themes.map((theme) => (
                 <button
                   key={theme}
                   data-set-theme={theme}
                   data-act-class="active"
-                  className="theme-controller btn btn-sm normal-case hover:btn-primary"
+                  className="theme-controller btn btn-sm h-auto py-2 normal-case hover:btn-primary text-xs sm:text-sm"
                 >
                   {theme}
                 </button>
