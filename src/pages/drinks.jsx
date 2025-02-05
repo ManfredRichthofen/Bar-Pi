@@ -77,7 +77,6 @@ const Drinks = () => {
     });
   };
 
-  // Redirect to login if no token
   if (!token) {
     return <Navigate to="/login" />;
   }

@@ -49,7 +49,6 @@ const useAuthStore = create((set) => ({
         error: null,
         loading: false,
       });
-
     } catch (error) {
       console.error('Logout error:', error);
       throw error;

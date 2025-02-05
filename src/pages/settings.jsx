@@ -62,7 +62,6 @@ const Settings = () => {
       </h1>
 
       <div className="space-y-4 sm:space-y-6">
-        {/* General Settings Card */}
         <div className="card bg-base-200 shadow-xl">
           <div className="card-body p-4 sm:p-6">
             <h2 className="card-title text-lg sm:text-xl mb-4 sm:mb-6">
@@ -70,7 +69,6 @@ const Settings = () => {
             </h2>
 
             <div className="space-y-4 sm:space-y-6">
-              {/* Language Dropdown */}
               <div className="form-control">
                 <label className="label">
                   <span className="label-text font-medium">
@@ -91,16 +89,14 @@ const Settings = () => {
               </div>
 
               <div className="divider my-2 sm:my-4"></div>
-
-              {/* Notification Settings */}
               <div className="space-y-3 sm:space-y-4">
                 <label className="label cursor-pointer justify-between py-2">
                   <span className="label-text text-sm sm:text-base mr-4">
                     {t('settings.notifications', 'Enable Notifications')}
                   </span>
-                  <input 
-                    type="checkbox" 
-                    className="toggle toggle-primary toggle-sm sm:toggle-md" 
+                  <input
+                    type="checkbox"
+                    className="toggle toggle-primary toggle-sm sm:toggle-md"
                   />
                 </label>
 
@@ -108,9 +104,9 @@ const Settings = () => {
                   <span className="label-text text-sm sm:text-base mr-4">
                     {t('settings.soundEffects', 'Sound Effects')}
                   </span>
-                  <input 
-                    type="checkbox" 
-                    className="toggle toggle-primary toggle-sm sm:toggle-md" 
+                  <input
+                    type="checkbox"
+                    className="toggle toggle-primary toggle-sm sm:toggle-md"
                   />
                 </label>
               </div>

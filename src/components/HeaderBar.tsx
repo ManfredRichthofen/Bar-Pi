@@ -46,7 +46,7 @@ const HeaderBar: React.FC<HeaderBarProps> = ({ collapsed, onToggle }) => {
           logoutUser();
           navigate('/login', { replace: true });
         }
-        // Using toast from DaisyUI
+        // Using toast from DaisyUI maybe switch to react toast
         const toastElement = document.createElement('div');
         toastElement.className = 'toast toast-top toast-end';
         toastElement.innerHTML = `
@@ -102,9 +102,11 @@ const HeaderBar: React.FC<HeaderBarProps> = ({ collapsed, onToggle }) => {
           >
             <Menu size={20} className="text-base-content/70" />
           </button>
-          
+
           {/* Show title when sidebar is collapsed or on mobile */}
-          <h1 className={`text-lg sm:text-xl font-semibold ${!collapsed && 'lg:hidden'}`}>
+          <h1
+            className={`text-lg sm:text-xl font-semibold ${!collapsed && 'lg:hidden'}`}
+          >
             What to name it
           </h1>
         </div>

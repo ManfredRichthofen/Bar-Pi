@@ -47,7 +47,7 @@ const UserPage = () => {
         password: '',
         role: 'USER',
       });
-      setIsModalOpen(false); // Close modal after successful creation
+      setIsModalOpen(false);
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to create user');
     }

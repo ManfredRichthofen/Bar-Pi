@@ -24,7 +24,7 @@ const Order = () => {
   });
   const [selectedGlass, setSelectedGlass] = useState(null);
 
-  // Toast notification helper
+  // Toast
   const showToast = (message, type = 'info') => {
     const toast = document.getElementById('toast-container');
     if (toast) {
@@ -195,7 +195,9 @@ const Order = () => {
               )}
 
               <div className="flex-1 min-w-0">
-                <h3 className="text-lg sm:text-xl font-bold mb-2">{recipe.name}</h3>
+                <h3 className="text-lg sm:text-xl font-bold mb-2">
+                  {recipe.name}
+                </h3>
                 {recipe.description && (
                   <p className="mb-3 sm:mb-4 text-base-content/70 text-sm">
                     {recipe.description}
@@ -329,7 +331,7 @@ const Order = () => {
                           </div>
                         )}
 
-                        {/* Manual Ingredients Section */}
+                        {/* Manual Ingredients Section. This needs to pull from all ingredients  */}
                         {ingredients.manual.length > 0 && (
                           <div className="card bg-base-100 shadow-xl mb-6">
                             <div className="card-body">

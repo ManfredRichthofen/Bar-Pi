@@ -97,7 +97,7 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed, onCollapse }) => {
     <>
       {/* Backdrop only shows on mobile */}
       {!collapsed && (
-        <div 
+        <div
           className="sidebar-backdrop fixed inset-0 bg-black/30 sm:hidden z-10"
           onClick={() => onCollapse(true)}
         />

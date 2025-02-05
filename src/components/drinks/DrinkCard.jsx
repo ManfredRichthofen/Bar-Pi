@@ -173,17 +173,14 @@ const DrinkCard = ({ recipe }) => {
                 <BeakerIcon size={16} />
                 Make Drink
               </button>
-              <button 
-                className="btn gap-2 flex-1 sm:flex-none" 
+              <button
+                className="btn gap-2 flex-1 sm:flex-none"
                 onClick={handleEditRecipe}
               >
                 <PencilIcon size={16} />
                 Edit Recipe
               </button>
-              <button 
-                className="btn w-full sm:w-auto" 
-                onClick={handleCancel}
-              >
+              <button className="btn w-full sm:w-auto" onClick={handleCancel}>
                 Close
               </button>
             </div>

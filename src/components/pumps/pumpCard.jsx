@@ -11,12 +11,10 @@ import {
   Droplet,
   Hexagon,
 } from 'lucide-react';
-
 import WebSocketService from '../../services/websocket.service';
 import PumpService from '../../services/pump.service';
 import useAuthStore from '../../store/authStore';
 
-// Updated toast helper using DaisyUI classes
 const showToast = (message, type = 'success') => {
   const toastContainer = document.createElement('div');
   toastContainer.className = 'toast toast-top toast-end z-50';
@@ -27,7 +25,6 @@ const showToast = (message, type = 'success') => {
   const content = document.createElement('div');
   content.className = 'flex items-center gap-2';
 
-  // Add icon based on type
   const icon = document.createElement('span');
   if (type === 'success') {
     icon.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
@@ -48,13 +45,11 @@ const showToast = (message, type = 'success') => {
   toastContainer.appendChild(alert);
   document.body.appendChild(toastContainer);
 
-  // Animate in
   setTimeout(() => {
     toastContainer.style.opacity = '1';
     toastContainer.style.transform = 'translateY(0)';
   }, 100);
 
-  // Remove after delay
   setTimeout(() => {
     toastContainer.style.opacity = '0';
     toastContainer.style.transform = 'translateY(-1rem)';
@@ -64,7 +59,7 @@ const showToast = (message, type = 'success') => {
   }, 3000);
 };
 
-// You might want to create a custom StepperMotorIcon component
+// TODO create a custom StepperMotorIcon component
 const StepperMotorIcon = ({ width = 24, height = 24, className = '' }) => (
   <svg
     width={width}
@@ -89,7 +84,6 @@ const PumpCard = ({ pump, showDetailed = false }) => {
   const navigate = useNavigate();
   const token = useAuthStore((state) => state.token);
 
-  // Local loading states
   const [pumpDownBtnLoading, setPumpDownBtnLoading] = useState(false);
   const [pumpUpBtnLoading, setPumpUpBtnLoading] = useState(false);
   const [runningBtnLoading, setRunningBtnLoading] = useState(false);
@@ -98,10 +92,8 @@ const PumpCard = ({ pump, showDetailed = false }) => {
     runningState: null,
   });
 
-  // Subscribe to WebSocket updates when pump changes
   useEffect(() => {
     const topic = `/user/topic/pump/runningstate/${pump.id}`;
-    // Subscribe with a callback that parses the incoming data
     WebSocketService.subscribe(
       topic,
       (data) => {
@@ -115,15 +107,13 @@ const PumpCard = ({ pump, showDetailed = false }) => {
       true,
     );
 
-    // Cleanup subscription on unmount or when pump.id changes
     return () => {
       WebSocketService.unsubscribe(topic);
     };
   }, [pump.id]);
 
-  // --- Helper functions for display attributes ---
   const getDisplayAttribute = (attr, suffix = '') => {
-    const missingText = 'Missing'; // Replace with t('component.pump_card.option_missing') if needed
+    const missingText = 'Missing';
     if ((attr === undefined || attr === null) && attr !== 0) {
       return { className: 'text-red-500', label: missingText };
     } else {
@@ -146,7 +136,6 @@ const PumpCard = ({ pump, showDetailed = false }) => {
     }
   };
 
-  // --- Computed Values (converted from Vue computed) ---
   const displayName = pump.name || t('pump_card.unnamed', { id: pump.id });
 
   const printPumpType = (() => {
@@ -162,7 +151,6 @@ const PumpCard = ({ pump, showDetailed = false }) => {
     }
   })();
 
-  // For the pump header icons
   const PumpTypeIcon = (() => {
     if (pump.type === 'dc') {
       return <Droplet size={16} className="inline-block mr-1" />;
@@ -179,7 +167,6 @@ const PumpCard = ({ pump, showDetailed = false }) => {
     }
   })();
 
-  // progressBar computation (simulate q-linear-progress)
   const progressBar = (() => {
     const abortVal = {
       value: pump.pumpedUp ? 1 : 0,
@@ -236,7 +223,6 @@ const PumpCard = ({ pump, showDetailed = false }) => {
     return state;
   })();
 
-  // --- Event Handlers ---
   const onClickTurnOnOrOffPump = () => {
     setRunningBtnLoading(true);
     if (pumpJobState.runningState) {
@@ -305,7 +291,7 @@ const PumpCard = ({ pump, showDetailed = false }) => {
         </div>
       </div>
 
-      {/* Progress Bar */}
+      {/* Progress Bar TODO make work*/}
       {progressBar.query ? (
         <progress className="progress progress-primary w-full"></progress>
       ) : (
@@ -316,7 +302,6 @@ const PumpCard = ({ pump, showDetailed = false }) => {
         ></progress>
       )}
 
-      {/* Basic Info */}
       <div className="card-body p-4">
         <div className="grid grid-cols-2 gap-2 text-sm">
           <div className="text-base-content/70">
@@ -331,17 +316,13 @@ const PumpCard = ({ pump, showDetailed = false }) => {
           </div>
         </div>
 
-        {/* Detailed Info */}
         {showDetailed && (
           <>
             <div className="divider my-2"></div>
-            <div className="grid grid-cols-2 gap-2 text-sm">
-              {/* ... detailed info fields ... */}
-            </div>
+            <div className="grid grid-cols-2 gap-2 text-sm"></div>
           </>
         )}
 
-        {/* Action Buttons */}
         <div className="card-actions justify-end mt-4">
           <div className="join">
             {pump.canControlDirection && (

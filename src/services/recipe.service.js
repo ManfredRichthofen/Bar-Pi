@@ -87,8 +87,7 @@ class RecipeService {
                   const contentType =
                     imageResponse.headers['content-type'] || 'image/jpeg';
                   recipe.image = `data:${contentType};base64,${base64String}`;
-                } catch (error) {
-                }
+                } catch (error) {}
               }
               return this.afterRecipeLoad(recipe);
             }),
@@ -149,8 +148,7 @@ class RecipeService {
             const contentType =
               imageResponse.headers['content-type'] || 'image/jpeg';
             recipe.image = `data:${contentType};base64,${base64String}`;
-          } catch (error) {
-          }
+          } catch (error) {}
         }
 
         return this.afterRecipeLoad(recipe);

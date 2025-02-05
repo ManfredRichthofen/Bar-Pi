@@ -84,7 +84,6 @@ const Login = () => {
             }}
             className="space-y-4"
           >
-            {/* Username Field - Remove Form.Item */}
             <div className="form-control w-full">
               <div className="input-group">
                 <span>
@@ -100,7 +99,6 @@ const Login = () => {
               </div>
             </div>
 
-            {/* Password Field - Remove Form.Item */}
             <div className="form-control w-full">
               <div className="input-group">
                 <span>
@@ -116,7 +114,7 @@ const Login = () => {
               </div>
             </div>
 
-            {/* Remember Me and Forgot Password */}
+            {/* Remember Me and Forgot Password  TODO Actually make work */}
             <div className="flex justify-between items-center">
               <label className="label cursor-pointer">
                 <input
@@ -134,7 +132,7 @@ const Login = () => {
               </a>
             </div>
 
-            {/* Submit Button */}
+            {/* Submit Button TODO fix loading style see https://v5.daisyui.com/components/button/#button-with-loading-spinner */}
             <button
               type="submit"
               className={`btn btn-primary w-full ${loading ? 'loading' : ''}`}
@@ -146,7 +144,7 @@ const Login = () => {
                 : t('login_btn_label') || 'Sign in to your account'}
             </button>
 
-            {/* Sign Up Link */}
+            {/* Sign Up Link TODO */}
             <div className="text-center mt-6">
               <p>
                 {t('login_no_account') || "Don't have an account?"}{' '}
