@@ -16,20 +16,19 @@ class CocktailService {
   }
 
   order(recipeId, orderConfig, isIngredient = false, token) {
-    return axios.put(
-      `${API_PATH}${recipeId}`,
-      orderConfig,
-      {
+    return axios
+      .put(`${API_PATH}${recipeId}`, orderConfig, {
         headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      }
-    ).catch(error => {
-      const errorMessage = error.response?.data?.message || 'Failed to order drink';
-      error.userMessage = errorMessage;
-      throw error;
-    });
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      })
+      .catch((error) => {
+        const errorMessage =
+          error.response?.data?.message || 'Failed to order drink';
+        error.userMessage = errorMessage;
+        throw error;
+      });
   }
 
   checkFeasibility(recipeId, orderConfig, isIngredient = false, token) {

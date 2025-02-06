@@ -4,7 +4,6 @@ import axios from 'axios';
 axios.defaults.baseURL = config.API_BASE_URL;
 
 class IngredientService {
-
   getAuthHeader(token) {
     return {
       headers: {

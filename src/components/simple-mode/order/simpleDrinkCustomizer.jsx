@@ -20,8 +20,8 @@ const SimpleDrinkCustomizer = ({
   };
 
   const handleAdditionalIngredientAmountChange = (ingredientId, amount) => {
-    const updatedIngredients = additionalIngredients.map(
-      (ing) => (ing.ingredient.id === ingredientId ? { ...ing, amount } : ing),
+    const updatedIngredients = additionalIngredients.map((ing) =>
+      ing.ingredient.id === ingredientId ? { ...ing, amount } : ing,
     );
     onCustomizationsChange({
       ...customizations,
@@ -64,7 +64,9 @@ const SimpleDrinkCustomizer = ({
           </div>
           <div className="collapse-content peer-checked:bg-base-200">
             <div className="mb-6">
-              <h3 className="text-lg font-bold mb-2">Alcohol Content Adjustment</h3>
+              <h3 className="text-lg font-bold mb-2">
+                Alcohol Content Adjustment
+              </h3>
               {disableBoosting ? (
                 <div className="alert alert-warning mb-2">
                   <svg
@@ -84,7 +86,8 @@ const SimpleDrinkCustomizer = ({
                 </div>
               ) : (
                 <p className="text-base-content/70 mb-2">
-                  Adjust the strength of your drink by modifying the alcohol content
+                  Adjust the strength of your drink by modifying the alcohol
+                  content
                 </p>
               )}
               <div className="flex items-center gap-4">
@@ -98,13 +101,17 @@ const SimpleDrinkCustomizer = ({
                   className={`range flex-1 ${disableBoosting ? 'opacity-50' : ''}`}
                   disabled={disableBoosting}
                 />
-                <div className={`badge badge-lg ${disableBoosting ? 'opacity-50' : ''}`}>
+                <div
+                  className={`badge badge-lg ${disableBoosting ? 'opacity-50' : ''}`}
+                >
                   {customizations?.boost === 100
                     ? 'Normal'
                     : `${customizations?.boost > 100 ? '+' : ''}${(customizations?.boost || 100) - 100}%`}
                 </div>
               </div>
-              <div className={`w-full flex justify-between text-xs px-2 mt-1 text-base-content/70 ${disableBoosting ? 'opacity-50' : ''}`}>
+              <div
+                className={`w-full flex justify-between text-xs px-2 mt-1 text-base-content/70 ${disableBoosting ? 'opacity-50' : ''}`}
+              >
                 <span>No Alcohol</span>
                 <span>Normal</span>
                 <span>Double</span>
@@ -113,7 +120,9 @@ const SimpleDrinkCustomizer = ({
 
             <div>
               <h3 className="text-lg font-bold mb-2">Additional Ingredients</h3>
-              <p className="text-base-content/70 mb-4">Add extra ingredients to customize your drink</p>
+              <p className="text-base-content/70 mb-4">
+                Add extra ingredients to customize your drink
+              </p>
 
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
                 {additionalIngredients.map(({ ingredient, amount }) => (
