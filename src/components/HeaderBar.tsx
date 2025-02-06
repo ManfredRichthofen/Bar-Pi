@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { User, LogOut, Settings, Menu } from 'lucide-react';
+import { User, LogOut, Settings, Smartphone, Menu } from 'lucide-react';
 import useAuthStore from '../store/authStore';
 import { useNavigate } from 'react-router-dom';
 import userService from '../services/user.service';
@@ -46,7 +46,6 @@ const HeaderBar: React.FC<HeaderBarProps> = ({ collapsed, onToggle }) => {
           logoutUser();
           navigate('/login', { replace: true });
         }
-        // Using toast from DaisyUI maybe switch to react toast
         const toastElement = document.createElement('div');
         toastElement.className = 'toast toast-top toast-end';
         toastElement.innerHTML = `
@@ -103,7 +102,6 @@ const HeaderBar: React.FC<HeaderBarProps> = ({ collapsed, onToggle }) => {
             <Menu size={20} className="text-base-content/70" />
           </button>
 
-          {/* Show title when sidebar is collapsed or on mobile */}
           <h1
             className={`text-lg sm:text-xl font-semibold ${!collapsed && 'lg:hidden'}`}
           >
@@ -150,6 +148,15 @@ const HeaderBar: React.FC<HeaderBarProps> = ({ collapsed, onToggle }) => {
                 >
                   <Settings size={16} />
                   <span className="text-sm">Settings</span>
+                </a>
+              </li>
+              <li>
+                <a
+                  onClick={() => navigate('/simple')}
+                  className="flex items-center gap-2 py-2"
+                >
+                  <Smartphone size={16} />
+                  <span className="text-sm">Simple Mode</span>
                 </a>
               </li>
               <div className="divider my-1"></div>
