@@ -92,7 +92,10 @@ function App() {
             token ? (
               <SimpleLayout>
                 <Routes>
-                  <Route path="/" element={<Navigate to="/simple/drinks" replace />} />
+                  <Route
+                    path="/"
+                    element={<Navigate to="/simple/drinks" replace />}
+                  />
                   <Route path="/drinks" element={<SimpleDrinks />} />
                   <Route path="/settings" element={<SimpleSettings />} />
                 </Routes>

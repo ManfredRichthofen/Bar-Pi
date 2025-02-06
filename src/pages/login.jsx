@@ -46,8 +46,8 @@ const Login = () => {
               alt="Logo"
               className="mx-auto mb-6 w-24 sm:w-28 lg:w-32"
             />
-            <h2 className="text-2xl font-bold mb-2">{t('login_headline')}</h2>
-            <p>{t('login_subtitle') || 'Please sign in to your account'}</p>
+            <h2 className="text-2xl font-bold mb-2">{t('login.headline')}</h2>
+            <p>{t('login.subtitle') || 'Please sign in to your account'}</p>
           </div>
 
           {/* Display error message if login fails */}
@@ -92,7 +92,7 @@ const Login = () => {
                 <input
                   type="text"
                   name="username"
-                  placeholder={t('login_username_field_label')}
+                  placeholder={t('login.username_field_label')}
                   className="input input-bordered w-full"
                   required
                 />
@@ -107,7 +107,7 @@ const Login = () => {
                 <input
                   type="password"
                   name="password"
-                  placeholder={t('login_password_field_label')}
+                  placeholder={t('login.password_field_label')}
                   className="input input-bordered w-full"
                   required
                 />
@@ -123,33 +123,34 @@ const Login = () => {
                   className="checkbox checkbox-sm"
                 />
                 <span className="label-text ml-2">
-                  {t('login_remember_me') || 'Remember me'}
+                  {t('login.remember_me') || 'Remember me'}
                 </span>
               </label>
 
               <a href="/forgot-password" className="link">
-                {t('login_forgot_password') || 'Forgot your password?'}
+                {t('login.forgot_password') || 'Forgot your password?'}
               </a>
             </div>
 
-            {/* Submit Button TODO fix loading style see https://v5.daisyui.com/components/button/#button-with-loading-spinner */}
+            {/* Submit Button */}
             <button
               type="submit"
-              className={`btn btn-primary w-full ${loading ? 'loading' : ''}`}
+              className="btn btn-primary w-full"
               disabled={loading}
             >
-              {!loading && <ArrowRight className="w-5 h-5" />}
+              {loading && <span className="loading loading-spinner"></span>}
+              {!loading && <ArrowRight className="w-5 h-5 mr-2" />}
               {loading
-                ? t('login_logging_in') || 'Signing you in...'
-                : t('login_btn_label') || 'Sign in to your account'}
+                ? t('login.logging_in') || 'Signing you in...'
+                : t('login.btn_label') || 'Sign in to your account'}
             </button>
 
             {/* Sign Up Link TODO */}
             <div className="text-center mt-6">
               <p>
-                {t('login_no_account') || "Don't have an account?"}{' '}
+                {t('login.no_account') || "Don't have an account?"}{' '}
                 <a href="/register" className="link">
-                  {t('login_create_account') || 'Create one here'}
+                  {t('login.create_account') || 'Create one here'}
                 </a>
               </p>
             </div>

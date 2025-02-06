@@ -12,4 +12,4 @@ const SimpleLayout: React.FC<SimpleLayoutProps> = ({ children }) => {
   );
 };
 
-export default SimpleLayout; 
+export default SimpleLayout;

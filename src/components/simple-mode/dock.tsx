@@ -15,11 +15,11 @@ const Dock: React.FC = () => {
     <div className="dock">
       <button className={isActive('/simple/drinks')}>
         <Link to="/simple/drinks" className="flex flex-col items-center gap-1">
-          <GlassWater className="h-6 w-6"/>
+          <GlassWater className="h-6 w-6" />
           <span className="dock-label">{t('Drinks')}</span>
         </Link>
       </button>
-      
+
       <button className={isActive('/simple/order')}>
         <Link to="/simple/order" className="flex flex-col items-center gap-1">
           <Clock className="h-6 w-6" />
@@ -28,7 +28,10 @@ const Dock: React.FC = () => {
       </button>
 
       <button className={isActive('/simple/settings')}>
-        <Link to="/simple/settings" className="flex flex-col items-center gap-1">
+        <Link
+          to="/simple/settings"
+          className="flex flex-col items-center gap-1"
+        >
           <Settings className="h-6 w-6" />
           <span className="dock-label">{t('Settings')}</span>
         </Link>
