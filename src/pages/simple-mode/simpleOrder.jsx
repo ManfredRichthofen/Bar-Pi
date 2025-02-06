@@ -44,14 +44,15 @@ const SimpleOrder = () => {
 
   const getOrderConfig = () => {
     return {
-      amountOrderedInMl: amountToProduce || recipe.defaultGlass?.sizeInMl || 250,
+      amountOrderedInMl:
+        amountToProduce || recipe.defaultGlass?.sizeInMl || 250,
       customisations: {
         boost: boost || 100,
         additionalIngredients: [],
       },
       productionStepReplacements: [],
       useAutomaticIngredients: true,
-      skipMissingIngredients: false
+      skipMissingIngredients: false,
     };
   };
 
@@ -95,11 +96,16 @@ const SimpleOrder = () => {
 
       await cocktailService.order(recipeId, orderConfig, false, token);
       showToast('Drink ordered successfully', 'success');
-      navigate('/simple/drinks');
+      navigate('/simple/order-status');
     } catch (error) {
       if (error.response?.data?.message) {
-        if (error.response.data.message.includes('pumps are currently occupied')) {
-          showToast('Machine is busy - please wait for current drink to finish', 'error');
+        if (
+          error.response.data.message.includes('pumps are currently occupied')
+        ) {
+          showToast(
+            'Machine is busy - please wait for current drink to finish',
+            'error',
+          );
         } else {
           showToast(error.response.data.message, 'error');
         }
@@ -146,7 +152,9 @@ const SimpleOrder = () => {
             <div>
               <h3 className="text-xl font-bold mb-2">{recipe.name}</h3>
               {recipe.description && (
-                <p className="mb-4 text-base-content/70">{recipe.description}</p>
+                <p className="mb-4 text-base-content/70">
+                  {recipe.description}
+                </p>
               )}
 
               <SimpleGlassSelector

@@ -1,35 +1,48 @@
 import { Stomp } from '@stomp/stompjs';
 import SockJS from 'sockjs-client/dist/sockjs';
+import axios from 'axios';
 import authHeader from './auth-header';
 import useAuthStore from '../store/authStore';
 import config from './config';
+axios.defaults.baseURL = config.API_BASE_URL;
 
 const getFormattedServerAddress = () => {
   return config.API_BASE_URL;
+};
+
+const isDevelopment = () => {
+  return (
+    window.location.hostname === 'localhost' ||
+    window.location.hostname === '127.0.0.1'
+  );
 };
 
 class WebsocketService {
   subscriptions = new Map();
   activeSubscriptions = new Map();
   callbackData = new Map();
+  connected = false;
+  showReconnectDialog = false;
+  secondsTillWebsocketReconnect = 5;
+  reconnectThrottleInSeconds = 5;
 
   reconnectTasks = [];
   stompClient = null;
   csrf = null;
 
   constructor() {
-    addEventListener('beforeunload', (event) => {
+    addEventListener('beforeunload', () => {
       this.disconnectWebsocket();
     });
   }
 
   async connectWebsocket(token) {
     this.stompClient = Stomp.over(
-      () => new SockJS(getFormattedServerAddress() + '/websocket'),
+      () => new SockJS(config.API_BASE_URL + '/websocket'),
     );
 
     this.stompClient.connectHeaders = {
-      Authorization: authHeader(token),
+      Authorization: `Bearer ${token}`,
     };
     const vm = this;
     this.stompClient.onConnect = async function () {
@@ -43,9 +56,7 @@ class WebsocketService {
       vm.connected = true;
     };
 
-    if (!process.env.DEV) {
-      this.stompClient.debug = function (str) {};
-    }
+    this.stompClient.debug = () => {};
 
     for (const id of this.reconnectTasks) {
       clearTimeout(id);
@@ -110,15 +121,15 @@ class WebsocketService {
     }
 
     if (!this.subscriptions.has(path)) {
-      const onMessage = (data) => {
+      const onMessage = (message) => {
         const callbackDataPath = this.callbackData.get(path);
-        callbackDataPath.lastMsg = data;
+        callbackDataPath.lastMsg = message;
         for (const cb of callbackDataPath.subscribers.values()) {
-          cb(data);
+          cb(message);
         }
       };
       this.subscriptions.set(path, onMessage);
-      if (this.connected) {
+      if (this.connected && this.stompClient) {
         const activeSub = this.stompClient.subscribe(path, onMessage);
         this.activeSubscriptions.set(path, activeSub);
       }
@@ -142,6 +153,14 @@ class WebsocketService {
     }
     this.activeSubscriptions.get(path).unsubscribe();
     this.activeSubscriptions.delete(path);
+  }
+
+  getShowReconnectDialog() {
+    return this.showReconnectDialog;
+  }
+
+  getSecondsTillWebsocketReconnect() {
+    return this.secondsTillWebsocketReconnect;
   }
 }
 

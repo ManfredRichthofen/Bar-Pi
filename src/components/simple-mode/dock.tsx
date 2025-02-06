@@ -20,8 +20,11 @@ const Dock: React.FC = () => {
         </Link>
       </button>
 
-      <button className={isActive('/simple/order')}>
-        <Link to="/simple/order" className="flex flex-col items-center gap-1">
+      <button className={isActive('/simple/order-status')}>
+        <Link
+          to="/simple/order-status"
+          className="flex flex-col items-center gap-1"
+        >
           <Clock className="h-6 w-6" />
           <span className="dock-label">{t('Order Status')}</span>
         </Link>

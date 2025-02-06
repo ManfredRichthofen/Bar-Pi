@@ -23,6 +23,7 @@ import SimpleLayout from './components/simple-mode/simpleLayout';
 import SimpleDrinks from './pages/simple-mode/simpleDrinks';
 import SimpleSettings from './pages/simple-mode/simpleSettings';
 import SimpleOrder from './pages/simple-mode/simpleOrder';
+import SimpleOrderStatus from './pages/simple-mode/simpleOrderStatus';
 
 function App() {
   const reinitializeAuthState = useAuthStore(
@@ -100,6 +101,7 @@ function App() {
                   <Route path="/drinks" element={<SimpleDrinks />} />
                   <Route path="/settings" element={<SimpleSettings />} />
                   <Route path="/order" element={<SimpleOrder />} />
+                  <Route path="/order-status" element={<SimpleOrderStatus />} />
                 </Routes>
               </SimpleLayout>
             ) : (
