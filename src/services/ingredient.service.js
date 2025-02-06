@@ -4,7 +4,7 @@ import axios from 'axios';
 axios.defaults.baseURL = config.API_BASE_URL;
 
 class IngredientService {
-  // Add auth token to headers for all requests
+
   getAuthHeader(token) {
     return {
       headers: {
@@ -94,10 +94,8 @@ class IngredientService {
   }
 
   createIngredient(createIngredient, image, token) {
-    // Always use FormData, just like the original implementation
     const uploadData = new FormData();
     const stringIngredient = JSON.stringify(createIngredient);
-    console.log('Stringified ingredient:', stringIngredient);
     const blobIngredient = new Blob([stringIngredient], {
       type: 'application/json',
     });
@@ -114,21 +112,8 @@ class IngredientService {
           'Content-Type': 'multipart/form-data',
         },
       })
-      .then((response) => {
-        console.log('Create response:', response);
-        return response;
-      })
+      .then((response) => response)
       .catch((error) => {
-        if (error.response) {
-          console.error('Server error details:', {
-            status: error.response.status,
-            data: error.response.data,
-            headers: error.response.headers,
-            requestData: createIngredient,
-          });
-        }
-        console.error('Error config:', error.config);
-        console.error('Full error:', error);
         throw error;
       });
   }
@@ -164,7 +149,6 @@ export default new IngredientService();
 
 class IngredientDtoMapper {
   toIngredientCreateDto(ingredient) {
-    // Match the original DTO mapper exactly
     if (ingredient.type === 'group') {
       return {
         type: ingredient.type,
@@ -193,7 +177,6 @@ class IngredientDtoMapper {
   }
 
   toIngredientUpdateDto(ingredient) {
-    // For updates, include all fields
     const baseDto = {
       id: ingredient.id,
       type: ingredient.type,

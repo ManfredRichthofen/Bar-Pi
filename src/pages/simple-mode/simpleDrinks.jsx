@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import useAuthStore from '../../store/authStore';
 import RecipeService from '../../services/recipe.service.js';
 import { Navigate } from 'react-router-dom';
-import DrinkCard from '../../components/drinks/DrinkCard.jsx';
+import SimpleDrinkCard from '../../components/simple-mode/drinks/simpleDrinkCard';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { Search } from 'lucide-react';
 
@@ -123,7 +123,7 @@ const SimpleDrinks = () => {
       >
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
           {recipes.map((recipe) => (
-            <DrinkCard key={recipe.id} recipe={recipe} />
+            <SimpleDrinkCard key={recipe.id} recipe={recipe} />
           ))}
         </div>
       </InfiniteScroll>

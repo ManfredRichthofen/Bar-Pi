@@ -22,6 +22,7 @@ import { useTranslation } from 'react-i18next';
 import SimpleLayout from './components/simple-mode/simpleLayout';
 import SimpleDrinks from './pages/simple-mode/simpleDrinks';
 import SimpleSettings from './pages/simple-mode/simpleSettings';
+import SimpleOrder from './pages/simple-mode/simpleOrder';
 
 function App() {
   const reinitializeAuthState = useAuthStore(
@@ -98,6 +99,7 @@ function App() {
                   />
                   <Route path="/drinks" element={<SimpleDrinks />} />
                   <Route path="/settings" element={<SimpleSettings />} />
+                  <Route path="/order" element={<SimpleOrder />} />
                 </Routes>
               </SimpleLayout>
             ) : (

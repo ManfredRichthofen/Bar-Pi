@@ -16,13 +16,19 @@ class CocktailService {
   }
 
   order(recipeId, orderConfig, isIngredient = false, token) {
-    let params = {
-      isIngredient,
-    };
-    params = JsUtils.cleanObject(params);
-    return axios.put(API_PATH + String(recipeId), orderConfig, {
-      ...this.getAuthHeader(token),
-      params,
+    return axios.put(
+      `${API_PATH}${recipeId}`,
+      orderConfig,
+      {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      }
+    ).catch(error => {
+      const errorMessage = error.response?.data?.message || 'Failed to order drink';
+      error.userMessage = errorMessage;
+      throw error;
     });
   }
 
