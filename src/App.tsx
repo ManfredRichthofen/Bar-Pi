@@ -1,3 +1,4 @@
+import React from 'react';
 import {
   BrowserRouter as Router,
   Route,
@@ -18,6 +19,11 @@ import Pumps from './pages/pumps';
 import { themeChange } from 'theme-change';
 import { useTranslation } from 'react-i18next';
 
+//SImple Mode
+import SimpleLayout from './components/simple-mode/simpleLayout';
+import SimpleDrinks from './pages/simple-mode/simpleDrinks';
+import SimpleSettings from './pages/simple-mode/simpleSettings';
+
 function App() {
   const reinitializeAuthState = useAuthStore(
     (state) => state.reinitializeAuthState,
@@ -26,7 +32,7 @@ function App() {
   const { i18n } = useTranslation();
   const [isInitialized, setIsInitialized] = useState(false);
 
-  // Auth initialization
+  // Auth
   useEffect(() => {
     const initialize = async () => {
       await reinitializeAuthState();
@@ -35,7 +41,7 @@ function App() {
     initialize();
   }, [reinitializeAuthState]);
 
-  // Theme and language initialization
+  // Theme and language
   useEffect(() => {
     // Theme initialization
     const savedTheme = localStorage.getItem('theme') || 'light';
@@ -80,7 +86,25 @@ function App() {
           element={!token ? <Login /> : <Navigate to="/drinks" replace />}
         />
 
-        {/* Protected routes with layout */}
+        {/* Simple Mode routes */}
+        <Route
+          path="/simple/*"
+          element={
+            token ? (
+              <SimpleLayout>
+                <Routes>
+                  <Route path="/" element={<Navigate to="/simple/drinks" replace />} />
+                  <Route path="/drinks" element={<SimpleDrinks />} />
+                  <Route path="/settings" element={<SimpleSettings />} />
+                </Routes>
+              </SimpleLayout>
+            ) : (
+              <Navigate to="/login" replace />
+            )
+          }
+        />
+
+        {/* Main app routes */}
         <Route
           path="/*"
           element={
@@ -95,7 +119,6 @@ function App() {
                   <Route path="/users" element={<CreateUser />} />
                   <Route path="/glasses" element={<Glasses />} />
                   <Route path="/pumps" element={<Pumps />} />
-                  {/* Add more routes here */}
                 </Routes>
               </MainLayout>
             ) : (

@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import useAuthStore from '../store/authStore';
-import RecipeService from '../services/recipe.service.js';
+import useAuthStore from '../../store/authStore';
+import RecipeService from '../../services/recipe.service.js';
 import { Navigate } from 'react-router-dom';
-import DrinkCard from '../components/drinks/DrinkCard.jsx';
+import DrinkCard from '../../components/drinks/DrinkCard.jsx';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { Search } from 'lucide-react';
 
-const Drinks = () => {
+const SimpleDrinks = () => {
   const [recipes, setRecipes] = useState([]);
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(0);
@@ -131,4 +131,4 @@ const Drinks = () => {
   );
 };
 
-export default Drinks;
+export default SimpleDrinks;
