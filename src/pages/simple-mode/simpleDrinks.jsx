@@ -90,13 +90,13 @@ const SimpleDrinks = () => {
         </h2>
 
         <form onSubmit={handleSearch} className="max-w-md mx-auto mb-8">
-          <div className="join w-full rounded-lg shadow-sm border">
+          <div className="join w-full">
             <input
               name="search"
-              className="input rounded-l-lg join-item flex-1 focus:outline-none bg-transparent hover:bg-base-200"
+              className="input join-item w-full"
               placeholder="Search drinks..."
             />
-            <button type="submit" className="btn rounded-r-lg join-item btn-ghost hover:bg-base-200">
+            <button type="submit" className="btn bg-base-100 join-item">
               <Search className="h-5 w-5" />
             </button>
           </div>
