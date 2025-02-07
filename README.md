@@ -91,7 +91,7 @@ We welcome contributions! Please follow these steps:
 
 ## License
 
-[Add your license information here]
+[Add later]
 
 ## Acknowledgments
 
