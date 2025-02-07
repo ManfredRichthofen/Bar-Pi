@@ -189,12 +189,13 @@ const SimpleOrder = () => {
 
               <div className="flex gap-2 mt-4">
                 <button
-                  className={`btn btn-primary flex-1 ${loading ? 'loading' : ''}`}
+                  className="btn btn-primary flex-1"
                   onClick={handleMakeDrink}
-                  disabled={!canOrderDrink}
+                  disabled={!canOrderDrink || loading}
                 >
-                  <BeakerIcon size={16} />
-                  {loading ? 'Please wait...' : 'Make Drink'}
+                  {loading && <span className="loading loading-spinner"></span>}
+                  {!loading && <BeakerIcon size={16} className="mr-2" />}
+                  {loading ? 'Making your drink...' : 'Make Drink'}
                 </button>
                 <button
                   className="btn btn-ghost flex-1"

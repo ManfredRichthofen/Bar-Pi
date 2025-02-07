@@ -8,7 +8,8 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "pretty": "prettier --write ."
+    "pretty": "prettier --write .",
+    "tauri": "tauri"
   },
   "dependencies": {
     "@stomp/stompjs": "^7.0.0",
@@ -38,6 +39,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.17.0",
+    "@tauri-apps/cli": "^2.2.7",
     "@types/react": "^18.3.18",
     "@types/react-dom": "^18.3.5",
     "@vitejs/plugin-react-swc": "^3.5.0",
