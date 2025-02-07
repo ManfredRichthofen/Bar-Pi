@@ -10,11 +10,11 @@ const useAuthStore = create((set) => ({
   error: null,
   loading: false,
 
-  loginUser: async (credentials) => {
+  loginUser: async (credentials, apiBaseUrl) => {
     set({ loading: true, error: null });
 
     try {
-      const response = await AuthService.login(credentials);
+      const response = await AuthService.login(credentials, apiBaseUrl);
       console.log('Login response:', response);
 
       localStorage.setItem('token', response.accessToken);
@@ -30,7 +30,7 @@ const useAuthStore = create((set) => ({
     } catch (error) {
       console.error('Login error:', error);
       set({
-        error: error.message,
+        error: error.message || 'Failed to connect to server',
         loading: false,
       });
       return false;

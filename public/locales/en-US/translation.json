@@ -10,12 +10,17 @@
     "subtitle": "Please sign in to your account",
     "btn_label": "Sign in to your account",
     "logging_in": "Signing you in...",
-    "errors_field_required": "This field is required"
+    "errors_field_required": "This field is required",
+    "api_url": "API URL",
+    "username": "Username",
+    "password": "Password"
   },
   "common": {
     "edit": "Edit",
     "close": "Close"
   },
+
+
   "pump_status": {
     "headline": "Pump Status",
     "pumps_headline": "Pumps",
@@ -63,11 +68,65 @@
   },
   "settings": {
     "title": "Settings",
-    "appearance": "Appearance",
-    "theme": "Theme",
-    "language": "Language",
-    "general": "General Settings",
-    "notifications": "Enable Notifications",
-    "soundEffects": "Sound Effects"
+    "general": {
+      "title": "General Settings",
+      "language_label": "Language",
+      "notifications": "Enable Notifications",
+      "sound_effects": "Sound Effects"
+    },
+    "advanced": {
+      "title": "Advanced Settings",
+      "api_url_label": "API Base URL",
+      "api_url_placeholder": "https://api.example.com",
+      "save": "Save",
+      "saved": "Saved!",
+      "error": "Error!",
+      "invalid_url": "Please enter a valid URL including http:// or https://",
+      "api_unreachable": "Unable to connect to API",
+      "save_error": "Failed to save API URL"
+    },
+    "appearance": {
+      "title": "Appearance",
+      "themes": {
+        "light": "Light",
+        "dark": "Dark",
+        "cupcake": "Cupcake",
+        "bumblebee": "Bumblebee",
+        "emerald": "Emerald",
+        "corporate": "Corporate",
+        "synthwave": "Synthwave",
+        "retro": "Retro",
+        "cyberpunk": "Cyberpunk",
+        "valentine": "Valentine",
+        "halloween": "Halloween",
+        "garden": "Garden",
+        "forest": "Forest",
+        "aqua": "Aqua",
+        "lofi": "Lo-Fi",
+        "pastel": "Pastel",
+        "fantasy": "Fantasy",
+        "wireframe": "Wireframe",
+        "black": "Black",
+        "luxury": "Luxury",
+        "dracula": "Dracula",
+        "cmyk": "CMYK",
+        "autumn": "Autumn",
+        "business": "Business",
+        "acid": "Acid",
+        "lemonade": "Lemonade",
+        "night": "Night",
+        "coffee": "Coffee",
+        "winter": "Winter",
+        "dim": "Dim",
+        "nord": "Nord",
+        "sunset": "Sunset"
+      }
+    }
+  },
+  "languages": {
+    "english": "English",
+    "spanish": "Español",
+    "french": "Français",
+    "german": "Deutsch"
   }
 }
