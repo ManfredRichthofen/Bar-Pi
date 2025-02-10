@@ -76,87 +76,84 @@ const SimpleOrderStatus = () => {
 
   if (!progress) {
     return (
-      <div className="min-h-screen p-4 flex items-center justify-center">
-        <div className="card bg-base-100 shadow-xl max-w-md w-full">
-          <div className="card-body items-center text-center">
-            <h2 className="card-title text-2xl mb-4">No Active Order</h2>
-            <p className="text-base-content/70 mb-6">
-              There is currently no cocktail being prepared
-            </p>
-            <button
-              className="btn btn-primary"
-              onClick={() => navigate('/simple/drinks')}
-            >
-              Order a Drink
-            </button>
-          </div>
-        </div>
+      <div className="min-h-screen flex flex-col items-center justify-center px-4 py-8 bg-base-100">
+        <h2 className="text-2xl font-bold mb-4">No Active Order</h2>
+        <p className="text-base-content/70 mb-8 text-center">
+          There is currently no cocktail being prepared
+        </p>
+        <button
+          className="btn btn-primary btn-lg w-full max-w-md"
+          onClick={() => navigate('/simple/drinks')}
+        >
+          Order a Drink
+        </button>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen p-4">
-      <div className="max-w-2xl mx-auto space-y-6">
-        {/* Status Card */}
-        <div className="card bg-base-100 shadow-xl">
-          <div className="card-body">
-            <div className="flex justify-between items-start">
-              <div>
-                <h2 className="card-title text-2xl mb-4">{progress.recipe.name}</h2>
-                <div className="flex items-center gap-3">
-                  <div className={getStatusClass()}>{getStatusIcon()}</div>
-                  <span className="badge badge-lg capitalize">
-                    {progress.state.toLowerCase().replace(/_/g, ' ')}
-                  </span>
-                </div>
-              </div>
-              <button
-                className="btn btn-circle btn-sm btn-error"
-                onClick={handleCancel}
-                disabled={canceling || ['CANCELLED', 'FINISHED'].includes(progress.state)}
-              >
-                <Square size={16} />
-              </button>
+    <div className="min-h-screen bg-base-100">
+      <div className="max-w-2xl mx-auto px-4 py-6 space-y-8">
+        {/* Status Section */}
+        <div className="flex justify-between items-start">
+          <div>
+            <h2 className="text-2xl font-bold mb-4">{progress.recipe.name}</h2>
+            <div className="flex items-center gap-3">
+              <div className={getStatusClass()}>{getStatusIcon()}</div>
+              <span className="badge badge-lg capitalize">
+                {progress.state.toLowerCase().replace(/_/g, ' ')}
+              </span>
             </div>
+          </div>
+          <button
+            className="btn btn-circle btn-lg btn-error"
+            onClick={handleCancel}
+            disabled={canceling || ['CANCELLED', 'FINISHED'].includes(progress.state)}
+          >
+            <Square size={24} />
+          </button>
+        </div>
 
-            {/* Progress Bar */}
-            <div className="mt-6">
-              <div className="flex justify-between mb-2">
-                <span className="text-base-content/70">Progress</span>
-                <span className="font-medium">{progress.progress}%</span>
-              </div>
-              <progress
-                className={`progress progress-${getStatusClass().replace('text-', '')} w-full`}
-                value={progress.progress}
-                max="100"
-              />
-            </div>
+        {/* Progress Bar */}
+        <div>
+          <div className="flex justify-between mb-3">
+            <span className="text-base-content/70 text-lg">Progress</span>
+            <span className="font-medium text-lg">{progress.progress}%</span>
+          </div>
+          <progress
+            className={`progress progress-${getStatusClass().replace('text-', '')} w-full h-4`}
+            value={progress.progress}
+            max="100"
+          />
+        </div>
 
-            {/* Manual Ingredient Add Confirmation */}
-            {progress.state === 'MANUAL_INGREDIENT_ADD' && (
-              <div className="mt-6">
-                <div className="alert alert-warning shadow-lg">
-                  <AlertTriangle size={24} />
-                  <div className="flex-1">
-                    <h3 className="font-bold text-lg mb-2">Manual Ingredients Required</h3>
-                    <div>
-                      {progress.currentIngredientsToAddManually?.length > 0 ? (
-                        <ul className="list-disc list-inside space-y-1">
-                          {progress.currentIngredientsToAddManually.map((item, index) => (
-                            <li key={index} className="text-base">
-                              {item.ingredient.name} ({item.amount} {item.ingredient.unit})
-                            </li>
-                          ))}
-                        </ul>
-                      ) : (
-                        <p>Required ingredients will be listed here</p>
-                      )}
-                      <p className="mt-4 text-sm opacity-75">Please add these ingredients and confirm when ready.</p>
-                    </div>
+        {/* Manual Ingredient Add Confirmation */}
+        {progress.state === 'MANUAL_INGREDIENT_ADD' && (
+          <div className="py-4">
+            <div className="bg-warning/20 rounded-lg p-6">
+              <div className="flex items-start gap-4">
+                <AlertTriangle size={28} className="text-warning shrink-0" />
+                <div className="flex-1">
+                  <h3 className="font-bold text-xl mb-4">Manual Ingredients Required</h3>
+                  <div>
+                    {progress.currentIngredientsToAddManually?.length > 0 ? (
+                      <ul className="space-y-2 mb-4">
+                        {progress.currentIngredientsToAddManually.map((item, index) => (
+                          <li key={index} className="text-lg flex justify-between">
+                            <span>{item.ingredient.name}</span>
+                            <span className="font-medium">
+                              {item.amount} {item.ingredient.unit}
+                            </span>
+                          </li>
+                        ))}
+                      </ul>
+                    ) : (
+                      <p className="text-lg mb-4">Required ingredients will be listed here</p>
+                    )}
+                    <p className="text-base opacity-75">Please add these ingredients and confirm when ready.</p>
                   </div>
                   <button
-                    className="btn btn-warning"
+                    className="btn btn-warning btn-lg w-full mt-6"
                     onClick={handleConfirmManualAdd}
                     disabled={confirming}
                   >
@@ -164,44 +161,40 @@ const SimpleOrderStatus = () => {
                   </button>
                 </div>
               </div>
-            )}
-
-            {/* Recipe Details */}
-            {progress.recipe.ingredients && (
-              <div className="mt-6">
-                <h3 className="font-bold text-lg mb-4">Ingredients</h3>
-                <div className="overflow-x-auto">
-                  <table className="table table-zebra w-full">
-                    <tbody>
-                      {progress.recipe.ingredients.map((ingredient, index) => (
-                        <tr key={index}>
-                          <td className="font-medium">{ingredient.name}</td>
-                          <td className="text-right text-base-content/70">
-                            {ingredient.amount} {ingredient.unit}
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            )}
-
-            {progress.recipe.description && (
-              <div className="mt-6">
-                <h3 className="font-bold text-lg mb-4">Description</h3>
-                <p className="text-base-content/70 leading-relaxed">
-                  {progress.recipe.description}
-                </p>
-              </div>
-            )}
+            </div>
           </div>
-        </div>
+        )}
+
+        {/* Recipe Details */}
+        {progress.recipe.ingredients && (
+          <div className="border-t border-base-300 pt-6">
+            <h3 className="font-bold text-xl mb-4">Ingredients</h3>
+            <div className="space-y-3">
+              {progress.recipe.ingredients.map((ingredient, index) => (
+                <div key={index} className="flex justify-between py-2 text-lg">
+                  <span className="font-medium">{ingredient.name}</span>
+                  <span className="text-base-content/70">
+                    {ingredient.amount} {ingredient.unit}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {progress.recipe.description && (
+          <div className="border-t border-base-300 pt-6">
+            <h3 className="font-bold text-xl mb-4">Description</h3>
+            <p className="text-base-content/70 leading-relaxed text-lg">
+              {progress.recipe.description}
+            </p>
+          </div>
+        )}
 
         {/* Navigation */}
-        <div className="flex justify-center">
+        <div className="py-6">
           <button
-            className="btn btn-ghost"
+            className="btn btn-neutral btn-lg w-full"
             onClick={() => navigate('/simple/drinks')}
           >
             Back to Drinks
