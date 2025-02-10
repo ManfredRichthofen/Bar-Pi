@@ -38,10 +38,16 @@ class CocktailService {
     params = JsUtils.cleanObject(params);
     return axios
       .put(API_PATH + String(recipeId) + '/feasibility', orderConfig, {
-        ...this.getAuthHeader(token),
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
         params,
       })
-      .then((response) => response.data);
+      .then((response) => response.data)
+      .catch(error => {
+        throw error;
+      });
   }
 
   cancelCocktail(token) {

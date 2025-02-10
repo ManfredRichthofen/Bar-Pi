@@ -36,25 +36,30 @@ const SimpleOrder = () => {
       if (recipe.defaultGlass) {
         setSelectedGlass(recipe.defaultGlass);
         setAmountToProduce(recipe.defaultGlass.sizeInMl);
+      } else {
+        setAmountToProduce(250);
       }
       setIngredients(recipe.ingredients || []);
-      checkFeasibility(recipe.id, getOrderConfig());
     }
   }, [recipe]);
 
-  const getOrderConfig = () => {
-    return {
-      amountOrderedInMl:
-        amountToProduce || recipe.defaultGlass?.sizeInMl || 250,
-      customisations: {
-        boost: boost || 100,
-        additionalIngredients: [],
-      },
-      productionStepReplacements: [],
-      useAutomaticIngredients: true,
-      skipMissingIngredients: false,
-    };
-  };
+  useEffect(() => {
+    if (recipe && amountToProduce) {
+      checkFeasibility(recipe.id, getOrderConfig());
+    }
+  }, [recipe, amountToProduce]);
+
+  const getOrderConfig = () => ({
+    amountOrderedInMl: amountToProduce || recipe.defaultGlass?.sizeInMl || 250,
+    customisations: {
+      boost: boost || 100,
+      additionalIngredients: [],
+    },
+    productionStepReplacements: [],
+    ingredientGroupReplacements: [],
+    useAutomaticIngredients: true,
+    skipMissingIngredients: false,
+  });
 
   const checkFeasibility = async (recipeId, orderConfig) => {
     setChecking(true);
