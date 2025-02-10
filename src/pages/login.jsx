@@ -36,7 +36,7 @@ const Login = () => {
           setApiBaseUrl(formatUrl(currentApiUrl));
         }
         const redirectTo = new URLSearchParams(location.search).get('redirectTo');
-        navigate(redirectTo || '/drinks');
+        navigate(redirectTo || '/simple/drinks');
       }
     } catch (error) {
       console.error('Login error:', error);

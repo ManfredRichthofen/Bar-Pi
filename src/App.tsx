@@ -84,7 +84,7 @@ function App() {
         {/* Public routes */}
         <Route
           path="/login"
-          element={!token ? <Login /> : <Navigate to="/drinks" replace />}
+          element={!token ? <Login /> : <Navigate to="/simple/drinks" replace />}
         />
 
         {/* Simple Mode routes */}
@@ -94,14 +94,11 @@ function App() {
             token ? (
               <SimpleLayout>
                 <Routes>
-                  <Route
-                    path="/"
-                    element={<Navigate to="/simple/drinks" replace />}
-                  />
                   <Route path="/drinks" element={<SimpleDrinks />} />
                   <Route path="/settings" element={<SimpleSettings />} />
                   <Route path="/order" element={<SimpleOrder />} />
                   <Route path="/order-status" element={<SimpleOrderStatus />} />
+                  <Route path="*" element={<Navigate to="/simple/drinks" replace />} />
                 </Routes>
               </SimpleLayout>
             ) : (
@@ -118,13 +115,13 @@ function App() {
               <MainLayout>
                 <Routes>
                   <Route path="/drinks" element={<Drinks />} />
-                  <Route path="/" element={<Navigate to="/drinks" replace />} />
                   <Route path="/ingredients" element={<Ingredients />} />
                   <Route path="/order" element={<Order />} />
                   <Route path="/settings" element={<Settings />} />
                   <Route path="/users" element={<CreateUser />} />
                   <Route path="/glasses" element={<Glasses />} />
                   <Route path="/pumps" element={<Pumps />} />
+                  <Route path="*" element={<Navigate to="/simple/drinks" replace />} />
                 </Routes>
               </MainLayout>
             ) : (
@@ -132,6 +129,9 @@ function App() {
             )
           }
         />
+
+        {/* Root redirect */}
+        <Route path="*" element={<Navigate to="/simple/drinks" replace />} />
       </Routes>
     </Router>
   );

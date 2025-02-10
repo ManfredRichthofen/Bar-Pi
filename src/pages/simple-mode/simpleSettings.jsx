@@ -1,9 +1,11 @@
 import React, { useEffect } from 'react';
 import { themeChange } from 'theme-change';
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
 
 const SimpleSettings = () => {
   const { t, i18n } = useTranslation();
+  const navigate = useNavigate();
 
   useEffect(() => {
     themeChange(false);
@@ -65,7 +67,7 @@ const SimpleSettings = () => {
         <div className="card bg-base-200 shadow-xl">
           <div className="card-body p-4 sm:p-6">
             <h2 className="card-title text-lg sm:text-xl mb-4 sm:mb-6">
-              {t('settings.general', 'General Settings')}
+              {t('settings.general_title', 'General Settings')}
             </h2>
 
             <div className="space-y-4 sm:space-y-6">
@@ -109,6 +111,20 @@ const SimpleSettings = () => {
                     className="toggle toggle-primary toggle-sm sm:toggle-md"
                   />
                 </label>
+
+                <div className="divider my-2 sm:my-4"></div>
+
+                <label className="label cursor-pointer justify-between py-2">
+                  <span className="label-text text-sm sm:text-base mr-4">
+                    Switch to Advanced Mode
+                  </span>
+                  <button
+                    className="btn btn-sm btn-primary"
+                    onClick={() => navigate('/drinks')}
+                  >
+                    Switch
+                  </button>
+                </label>
               </div>
             </div>
           </div>
@@ -118,7 +134,7 @@ const SimpleSettings = () => {
         <div className="card bg-base-200 shadow-xl">
           <div className="card-body p-4 sm:p-6">
             <h2 className="card-title text-lg sm:text-xl mb-4 sm:mb-6">
-              {t('settings.appearance', 'Appearance')}
+              {t('settings.appearance_title', 'Appearance')}
             </h2>
 
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
