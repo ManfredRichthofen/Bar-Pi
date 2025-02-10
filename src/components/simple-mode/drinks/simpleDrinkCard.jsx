@@ -20,7 +20,7 @@ const SimpleDrinkCard = ({ recipe }) => {
         onClick={showModal}
         className="card bg-base-100 shadow-md hover:shadow-lg hover:-translate-y-1 transition-all duration-200 h-full cursor-pointer"
       >
-        <figure className="aspect-[4/3] sm:aspect-[16/9]">
+        <figure className="aspect-[16/9] sm:aspect-[3/2]">
           {recipe.image ? (
             <img
               src={recipe.image}
@@ -29,31 +29,31 @@ const SimpleDrinkCard = ({ recipe }) => {
             />
           ) : (
             <div className="w-full h-full bg-base-200 flex items-center justify-center">
-              <span className="text-base-content/60 text-sm">
-                No image available
+              <span className="text-base-content/60 text-xs sm:text-sm">
+                No image
               </span>
             </div>
           )}
         </figure>
 
-        <div className="card-body p-3 sm:p-4">
-          <div className="flex items-center justify-between gap-2 mb-1 sm:mb-2">
+        <div className="card-body p-2 sm:p-3">
+          <div className="flex items-center justify-between gap-1 sm:gap-2 mb-0.5 sm:mb-1">
             <h3
-              className="card-title text-sm sm:text-base truncate"
+              className="card-title text-xs sm:text-sm truncate"
               title={recipe.name}
             >
               {recipe.name}
             </h3>
             {recipe.alcoholic && (
-              <div className="badge badge-error text-xs whitespace-nowrap">
-                Alcoholic
+              <div className="badge badge-error badge-xs sm:badge-sm text-[10px] sm:text-xs whitespace-nowrap">
+                21+
               </div>
             )}
           </div>
 
           {recipe.description && (
             <p
-              className="text-base-content/70 mb-2 sm:mb-3 line-clamp-2 text-xs sm:text-sm"
+              className="text-base-content/70 mb-1 sm:mb-2 line-clamp-2 text-[10px] sm:text-xs"
               title={recipe.description}
             >
               {recipe.description}
@@ -61,17 +61,22 @@ const SimpleDrinkCard = ({ recipe }) => {
           )}
 
           <div className="mt-auto">
-            <p className="font-semibold text-xs mb-1">Ingredients:</p>
-            <ul className="space-y-0.5 text-xs">
-              {recipe.ingredients.map((ingredient, index) => (
+            <p className="font-medium text-[10px] sm:text-xs mb-0.5 sm:mb-1">Ingredients:</p>
+            <ul className="space-y-0.5 text-[10px] sm:text-xs">
+              {recipe.ingredients.slice(0, 3).map((ingredient, index) => (
                 <li
                   key={index}
                   className="truncate"
                   title={`${ingredient.name} - ${ingredient.amount} ${ingredient.unit}`}
                 >
-                  • {ingredient.name} - {ingredient.amount} {ingredient.unit}
+                  • {ingredient.name}
                 </li>
               ))}
+              {recipe.ingredients.length > 3 && (
+                <li className="text-base-content/60">
+                  +{recipe.ingredients.length - 3} more
+                </li>
+              )}
             </ul>
           </div>
         </div>
@@ -119,8 +124,7 @@ const SimpleDrinkCard = ({ recipe }) => {
                   <ul className="space-y-2">
                     {recipe.ingredients.map((ingredient, index) => (
                       <li key={index} className="text-sm sm:text-base">
-                        • {ingredient.name} - {ingredient.amount}{' '}
-                        {ingredient.unit}
+                        • {ingredient.name} - {ingredient.amount} {ingredient.unit}
                       </li>
                     ))}
                   </ul>
