@@ -39,7 +39,7 @@ echo "Updating system packages..."
 sudo apt-get update
 sudo apt-get upgrade -y
 
-# Install required dependencies
+# Install required dependencies for Tauri
 echo "Installing system dependencies..."
 sudo apt-get install -y \
     curl \
@@ -48,7 +48,13 @@ sudo apt-get install -y \
     libwebkit2gtk-4.1-0 \
     libgtk-3-0 \
     libayatana-appindicator3-1 \
-    xdotool
+    xdotool \
+    build-essential \
+    libssl-dev \
+    libgtk-3-dev \
+    libwebkit2gtk-4.1-dev \
+    librsvg2-dev \
+    patchelf
 
 if [ "$FRONTEND" = "barpi" ]; then
     # Create installation directory
@@ -84,7 +90,7 @@ if [ "$FRONTEND" = "barpi" ]; then
 [Desktop Entry]
 Type=Application
 Name=Bar-Pi
-Exec=bash -c 'sleep 15 && bar-pi & sleep 2 && xdotool search --sync --onlyvisible --class "bar-pi" windowsize 100% 100%'
+Exec=bar-pi
 Hidden=false
 NoDisplay=false
 X-GNOME-Autostart-enabled=true
@@ -107,8 +113,8 @@ if [ -f ~/.config/wayfire.ini ]; then
     # Backup original config
     cp ~/.config/wayfire.ini ~/.config/wayfire.ini.backup
     if [ "$FRONTEND" = "barpi" ]; then
-        # Update chromium line to use Bar-Pi
-        sed -i '/chromium =/c\chromium = chromium-browser --app=http://localhost:1420 --kiosk --noerrdialogs --disable-component-update --check-for-update-interval=31536000 --disable-infobars --no-first-run --ozone-platform=wayland --enable-features=OverlayScrollbar --disable-features=OverscrollHistoryNavigation --start-maximized --force-device-scale-factor=1.0' ~/.config/wayfire.ini
+        # Remove chromium line for Bar-Pi (since it's a Tauri app)
+        sed -i '/chromium =/d' ~/.config/wayfire.ini
     else
         # Update chromium line to use CocktailPi frontend
         sed -i '/chromium =/c\chromium = chromium-browser http://localhost:8080 --kiosk --noerrdialogs --disable-component-update --check-for-update-interval=31536000 --disable-infobars --no-first-run --ozone-platform=wayland --enable-features=OverlayScrollbar --disable-features=OverscrollHistoryNavigation --start-maximized --force-device-scale-factor=1.0' ~/.config/wayfire.ini
@@ -129,6 +135,7 @@ Type=simple
 User=pi
 Environment=DISPLAY=:0
 Environment=XAUTHORITY=/home/pi/.Xauthority
+Environment=WAYLAND_DISPLAY=wayland-1
 ExecStart=/usr/bin/bar-pi
 Restart=always
 
