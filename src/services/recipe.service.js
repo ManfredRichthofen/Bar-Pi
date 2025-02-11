@@ -1,6 +1,18 @@
 import axios from 'axios';
 import qs from 'qs';
 import config from './config';
+
+// Validate API URL before making requests
+const validateApiUrl = () => {
+  const url = config.API_BASE_URL;
+  if (!url) {
+    throw new Error('API URL is not configured. Please configure it in settings.');
+  }
+  // Update axios base URL in case it changed
+  axios.defaults.baseURL = url;
+};
+
+// Set initial base URL
 axios.defaults.baseURL = config.API_BASE_URL;
 
 import JsUtils from './JsUtils.js';
@@ -36,6 +48,8 @@ class RecipeService {
     orderBy,
     token,
   ) {
+    validateApiUrl(); // Add validation check
+    
     const inCategory = inCategoryId;
     let params = {
       page,

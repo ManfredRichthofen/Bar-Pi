@@ -1,5 +1,5 @@
 const config = {
-  API_BASE_URL: 'https://demo.cocktailpi.org', // Default value
+  API_BASE_URL: '', // Empty by default, requiring explicit setting
   setApiBaseUrl(newUrl) {
     this.API_BASE_URL = newUrl;
   },

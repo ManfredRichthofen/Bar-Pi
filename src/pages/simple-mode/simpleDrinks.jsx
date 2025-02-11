@@ -94,7 +94,7 @@ function SimpleDrinks() {
       if (response && response.content) {
         let filteredContent = response.content;
 
-        // TODO filtering for alcoholic/non-alcoholic
+        // Filter processing
         if (filters.alcoholic && !filters.nonAlcoholic) {
           filteredContent = filteredContent.filter(
             (recipe) => recipe.alcoholic,
@@ -105,7 +105,12 @@ function SimpleDrinks() {
           );
         }
 
-        await checkFabricability(filteredContent);
+        try {
+          await checkFabricability(filteredContent);
+        } catch (err) {
+          console.error('Error checking fabricability:', err);
+          // Continue with the recipes even if fabricability check fails
+        }
 
         if (filters.fabricable) {
           filteredContent = filteredContent.filter((recipe) =>
@@ -150,7 +155,7 @@ function SimpleDrinks() {
       }
     } catch (err) {
       console.error('Error fetching recipes:', err);
-      setError('Failed to fetch recipes. Please try again.');
+      setError(err.message || 'Failed to fetch recipes. Please try again.');
     } finally {
       loadingState(false);
     }

@@ -12,6 +12,7 @@ const Drinks = () => {
   const [page, setPage] = useState(0);
   const [hasMore, setHasMore] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+  const [error, setError] = useState(null);
 
   const token = useAuthStore((state) => state.token);
 
@@ -44,11 +45,11 @@ const Drinks = () => {
         setHasMore(!response.last);
       } else {
         console.log('Invalid response format:', response);
-        message.error('Invalid response format from server');
+        setError('Invalid response format from server');
       }
     } catch (error) {
       console.error('Error fetching recipes:', error);
-      message.error('Failed to load recipes');
+      setError(error.message || 'Failed to load recipes');
     } finally {
       setLoading(false);
     }

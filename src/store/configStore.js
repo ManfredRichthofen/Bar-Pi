@@ -23,9 +23,20 @@ const formatUrl = (url, validate = false) => {
   try {
     // Only format when validating/saving
     let formattedUrl = url.trim().replace(/\/+$/, '');
-    if (!/^https?:\/\//i.test(formattedUrl)) {
-      formattedUrl = 'https://' + formattedUrl;
+    
+    // Special handling for localhost
+    if (formattedUrl.includes('localhost')) {
+      // If it's just 'localhost' or 'localhost:port', add http://
+      if (!/^https?:\/\//i.test(formattedUrl)) {
+        formattedUrl = 'http://' + formattedUrl;
+      }
+    } else {
+      // For non-localhost URLs, default to https://
+      if (!/^https?:\/\//i.test(formattedUrl)) {
+        formattedUrl = 'https://' + formattedUrl;
+      }
     }
+
     // Validate the URL
     new URL(formattedUrl);
     return formattedUrl;
@@ -36,10 +47,10 @@ const formatUrl = (url, validate = false) => {
 
 const getStoredApiUrl = () => {
   const stored = localStorage.getItem('API_BASE_URL');
-  if (!stored) return config.API_BASE_URL;
-
+  if (!stored) return ''; // Return empty string if no URL is stored
+  
   const formattedUrl = formatUrl(stored, true);
-  return formattedUrl || config.API_BASE_URL;
+  return formattedUrl || ''; // Return empty string as fallback
 };
 
 const useConfigStore = create((set) => ({
