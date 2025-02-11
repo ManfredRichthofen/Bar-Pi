@@ -19,13 +19,14 @@ const SimpleOrder = () => {
   const [selectedGlass, setSelectedGlass] = useState(null);
   const [boost, setBoost] = useState(100);
   const [ingredients, setIngredients] = useState([]);
+  const [additionalIngredients, setAdditionalIngredients] = useState([]);
 
   const showToast = (message, type = 'info') => {
     const toast = document.getElementById('toast-container');
     if (toast) {
       const alert = document.createElement('div');
-      alert.className = `alert ${type === 'error' ? 'alert-error' : type === 'success' ? 'alert-success' : 'alert-info'}`;
-      alert.innerHTML = `<span>${message}</span>`;
+      alert.className = `alert ${type === 'error' ? 'alert-error' : type === 'success' ? 'alert-success' : 'alert-info'} whitespace-normal break-words`;
+      alert.innerHTML = `<span class="text-sm">${message}</span>`;
       toast.appendChild(alert);
       setTimeout(() => alert.remove(), 3000);
     }
@@ -47,13 +48,13 @@ const SimpleOrder = () => {
     if (recipe && amountToProduce) {
       checkFeasibility(recipe.id, getOrderConfig());
     }
-  }, [recipe, amountToProduce]);
+  }, [recipe, amountToProduce, boost]);
 
   const getOrderConfig = () => ({
     amountOrderedInMl: amountToProduce || recipe.defaultGlass?.sizeInMl || 250,
     customisations: {
-      boost: boost || 100,
-      additionalIngredients: [],
+      boost: parseInt(boost) || 100,
+      additionalIngredients: additionalIngredients || [],
     },
     productionStepReplacements: [],
     ingredientGroupReplacements: [],
@@ -73,6 +74,7 @@ const SimpleOrder = () => {
       setFeasibilityResult(result);
       return result;
     } catch (error) {
+      console.error('Feasibility check failed:', error.response?.data || error);
       showToast('Failed to check drink feasibility', 'error');
       return false;
     } finally {
@@ -104,17 +106,19 @@ const SimpleOrder = () => {
       navigate('/simple/order-status');
     } catch (error) {
       if (error.response?.data?.message) {
+        console.error('Order failed:', error.response.data);
         if (
           error.response.data.message.includes('pumps are currently occupied')
         ) {
           showToast(
-            'Machine is busy - please wait for current drink to finish',
+            'Some pumps are currently occupied - please wait for the current drink to finish',
             'error',
           );
         } else {
           showToast(error.response.data.message, 'error');
         }
       } else {
+        console.error('Order failed:', error);
         showToast('Failed to order drink', 'error');
       }
     } finally {
@@ -139,29 +143,47 @@ const SimpleOrder = () => {
 
   const canOrderDrink = feasibilityResult?.feasible && !loading && !checking;
 
+  const hasBoostableIngredients = feasibilityResult?.requiredIngredients?.some(
+    (item) => item.ingredient.type === 'automated' && item.ingredient.alcoholContent > 0
+  );
+
   return (
-    <div className="max-w-3xl mx-auto px-3 py-4 pt-20 min-h-screen">
-      <div id="toast-container" className="toast toast-end z-50"></div>
+    <div className="max-w-7xl mx-auto px-3 py-4 pb-4 min-h-screen">
+      <div id="toast-container" className="toast toast-end z-50 w-[min(400px,90vw)] p-4"></div>
 
-      <div className="card bg-base-100 shadow-xl mb-4">
-        <div className="card-body">
-          <div className="flex flex-col gap-4">
-            {recipe.image && (
-              <img
-                className="w-full rounded-lg object-cover max-h-[200px]"
-                src={recipe.image}
-                alt={recipe.name}
-              />
-            )}
+      <div className="grid grid-cols-1 lg:grid-cols-[2fr,1fr] gap-6 mb-16">
+        <div className="space-y-6">
+          {/* Main drink info card */}
+          <div className="card bg-base-100 shadow-xl">
+            <div className="card-body p-4 sm:p-8">
+              {recipe.image && (
+                <div className="relative aspect-video w-full">
+                  <img
+                    className="rounded-lg object-cover absolute inset-0 w-full h-full"
+                    src={recipe.image}
+                    alt={recipe.name}
+                  />
+                </div>
+              )}
 
-            <div>
-              <h3 className="text-xl font-bold mb-2">{recipe.name}</h3>
+              <div className="flex items-center justify-between gap-2 mt-4">
+                <h3 className="text-xl font-bold break-words flex-1">{recipe.name}</h3>
+                {recipe.alcoholic && (
+                  <div className="badge badge-error shrink-0">Alcoholic</div>
+                )}
+              </div>
+
               {recipe.description && (
-                <p className="mb-4 text-base-content/70">
+                <p className="text-base-content/70 text-sm sm:text-base whitespace-normal break-words">
                   {recipe.description}
                 </p>
               )}
+            </div>
+          </div>
 
+          {/* Glass selector and ingredients */}
+          <div className="card bg-base-100 shadow-xl">
+            <div className="card-body p-4 sm:p-8">
               <SimpleGlassSelector
                 selectedGlass={selectedGlass}
                 defaultGlass={recipe.defaultGlass}
@@ -169,32 +191,41 @@ const SimpleOrder = () => {
                 setSelectedGlass={setSelectedGlass}
               />
 
-              <div className="mt-4">
-                <h4 className="font-bold mb-2">Recipe Ingredients:</h4>
-                <ul className="list-disc list-inside">
-                  {ingredients.map((item, index) => (
-                    <li key={index}>
-                      {item.name}: {item.amount} {item.unit}
-                    </li>
-                  ))}
-                </ul>
+              <div className="grid gap-4 mt-4">
+                <div className="collapse collapse-arrow bg-base-200">
+                  <input type="checkbox" defaultChecked /> 
+                  <div className="collapse-title font-bold break-words">
+                    Recipe Ingredients
+                  </div>
+                  <div className="collapse-content">
+                    <ul className="list-disc list-inside text-sm sm:text-base space-y-1">
+                      {ingredients.map((item, index) => (
+                        <li key={index} className="whitespace-normal break-words">
+                          {item.name}: {item.amount} {item.unit}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+
+                {feasibilityResult?.requiredIngredients && (
+                  <div className="collapse collapse-arrow bg-base-200">
+                    <input type="checkbox" defaultChecked />
+                    <div className="collapse-title font-bold break-words">
+                      Required Ingredients
+                    </div>
+                    <div className="collapse-content">
+                      <SimpleIngredientRequirements
+                        requiredIngredients={feasibilityResult.requiredIngredients}
+                      />
+                    </div>
+                  </div>
+                )}
               </div>
 
-              {feasibilityResult?.requiredIngredients && (
-                <SimpleIngredientRequirements
-                  requiredIngredients={feasibilityResult.requiredIngredients}
-                />
-              )}
-
-              {recipe.alcoholic && (
-                <div className="mt-4">
-                  <div className="badge badge-error">Alcoholic</div>
-                </div>
-              )}
-
-              <div className="flex gap-2 mt-4">
+              <div className="flex flex-col sm:flex-row gap-2 mt-6">
                 <button
-                  className="btn btn-primary flex-1"
+                  className="btn btn-primary w-full sm:flex-1"
                   onClick={handleMakeDrink}
                   disabled={!canOrderDrink || loading}
                 >
@@ -203,7 +234,7 @@ const SimpleOrder = () => {
                   {loading ? 'Making your drink...' : 'Make Drink'}
                 </button>
                 <button
-                  className="btn btn-ghost flex-1"
+                  className="btn btn-ghost w-full sm:flex-1"
                   onClick={() => navigate('/simple/drinks')}
                 >
                   Back
@@ -212,16 +243,21 @@ const SimpleOrder = () => {
             </div>
           </div>
         </div>
-      </div>
 
-      <SimpleDrinkCustomizer
-        disableBoosting={!feasibilityResult?.hasBoostableIngredients}
-        customizations={{ boost }}
-        onCustomizationsChange={(newCustomizations) => {
-          setBoost(newCustomizations.boost);
-        }}
-        availableIngredients={feasibilityResult?.requiredIngredients || []}
-      />
+        {/* Customizer section */}
+        <SimpleDrinkCustomizer
+          disableBoosting={!hasBoostableIngredients}
+          customisations={{ 
+            boost,
+            additionalIngredients 
+          }}
+          onCustomisationsChange={(newCustomisations) => {
+            setBoost(newCustomisations.boost);
+            setAdditionalIngredients(newCustomisations.additionalIngredients);
+          }}
+          availableIngredients={feasibilityResult?.requiredIngredients?.map(item => item.ingredient) || []}
+        />
+      </div>
     </div>
   );
 };
