@@ -6,6 +6,11 @@ import {
 } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import useAuthStore from './store/authStore';
+import { create } from 'zustand';
+import { themeChange } from 'theme-change';
+import { useTranslation } from 'react-i18next';
+
+// Advanced Mode
 import Login from './pages/login';
 import Settings from './pages/settings';
 import Drinks from './pages/drinks';
@@ -15,15 +20,28 @@ import Order from './pages/order';
 import CreateUser from './pages/user';
 import Glasses from './pages/glasses';
 import Pumps from './pages/pumps';
-import { themeChange } from 'theme-change';
-import { useTranslation } from 'react-i18next';
 
-//SImple Mode
+//Simple Mode
 import SimpleLayout from './components/simple-mode/simpleLayout';
 import SimpleDrinks from './pages/simple-mode/simpleDrinks';
 import SimpleSettings from './pages/simple-mode/simpleSettings';
 import SimpleOrder from './pages/simple-mode/simpleOrder';
 import SimpleOrderStatus from './pages/simple-mode/simpleOrderStatus';
+
+
+interface UIModeState {
+  isAdvancedMode: boolean;
+  setAdvancedMode: (isAdvanced: boolean) => void;
+}
+
+
+const useUIModeStore = create<UIModeState>((set) => ({
+  isAdvancedMode: localStorage.getItem('uiMode') === 'advanced',
+  setAdvancedMode: (isAdvanced: boolean) => {
+    localStorage.setItem('uiMode', isAdvanced ? 'advanced' : 'simple');
+    set({ isAdvancedMode: isAdvanced });
+  },
+}));
 
 function App() {
   const reinitializeAuthState = useAuthStore(
@@ -32,6 +50,8 @@ function App() {
   const token = useAuthStore((state) => state.token);
   const { i18n } = useTranslation();
   const [isInitialized, setIsInitialized] = useState(false);
+  const isAdvancedMode = useUIModeStore((state) => state.isAdvancedMode);
+  const setAdvancedMode = useUIModeStore((state) => state.setAdvancedMode);
 
   // Auth
   useEffect(() => {
@@ -85,7 +105,14 @@ function App() {
         <Route
           path="/login"
           element={
-            !token ? <Login /> : <Navigate to="/simple/drinks" replace />
+            !token ? (
+              <Login />
+            ) : (
+              <Navigate
+                to={isAdvancedMode ? '/drinks' : '/simple/drinks'}
+                replace
+              />
+            )
           }
         />
 
@@ -97,7 +124,10 @@ function App() {
               <SimpleLayout>
                 <Routes>
                   <Route path="/drinks" element={<SimpleDrinks />} />
-                  <Route path="/settings" element={<SimpleSettings />} />
+                  <Route
+                    path="/settings"
+                    element={<SimpleSettings onModeChange={setAdvancedMode} />}
+                  />
                   <Route path="/order" element={<SimpleOrder />} />
                   <Route path="/order-status" element={<SimpleOrderStatus />} />
                   <Route
@@ -126,10 +156,7 @@ function App() {
                   <Route path="/users" element={<CreateUser />} />
                   <Route path="/glasses" element={<Glasses />} />
                   <Route path="/pumps" element={<Pumps />} />
-                  <Route
-                    path="*"
-                    element={<Navigate to="/simple/drinks" replace />}
-                  />
+                  <Route path="*" element={<Navigate to="/drinks" replace />} />
                 </Routes>
               </MainLayout>
             ) : (
@@ -138,8 +165,16 @@ function App() {
           }
         />
 
-        {/* Root redirect */}
-        <Route path="*" element={<Navigate to="/simple/drinks" replace />} />
+        {/* Root redirect based on mode preference */}
+        <Route
+          path="/"
+          element={
+            <Navigate
+              to={isAdvancedMode ? '/drinks' : '/simple/drinks'}
+              replace
+            />
+          }
+        />
       </Routes>
     </Router>
   );

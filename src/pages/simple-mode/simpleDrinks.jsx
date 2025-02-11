@@ -10,7 +10,7 @@ import CocktailService from '../../services/cocktail.service.js';
 import SimpleDrinkCard from '../../components/simple-mode/drinks/simpleDrinkCard';
 import SimpleDrinkCardSkeleton from '../../components/simple-mode/drinks/simpleDrinkCardSkeleton';
 
-const SimpleDrinks = () => {
+function SimpleDrinks() {
   const [recipes, setRecipes] = useState([]);
   const [loading, setLoading] = useState(false);
   const [searchLoading, setSearchLoading] = useState(false);
@@ -94,7 +94,7 @@ const SimpleDrinks = () => {
       if (response && response.content) {
         let filteredContent = response.content;
 
-        // Apply client-side filtering for alcoholic/non-alcoholic
+        // TODO filtering for alcoholic/non-alcoholic
         if (filters.alcoholic && !filters.nonAlcoholic) {
           filteredContent = filteredContent.filter(
             (recipe) => recipe.alcoholic,
@@ -105,10 +105,8 @@ const SimpleDrinks = () => {
           );
         }
 
-        // Check fabricability for new recipes
         await checkFabricability(filteredContent);
 
-        // Apply fabricable filter if needed
         if (filters.fabricable) {
           filteredContent = filteredContent.filter((recipe) =>
             fabricableRecipes.has(recipe.id),
@@ -158,7 +156,6 @@ const SimpleDrinks = () => {
     }
   };
 
-  // Debounced search function
   const debouncedSearch = useCallback(
     debounce((value) => {
       setSearchTerm(value);
@@ -205,22 +202,9 @@ const SimpleDrinks = () => {
     });
   };
 
-  // Generate unique skeleton keys
   const generateSkeletonKey = (index, prefix = '') => {
     const timestamp = Date.now();
     return `skeleton-${prefix}-${timestamp}-${index}`;
-  };
-
-  // Generate unique recipe keys (currently not used)
-  const generateRecipeKey = (recipe) => {
-    const uniqueProps = [
-      recipe.id,
-      recipe.name,
-      recipe.alcoholic ? 1 : 0,
-      recipe.ingredients?.length || 0,
-      recipe.defaultGlass?.id || 'no-glass',
-    ].join('-');
-    return `recipe-${uniqueProps}-${Date.now()}`;
   };
 
   if (!token) {
@@ -249,119 +233,96 @@ const SimpleDrinks = () => {
               {searchLoading ? (
                 <span className="loading loading-spinner loading-sm"></span>
               ) : (
-                <Search className="h-5 w-5" />
+                <Search className="w-5 h-5" />
               )}
-            </button>
-            <button
-              type="button"
-              className="btn h-12 min-h-[48px] w-12 border-2 border-accent-content bg-base-100 join-item border-l-0 hover:bg-base-200 px-0"
-              onClick={() => setShowFilters(!showFilters)}
-              disabled={searchLoading}
-            >
-              <SlidersHorizontal className="h-5 w-5" />
             </button>
           </form>
         </div>
 
-        {/* Filters Section */}
-        <div
-          className={`transition-all duration-300 overflow-hidden ${
-            showFilters ? 'max-h-96' : 'max-h-0'
-          }`}
-        >
-          <div className="max-w-md mx-auto bg-base-200 rounded-lg p-3 mb-2">
-            <div className="flex justify-between items-center mb-3">
-              <h3 className="font-semibold">Filters</h3>
+        <div className="max-w-md mx-auto">
+          <button
+            className="btn btn-sm btn-ghost gap-2 mb-2"
+            onClick={() => setShowFilters(!showFilters)}
+          >
+            <SlidersHorizontal className="w-4 h-4" />
+            Filters
+          </button>
+
+          {showFilters && (
+            <div className="flex flex-wrap gap-2 mb-3">
               <button
-                onClick={() => setShowFilters(false)}
-                className="btn btn-ghost h-10 min-h-[40px] w-10 p-0"
-                disabled={searchLoading}
+                className={`btn btn-sm ${
+                  filters.alcoholic ? 'btn-primary' : 'btn-outline'
+                }`}
+                onClick={() => handleFilterChange('alcoholic')}
               >
-                <X className="h-5 w-5" />
+                Alcoholic
+              </button>
+              <button
+                className={`btn btn-sm ${
+                  filters.nonAlcoholic ? 'btn-primary' : 'btn-outline'
+                }`}
+                onClick={() => handleFilterChange('nonAlcoholic')}
+              >
+                Non-Alcoholic
+              </button>
+              <button
+                className={`btn btn-sm ${
+                  filters.fabricable ? 'btn-primary' : 'btn-outline'
+                }`}
+                onClick={() => handleFilterChange('fabricable')}
+              >
+                Available Now
               </button>
             </div>
-            <div className="space-y-3">
-              <label className="flex items-center gap-3 min-h-[40px] touch-none">
-                <input
-                  type="checkbox"
-                  className="checkbox checkbox-lg"
-                  checked={filters.alcoholic}
-                  onChange={() => handleFilterChange('alcoholic')}
-                  disabled={searchLoading}
-                />
-                <span className="text-base">Alcoholic</span>
-              </label>
-              <label className="flex items-center gap-3 min-h-[40px] touch-none">
-                <input
-                  type="checkbox"
-                  className="checkbox checkbox-lg"
-                  checked={filters.nonAlcoholic}
-                  onChange={() => handleFilterChange('nonAlcoholic')}
-                  disabled={searchLoading}
-                />
-                <span className="text-base">Non-Alcoholic</span>
-              </label>
-              <label className="flex items-center gap-3 min-h-[40px] touch-none">
-                <input
-                  type="checkbox"
-                  className="checkbox checkbox-lg"
-                  checked={filters.fabricable}
-                  onChange={() => handleFilterChange('fabricable')}
-                  disabled={searchLoading}
-                />
-                <span className="text-base">Available to Make</span>
-              </label>
-            </div>
-          </div>
+          )}
         </div>
-
-        {error && (
-          <div className="alert alert-error max-w-md mx-auto mb-3">
-            <AlertCircle className="h-5 w-5" />
-            <span>{error}</span>
-          </div>
-        )}
       </div>
+
+      {error && (
+        <div className="alert alert-error mb-4">
+          <AlertCircle className="w-6 h-6" />
+          <span>{error}</span>
+          <button
+            className="btn btn-ghost btn-sm"
+            onClick={() => setError(null)}
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+      )}
 
       <InfiniteScroll
         dataLength={recipes.length}
         next={loadMoreData}
         hasMore={hasMore}
         loader={
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 mt-2">
-            {[...Array(8)].map((_, index) => (
-              <SimpleDrinkCardSkeleton
-                key={generateSkeletonKey(index, 'loader')}
-              />
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mt-4">
+            {[...Array(4)].map((_, index) => (
+              <SimpleDrinkCardSkeleton key={generateSkeletonKey(index)} />
             ))}
           </div>
         }
         endMessage={
-          <div className="text-center py-8 text-base-content/60">
+          <p className="text-center text-gray-500 mt-4">
             {recipes.length === 0
-              ? searchTerm
-                ? 'No drinks found matching your search'
-                : 'No drinks found'
-              : 'No more drinks to load'}
-          </div>
+              ? 'No drinks found'
+              : "That's all the drinks!"}
+          </p>
         }
-        scrollThreshold="90%"
-        className="pb-8"
       >
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
-          {(loading || searchLoading) && recipes.length === 0
-            ? [...Array(12)].map((_, index) => (
-                <SimpleDrinkCardSkeleton
-                  key={generateSkeletonKey(index, 'initial')}
-                />
-              ))
-            : recipes.map((recipe) => (
-                <SimpleDrinkCard key={`recipe-${recipe.id}`} recipe={recipe} />
-              ))}
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          {recipes.map((recipe) => (
+            <SimpleDrinkCard
+              key={recipe.id}
+              recipe={recipe}
+              isFabricable={fabricableRecipes.has(recipe.id)}
+            />
+          ))}
         </div>
       </InfiniteScroll>
     </div>
   );
-};
+}
 
 export default SimpleDrinks;

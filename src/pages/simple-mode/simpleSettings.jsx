@@ -3,7 +3,7 @@ import { themeChange } from 'theme-change';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 
-const SimpleSettings = () => {
+const SimpleSettings = ({ onModeChange }) => {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
 
@@ -55,6 +55,13 @@ const SimpleSettings = () => {
 
   const handleLanguageChange = (langCode) => {
     i18n.changeLanguage(langCode);
+  };
+
+  const handleAdvancedModeSwitch = () => {
+    onModeChange(true);
+    setTimeout(() => {
+      navigate('/drinks', { replace: true });
+    }, 0);
   };
 
   return (
@@ -131,7 +138,7 @@ const SimpleSettings = () => {
                   </span>
                   <button
                     className="btn btn-primary h-12 min-h-12 px-6"
-                    onClick={() => navigate('/drinks')}
+                    onClick={handleAdvancedModeSwitch}
                   >
                     Switch
                   </button>
