@@ -26,15 +26,15 @@ const Login = () => {
     const currentApiUrl = apiBaseUrl.trim();
 
     try {
-      if (currentApiUrl) {
-        setApiBaseUrl(formatUrl(currentApiUrl));
+      // Format and save the API URL first
+      const formattedUrl = formatUrl(currentApiUrl);
+      if (formattedUrl) {
+        setApiBaseUrl(formattedUrl);
       }
 
-      const success = await loginUser(values, currentApiUrl);
+      // Use the formatted URL for login
+      const success = await loginUser(values, formattedUrl);
       if (success) {
-        if (currentApiUrl) {
-          setApiBaseUrl(formatUrl(currentApiUrl));
-        }
         const redirectTo = new URLSearchParams(location.search).get(
           'redirectTo',
         );
@@ -59,24 +59,24 @@ const Login = () => {
     >
       <div className="card w-full max-w-md bg-base-100 shadow-lg">
         <div className="card-body">
-          <div className="text-center mb-8">
+          <div className="text-center mb-4">
             <img
               src={logoFull}
               alt="Logo"
-              className="mx-auto mb-6 w-24 sm:w-28 lg:w-32"
+              className="mx-auto mb-3 w-20 sm:w-24"
             />
-            <h2 className="text-2xl font-bold mb-2">{t('login.headline')}</h2>
-            <p>{t('login.subtitle') || 'Please sign in to your account'}</p>
+            <h2 className="text-xl font-bold mb-1">{t('login.headline')}</h2>
+            <p className="text-sm">{t('login.subtitle') || 'Please sign in to your account'}</p>
           </div>
 
-          <div className="form-control w-full mb-4">
+          <div className="form-control w-full mb-3">
             <div className="input-group input-group-divider">
-              <span className="flex items-center gap-2 px-2 min-w-[140px] justify-start rounded-l-lg">
-                <Globe className="w-4 h-4" />
+              <span className="flex items-center gap-2 px-2 min-w-[120px] justify-start rounded-l-lg text-sm whitespace-normal break-words">
+                <Globe className="w-4 h-4 shrink-0" />
                 <span>{t('login.api_url')}</span>
               </span>
               <input
-                type="text"
+                type="url"
                 name="apiBaseUrl"
                 value={apiBaseUrl}
                 onChange={(e) => setApiBaseUrl(e.target.value)}
@@ -86,14 +86,16 @@ const Login = () => {
                   }
                 }}
                 placeholder="https://api.example.com"
-                className="input w-full bg-base-100 focus:outline-none rounded-r-lg"
+                className="input w-full bg-base-100 focus:outline-none rounded-r-lg py-3 break-all"
+                autoComplete="url"
+                inputMode="url"
               />
             </div>
           </div>
 
           {error && (
-            <div className="alert alert-error mb-6">
-              <XCircle className="w-6 h-6" />
+            <div className="alert alert-error mb-4 py-2 text-sm whitespace-normal break-words">
+              <XCircle className="w-5 h-5 shrink-0" />
               <span>{error}</span>
             </div>
           )}
@@ -109,60 +111,64 @@ const Login = () => {
                 remember: formData.get('remember') === 'on',
               });
             }}
-            className="space-y-4"
+            className="space-y-3"
           >
             <div className="form-control w-full">
               <div className="input-group input-group-divider">
-                <span className="flex items-center gap-2 px-2 min-w-[140px] justify-start rounded-l-lg">
-                  <User className="w-4 h-4" />
+                <span className="flex items-center gap-2 px-2 min-w-[120px] justify-start rounded-l-lg text-sm whitespace-normal break-words">
+                  <User className="w-4 h-4 shrink-0" />
                   <span>{t('login.username')}</span>
                 </span>
                 <input
                   type="text"
                   name="username"
                   placeholder={t('login.username_field_label')}
-                  className="input w-full bg-base-100 focus:outline-none rounded-r-lg"
+                  className="input w-full bg-base-100 focus:outline-none rounded-r-lg py-3"
                   required
+                  autoComplete="username"
+                  autoCapitalize="none"
+                  inputMode="email"
                 />
               </div>
             </div>
 
             <div className="form-control w-full">
               <div className="input-group input-group-divider">
-                <span className="flex items-center gap-2 px-2 min-w-[140px] justify-start rounded-l-lg">
-                  <KeyRound className="w-4 h-4" />
+                <span className="flex items-center gap-2 px-2 min-w-[120px] justify-start rounded-l-lg text-sm whitespace-normal break-words">
+                  <KeyRound className="w-4 h-4 shrink-0" />
                   <span>{t('login.password')}</span>
                 </span>
                 <input
                   type="password"
                   name="password"
                   placeholder={t('login.password_field_label')}
-                  className="input w-full bg-base-100 focus:outline-none rounded-r-lg"
+                  className="input w-full bg-base-100 focus:outline-none rounded-r-lg py-3"
                   required
+                  autoComplete="current-password"
                 />
               </div>
             </div>
 
-            <div className="flex justify-between items-center">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
               <label className="label cursor-pointer">
                 <input
                   type="checkbox"
                   name="remember"
-                  className="checkbox checkbox-sm"
+                  className="checkbox checkbox-primary checkbox-sm"
                 />
-                <span className="label-text ml-2">
+                <span className="label-text ml-2 text-sm">
                   {t('login.remember_me') || 'Remember me'}
                 </span>
               </label>
 
-              <a href="/forgot-password" className="link">
+              <a href="/forgot-password" className="link text-sm">
                 {t('login.forgot_password') || 'Forgot your password?'}
               </a>
             </div>
 
             <button
               type="submit"
-              className="btn btn-primary w-full"
+              className="btn btn-primary w-full py-2 min-h-[2.5rem] text-sm mt-2"
               disabled={loading}
             >
               {loading && <span className="loading loading-spinner"></span>}
@@ -172,7 +178,7 @@ const Login = () => {
                 : t('login.btn_label') || 'Sign in to your account'}
             </button>
 
-            <div className="text-center mt-6">
+            <div className="text-center mt-4 text-sm">
               <p>
                 {t('login.no_account') || "Don't have an account?"}{' '}
                 <a href="/register" className="link">

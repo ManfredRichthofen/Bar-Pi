@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import AuthService from '../services/auth.service.js';
+import config from '../services/config';
 
 const useAuthStore = create((set) => ({
   token: null,
@@ -14,6 +15,10 @@ const useAuthStore = create((set) => ({
     set({ loading: true, error: null });
 
     try {
+      if (apiBaseUrl) {
+        config.setApiBaseUrl(apiBaseUrl);
+      }
+
       const response = await AuthService.login(credentials, apiBaseUrl);
       console.log('Login response:', response);
 

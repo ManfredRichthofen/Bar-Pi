@@ -45,16 +45,8 @@ const formatUrl = (url, validate = false) => {
   }
 };
 
-const getStoredApiUrl = () => {
-  const stored = localStorage.getItem('API_BASE_URL');
-  if (!stored) return ''; // Return empty string if no URL is stored
-  
-  const formattedUrl = formatUrl(stored, true);
-  return formattedUrl || ''; // Return empty string as fallback
-};
-
 const useConfigStore = create((set) => ({
-  apiBaseUrl: getStoredApiUrl(),
+  apiBaseUrl: config.getStoredApiUrl() || '',
   setApiBaseUrl: (newUrl) => {
     // During editing, use raw value for display
     const rawUrl = formatUrl(newUrl, false);
@@ -63,7 +55,6 @@ const useConfigStore = create((set) => ({
     // Only format and store if it's a complete, valid URL
     const formattedUrl = formatUrl(rawUrl, true);
     if (formattedUrl && isValidUrl(formattedUrl)) {
-      localStorage.setItem('API_BASE_URL', formattedUrl);
       config.setApiBaseUrl(formattedUrl);
     }
   },
