@@ -24,7 +24,7 @@ const Login = () => {
 
   const onSubmit = async (values) => {
     const currentApiUrl = apiBaseUrl.trim();
-    
+
     try {
       if (currentApiUrl) {
         setApiBaseUrl(formatUrl(currentApiUrl));
@@ -35,7 +35,9 @@ const Login = () => {
         if (currentApiUrl) {
           setApiBaseUrl(formatUrl(currentApiUrl));
         }
-        const redirectTo = new URLSearchParams(location.search).get('redirectTo');
+        const redirectTo = new URLSearchParams(location.search).get(
+          'redirectTo',
+        );
         navigate(redirectTo || '/simple/drinks');
       }
     } catch (error) {

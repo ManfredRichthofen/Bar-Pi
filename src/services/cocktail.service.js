@@ -40,12 +40,12 @@ class CocktailService {
       .put(API_PATH + String(recipeId) + '/feasibility', orderConfig, {
         headers: {
           Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
         },
         params,
       })
       .then((response) => response.data)
-      .catch(error => {
+      .catch((error) => {
         throw error;
       });
   }

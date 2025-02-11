@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 
 const SimpleDrinkCard = ({ recipe }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [imageLoaded, setImageLoaded] = useState(false);
   const navigate = useNavigate();
 
   const showModal = () => setIsModalOpen(true);
@@ -14,19 +15,32 @@ const SimpleDrinkCard = ({ recipe }) => {
     handleCancel();
   };
 
+  const handleImageLoad = () => {
+    setImageLoaded(true);
+  };
+
   return (
     <>
       <div
         onClick={showModal}
         className="card bg-base-100 shadow-md hover:shadow-lg hover:-translate-y-1 transition-all duration-200 h-full cursor-pointer"
       >
-        <figure className="aspect-[16/9] sm:aspect-[3/2]">
+        <figure className="aspect-[16/9] sm:aspect-[3/2] relative">
           {recipe.image ? (
-            <img
-              src={recipe.image}
-              alt={recipe.name}
-              className="w-full h-full object-cover"
-            />
+            <>
+              <div
+                className={`absolute inset-0 bg-base-200 ${imageLoaded ? 'hidden' : 'flex items-center justify-center'}`}
+              >
+                <span className="loading loading-spinner loading-md"></span>
+              </div>
+              <img
+                src={recipe.image}
+                alt={recipe.name}
+                className={`w-full h-full object-cover transition-opacity duration-300 ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}
+                loading="lazy"
+                onLoad={handleImageLoad}
+              />
+            </>
           ) : (
             <div className="w-full h-full bg-base-200 flex items-center justify-center">
               <span className="text-base-content/60 text-xs sm:text-sm">
@@ -61,7 +75,9 @@ const SimpleDrinkCard = ({ recipe }) => {
           )}
 
           <div className="mt-auto">
-            <p className="font-medium text-[10px] sm:text-xs mb-0.5 sm:mb-1">Ingredients:</p>
+            <p className="font-medium text-[10px] sm:text-xs mb-0.5 sm:mb-1">
+              Ingredients:
+            </p>
             <ul className="space-y-0.5 text-[10px] sm:text-xs">
               {recipe.ingredients.slice(0, 3).map((ingredient, index) => (
                 <li
@@ -124,7 +140,8 @@ const SimpleDrinkCard = ({ recipe }) => {
                   <ul className="space-y-2">
                     {recipe.ingredients.map((ingredient, index) => (
                       <li key={index} className="text-sm sm:text-base">
-                        • {ingredient.name} - {ingredient.amount} {ingredient.unit}
+                        • {ingredient.name} - {ingredient.amount}{' '}
+                        {ingredient.unit}
                       </li>
                     ))}
                   </ul>

@@ -32,17 +32,20 @@ Bar Pi is built with modern web technologies:
 ### Getting Started
 
 1. Clone the repository:
+
    ```bash
    git clone https://github.com/ManfredRichthofen/Bar-Pi.git
    cd bar-pi
    ```
 
 2. Install dependencies:
+
    ```bash
    npm install
    ```
 
 3. Start the development server:
+
    ```bash
    npm run dev
    ```
@@ -55,6 +58,7 @@ Bar Pi is built with modern web technologies:
 ### Building for Production
 
 To create a production build:
+
 ```bash
 npm run build
 npm run tauri build
@@ -67,22 +71,26 @@ We welcome contributions! Please follow these steps:
 1. Fork the repository
 
 2. Create a new branch:
+
    ```bash
    git checkout -b feature/your-feature-name
    ```
 
 3. Make your changes and commit them:
+
    ```bash
    git commit -m "Add your commit message"
    ```
 
 4. Format and lint your code:
+
    ```bash
    npm run pretty
    npm run lint
    ```
 
 5. Push to your fork:
+
    ```bash
    git push origin feature/your-feature-name
    ```
@@ -96,6 +104,3 @@ We welcome contributions! Please follow these steps:
 ## Acknowledgments
 
 - [CocktailPi](https://github.com/alex9849/CocktailPi/) - The original project that inspired Bar Pi
-
-
-

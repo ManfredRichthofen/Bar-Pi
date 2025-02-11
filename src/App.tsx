@@ -84,7 +84,9 @@ function App() {
         {/* Public routes */}
         <Route
           path="/login"
-          element={!token ? <Login /> : <Navigate to="/simple/drinks" replace />}
+          element={
+            !token ? <Login /> : <Navigate to="/simple/drinks" replace />
+          }
         />
 
         {/* Simple Mode routes */}
@@ -98,7 +100,10 @@ function App() {
                   <Route path="/settings" element={<SimpleSettings />} />
                   <Route path="/order" element={<SimpleOrder />} />
                   <Route path="/order-status" element={<SimpleOrderStatus />} />
-                  <Route path="*" element={<Navigate to="/simple/drinks" replace />} />
+                  <Route
+                    path="*"
+                    element={<Navigate to="/simple/drinks" replace />}
+                  />
                 </Routes>
               </SimpleLayout>
             ) : (
@@ -121,7 +126,10 @@ function App() {
                   <Route path="/users" element={<CreateUser />} />
                   <Route path="/glasses" element={<Glasses />} />
                   <Route path="/pumps" element={<Pumps />} />
-                  <Route path="*" element={<Navigate to="/simple/drinks" replace />} />
+                  <Route
+                    path="*"
+                    element={<Navigate to="/simple/drinks" replace />}
+                  />
                 </Routes>
               </MainLayout>
             ) : (

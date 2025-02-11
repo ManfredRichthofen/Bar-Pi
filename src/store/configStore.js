@@ -30,14 +30,14 @@ const formatUrl = (url, validate = false) => {
     new URL(formattedUrl);
     return formattedUrl;
   } catch (e) {
-    return '';  // Return empty string for invalid URLs
+    return ''; // Return empty string for invalid URLs
   }
 };
 
 const getStoredApiUrl = () => {
   const stored = localStorage.getItem('API_BASE_URL');
   if (!stored) return config.API_BASE_URL;
-  
+
   const formattedUrl = formatUrl(stored, true);
   return formattedUrl || config.API_BASE_URL;
 };

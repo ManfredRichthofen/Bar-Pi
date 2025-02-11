@@ -78,7 +78,9 @@ const SimpleOrderStatus = () => {
     return (
       <div className="fixed inset-0 flex items-center justify-center bg-base-100">
         <div className="w-full max-w-sm px-4">
-          <h2 className="text-xl font-bold mb-2 text-center">No Active Order</h2>
+          <h2 className="text-xl font-bold mb-2 text-center">
+            No Active Order
+          </h2>
           <p className="text-base-content/70 mb-3 text-center text-sm">
             There is currently no cocktail being prepared
           </p>
@@ -101,7 +103,9 @@ const SimpleOrderStatus = () => {
           {/* Status Section - More compact */}
           <div className="bg-base-200 p-2 rounded-lg flex items-center justify-between gap-2">
             <div className="min-w-0 flex-1">
-              <h2 className="text-lg sm:text-xl font-bold truncate mb-0.5">{progress.recipe.name}</h2>
+              <h2 className="text-lg sm:text-xl font-bold truncate mb-0.5">
+                {progress.recipe.name}
+              </h2>
               <div className="flex items-center gap-1.5 flex-wrap">
                 <div className={getStatusClass()}>{getStatusIcon()}</div>
                 <span className="badge badge-md sm:badge-lg capitalize">
@@ -112,7 +116,9 @@ const SimpleOrderStatus = () => {
             <button
               className="btn btn-circle btn-error btn-md sm:btn-lg shrink-0 ml-1"
               onClick={handleCancel}
-              disabled={canceling || ['CANCELLED', 'FINISHED'].includes(progress.state)}
+              disabled={
+                canceling || ['CANCELLED', 'FINISHED'].includes(progress.state)
+              }
             >
               <Square size={20} />
             </button>
@@ -121,8 +127,12 @@ const SimpleOrderStatus = () => {
           {/* Progress Bar - More compact */}
           <div className="bg-base-200 p-2 rounded-lg flex flex-col justify-center">
             <div className="flex justify-between mb-1.5">
-              <span className="text-base-content/70 text-sm sm:text-base">Progress</span>
-              <span className="font-medium text-sm sm:text-base">{progress.progress}%</span>
+              <span className="text-base-content/70 text-sm sm:text-base">
+                Progress
+              </span>
+              <span className="font-medium text-sm sm:text-base">
+                {progress.progress}%
+              </span>
             </div>
             <progress
               className={`progress progress-${getStatusClass().replace('text-', '')} w-full h-2.5`}
@@ -141,23 +151,34 @@ const SimpleOrderStatus = () => {
                 <div className="flex gap-2">
                   <AlertTriangle size={20} className="text-warning shrink-0" />
                   <div className="flex-1 min-w-0">
-                    <h3 className="font-bold text-lg mb-1.5">Manual Ingredients Required</h3>
+                    <h3 className="font-bold text-lg mb-1.5">
+                      Manual Ingredients Required
+                    </h3>
                     <div>
                       {progress.currentIngredientsToAddManually?.length > 0 ? (
                         <ul className="space-y-0.5 mb-2">
-                          {progress.currentIngredientsToAddManually.map((item, index) => (
-                            <li key={index} className="text-sm sm:text-base flex justify-between flex-wrap gap-1">
-                              <span>{item.ingredient.name}</span>
-                              <span className="font-medium">
-                                {item.amount} {item.ingredient.unit}
-                              </span>
-                            </li>
-                          ))}
+                          {progress.currentIngredientsToAddManually.map(
+                            (item, index) => (
+                              <li
+                                key={index}
+                                className="text-sm sm:text-base flex justify-between flex-wrap gap-1"
+                              >
+                                <span>{item.ingredient.name}</span>
+                                <span className="font-medium">
+                                  {item.amount} {item.ingredient.unit}
+                                </span>
+                              </li>
+                            ),
+                          )}
                         </ul>
                       ) : (
-                        <p className="text-sm sm:text-base mb-2">Required ingredients will be listed here</p>
+                        <p className="text-sm sm:text-base mb-2">
+                          Required ingredients will be listed here
+                        </p>
                       )}
-                      <p className="text-sm opacity-75">Please add these ingredients and confirm when ready.</p>
+                      <p className="text-sm opacity-75">
+                        Please add these ingredients and confirm when ready.
+                      </p>
                       <button
                         className="btn btn-warning btn-md sm:btn-lg w-full mt-2"
                         onClick={handleConfirmManualAdd}
@@ -178,7 +199,10 @@ const SimpleOrderStatus = () => {
             {progress.recipe.ingredients && (
               <div className="grid gap-0.5">
                 {progress.recipe.ingredients.map((ingredient, index) => (
-                  <div key={index} className="flex justify-between text-sm sm:text-base flex-wrap gap-1">
+                  <div
+                    key={index}
+                    className="flex justify-between text-sm sm:text-base flex-wrap gap-1"
+                  >
                     <span className="font-medium">{ingredient.name}</span>
                     <span className="text-base-content/70">
                       {ingredient.amount} {ingredient.unit}
@@ -191,7 +215,9 @@ const SimpleOrderStatus = () => {
 
           {/* Description - Can span 2 columns on xl screens if no manual ingredients */}
           {progress.recipe.description && (
-            <div className={`bg-base-200 p-2 rounded-lg ${!progress.state === 'MANUAL_INGREDIENT_ADD' ? 'xl:col-span-2' : ''}`}>
+            <div
+              className={`bg-base-200 p-2 rounded-lg ${!progress.state === 'MANUAL_INGREDIENT_ADD' ? 'xl:col-span-2' : ''}`}
+            >
               <h3 className="font-bold text-lg mb-1.5">Description</h3>
               <p className="text-base-content/70 text-sm sm:text-base leading-relaxed">
                 {progress.recipe.description}
