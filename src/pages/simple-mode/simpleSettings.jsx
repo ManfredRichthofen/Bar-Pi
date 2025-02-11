@@ -2,10 +2,12 @@ import React, { useEffect } from 'react';
 import { themeChange } from 'theme-change';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
+import useAuthStore from '../../store/authStore';
 
 const SimpleSettings = ({ onModeChange }) => {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
+  const logout = useAuthStore((state) => state.logout);
 
   useEffect(() => {
     themeChange(false);
@@ -64,6 +66,11 @@ const SimpleSettings = ({ onModeChange }) => {
     }, 0);
   };
 
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  };
+
   return (
     <div className="min-h-screen bg-base-100">
       {/* Fixed Header */}
@@ -81,7 +88,7 @@ const SimpleSettings = ({ onModeChange }) => {
         <div className="card bg-base-200">
           <div className="card-body p-3">
             <h2 className="card-title text-lg mb-3">
-              {t('settings.general_title', 'General Settings')}
+              {t('settings.general.title')}
             </h2>
 
             <div className="space-y-3">
@@ -89,7 +96,7 @@ const SimpleSettings = ({ onModeChange }) => {
               <div className="form-control">
                 <label className="label py-1">
                   <span className="label-text font-medium">
-                    {t('settings.language', 'Language')}
+                    {t('settings.general.language_label')}
                   </span>
                 </label>
                 <select
@@ -111,7 +118,7 @@ const SimpleSettings = ({ onModeChange }) => {
               <div className="space-y-2">
                 <label className="flex items-center justify-between py-2 touch-none">
                   <span className="label-text flex-1 mr-4">
-                    {t('settings.notifications', 'Enable Notifications')}
+                    {t('settings.general.notifications')}
                   </span>
                   <input
                     type="checkbox"
@@ -121,7 +128,7 @@ const SimpleSettings = ({ onModeChange }) => {
 
                 <label className="flex items-center justify-between py-2 touch-none">
                   <span className="label-text flex-1 mr-4">
-                    {t('settings.soundEffects', 'Sound Effects')}
+                    {t('settings.general.sound_effects')}
                   </span>
                   <input
                     type="checkbox"
@@ -143,6 +150,21 @@ const SimpleSettings = ({ onModeChange }) => {
                     Switch
                   </button>
                 </div>
+
+                <div className="divider my-1"></div>
+
+                {/* Logout Button */}
+                <div className="flex items-center justify-between py-2">
+                  <span className="label-text flex-1 mr-4">
+                    {t('common.logout')}
+                  </span>
+                  <button
+                    className="btn btn-error h-12 min-h-12 px-6"
+                    onClick={handleLogout}
+                  >
+                    {t('common.logout')}
+                  </button>
+                </div>
               </div>
             </div>
           </div>
@@ -152,7 +174,7 @@ const SimpleSettings = ({ onModeChange }) => {
         <div className="card bg-base-200">
           <div className="card-body p-3">
             <h2 className="card-title text-lg mb-3">
-              {t('settings.appearance_title', 'Appearance')}
+              {t('settings.appearance.title')}
             </h2>
 
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-1.5">

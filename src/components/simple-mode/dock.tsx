@@ -16,7 +16,7 @@ const Dock: React.FC = () => {
       <button className={isActive('/simple/drinks')}>
         <Link to="/simple/drinks" className="flex flex-col items-center gap-1">
           <GlassWater className="h-6 w-6" />
-          <span className="dock-label">{t('Drinks')}</span>
+          <span className="dock-label">{t('navigation.drinks')}</span>
         </Link>
       </button>
 
@@ -26,7 +26,7 @@ const Dock: React.FC = () => {
           className="flex flex-col items-center gap-1"
         >
           <Clock className="h-6 w-6" />
-          <span className="dock-label">{t('Order Status')}</span>
+          <span className="dock-label">{t('navigation.order_status')}</span>
         </Link>
       </button>
 
@@ -36,7 +36,7 @@ const Dock: React.FC = () => {
           className="flex flex-col items-center gap-1"
         >
           <Settings className="h-6 w-6" />
-          <span className="dock-label">{t('Settings')}</span>
+          <span className="dock-label">{t('navigation.settings')}</span>
         </Link>
       </button>
     </div>

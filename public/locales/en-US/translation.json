@@ -15,9 +15,17 @@
     "username": "Username",
     "password": "Password"
   },
+  "navigation": {
+    "drinks": "Drinks",
+    "order_status": "Order Status",
+    "settings": "Settings",
+    "logout": "Logout"
+  },
   "common": {
     "edit": "Edit",
-    "close": "Close"
+    "close": "Close",
+    "logout": "Logout",
+    "confirm_logout": "Are you sure you want to logout?"
   },
 
   "pump_status": {

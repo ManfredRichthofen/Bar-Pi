@@ -25,7 +25,7 @@ const SimpleDrinkCard = ({ recipe }) => {
         onClick={showModal}
         className="card bg-base-100 shadow-md hover:shadow-lg hover:-translate-y-1 transition-all duration-200 h-full cursor-pointer"
       >
-        <figure className="aspect-[16/9] sm:aspect-[3/2] relative">
+        <figure className="aspect-[3/2] relative">
           {recipe.image ? (
             <>
               <div
@@ -43,23 +43,21 @@ const SimpleDrinkCard = ({ recipe }) => {
             </>
           ) : (
             <div className="w-full h-full bg-base-200 flex items-center justify-center">
-              <span className="text-base-content/60 text-xs sm:text-sm">
-                No image
-              </span>
+              <span className="text-base-content/60 text-xs">No image</span>
             </div>
           )}
         </figure>
 
-        <div className="card-body p-2 sm:p-3">
-          <div className="flex items-center justify-between gap-1 sm:gap-2 mb-0.5 sm:mb-1">
+        <div className="card-body p-3">
+          <div className="flex items-center justify-between gap-2 mb-1">
             <h3
-              className="card-title text-xs sm:text-sm truncate"
+              className="card-title text-sm md:text-base truncate"
               title={recipe.name}
             >
               {recipe.name}
             </h3>
             {recipe.alcoholic && (
-              <div className="badge badge-error badge-xs sm:badge-sm text-[10px] sm:text-xs whitespace-nowrap">
+              <div className="badge badge-error badge-sm whitespace-nowrap">
                 21+
               </div>
             )}
@@ -67,7 +65,7 @@ const SimpleDrinkCard = ({ recipe }) => {
 
           {recipe.description && (
             <p
-              className="text-base-content/70 mb-1 sm:mb-2 line-clamp-2 text-[10px] sm:text-xs"
+              className="text-base-content/70 mb-2 line-clamp-2 text-xs md:text-sm"
               title={recipe.description}
             >
               {recipe.description}
@@ -75,10 +73,8 @@ const SimpleDrinkCard = ({ recipe }) => {
           )}
 
           <div className="mt-auto">
-            <p className="font-medium text-[10px] sm:text-xs mb-0.5 sm:mb-1">
-              Ingredients:
-            </p>
-            <ul className="space-y-0.5 text-[10px] sm:text-xs">
+            <p className="font-medium text-xs md:text-sm mb-1">Ingredients:</p>
+            <ul className="space-y-1 text-xs md:text-sm">
               {recipe.ingredients.slice(0, 3).map((ingredient, index) => (
                 <li
                   key={index}
@@ -100,10 +96,10 @@ const SimpleDrinkCard = ({ recipe }) => {
 
       {isModalOpen && (
         <dialog open className="modal modal-open">
-          <div className="modal-box max-w-3xl mx-4">
-            <div className="flex flex-col sm:flex-row gap-4">
+          <div className="modal-box max-w-3xl p-4 mx-2 md:mx-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {recipe.image && (
-                <div className="w-full sm:w-1/2">
+                <div className="w-full">
                   <img
                     className="w-full rounded-lg object-cover aspect-[4/3]"
                     src={recipe.image}
@@ -114,9 +110,7 @@ const SimpleDrinkCard = ({ recipe }) => {
 
               <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between gap-2 mb-3">
-                  <h3 className="font-bold text-lg sm:text-xl truncate">
-                    {recipe.name}
-                  </h3>
+                  <h3 className="font-bold text-lg truncate">{recipe.name}</h3>
                   {recipe.alcoholic && (
                     <div className="badge badge-error text-xs whitespace-nowrap">
                       Alcoholic
@@ -125,63 +119,55 @@ const SimpleDrinkCard = ({ recipe }) => {
                 </div>
 
                 {recipe.description && (
-                  <div className="mb-4 sm:mb-6">
-                    <h4 className="font-bold text-base sm:text-lg mb-2">
-                      Description
-                    </h4>
-                    <p className="text-sm sm:text-base">{recipe.description}</p>
+                  <div className="mb-4">
+                    <h4 className="font-bold text-base mb-2">Description</h4>
+                    <p className="text-sm">{recipe.description}</p>
                   </div>
                 )}
 
-                <div className="mb-4 sm:mb-6">
-                  <h4 className="font-bold text-base sm:text-lg mb-2">
-                    Ingredients
-                  </h4>
+                <div className="mb-4">
+                  <h4 className="font-bold text-base mb-2">Ingredients</h4>
                   <ul className="space-y-2">
                     {recipe.ingredients.map((ingredient, index) => (
-                      <li key={index} className="text-sm sm:text-base">
-                        • {ingredient.name} - {ingredient.amount}{' '}
-                        {ingredient.unit}
+                      <li key={index} className="text-sm">
+                        • {ingredient.name} - {ingredient.amount} {ingredient.unit}
                       </li>
                     ))}
                   </ul>
                 </div>
 
-                {recipe.productionSteps &&
-                  recipe.productionSteps.length > 0 && (
-                    <div>
-                      <h4 className="font-bold text-base sm:text-lg mb-2">
-                        Instructions
-                      </h4>
-                      <ul className="space-y-2">
-                        {recipe.productionSteps.map((step, index) => (
-                          <li key={index} className="text-sm sm:text-base">
-                            {step.type === 'writtenInstruction' ? (
+                {recipe.productionSteps && recipe.productionSteps.length > 0 && (
+                  <div>
+                    <h4 className="font-bold text-base mb-2">Instructions</h4>
+                    <ul className="space-y-2">
+                      {recipe.productionSteps.map((step, index) => (
+                        <li key={index} className="text-sm">
+                          {step.type === 'writtenInstruction' ? (
+                            <span>
+                              {index + 1}. {step.message}
+                            </span>
+                          ) : (
+                            step.type === 'addIngredients' && (
                               <span>
-                                {index + 1}. {step.message}
+                                {index + 1}. Add:{' '}
+                                {step.stepIngredients
+                                  .map(
+                                    (si) =>
+                                      `${si.ingredient.name} (${si.amount} ${si.scale})`,
+                                  )
+                                  .join(', ')}
                               </span>
-                            ) : (
-                              step.type === 'addIngredients' && (
-                                <span>
-                                  {index + 1}. Add:{' '}
-                                  {step.stepIngredients
-                                    .map(
-                                      (si) =>
-                                        `${si.ingredient.name} (${si.amount} ${si.scale})`,
-                                    )
-                                    .join(', ')}
-                                </span>
-                              )
-                            )}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
+                            )
+                          )}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
               </div>
             </div>
 
-            <div className="modal-action mt-4">
+            <div className="modal-action mt-4 flex justify-end gap-2">
               <button
                 className="btn btn-primary gap-2"
                 onClick={handleMakeDrink}
