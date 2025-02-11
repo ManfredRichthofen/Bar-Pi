@@ -149,71 +149,74 @@ const SimpleDrinks = () => {
   if (!token) return <Navigate to="/login" />;
 
   return (
-    <div className="container mx-auto px-2 sm:px-4 py-4 sm:py-8 pt-16 sm:pt-20 min-h-screen">
-      <div className="mb-4 sm:mb-8">
-        <h2 className="text-xl sm:text-2xl font-bold text-center mb-4 sm:mb-6">
+    <div className="container mx-auto px-2 py-2 pt-16 min-h-screen">
+      <div className="mb-3">
+        <h2 className="text-xl font-bold text-center mb-3">
           Available Drinks
         </h2>
 
-        <div className="max-w-md mx-auto mb-3 sm:mb-4">
+        <div className="max-w-md mx-auto mb-2">
           <form onSubmit={handleSearch} className="join w-full">
             <input
               name="search"
-              className="input input-sm sm:input-md join-item w-full"
+              className="input h-12 min-h-[48px] join-item w-full border-2 border-accent-content border-r-0"
               placeholder="Search drinks..."
             />
-            <button type="submit" className="btn btn-sm sm:btn-md bg-base-100 join-item">
-              <Search className="h-4 w-4 sm:h-5 sm:w-5" />
+            <button 
+              type="submit" 
+              className="btn h-12 min-h-[48px] w-12 border-2 border-accent-content bg-base-100 join-item border-l-1 hover:bg-base-200 px-0"
+            >
+              <Search className="h-5 w-5" />
             </button>
             <button
               type="button"
-              className="btn btn-sm sm:btn-md bg-base-100 join-item"
+              className="btn h-12 min-h-[48px] w-12 border-2 border-accent-content bg-base-100 join-item border-l-0 hover:bg-base-200 px-0"
               onClick={() => setShowFilters(!showFilters)}
             >
-              <SlidersHorizontal className="h-4 w-4 sm:h-5 sm:w-5" />
+              <SlidersHorizontal className="h-5 w-5" />
             </button>
           </form>
         </div>
 
         {/* Filters Section */}
         <div className={`transition-all duration-300 overflow-hidden ${showFilters ? 'max-h-96' : 'max-h-0'}`}>
-          <div className="max-w-md mx-auto bg-base-200 rounded-lg p-3 sm:p-4 mb-3 sm:mb-4 text-sm sm:text-base">
-            <div className="flex justify-between items-center mb-3 sm:mb-4">
+          <div className="max-w-md mx-auto bg-base-200 rounded-lg p-3 mb-2">
+            <div className="flex justify-between items-center mb-3">
               <h3 className="font-semibold">Filters</h3>
               <button
                 onClick={() => setShowFilters(false)}
-                className="btn btn-ghost btn-sm p-0 h-auto min-h-0"
+                className="btn btn-ghost h-10 min-h-[40px] w-10 p-0"
               >
-                <X className="h-4 w-4" />
+                <X className="h-5 w-5" />
               </button>
             </div>
-            <div className="space-y-2">
-              <label className="flex items-center gap-2">
+            <div className="space-y-3">
+              <label className="flex items-center gap-3 min-h-[40px] touch-none">
                 <input
                   type="checkbox"
-                  className="checkbox checkbox-sm sm:checkbox-md"
+                  className="checkbox checkbox-lg"
                   checked={filters.alcoholic}
                   onChange={() => handleFilterChange('alcoholic')}
                 />
-                <span>Alcoholic</span>
+                <span className="text-base">Alcoholic</span>
               </label>
-              <label className="flex items-center gap-2">
+              <label className="flex items-center gap-3 min-h-[40px] touch-none">
                 <input
                   type="checkbox"
-                  className="checkbox checkbox-sm sm:checkbox-md"
+                  className="checkbox checkbox-lg"
                   checked={filters.nonAlcoholic}
                   onChange={() => handleFilterChange('nonAlcoholic')}
                 />
-                <span>Non-Alcoholic</span>
+                <span className="text-base">Non-Alcoholic</span>
               </label>
-              <label className="flex items-center gap-2">
+              <label className="flex items-center gap-3 min-h-[40px] touch-none">
                 <input
                   type="checkbox"
-                  className="checkbox checkbox-sm sm:checkbox-md"
+                  className="checkbox checkbox-lg"
                   checked={filters.fabricable}
                   onChange={() => handleFilterChange('fabricable')}
                 />
-                <span>Available to Make</span>
+                <span className="text-base">Available to Make</span>
               </label>
             </div>
           </div>
@@ -225,12 +228,12 @@ const SimpleDrinks = () => {
         next={loadMoreData}
         hasMore={hasMore}
         loader={
-          <div className="text-center py-3 sm:py-4">
-            <span className="loading loading-spinner loading-md sm:loading-lg"></span>
+          <div className="text-center py-3">
+            <span className="loading loading-spinner loading-lg"></span>
           </div>
         }
         endMessage={
-          <div className="text-center py-4 sm:py-6 text-base-content/60 text-sm sm:text-base">
+          <div className="text-center py-4 text-base-content/60">
             {recipes.length === 0
               ? 'No drinks found'
               : 'No more drinks to load'}
@@ -238,7 +241,7 @@ const SimpleDrinks = () => {
         }
         scrollThreshold="90%"
       >
-        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-3 md:gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
           {recipes.map((recipe) => (
             <SimpleDrinkCard key={recipe.id} recipe={recipe} />
           ))}

@@ -76,14 +76,14 @@ const SimpleOrderStatus = () => {
 
   if (!progress) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center px-2 py-4 bg-base-100">
-        <div className="w-full max-w-lg mx-auto">
-          <h2 className="text-2xl font-bold mb-2 text-center">No Active Order</h2>
-          <p className="text-base-content/70 mb-4 text-center">
+      <div className="fixed inset-0 flex items-center justify-center bg-base-100">
+        <div className="w-full max-w-sm px-4">
+          <h2 className="text-xl font-bold mb-2 text-center">No Active Order</h2>
+          <p className="text-base-content/70 mb-3 text-center text-sm">
             There is currently no cocktail being prepared
           </p>
           <button
-            className="btn btn-primary btn-lg w-full"
+            className="btn btn-primary w-full"
             onClick={() => navigate('/simple/drinks')}
           >
             Order a Drink

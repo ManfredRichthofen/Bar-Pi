@@ -58,27 +58,35 @@ const SimpleSettings = () => {
   };
 
   return (
-    <div className="p-3 sm:p-4 max-w-4xl mx-auto pt-20 sm:pt-24">
-      <h1 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-8">
-        {t('settings.title', 'Settings')}
-      </h1>
+    <div className="min-h-screen bg-base-100">
+      {/* Fixed Header */}
+      <div className="sticky top-0 z-10 bg-base-100 border-b border-base-200">
+        <div className="px-3 py-3 flex items-center">
+          <h1 className="text-xl font-bold">
+            {t('settings.title', 'Settings')}
+          </h1>
+        </div>
+      </div>
 
-      <div className="space-y-4 sm:space-y-6">
-        <div className="card bg-base-200 shadow-xl">
-          <div className="card-body p-4 sm:p-6">
-            <h2 className="card-title text-lg sm:text-xl mb-4 sm:mb-6">
+      {/* Main Content */}
+      <div className="p-2 pb-20 max-w-2xl mx-auto space-y-2">
+        {/* General Settings Card */}
+        <div className="card bg-base-200">
+          <div className="card-body p-3">
+            <h2 className="card-title text-lg mb-3">
               {t('settings.general_title', 'General Settings')}
             </h2>
 
-            <div className="space-y-4 sm:space-y-6">
+            <div className="space-y-3">
+              {/* Language Selector */}
               <div className="form-control">
-                <label className="label">
+                <label className="label py-1">
                   <span className="label-text font-medium">
                     {t('settings.language', 'Language')}
                   </span>
                 </label>
                 <select
-                  className="select select-bordered w-full text-sm sm:text-base"
+                  className="select select-bordered w-full h-12 min-h-12"
                   value={i18n.language}
                   onChange={(e) => handleLanguageChange(e.target.value)}
                 >
@@ -90,60 +98,63 @@ const SimpleSettings = () => {
                 </select>
               </div>
 
-              <div className="divider my-2 sm:my-4"></div>
-              <div className="space-y-3 sm:space-y-4">
-                <label className="label cursor-pointer justify-between py-2">
-                  <span className="label-text text-sm sm:text-base mr-4">
+              <div className="divider my-1"></div>
+
+              {/* Toggle Switches */}
+              <div className="space-y-2">
+                <label className="flex items-center justify-between py-2 touch-none">
+                  <span className="label-text flex-1 mr-4">
                     {t('settings.notifications', 'Enable Notifications')}
                   </span>
                   <input
                     type="checkbox"
-                    className="toggle toggle-primary toggle-sm sm:toggle-md"
+                    className="toggle toggle-primary toggle-lg"
                   />
                 </label>
 
-                <label className="label cursor-pointer justify-between py-2">
-                  <span className="label-text text-sm sm:text-base mr-4">
+                <label className="flex items-center justify-between py-2 touch-none">
+                  <span className="label-text flex-1 mr-4">
                     {t('settings.soundEffects', 'Sound Effects')}
                   </span>
                   <input
                     type="checkbox"
-                    className="toggle toggle-primary toggle-sm sm:toggle-md"
+                    className="toggle toggle-primary toggle-lg"
                   />
                 </label>
 
-                <div className="divider my-2 sm:my-4"></div>
+                <div className="divider my-1"></div>
 
-                <label className="label cursor-pointer justify-between py-2">
-                  <span className="label-text text-sm sm:text-base mr-4">
+                {/* Advanced Mode Switch */}
+                <div className="flex items-center justify-between py-2">
+                  <span className="label-text flex-1 mr-4">
                     Switch to Advanced Mode
                   </span>
                   <button
-                    className="btn btn-sm btn-primary"
+                    className="btn btn-primary h-12 min-h-12 px-6"
                     onClick={() => navigate('/drinks')}
                   >
                     Switch
                   </button>
-                </label>
+                </div>
               </div>
             </div>
           </div>
         </div>
 
         {/* Theme Selector Card */}
-        <div className="card bg-base-200 shadow-xl">
-          <div className="card-body p-4 sm:p-6">
-            <h2 className="card-title text-lg sm:text-xl mb-4 sm:mb-6">
+        <div className="card bg-base-200">
+          <div className="card-body p-3">
+            <h2 className="card-title text-lg mb-3">
               {t('settings.appearance_title', 'Appearance')}
             </h2>
 
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-1.5">
               {themes.map((theme) => (
                 <button
                   key={theme}
                   data-set-theme={theme}
                   data-act-class="active"
-                  className="theme-controller btn btn-sm h-auto py-2 normal-case hover:btn-primary text-xs sm:text-sm"
+                  className="theme-controller btn h-12 min-h-12 normal-case hover:btn-primary active:btn-primary text-sm px-2"
                 >
                   {theme}
                 </button>
