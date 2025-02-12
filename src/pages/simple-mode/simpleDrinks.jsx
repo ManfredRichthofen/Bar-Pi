@@ -20,11 +20,12 @@ function SimpleDrinks() {
   const [searchTerm, setSearchTerm] = useState('');
   const [showFilters, setShowFilters] = useState(false);
   const [filters, setFilters] = useState({
-    alcoholic: false,
-    nonAlcoholic: false,
+    automatic: false,
+    manual: false,
     fabricable: false,
   });
   const [fabricableRecipes, setFabricableRecipes] = useState(new Set());
+  const [isPreloading, setIsPreloading] = useState(false);
 
   const token = useAuthStore((state) => state.token);
 
@@ -68,11 +69,15 @@ function SimpleDrinks() {
     setFabricableRecipes(fabricableSet);
   };
 
-  const fetchRecipes = async (pageNumber, search = '') => {
-    if (!token) {
-      console.log('No token available');
-      return;
+  const isFullyAutomatic = (recipe) => {
+    if (!recipe.ingredients) {
+      return false;
     }
+    return recipe.ingredients.every(ingredient => ingredient.onPump);
+  };
+
+  const fetchRecipes = async (pageNumber, search = '') => {
+    if (!token) return;
 
     const loadingState = pageNumber === 0 ? setSearchLoading : setLoading;
     loadingState(true);
@@ -88,34 +93,28 @@ function SimpleDrinks() {
         search,
         null,
         null,
-        token,
+        token
       );
 
       if (response && response.content) {
         let filteredContent = response.content;
 
-        // Filter processing
-        if (filters.alcoholic && !filters.nonAlcoholic) {
-          filteredContent = filteredContent.filter(
-            (recipe) => recipe.alcoholic,
-          );
-        } else if (!filters.alcoholic && filters.nonAlcoholic) {
-          filteredContent = filteredContent.filter(
-            (recipe) => !recipe.alcoholic,
-          );
-        }
-
         try {
           await checkFabricability(filteredContent);
         } catch (err) {
           console.error('Error checking fabricability:', err);
-          // Continue with the recipes even if fabricability check fails
+        }
+
+        // Apply all filters independently
+        if (filters.automatic || filters.manual) {
+          filteredContent = filteredContent.filter((recipe) => {
+            const isAutomatic = isFullyAutomatic(recipe);
+            return (filters.automatic && isAutomatic) || (filters.manual && !isAutomatic);
+          });
         }
 
         if (filters.fabricable) {
-          filteredContent = filteredContent.filter((recipe) =>
-            fabricableRecipes.has(recipe.id),
-          );
+          filteredContent = filteredContent.filter((recipe) => fabricableRecipes.has(recipe.id));
         }
 
         if (pageNumber === 0) {
@@ -123,33 +122,16 @@ function SimpleDrinks() {
         } else {
           setRecipes((prevRecipes) => {
             const recipesMap = new Map();
-
-            prevRecipes.forEach((recipe) => {
-              if (!filters.fabricable || fabricableRecipes.has(recipe.id)) {
-                recipesMap.set(recipe.id, recipe);
-              }
-            });
-
-            filteredContent.forEach((recipe) => {
-              if (!filters.fabricable || fabricableRecipes.has(recipe.id)) {
-                recipesMap.set(recipe.id, recipe);
-              }
-            });
-
+            prevRecipes.forEach((recipe) => recipesMap.set(recipe.id, recipe));
+            filteredContent.forEach((recipe) => recipesMap.set(recipe.id, recipe));
             return Array.from(recipesMap.values());
           });
         }
 
-        if (filters.fabricable) {
-          setHasMore(
-            !response.last &&
-              filteredContent.some((recipe) =>
-                fabricableRecipes.has(recipe.id),
-              ),
-          );
-        } else {
-          setHasMore(!response.last);
-        }
+        setHasMore(filters.fabricable 
+          ? !response.last && filteredContent.some(recipe => fabricableRecipes.has(recipe.id))
+          : !response.last
+        );
       } else {
         setError('Invalid response format from server');
       }
@@ -207,6 +189,40 @@ function SimpleDrinks() {
     });
   };
 
+  const prefetchNextPage = useCallback(async () => {
+    if (!hasMore || loading || isPreloading) return;
+    
+    setIsPreloading(true);
+    try {
+      const nextPage = page + 1;
+      const response = await RecipeService.getRecipes(
+        nextPage,
+        null,
+        null,
+        null,
+        null,
+        searchTerm,
+        null,
+        null,
+        token
+      );
+
+      if (response?.content) {
+        await checkFabricability(response.content);
+      }
+    } catch (err) {
+      console.error('Error prefetching:', err);
+    } finally {
+      setIsPreloading(false);
+    }
+  }, [page, hasMore, loading, searchTerm, token]);
+
+  useEffect(() => {
+    if (recipes.length > 0 && hasMore && !loading) {
+      prefetchNextPage();
+    }
+  }, [recipes, hasMore, loading]);
+
   const generateSkeletonKey = (index, prefix = '') => {
     const timestamp = Date.now();
     return `skeleton-${prefix}-${timestamp}-${index}`;
@@ -257,19 +273,19 @@ function SimpleDrinks() {
             <div className="flex flex-wrap gap-2 mb-3">
               <button
                 className={`btn btn-sm ${
-                  filters.alcoholic ? 'btn-primary' : 'btn-outline'
+                  filters.automatic ? 'btn-primary' : 'btn-outline'
                 }`}
-                onClick={() => handleFilterChange('alcoholic')}
+                onClick={() => handleFilterChange('automatic')}
               >
-                Alcoholic
+                Fully Automatic
               </button>
               <button
                 className={`btn btn-sm ${
-                  filters.nonAlcoholic ? 'btn-primary' : 'btn-outline'
+                  filters.manual ? 'btn-primary' : 'btn-outline'
                 }`}
-                onClick={() => handleFilterChange('nonAlcoholic')}
+                onClick={() => handleFilterChange('manual')}
               >
-                Non-Alcoholic
+                Manual
               </button>
               <button
                 className={`btn btn-sm ${
