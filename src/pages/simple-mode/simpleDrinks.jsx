@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Navigate } from 'react-router-dom';
 import { Search, SlidersHorizontal, X, AlertCircle } from 'lucide-react';
 import debounce from 'lodash/debounce';
-import InfiniteScroll from 'react-infinite-scroll-component';
+import { Virtuoso } from 'react-virtuoso';
 
 import useAuthStore from '../../store/authStore';
 import RecipeService from '../../services/recipe.service.js';
@@ -228,6 +228,16 @@ function SimpleDrinks() {
     return `skeleton-${prefix}-${timestamp}-${index}`;
   };
 
+  const ListContainer = React.forwardRef(({ style, children }, ref) => (
+    <div 
+      ref={ref}
+      style={style}
+      className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"
+    >
+      {children}
+    </div>
+  ));
+
   if (!token) {
     return <Navigate to="/login" />;
   }
@@ -313,35 +323,35 @@ function SimpleDrinks() {
         </div>
       )}
 
-      <InfiniteScroll
-        dataLength={recipes.length}
-        next={loadMoreData}
-        hasMore={hasMore}
-        loader={
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mt-4">
-            {[...Array(4)].map((_, index) => (
-              <SimpleDrinkCardSkeleton key={generateSkeletonKey(index)} />
-            ))}
-          </div>
-        }
-        endMessage={
-          <p className="text-center text-gray-500 mt-4">
-            {recipes.length === 0
-              ? 'No drinks found'
-              : "That's all the drinks!"}
-          </p>
-        }
-      >
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-          {recipes.map((recipe) => (
-            <SimpleDrinkCard
-              key={recipe.id}
-              recipe={recipe}
-              isFabricable={fabricableRecipes.has(recipe.id)}
-            />
-          ))}
-        </div>
-      </InfiniteScroll>
+      <Virtuoso
+        useWindowScroll
+        data={recipes}
+        endReached={loadMoreData}
+        overscan={200}
+        style={{ overflowY: 'hidden' }}
+        components={{
+          Footer: () => (
+            loading ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mt-4">
+                {[...Array(4)].map((_, index) => (
+                  <SimpleDrinkCardSkeleton key={generateSkeletonKey(index)} />
+                ))}
+              </div>
+            ) : !hasMore && (
+              <p className="text-center text-gray-500 mt-4">
+                {recipes.length === 0 ? 'No drinks found' : "That's all the drinks!"}
+              </p>
+            )
+          )
+        }}
+        itemContent={(index, recipe) => (
+          <SimpleDrinkCard
+            recipe={recipe}
+            isFabricable={fabricableRecipes.has(recipe.id)}
+          />
+        )}
+        listComponent={ListContainer}
+      />
     </div>
   );
 }
