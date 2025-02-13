@@ -382,7 +382,7 @@ function SimpleDrinks() {
             isFabricable={fabricableRecipes.has(recipe.id)}
           />
         )}
-        listComponent={ListContainer}
+        listcomponent={ListContainer}
       />
     </div>
   );
