@@ -35,13 +35,20 @@ interface UIModeState {
 }
 
 
-const useUIModeStore = create<UIModeState>((set) => ({
-  isAdvancedMode: localStorage.getItem('uiMode') === 'advanced',
-  setAdvancedMode: (isAdvanced: boolean) => {
-    localStorage.setItem('uiMode', isAdvanced ? 'advanced' : 'simple');
-    set({ isAdvancedMode: isAdvanced });
-  },
-}));
+const useUIModeStore = create<UIModeState>((set) => {
+  // Initialize localStorage with 'simple' if no value exists
+  if (!localStorage.getItem('uiMode')) {
+    localStorage.setItem('uiMode', 'simple');
+  }
+
+  return {
+    isAdvancedMode: localStorage.getItem('uiMode') === 'advanced',
+    setAdvancedMode: (isAdvanced: boolean) => {
+      localStorage.setItem('uiMode', isAdvanced ? 'advanced' : 'simple');
+      set({ isAdvancedMode: isAdvanced });
+    },
+  };
+});
 
 function App() {
   const reinitializeAuthState = useAuthStore(
