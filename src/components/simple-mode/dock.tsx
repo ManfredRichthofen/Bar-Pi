@@ -12,7 +12,7 @@ const Dock: React.FC = () => {
   };
 
   return (
-    <div className="dock">
+    <div className="dock position-fixed bottom-0 left-0 right-0">
       <button className={isActive('/simple/drinks')}>
         <Link to="/simple/drinks" className="flex flex-col items-center gap-1">
           <GlassWater className="h-6 w-6" />
