@@ -32,6 +32,7 @@
     "react-infinite-scroll-component": "^6.1.0",
     "react-router-dom": "^7.1.3",
     "react-virtualized": "^9.22.6",
+    "react-virtuoso": "^4.12.5",
     "sockjs": "^0.3.24",
     "sockjs-client": "^1.6.1",
     "stompjs": "^2.3.3",
