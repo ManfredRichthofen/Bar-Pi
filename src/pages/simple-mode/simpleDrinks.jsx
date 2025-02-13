@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { Navigate } from 'react-router-dom';
 import { Search, SlidersHorizontal, X, AlertCircle } from 'lucide-react';
 import debounce from 'lodash/debounce';
@@ -29,7 +29,7 @@ function SimpleDrinks() {
 
   const token = useAuthStore((state) => state.token);
 
-  const getOrderConfig = (recipe) => ({
+  const getOrderConfig = useCallback((recipe) => ({
     amountOrderedInMl: recipe.defaultGlass?.sizeInMl || 250,
     customisations: {
       boost: 100,
@@ -39,44 +39,66 @@ function SimpleDrinks() {
     ingredientGroupReplacements: [],
     useAutomaticIngredients: true,
     skipMissingIngredients: false,
-  });
+  }), []);
 
-  const checkFabricability = async (recipes) => {
+  const checkFabricability = useCallback(async (recipes) => {
     const fabricableSet = new Set();
-
-    await Promise.all(
-      recipes.map(async (recipe) => {
-        try {
-          const orderConfig = getOrderConfig(recipe);
-          const result = await CocktailService.checkFeasibility(
-            recipe.id,
-            orderConfig,
-            false,
-            token,
-          );
-          if (result?.feasible) {
-            fabricableSet.add(recipe.id);
+    
+    // Process in batches of 5 to avoid overwhelming the server
+    const batchSize = 5;
+    for (let i = 0; i < recipes.length; i += batchSize) {
+      const batch = recipes.slice(i, i + batchSize);
+      await Promise.all(
+        batch.map(async (recipe) => {
+          try {
+            const orderConfig = getOrderConfig(recipe);
+            const result = await CocktailService.checkFeasibility(
+              recipe.id,
+              orderConfig,
+              false,
+              token,
+            );
+            if (result?.feasible) {
+              fabricableSet.add(recipe.id);
+            }
+          } catch (err) {
+            console.error(
+              `Error checking fabricability for recipe ${recipe.id}:`,
+              err,
+            );
           }
-        } catch (err) {
-          console.error(
-            `Error checking fabricability for recipe ${recipe.id}:`,
-            err,
-          );
-        }
-      }),
-    );
+        }),
+      );
+    }
 
     setFabricableRecipes(fabricableSet);
-  };
+  }, [token, getOrderConfig]);
 
-  const isFullyAutomatic = (recipe) => {
+  const isFullyAutomatic = useCallback((recipe) => {
     if (!recipe.ingredients) {
       return false;
     }
     return recipe.ingredients.every(ingredient => ingredient.onPump);
-  };
+  }, []);
 
-  const fetchRecipes = async (pageNumber, search = '') => {
+  const filterRecipes = useCallback((recipes, filters, fabricableRecipes) => {
+    let filteredContent = recipes;
+
+    if (filters.automatic || filters.manual) {
+      filteredContent = filteredContent.filter((recipe) => {
+        const isAutomatic = isFullyAutomatic(recipe);
+        return (filters.automatic && isAutomatic) || (filters.manual && !isAutomatic);
+      });
+    }
+
+    if (filters.fabricable) {
+      filteredContent = filteredContent.filter((recipe) => fabricableRecipes.has(recipe.id));
+    }
+
+    return filteredContent;
+  }, [isFullyAutomatic]);
+
+  const fetchRecipes = useCallback(async (pageNumber, search = '') => {
     if (!token) return;
 
     const loadingState = pageNumber === 0 ? setSearchLoading : setLoading;
@@ -97,34 +119,23 @@ function SimpleDrinks() {
       );
 
       if (response && response.content) {
-        let filteredContent = response.content;
-
         try {
-          await checkFabricability(filteredContent);
+          await checkFabricability(response.content);
         } catch (err) {
           console.error('Error checking fabricability:', err);
         }
 
-        // Apply all filters independently
-        if (filters.automatic || filters.manual) {
-          filteredContent = filteredContent.filter((recipe) => {
-            const isAutomatic = isFullyAutomatic(recipe);
-            return (filters.automatic && isAutomatic) || (filters.manual && !isAutomatic);
-          });
-        }
-
-        if (filters.fabricable) {
-          filteredContent = filteredContent.filter((recipe) => fabricableRecipes.has(recipe.id));
-        }
+        const filteredContent = filterRecipes(response.content, filters, fabricableRecipes);
 
         if (pageNumber === 0) {
           setRecipes(filteredContent);
         } else {
           setRecipes((prevRecipes) => {
-            const recipesMap = new Map();
-            prevRecipes.forEach((recipe) => recipesMap.set(recipe.id, recipe));
-            filteredContent.forEach((recipe) => recipesMap.set(recipe.id, recipe));
-            return Array.from(recipesMap.values());
+            const uniqueRecipes = new Map([
+              ...prevRecipes.map(recipe => [recipe.id, recipe]),
+              ...filteredContent.map(recipe => [recipe.id, recipe])
+            ]);
+            return Array.from(uniqueRecipes.values());
           });
         }
 
@@ -141,7 +152,7 @@ function SimpleDrinks() {
     } finally {
       loadingState(false);
     }
-  };
+  }, [token, filters, fabricableRecipes, checkFabricability, filterRecipes]);
 
   const debouncedSearch = useCallback(
     debounce((value) => {
@@ -228,7 +239,63 @@ function SimpleDrinks() {
     return `skeleton-${prefix}-${timestamp}-${index}`;
   };
 
-  const ListContainer = React.forwardRef(({ style, children }, ref) => (
+  const SearchForm = React.memo(({ onSubmit, onInput, loading }) => (
+    <form onSubmit={onSubmit} className="join w-full">
+      <input
+        name="search"
+        className="input h-12 min-h-[48px] join-item w-full border-2 border-accent-content border-r-0"
+        placeholder="Search drinks..."
+        onChange={onInput}
+        disabled={loading}
+      />
+      <button
+        type="submit"
+        className="btn h-12 min-h-[48px] w-12 border-2 border-accent-content bg-base-100 join-item border-l-1 hover:bg-base-200 px-0"
+        disabled={loading}
+      >
+        {loading ? (
+          <span className="loading loading-spinner loading-sm"></span>
+        ) : (
+          <Search className="w-5 h-5" />
+        )}
+      </button>
+    </form>
+  ));
+
+  const FilterButtons = React.memo(({ filters, onFilterChange }) => (
+    <div className="flex flex-wrap gap-2 mb-3">
+      <button
+        className={`btn btn-sm ${filters.automatic ? 'btn-primary' : 'btn-outline'}`}
+        onClick={() => onFilterChange('automatic')}
+      >
+        Fully Automatic
+      </button>
+      <button
+        className={`btn btn-sm ${filters.manual ? 'btn-primary' : 'btn-outline'}`}
+        onClick={() => onFilterChange('manual')}
+      >
+        Manual
+      </button>
+      <button
+        className={`btn btn-sm ${filters.fabricable ? 'btn-primary' : 'btn-outline'}`}
+        onClick={() => onFilterChange('fabricable')}
+      >
+        Available Now
+      </button>
+    </div>
+  ));
+
+  const ErrorMessage = React.memo(({ error, onDismiss }) => (
+    <div className="alert alert-error mb-4">
+      <AlertCircle className="w-6 h-6" />
+      <span>{error}</span>
+      <button className="btn btn-ghost btn-sm" onClick={onDismiss}>
+        <X className="w-4 h-4" />
+      </button>
+    </div>
+  ));
+
+  const ListContainer = React.memo(React.forwardRef(({ style, children }, ref) => (
     <div 
       ref={ref}
       style={style}
@@ -236,6 +303,20 @@ function SimpleDrinks() {
     >
       {children}
     </div>
+  )));
+
+  const LoadingFooter = React.memo(() => (
+    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mt-4">
+      {[...Array(4)].map((_, index) => (
+        <SimpleDrinkCardSkeleton key={generateSkeletonKey(index)} />
+      ))}
+    </div>
+  ));
+
+  const NoMoreDrinks = React.memo(({ recipesLength }) => (
+    <p className="text-center text-gray-500 mt-4">
+      {recipesLength === 0 ? 'No drinks found' : "That's all the drinks!"}
+    </p>
   ));
 
   if (!token) {
@@ -248,26 +329,11 @@ function SimpleDrinks() {
         <h2 className="text-xl font-bold text-center mb-3">Available Drinks</h2>
 
         <div className="max-w-md mx-auto mb-2">
-          <form onSubmit={handleSearch} className="join w-full">
-            <input
-              name="search"
-              className="input h-12 min-h-[48px] join-item w-full border-2 border-accent-content border-r-0"
-              placeholder="Search drinks..."
-              onChange={handleSearchInput}
-              disabled={searchLoading}
-            />
-            <button
-              type="submit"
-              className="btn h-12 min-h-[48px] w-12 border-2 border-accent-content bg-base-100 join-item border-l-1 hover:bg-base-200 px-0"
-              disabled={searchLoading}
-            >
-              {searchLoading ? (
-                <span className="loading loading-spinner loading-sm"></span>
-              ) : (
-                <Search className="w-5 h-5" />
-              )}
-            </button>
-          </form>
+          <SearchForm 
+            onSubmit={handleSearch}
+            onInput={handleSearchInput}
+            loading={searchLoading}
+          />
         </div>
 
         <div className="max-w-md mx-auto">
@@ -280,47 +346,19 @@ function SimpleDrinks() {
           </button>
 
           {showFilters && (
-            <div className="flex flex-wrap gap-2 mb-3">
-              <button
-                className={`btn btn-sm ${
-                  filters.automatic ? 'btn-primary' : 'btn-outline'
-                }`}
-                onClick={() => handleFilterChange('automatic')}
-              >
-                Fully Automatic
-              </button>
-              <button
-                className={`btn btn-sm ${
-                  filters.manual ? 'btn-primary' : 'btn-outline'
-                }`}
-                onClick={() => handleFilterChange('manual')}
-              >
-                Manual
-              </button>
-              <button
-                className={`btn btn-sm ${
-                  filters.fabricable ? 'btn-primary' : 'btn-outline'
-                }`}
-                onClick={() => handleFilterChange('fabricable')}
-              >
-                Available Now
-              </button>
-            </div>
+            <FilterButtons 
+              filters={filters}
+              onFilterChange={handleFilterChange}
+            />
           )}
         </div>
       </div>
 
       {error && (
-        <div className="alert alert-error mb-4">
-          <AlertCircle className="w-6 h-6" />
-          <span>{error}</span>
-          <button
-            className="btn btn-ghost btn-sm"
-            onClick={() => setError(null)}
-          >
-            <X className="w-4 h-4" />
-          </button>
-        </div>
+        <ErrorMessage 
+          error={error}
+          onDismiss={() => setError(null)}
+        />
       )}
 
       <Virtuoso
@@ -332,15 +370,9 @@ function SimpleDrinks() {
         components={{
           Footer: () => (
             loading ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mt-4">
-                {[...Array(4)].map((_, index) => (
-                  <SimpleDrinkCardSkeleton key={generateSkeletonKey(index)} />
-                ))}
-              </div>
+              <LoadingFooter />
             ) : !hasMore && (
-              <p className="text-center text-gray-500 mt-4">
-                {recipes.length === 0 ? 'No drinks found' : "That's all the drinks!"}
-              </p>
+              <NoMoreDrinks recipesLength={recipes.length} />
             )
           )
         }}
@@ -356,4 +388,4 @@ function SimpleDrinks() {
   );
 }
 
-export default SimpleDrinks;
+export default React.memo(SimpleDrinks);
