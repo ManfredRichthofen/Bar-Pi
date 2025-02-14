@@ -1,14 +1,149 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, forwardRef } from 'react';
 import { Navigate } from 'react-router-dom';
 import { Search, SlidersHorizontal, X, AlertCircle } from 'lucide-react';
 import debounce from 'lodash/debounce';
-import { Virtuoso } from 'react-virtuoso';
+import { VirtuosoGrid } from 'react-virtuoso';
 
 import useAuthStore from '../../store/authStore';
 import RecipeService from '../../services/recipe.service.js';
 import CocktailService from '../../services/cocktail.service.js';
 import SimpleDrinkCard from '../../components/simple-mode/drinks/simpleDrinkCard';
 import SimpleDrinkCardSkeleton from '../../components/simple-mode/drinks/simpleDrinkCardSkeleton';
+
+// Define custom grid components outside the component to avoid remounts.
+const SearchForm = React.memo(({ onSubmit, onInput, loading }) => (
+  <form onSubmit={onSubmit} className="join w-full">
+    <input
+      name="search"
+      className="input h-12 min-h-[48px] join-item w-full border-2 border-accent-content border-r-0"
+      placeholder="Search drinks..."
+      onChange={onInput}
+      disabled={loading}
+    />
+    <button
+      type="submit"
+      className="btn h-12 min-h-[48px] w-12 border-2 border-accent-content bg-base-100 join-item border-l-1 hover:bg-base-200 px-0"
+      disabled={loading}
+    >
+      {loading ? (
+        <span className="loading loading-spinner loading-sm"></span>
+      ) : (
+        <Search className="w-5 h-5" />
+      )}
+    </button>
+  </form>
+));
+
+const FilterButtons = React.memo(({ filters, onFilterChange }) => (
+  <div className="flex flex-wrap gap-2 mb-3">
+    <button
+      className={`btn btn-sm ${filters.automatic ? 'btn-primary' : 'btn-outline'}`}
+      onClick={() => onFilterChange('automatic')}
+    >
+      Fully Automatic
+    </button>
+    <button
+      className={`btn btn-sm ${filters.manual ? 'btn-primary' : 'btn-outline'}`}
+      onClick={() => onFilterChange('manual')}
+    >
+      Manual
+    </button>
+    <button
+      className={`btn btn-sm ${filters.fabricable ? 'btn-primary' : 'btn-outline'}`}
+      onClick={() => onFilterChange('fabricable')}
+    >
+      Available Now
+    </button>
+  </div>
+));
+
+const ErrorMessage = React.memo(({ error, onDismiss }) => (
+  <div className="alert alert-error mb-4">
+    <AlertCircle className="w-6 h-6" />
+    <span>{error}</span>
+    <button className="btn btn-ghost btn-sm" onClick={onDismiss}>
+      <X className="w-4 h-4" />
+    </button>
+  </div>
+));
+
+const LoadingFooter = React.memo(() => (
+  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mt-4">
+    {[...Array(4)].map((_, index) => (
+      <SimpleDrinkCardSkeleton key={`skeleton-${Date.now()}-${index}`} />
+    ))}
+  </div>
+));
+
+const NoMoreDrinks = React.memo(({ recipesLength }) => (
+  <p className="text-center text-gray-500 mt-4">
+    {recipesLength === 0 ? 'No drinks found' : "That's all the drinks!"}
+  </p>
+));
+
+const ItemContainer = React.memo(({ children, ...props }) => (
+  <div
+    {...props}
+    className="w-full sm:w-1/2 md:w-1/3 lg:w-1/4 p-2"
+  >
+    {children}
+  </div>
+));
+
+const ListContainer = forwardRef(({ style, children }, ref) => (
+  <div
+    ref={ref}
+    style={{
+      ...style,
+      display: 'flex',
+      flexWrap: 'wrap',
+      margin: '0 -0.5rem',
+      msOverflowStyle: 'none',  // Hide scrollbar in IE/Edge
+      scrollbarWidth: 'none',   // Hide scrollbar in Firefox
+    }}
+    className="hide-scrollbar" // Custom class for webkit browsers
+  >
+    {children}
+  </div>
+));
+
+// Add ScrollContainer to handle the main scrollable area
+const ScrollContainer = forwardRef(({ style, children }, ref) => (
+  <div
+    ref={ref}
+    style={{
+      ...style,
+      msOverflowStyle: 'none',
+      scrollbarWidth: 'none',
+    }}
+    className="hide-scrollbar"
+  >
+    {children}
+  </div>
+));
+
+const gridComponents = {
+  List: ListContainer,
+  Item: ItemContainer,
+  ScrollSeekPlaceholder: () => (
+    <div className="w-full sm:w-1/2 md:w-1/3 lg:w-1/4 p-2" style={{ minHeight: '350px' }}>
+      <div className="h-full bg-base-200 animate-pulse rounded-lg"></div>
+    </div>
+  ),
+  Scroller: ScrollContainer,
+};
+
+// Add CSS for webkit browsers
+const globalStyles = `
+  .hide-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+`;
+
+// Add style tag to document head
+const styleTag = document.createElement('style');
+styleTag.textContent = globalStyles;
+document.head.appendChild(styleTag);
 
 function SimpleDrinks() {
   const [recipes, setRecipes] = useState([]);
@@ -43,8 +178,6 @@ function SimpleDrinks() {
 
   const checkFabricability = useCallback(async (recipes) => {
     const fabricableSet = new Set();
-    
-    // Process in batches of 5 to avoid overwhelming the server
     const batchSize = 5;
     for (let i = 0; i < recipes.length; i += batchSize) {
       const batch = recipes.slice(i, i + batchSize);
@@ -56,55 +189,44 @@ function SimpleDrinks() {
               recipe.id,
               orderConfig,
               false,
-              token,
+              token
             );
             if (result?.feasible) {
               fabricableSet.add(recipe.id);
             }
           } catch (err) {
-            console.error(
-              `Error checking fabricability for recipe ${recipe.id}:`,
-              err,
-            );
+            console.error(`Error checking fabricability for recipe ${recipe.id}:`, err);
           }
-        }),
+        })
       );
     }
-
     setFabricableRecipes(fabricableSet);
   }, [token, getOrderConfig]);
 
   const isFullyAutomatic = useCallback((recipe) => {
-    if (!recipe.ingredients) {
-      return false;
-    }
+    if (!recipe.ingredients) return false;
     return recipe.ingredients.every(ingredient => ingredient.onPump);
   }, []);
 
   const filterRecipes = useCallback((recipes, filters, fabricableRecipes) => {
     let filteredContent = recipes;
-
     if (filters.automatic || filters.manual) {
       filteredContent = filteredContent.filter((recipe) => {
         const isAutomatic = isFullyAutomatic(recipe);
         return (filters.automatic && isAutomatic) || (filters.manual && !isAutomatic);
       });
     }
-
     if (filters.fabricable) {
       filteredContent = filteredContent.filter((recipe) => fabricableRecipes.has(recipe.id));
     }
-
     return filteredContent;
   }, [isFullyAutomatic]);
 
   const fetchRecipes = useCallback(async (pageNumber, search = '') => {
     if (!token) return;
-
     const loadingState = pageNumber === 0 ? setSearchLoading : setLoading;
     loadingState(true);
     setError(null);
-
     try {
       const response = await RecipeService.getRecipes(
         pageNumber,
@@ -117,16 +239,13 @@ function SimpleDrinks() {
         null,
         token
       );
-
       if (response && response.content) {
         try {
           await checkFabricability(response.content);
         } catch (err) {
           console.error('Error checking fabricability:', err);
         }
-
         const filteredContent = filterRecipes(response.content, filters, fabricableRecipes);
-
         if (pageNumber === 0) {
           setRecipes(filteredContent);
         } else {
@@ -138,10 +257,10 @@ function SimpleDrinks() {
             return Array.from(uniqueRecipes.values());
           });
         }
-
-        setHasMore(filters.fabricable 
-          ? !response.last && filteredContent.some(recipe => fabricableRecipes.has(recipe.id))
-          : !response.last
+        setHasMore(
+          filters.fabricable 
+            ? !response.last && filteredContent.some(recipe => fabricableRecipes.has(recipe.id))
+            : !response.last
         );
       } else {
         setError('Invalid response format from server');
@@ -161,7 +280,7 @@ function SimpleDrinks() {
       setRecipes([]);
       fetchRecipes(0, value);
     }, 300),
-    [filters],
+    [filters, fetchRecipes]
   );
 
   useEffect(() => {
@@ -202,7 +321,6 @@ function SimpleDrinks() {
 
   const prefetchNextPage = useCallback(async () => {
     if (!hasMore || loading || isPreloading) return;
-    
     setIsPreloading(true);
     try {
       const nextPage = page + 1;
@@ -217,7 +335,6 @@ function SimpleDrinks() {
         null,
         token
       );
-
       if (response?.content) {
         await checkFabricability(response.content);
       }
@@ -239,142 +356,47 @@ function SimpleDrinks() {
     return `skeleton-${prefix}-${timestamp}-${index}`;
   };
 
-  const SearchForm = React.memo(({ onSubmit, onInput, loading }) => (
-    <form onSubmit={onSubmit} className="join w-full">
-      <input
-        name="search"
-        className="input h-12 min-h-[48px] join-item w-full border-2 border-accent-content border-r-0"
-        placeholder="Search drinks..."
-        onChange={onInput}
-        disabled={loading}
-      />
-      <button
-        type="submit"
-        className="btn h-12 min-h-[48px] w-12 border-2 border-accent-content bg-base-100 join-item border-l-1 hover:bg-base-200 px-0"
-        disabled={loading}
-      >
-        {loading ? (
-          <span className="loading loading-spinner loading-sm"></span>
-        ) : (
-          <Search className="w-5 h-5" />
-        )}
-      </button>
-    </form>
-  ));
-
-  const FilterButtons = React.memo(({ filters, onFilterChange }) => (
-    <div className="flex flex-wrap gap-2 mb-3">
-      <button
-        className={`btn btn-sm ${filters.automatic ? 'btn-primary' : 'btn-outline'}`}
-        onClick={() => onFilterChange('automatic')}
-      >
-        Fully Automatic
-      </button>
-      <button
-        className={`btn btn-sm ${filters.manual ? 'btn-primary' : 'btn-outline'}`}
-        onClick={() => onFilterChange('manual')}
-      >
-        Manual
-      </button>
-      <button
-        className={`btn btn-sm ${filters.fabricable ? 'btn-primary' : 'btn-outline'}`}
-        onClick={() => onFilterChange('fabricable')}
-      >
-        Available Now
-      </button>
-    </div>
-  ));
-
-  const ErrorMessage = React.memo(({ error, onDismiss }) => (
-    <div className="alert alert-error mb-4">
-      <AlertCircle className="w-6 h-6" />
-      <span>{error}</span>
-      <button className="btn btn-ghost btn-sm" onClick={onDismiss}>
-        <X className="w-4 h-4" />
-      </button>
-    </div>
-  ));
-
-  const ListContainer = React.memo(React.forwardRef(({ style, children }, ref) => (
-    <div 
-      ref={ref}
-      style={style}
-      className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"
-    >
-      {children}
-    </div>
-  )));
-
-  const LoadingFooter = React.memo(() => (
-    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mt-4">
-      {[...Array(4)].map((_, index) => (
-        <SimpleDrinkCardSkeleton key={generateSkeletonKey(index)} />
-      ))}
-    </div>
-  ));
-
-  const NoMoreDrinks = React.memo(({ recipesLength }) => (
-    <p className="text-center text-gray-500 mt-4">
-      {recipesLength === 0 ? 'No drinks found' : "That's all the drinks!"}
-    </p>
-  ));
-
   if (!token) {
     return <Navigate to="/login" />;
   }
 
   return (
-    <div className="container mx-auto px-2 py-2 pt-16 pb-4 min-h-screen">
+    <div className="container mx-auto px-2 py-2 pt-16 pb-4">
       <div className="mb-3">
         <h2 className="text-xl font-bold text-center mb-3">Available Drinks</h2>
-
         <div className="max-w-md mx-auto mb-2">
-          <SearchForm 
-            onSubmit={handleSearch}
-            onInput={handleSearchInput}
-            loading={searchLoading}
-          />
+          <SearchForm onSubmit={handleSearch} onInput={handleSearchInput} loading={searchLoading} />
         </div>
-
         <div className="max-w-md mx-auto">
-          <button
-            className="btn btn-sm btn-ghost gap-2 mb-2"
-            onClick={() => setShowFilters(!showFilters)}
-          >
+          <button className="btn btn-sm btn-ghost gap-2 mb-2" onClick={() => setShowFilters(!showFilters)}>
             <SlidersHorizontal className="w-4 h-4" />
             Filters
           </button>
-
-          {showFilters && (
-            <FilterButtons 
-              filters={filters}
-              onFilterChange={handleFilterChange}
-            />
-          )}
+          {showFilters && <FilterButtons filters={filters} onFilterChange={handleFilterChange} />}
         </div>
       </div>
-
-      {error && (
-        <ErrorMessage 
-          error={error}
-          onDismiss={() => setError(null)}
-        />
-      )}
-
-      <Virtuoso
+      {error && <ErrorMessage error={error} onDismiss={() => setError(null)} />}
+      <VirtuosoGrid
         useWindowScroll
         data={recipes}
         endReached={loadMoreData}
-        overscan={200}
-        style={{ overflowY: 'hidden' }}
+        overscan={1000}
+        scrollSeekConfiguration={{
+          enter: velocity => Math.abs(velocity) > 1000,
+          exit: velocity => Math.abs(velocity) < 100,
+          change: () => null,
+          placeholder: () => ({
+            height: 350,
+          }),
+        }}
         components={{
-          Footer: () => (
+          ...gridComponents,
+          Footer: () =>
             loading ? (
               <LoadingFooter />
             ) : !hasMore && (
               <NoMoreDrinks recipesLength={recipes.length} />
-            )
-          )
+            ),
         }}
         itemContent={(index, recipe) => (
           <SimpleDrinkCard
@@ -382,7 +404,6 @@ function SimpleDrinks() {
             isFabricable={fabricableRecipes.has(recipe.id)}
           />
         )}
-        listcomponent={ListContainer}
       />
     </div>
   );
