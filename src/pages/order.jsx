@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { BeakerIcon, XCircle, PlayCircle } from 'lucide-react';
-import { Navigate, useLocation, useNavigate } from 'react-router-dom';
+import { useNavigate, useSearch } from '@tanstack/react-router';
 import useAuthStore from '../store/authStore';
 import cocktailService from '../services/cocktail.service';
 import DrinkCustomizer from '../components/order/DrinkCustomizer';
@@ -15,9 +15,9 @@ const Order = () => {
   const [feasibilityResult, setFeasibilityResult] = useState(null);
   const [amountToProduce, setAmountToProduce] = useState(null);
   const token = useAuthStore((state) => state.token);
-  const location = useLocation();
+  const search = useSearch();
   const navigate = useNavigate();
-  const recipe = location.state?.recipe;
+  const recipe = search.recipe ? JSON.parse(search.recipe) : null;
   const [customizations, setCustomizations] = useState({
     boost: 100,
     additionalIngredients: [],
@@ -105,7 +105,7 @@ const Order = () => {
 
       await cocktailService.order(recipeId, orderConfig, false, token);
       showToast('Drink ordered successfully', 'success');
-      navigate('/drinks');
+      navigate({ to: '/advanced/drinks' });
     } catch (error) {
       showToast('Failed to order drink', 'error');
     } finally {
@@ -147,8 +147,14 @@ const Order = () => {
     setAmountToProduce(value);
   };
 
-  if (!token) return <Navigate to="/login" />;
-  if (!recipe) return <Navigate to="/drinks" />;
+  if (!token) {
+    navigate({ to: '/login' });
+    return null;
+  }
+  if (!recipe) {
+    navigate({ to: '/advanced/drinks' });
+    return null;
+  }
 
   const canOrderDrink =
     feasibilityResult?.feasible &&
@@ -226,7 +232,7 @@ const Order = () => {
                   </button>
                   <button
                     className="btn btn-ghost flex-1 sm:flex-none"
-                    onClick={() => navigate('/drinks')}
+                    onClick={() => navigate({ to: '/advanced/drinks' })}
                   >
                     Back to Drinks
                   </button>

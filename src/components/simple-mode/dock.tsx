@@ -1,14 +1,14 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useRouter } from '@tanstack/react-router';
 import { Clock, Settings, GlassWater } from 'lucide-react';
 
 const Dock: React.FC = () => {
   const { t } = useTranslation();
-  const location = useLocation();
+  const router = useRouter();
 
   const isActive = (path: string) => {
-    return location.pathname.startsWith(path) ? 'dock-active' : '';
+    return router.state.location.pathname.startsWith(path) ? 'dock-active' : '';
   };
 
   return (
@@ -21,20 +21,14 @@ const Dock: React.FC = () => {
       </button>
 
       <button className={isActive('/simple/order-status')}>
-        <Link
-          to="/simple/order-status"
-          className="flex flex-col items-center gap-1"
-        >
+        <Link to="/simple/order-status" className="flex flex-col items-center gap-1">
           <Clock className="h-6 w-6" />
           <span className="dock-label">{t('navigation.order_status')}</span>
         </Link>
       </button>
 
       <button className={isActive('/simple/settings')}>
-        <Link
-          to="/simple/settings"
-          className="flex flex-col items-center gap-1"
-        >
+        <Link to="/simple/settings" className="flex flex-col items-center gap-1">
           <Settings className="h-6 w-6" />
           <span className="dock-label">{t('navigation.settings')}</span>
         </Link>

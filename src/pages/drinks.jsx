@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import useAuthStore from '../store/authStore';
 import RecipeService from '../services/recipe.service.js';
-import { Navigate } from 'react-router-dom';
+import { useNavigate } from '@tanstack/react-router';
 import DrinkCard from '../components/drinks/DrinkCard.jsx';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { Search } from 'lucide-react';
@@ -15,6 +15,7 @@ const Drinks = () => {
   const [error, setError] = useState(null);
 
   const token = useAuthStore((state) => state.token);
+  const navigate = useNavigate();
 
   const fetchRecipes = async (pageNumber, search = '') => {
     if (!token) {
@@ -80,7 +81,8 @@ const Drinks = () => {
   };
 
   if (!token) {
-    return <Navigate to="/login" />;
+    navigate({ to: '/login' });
+    return null;
   }
 
   return (

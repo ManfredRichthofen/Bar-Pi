@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { BeakerIcon } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from '@tanstack/react-router';
 
 const SimpleDrinkCard = ({ recipe }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -11,7 +11,10 @@ const SimpleDrinkCard = ({ recipe }) => {
   const handleCancel = () => setIsModalOpen(false);
 
   const handleMakeDrink = () => {
-    navigate('/simple/order', { state: { recipe } });
+    navigate({
+      to: '/simple/order',
+      search: { recipe: JSON.stringify(recipe) }
+    });
     handleCancel();
   };
 

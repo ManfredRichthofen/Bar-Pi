@@ -10,7 +10,7 @@ import {
   Gauge,
   Martini,
 } from 'lucide-react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useRouter } from '@tanstack/react-router';
 
 interface SidebarProps {
   collapsed: boolean;
@@ -19,19 +19,19 @@ interface SidebarProps {
 
 const Sidebar: React.FC<SidebarProps> = ({ collapsed, onCollapse }) => {
   const navigate = useNavigate();
-  const location = useLocation();
+  const router = useRouter();
 
   const menuItems = [
     {
       group: 'Main',
       items: [
         {
-          key: '/drinks',
+          key: '/advanced/drinks',
           icon: <Martini size={16} />,
           label: 'Drinks',
         },
         {
-          key: '/favorites',
+          key: '/advanced/favorites',
           icon: <Heart size={16} />,
           label: 'Favorites',
         },
@@ -41,17 +41,17 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed, onCollapse }) => {
       group: 'Configuration',
       items: [
         {
-          key: '/recipes',
+          key: '/advanced/recipes',
           icon: <BookText size={16} />,
           label: 'Recipes',
         },
         {
-          key: '/ingredients',
+          key: '/advanced/ingredients',
           icon: <BookText size={16} />,
           label: 'Ingredients',
         },
         {
-          key: '/glasses',
+          key: '/advanced/glasses',
           icon: <GlassWater size={16} />,
           label: 'Glasses',
         },
@@ -61,22 +61,22 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed, onCollapse }) => {
       group: 'Administration',
       items: [
         {
-          key: '/users',
+          key: '/advanced/users',
           icon: <Users size={16} />,
           label: 'Users',
         },
         {
-          key: '/settings',
+          key: '/advanced/settings',
           icon: <Settings size={16} />,
           label: 'Settings',
         },
         {
-          key: '/categories',
+          key: '/advanced/categories',
           icon: <LayoutGrid size={16} />,
           label: 'Categories',
         },
         {
-          key: '/pumps',
+          key: '/advanced/pumps',
           icon: <Gauge size={16} />,
           label: 'Pumps',
         },
@@ -136,13 +136,13 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed, onCollapse }) => {
                         <a
                           className={`flex items-center gap-3 px-3 sm:px-4 py-2.5 rounded-lg transition-all duration-300 
                             ${
-                              location.pathname === item.key
+                              router.state.location.pathname === item.key
                                 ? 'bg-primary/10 text-primary hover:bg-primary/15 shadow-sm'
                                 : 'text-base-content/70 hover:text-base-content hover:bg-base-200/70'
                             }
                             active:scale-[0.98] active:bg-base-300`}
                           onClick={() => {
-                            navigate(item.key);
+                            navigate({ to: item.key });
                             // Only auto-collapse on small screens
                             if (window.innerWidth < 640) {
                               onCollapse(true);
@@ -153,7 +153,7 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed, onCollapse }) => {
                             size: 18,
                             strokeWidth: 2,
                             className: `transition-colors duration-300 ${
-                              location.pathname === item.key
+                              router.state.location.pathname === item.key
                                 ? 'text-primary'
                                 : 'text-base-content/60 group-hover:text-base-content'
                             }`,

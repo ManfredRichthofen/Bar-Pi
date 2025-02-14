@@ -4,6 +4,7 @@ interface UIModeState {
   isAdvancedMode: boolean;
   isInitialized: boolean;
   setAdvancedMode: (isAdvanced: boolean) => void;
+  setInitialized: (initialized: boolean) => void;
 }
 
 const useUIModeStore = create<UIModeState>((set) => {
@@ -15,11 +16,12 @@ const useUIModeStore = create<UIModeState>((set) => {
 
   return {
     isAdvancedMode: storedMode === 'advanced',
-    isInitialized: true,
+    isInitialized: false,
     setAdvancedMode: (isAdvanced: boolean) => {
       localStorage.setItem('uiMode', isAdvanced ? 'advanced' : 'simple');
       set({ isAdvancedMode: isAdvanced });
     },
+    setInitialized: (initialized: boolean) => set({ isInitialized: initialized }),
   };
 });
 

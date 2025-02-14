@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { Navigate } from 'react-router-dom';
+import { useNavigate } from '@tanstack/react-router';
 import { Search, SlidersHorizontal, X, AlertCircle } from 'lucide-react';
 import debounce from 'lodash/debounce';
 import { Virtuoso } from 'react-virtuoso';
@@ -28,6 +28,7 @@ function SimpleDrinks() {
   const [isPreloading, setIsPreloading] = useState(false);
 
   const token = useAuthStore((state) => state.token);
+  const navigate = useNavigate();
 
   const getOrderConfig = useCallback((recipe) => ({
     amountOrderedInMl: recipe.defaultGlass?.sizeInMl || 250,
@@ -320,7 +321,8 @@ function SimpleDrinks() {
   ));
 
   if (!token) {
-    return <Navigate to="/login" />;
+    navigate({ to: '/login' });
+    return null;
   }
 
   return (

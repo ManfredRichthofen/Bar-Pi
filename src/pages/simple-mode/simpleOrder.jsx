@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { BeakerIcon } from 'lucide-react';
-import { Navigate, useLocation, useNavigate } from 'react-router-dom';
+import { useNavigate, useSearch } from '@tanstack/react-router';
 import useAuthStore from '../../store/authStore';
 import cocktailService from '../../services/cocktail.service';
 import SimpleGlassSelector from '../../components/simple-mode/order/simpleGlassSelector';
@@ -13,9 +13,9 @@ const SimpleOrder = () => {
   const [feasibilityResult, setFeasibilityResult] = useState(null);
   const [amountToProduce, setAmountToProduce] = useState(null);
   const token = useAuthStore((state) => state.token);
-  const location = useLocation();
+  const search = useSearch();
   const navigate = useNavigate();
-  const recipe = location.state?.recipe;
+  const recipe = search.recipe ? JSON.parse(search.recipe) : null;
   const [selectedGlass, setSelectedGlass] = useState(null);
   const [boost, setBoost] = useState(100);
   const [ingredients, setIngredients] = useState([]);
@@ -103,7 +103,7 @@ const SimpleOrder = () => {
 
       await cocktailService.order(recipeId, orderConfig, false, token);
       showToast('Drink ordered successfully', 'success');
-      navigate('/simple/order-status');
+      navigate({ to: '/simple/order-status' });
     } catch (error) {
       if (error.response?.data?.message) {
         console.error('Order failed:', error.response.data);
@@ -138,8 +138,14 @@ const SimpleOrder = () => {
     }
   };
 
-  if (!token) return <Navigate to="/login" />;
-  if (!recipe) return <Navigate to="/drinks" />;
+  if (!token) {
+    navigate({ to: '/login' });
+    return null;
+  }
+  if (!recipe) {
+    navigate({ to: '/simple/drinks' });
+    return null;
+  }
 
   const canOrderDrink = feasibilityResult?.feasible && !loading && !checking;
 
@@ -235,7 +241,7 @@ const SimpleOrder = () => {
                 </button>
                 <button
                   className="btn btn-ghost w-full sm:flex-1"
-                  onClick={() => navigate('/simple/drinks')}
+                  onClick={() => navigate({ to: '/simple/drinks' })}
                 >
                   Back
                 </button>

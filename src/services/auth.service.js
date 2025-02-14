@@ -27,6 +27,22 @@ class AuthService {
       return response.data;
     });
   }
+
+  validateToken() {
+    // Use the current axios instance with the token in headers
+    return axios.get('api/auth/validate').then((response) => {
+      return response.data;
+    });
+  }
+
+  async validateTokenSilently() {
+    try {
+      await this.validateToken();
+      return true;
+    } catch (error) {
+      return false;
+    }
+  }
 }
 
 export default new AuthService();

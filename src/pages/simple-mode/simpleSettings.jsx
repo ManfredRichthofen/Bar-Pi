@@ -1,13 +1,15 @@
 import React, { useEffect } from 'react';
 import { themeChange } from 'theme-change';
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from '@tanstack/react-router';
 import useAuthStore from '../../store/authStore';
+import useUIModeStore from '../../store/uiModeStore';
 
 const SimpleSettings = ({ onModeChange }) => {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const logout = useAuthStore((state) => state.logout);
+  const setAdvancedMode = useUIModeStore((state) => state.setAdvancedMode);
 
   useEffect(() => {
     themeChange(false);
@@ -49,7 +51,7 @@ const SimpleSettings = ({ onModeChange }) => {
   ];
 
   const languages = [
-    { code: 'en-US', name: 'English' },
+    { code: 'en', name: 'English' },
     { code: 'es', name: 'Español' },
     { code: 'fr', name: 'Français' },
     { code: 'de', name: 'Deutsch' },
@@ -59,16 +61,14 @@ const SimpleSettings = ({ onModeChange }) => {
     i18n.changeLanguage(langCode);
   };
 
-  const handleAdvancedModeSwitch = () => {
-    onModeChange(true);
-    setTimeout(() => {
-      navigate('/drinks', { replace: true });
-    }, 0);
+  const handleAdvancedModeSwitch = async () => {
+    setAdvancedMode(true);
+    navigate({ to: '/advanced/drinks' });
   };
 
   const handleLogout = () => {
     logout();
-    navigate('/login');
+    navigate({ to: '/login' });
   };
 
   return (

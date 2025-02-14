@@ -1,12 +1,9 @@
 import React, { useState } from 'react';
+import { Outlet } from '@tanstack/react-router';
 import HeaderBar from './HeaderBar';
 import Sidebar from './Sidebar';
 
-interface MainLayoutProps {
-  children: React.ReactNode;
-}
-
-const Layout: React.FC<MainLayoutProps> = ({ children }) => {
+const Layout = () => {
   const [collapsed, setCollapsed] = useState(false);
 
   return (
@@ -21,7 +18,9 @@ const Layout: React.FC<MainLayoutProps> = ({ children }) => {
           collapsed ? 'ml-0' : 'ml-72'
         }`}
       >
-        <div className="p-6 pt-24">{children}</div>
+        <div className="p-6 pt-24">
+          <Outlet />
+        </div>
       </main>
     </div>
   );

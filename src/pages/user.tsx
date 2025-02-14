@@ -1,15 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import UserService from '../services/user.service';
 
-const UserPage = () => {
-  const navigate = useNavigate();
-  const [users, setUsers] = useState([]);
+const UserPage: React.FC = () => {
+  const [users, setUsers] = useState<Array<{id: string; username: string; role: string}>>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [formData, setFormData] = useState({
     username: '',
     password: '',
-    role: 'USER',
+    role: 'USER' as 'USER' | 'ADMIN',
   });
   const [error, setError] = useState('');
 
@@ -26,7 +24,7 @@ const UserPage = () => {
     }
   };
 
-  const handleChange = (e) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
@@ -34,7 +32,7 @@ const UserPage = () => {
     }));
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
 

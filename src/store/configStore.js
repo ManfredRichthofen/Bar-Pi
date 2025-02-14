@@ -1,47 +1,19 @@
 import { create } from 'zustand';
 import config from '../services/config';
 
+const formatUrl = (url, shouldFormat = true) => {
+  if (!url) return '';
+  const trimmedUrl = url.trim();
+  if (!shouldFormat) return trimmedUrl;
+  return trimmedUrl.startsWith('http') ? trimmedUrl : `https://${trimmedUrl}`;
+};
+
 const isValidUrl = (url) => {
   try {
     new URL(url);
     return true;
   } catch {
     return false;
-  }
-};
-
-const formatUrl = (url, validate = false) => {
-  if (!url || url.trim() === '') {
-    return '';
-  }
-
-  // During editing, just return the raw value
-  if (!validate) {
-    return url;
-  }
-
-  try {
-    // Only format when validating/saving
-    let formattedUrl = url.trim().replace(/\/+$/, '');
-    
-    // Special handling for localhost
-    if (formattedUrl.includes('localhost')) {
-      // If it's just 'localhost' or 'localhost:port', add http://
-      if (!/^https?:\/\//i.test(formattedUrl)) {
-        formattedUrl = 'http://' + formattedUrl;
-      }
-    } else {
-      // For non-localhost URLs, default to https://
-      if (!/^https?:\/\//i.test(formattedUrl)) {
-        formattedUrl = 'https://' + formattedUrl;
-      }
-    }
-
-    // Validate the URL
-    new URL(formattedUrl);
-    return formattedUrl;
-  } catch (e) {
-    return ''; // Return empty string for invalid URLs
   }
 };
 

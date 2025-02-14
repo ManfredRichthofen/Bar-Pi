@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from '@tanstack/react-router';
 import { Check, AlertTriangle, Timer, Square } from 'lucide-react';
 import CocktailService from '../../services/cocktail.service';
 import useCocktailProgressStore from '../../store/cocktailProgressStore';
@@ -86,7 +86,7 @@ const SimpleOrderStatus = () => {
           </p>
           <button
             className="btn btn-primary w-full"
-            onClick={() => navigate('/simple/drinks')}
+            onClick={() => navigate({ to: '/simple/drinks' })}
           >
             Order a Drink
           </button>

@@ -1,5 +1,5 @@
 import React from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate } from '@tanstack/react-router';
 import { useTranslation } from 'react-i18next';
 import useAuthStore from '../store/authStore';
 import useConfigStore from '../store/configStore';
@@ -13,7 +13,6 @@ import { User, KeyRound, ArrowRight, Globe, XCircle } from 'lucide-react';
 const Login = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const location = useLocation();
   const { loginUser, loading, error } = useAuthStore();
   const { apiBaseUrl, setApiBaseUrl } = useConfigStore();
 
@@ -35,10 +34,7 @@ const Login = () => {
       // Use the formatted URL for login
       const success = await loginUser(values, formattedUrl);
       if (success) {
-        const redirectTo = new URLSearchParams(location.search).get(
-          'redirectTo',
-        );
-        navigate(redirectTo || '/simple/drinks');
+        navigate({ to: '/simple/drinks' });
       }
     } catch (error) {
       console.error('Login error:', error);

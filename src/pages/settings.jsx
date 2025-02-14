@@ -55,7 +55,7 @@ const Settings = () => {
   ];
 
   const languages = [
-    { code: 'en-US', name: t('languages.english', 'English') },
+    { code: 'en', name: t('languages.english', 'English') },
     { code: 'es', name: t('languages.spanish', 'Español') },
     { code: 'fr', name: t('languages.french', 'Français') },
     { code: 'de', name: t('languages.german', 'Deutsch') },
