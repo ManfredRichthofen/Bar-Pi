@@ -23,7 +23,7 @@ const formatUrl = (url, validate = false) => {
   try {
     // Only format when validating/saving
     let formattedUrl = url.trim().replace(/\/+$/, '');
-    
+
     // Special handling for localhost
     if (formattedUrl.includes('localhost')) {
       // If it's just 'localhost' or 'localhost:port', add http://

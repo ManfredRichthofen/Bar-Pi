@@ -23,4 +23,4 @@ const useUIModeStore = create<UIModeState>((set) => {
   };
 });
 
-export default useUIModeStore; 
+export default useUIModeStore;

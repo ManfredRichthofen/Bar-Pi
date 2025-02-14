@@ -35,7 +35,11 @@ function App() {
   const token = useAuthStore((state) => state.token);
   const { i18n } = useTranslation();
   const [isAuthInitialized, setIsAuthInitialized] = useState(false);
-  const { isAdvancedMode, isInitialized: isUIModeInitialized, setAdvancedMode } = useUIModeStore();
+  const {
+    isAdvancedMode,
+    isInitialized: isUIModeInitialized,
+    setAdvancedMode,
+  } = useUIModeStore();
 
   // Auth
   useEffect(() => {
@@ -113,10 +117,15 @@ function App() {
                     <Route path="/drinks" element={<SimpleDrinks />} />
                     <Route
                       path="/settings"
-                      element={<SimpleSettings onModeChange={setAdvancedMode} />}
+                      element={
+                        <SimpleSettings onModeChange={setAdvancedMode} />
+                      }
                     />
                     <Route path="/order" element={<SimpleOrder />} />
-                    <Route path="/order-status" element={<SimpleOrderStatus />} />
+                    <Route
+                      path="/order-status"
+                      element={<SimpleOrderStatus />}
+                    />
                     <Route
                       path="*"
                       element={<Navigate to="/simple/drinks" replace />}
@@ -147,7 +156,10 @@ function App() {
                     <Route path="/users" element={<CreateUser />} />
                     <Route path="/glasses" element={<Glasses />} />
                     <Route path="/pumps" element={<Pumps />} />
-                    <Route path="*" element={<Navigate to="/drinks" replace />} />
+                    <Route
+                      path="*"
+                      element={<Navigate to="/drinks" replace />}
+                    />
                   </Routes>
                 </MainLayout>
               )

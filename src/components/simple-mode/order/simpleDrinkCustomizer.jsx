@@ -55,7 +55,7 @@ const SimpleDrinkCustomizer = ({
   };
 
   const automatedIngredients = availableIngredients.filter(
-    (ing) => ing.type === 'automated'
+    (ing) => ing.type === 'automated',
   );
 
   return (
@@ -85,7 +85,9 @@ const SimpleDrinkCustomizer = ({
                     d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
                   />
                 </svg>
-                <span className="whitespace-normal">This drink's strength cannot be adjusted</span>
+                <span className="whitespace-normal">
+                  This drink's strength cannot be adjusted
+                </span>
               </div>
             ) : (
               <p className="text-base-content/70 mb-2 whitespace-normal break-words">
@@ -123,17 +125,24 @@ const SimpleDrinkCustomizer = ({
 
           {automatedIngredients.length > 0 && (
             <div>
-              <h3 className="text-lg font-bold mb-2 break-words">Additional Ingredients</h3>
+              <h3 className="text-lg font-bold mb-2 break-words">
+                Additional Ingredients
+              </h3>
               <p className="text-base-content/70 mb-4 whitespace-normal break-words">
                 Add extra ingredients to customize your drink
               </p>
 
               <div className="grid grid-cols-1 gap-4 mb-4">
                 {additionalIngredients.map(({ ingredient, amount }) => (
-                  <div key={ingredient.id} className="card bg-base-100 shadow-sm">
+                  <div
+                    key={ingredient.id}
+                    className="card bg-base-100 shadow-sm"
+                  >
                     <div className="card-body p-4">
                       <div className="flex items-center justify-between gap-4 flex-wrap">
-                        <h4 className="font-bold break-words">{ingredient.name}</h4>
+                        <h4 className="font-bold break-words">
+                          {ingredient.name}
+                        </h4>
                         <div className="flex items-center gap-2 shrink-0">
                           <input
                             type="number"

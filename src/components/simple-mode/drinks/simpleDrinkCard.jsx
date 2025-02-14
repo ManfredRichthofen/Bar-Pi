@@ -130,40 +130,42 @@ const SimpleDrinkCard = ({ recipe }) => {
                   <ul className="space-y-2">
                     {recipe.ingredients.map((ingredient, index) => (
                       <li key={index} className="text-sm">
-                        • {ingredient.name} - {ingredient.amount} {ingredient.unit}
+                        • {ingredient.name} - {ingredient.amount}{' '}
+                        {ingredient.unit}
                       </li>
                     ))}
                   </ul>
                 </div>
 
-                {recipe.productionSteps && recipe.productionSteps.length > 0 && (
-                  <div>
-                    <h4 className="font-bold text-base mb-2">Instructions</h4>
-                    <ul className="space-y-2">
-                      {recipe.productionSteps.map((step, index) => (
-                        <li key={index} className="text-sm">
-                          {step.type === 'writtenInstruction' ? (
-                            <span>
-                              {index + 1}. {step.message}
-                            </span>
-                          ) : (
-                            step.type === 'addIngredients' && (
+                {recipe.productionSteps &&
+                  recipe.productionSteps.length > 0 && (
+                    <div>
+                      <h4 className="font-bold text-base mb-2">Instructions</h4>
+                      <ul className="space-y-2">
+                        {recipe.productionSteps.map((step, index) => (
+                          <li key={index} className="text-sm">
+                            {step.type === 'writtenInstruction' ? (
                               <span>
-                                {index + 1}. Add:{' '}
-                                {step.stepIngredients
-                                  .map(
-                                    (si) =>
-                                      `${si.ingredient.name} (${si.amount} ${si.scale})`,
-                                  )
-                                  .join(', ')}
+                                {index + 1}. {step.message}
                               </span>
-                            )
-                          )}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
+                            ) : (
+                              step.type === 'addIngredients' && (
+                                <span>
+                                  {index + 1}. Add:{' '}
+                                  {step.stepIngredients
+                                    .map(
+                                      (si) =>
+                                        `${si.ingredient.name} (${si.amount} ${si.scale})`,
+                                    )
+                                    .join(', ')}
+                                </span>
+                              )
+                            )}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
               </div>
             </div>
 

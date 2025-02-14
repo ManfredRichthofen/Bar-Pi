@@ -144,12 +144,17 @@ const SimpleOrder = () => {
   const canOrderDrink = feasibilityResult?.feasible && !loading && !checking;
 
   const hasBoostableIngredients = feasibilityResult?.requiredIngredients?.some(
-    (item) => item.ingredient.type === 'automated' && item.ingredient.alcoholContent > 0
+    (item) =>
+      item.ingredient.type === 'automated' &&
+      item.ingredient.alcoholContent > 0,
   );
 
   return (
     <div className="max-w-7xl mx-auto px-3 py-4 pb-4 min-h-screen">
-      <div id="toast-container" className="toast toast-end z-50 w-[min(400px,90vw)] p-4"></div>
+      <div
+        id="toast-container"
+        className="toast toast-end z-50 w-[min(400px,90vw)] p-4"
+      ></div>
 
       <div className="grid grid-cols-1 lg:grid-cols-[2fr,1fr] gap-6 mb-16">
         <div className="space-y-6">
@@ -167,7 +172,9 @@ const SimpleOrder = () => {
               )}
 
               <div className="flex items-center justify-between gap-2 mt-4">
-                <h3 className="text-xl font-bold break-words flex-1">{recipe.name}</h3>
+                <h3 className="text-xl font-bold break-words flex-1">
+                  {recipe.name}
+                </h3>
                 {recipe.alcoholic && (
                   <div className="badge badge-error shrink-0">Alcoholic</div>
                 )}
@@ -193,14 +200,17 @@ const SimpleOrder = () => {
 
               <div className="grid gap-4 mt-4">
                 <div className="collapse collapse-arrow bg-base-200">
-                  <input type="checkbox" defaultChecked /> 
+                  <input type="checkbox" defaultChecked />
                   <div className="collapse-title font-bold break-words">
                     Recipe Ingredients
                   </div>
                   <div className="collapse-content">
                     <ul className="list-disc list-inside text-sm sm:text-base space-y-1">
                       {ingredients.map((item, index) => (
-                        <li key={index} className="whitespace-normal break-words">
+                        <li
+                          key={index}
+                          className="whitespace-normal break-words"
+                        >
                           {item.name}: {item.amount} {item.unit}
                         </li>
                       ))}
@@ -216,7 +226,9 @@ const SimpleOrder = () => {
                     </div>
                     <div className="collapse-content">
                       <SimpleIngredientRequirements
-                        requiredIngredients={feasibilityResult.requiredIngredients}
+                        requiredIngredients={
+                          feasibilityResult.requiredIngredients
+                        }
                       />
                     </div>
                   </div>
@@ -247,15 +259,19 @@ const SimpleOrder = () => {
         {/* Customizer section */}
         <SimpleDrinkCustomizer
           disableBoosting={!hasBoostableIngredients}
-          customisations={{ 
+          customisations={{
             boost,
-            additionalIngredients 
+            additionalIngredients,
           }}
           onCustomisationsChange={(newCustomisations) => {
             setBoost(newCustomisations.boost);
             setAdditionalIngredients(newCustomisations.additionalIngredients);
           }}
-          availableIngredients={feasibilityResult?.requiredIngredients?.map(item => item.ingredient) || []}
+          availableIngredients={
+            feasibilityResult?.requiredIngredients?.map(
+              (item) => item.ingredient,
+            ) || []
+          }
         />
       </div>
     </div>

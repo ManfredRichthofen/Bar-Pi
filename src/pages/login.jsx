@@ -66,7 +66,9 @@ const Login = () => {
               className="mx-auto mb-3 w-20 sm:w-24"
             />
             <h2 className="text-xl font-bold mb-1">{t('login.headline')}</h2>
-            <p className="text-sm">{t('login.subtitle') || 'Please sign in to your account'}</p>
+            <p className="text-sm">
+              {t('login.subtitle') || 'Please sign in to your account'}
+            </p>
           </div>
 
           <div className="form-control w-full mb-3">

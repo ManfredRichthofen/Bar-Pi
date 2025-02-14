@@ -28,7 +28,9 @@ const SimpleIngredientRequirements = ({ requiredIngredients }) => {
   );
 
   const hasUnavailableIngredients = requiredIngredients.some(
-    (x) => x.amountMissing > 0 || (!x.ingredient.onPump && x.ingredient.type === 'automated')
+    (x) =>
+      x.amountMissing > 0 ||
+      (!x.ingredient.onPump && x.ingredient.type === 'automated'),
   );
 
   if (requiredIngredients.length === 0) {
@@ -53,7 +55,9 @@ const SimpleIngredientRequirements = ({ requiredIngredients }) => {
                     : 'bg-base-200'
                 }`}
               >
-                <span className="break-words flex-1 pr-2">{item.ingredient.name}</span>
+                <span className="break-words flex-1 pr-2">
+                  {item.ingredient.name}
+                </span>
                 <div className="text-right shrink-0">
                   <span className="font-semibold whitespace-nowrap">
                     {item.amountRequired} {item.ingredient.unit}
@@ -90,7 +94,9 @@ const SimpleIngredientRequirements = ({ requiredIngredients }) => {
                   !item.ingredient.inBar ? 'bg-warning/10' : 'bg-base-200'
                 }`}
               >
-                <span className="break-words flex-1 pr-2">{item.ingredient.name}</span>
+                <span className="break-words flex-1 pr-2">
+                  {item.ingredient.name}
+                </span>
                 <div className="text-right shrink-0">
                   <span className="font-semibold whitespace-nowrap">
                     {item.amountRequired} {item.ingredient.unit}

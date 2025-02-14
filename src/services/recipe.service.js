@@ -6,7 +6,9 @@ import config from './config';
 const validateApiUrl = () => {
   const url = config.API_BASE_URL;
   if (!url) {
-    throw new Error('API URL is not configured. Please configure it in settings.');
+    throw new Error(
+      'API URL is not configured. Please configure it in settings.',
+    );
   }
   // Update axios base URL in case it changed
   axios.defaults.baseURL = url;
@@ -49,7 +51,7 @@ class RecipeService {
     token,
   ) {
     validateApiUrl(); // Add validation check
-    
+
     const inCategory = inCategoryId;
     let params = {
       page,

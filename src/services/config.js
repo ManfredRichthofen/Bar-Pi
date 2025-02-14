@@ -13,7 +13,7 @@ const config = {
   },
   getStoredApiUrl() {
     return getStoredUrl();
-  }
+  },
 };
 
 export default config;
