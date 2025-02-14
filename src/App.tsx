@@ -6,7 +6,7 @@ import {
 } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import useAuthStore from './store/authStore';
-import { create } from 'zustand';
+import useUIModeStore from './store/uiModeStore';
 import { themeChange } from 'theme-change';
 import { useTranslation } from 'react-i18next';
 
@@ -28,43 +28,20 @@ import SimpleSettings from './pages/simple-mode/simpleSettings';
 import SimpleOrder from './pages/simple-mode/simpleOrder';
 import SimpleOrderStatus from './pages/simple-mode/simpleOrderStatus';
 
-
-interface UIModeState {
-  isAdvancedMode: boolean;
-  setAdvancedMode: (isAdvanced: boolean) => void;
-}
-
-
-const useUIModeStore = create<UIModeState>((set) => {
-  // Initialize localStorage with 'simple' if no value exists
-  if (!localStorage.getItem('uiMode')) {
-    localStorage.setItem('uiMode', 'simple');
-  }
-
-  return {
-    isAdvancedMode: localStorage.getItem('uiMode') === 'advanced',
-    setAdvancedMode: (isAdvanced: boolean) => {
-      localStorage.setItem('uiMode', isAdvanced ? 'advanced' : 'simple');
-      set({ isAdvancedMode: isAdvanced });
-    },
-  };
-});
-
 function App() {
   const reinitializeAuthState = useAuthStore(
     (state) => state.reinitializeAuthState,
   );
   const token = useAuthStore((state) => state.token);
   const { i18n } = useTranslation();
-  const [isInitialized, setIsInitialized] = useState(false);
-  const isAdvancedMode = useUIModeStore((state) => state.isAdvancedMode);
-  const setAdvancedMode = useUIModeStore((state) => state.setAdvancedMode);
+  const [isAuthInitialized, setIsAuthInitialized] = useState(false);
+  const { isAdvancedMode, isInitialized: isUIModeInitialized, setAdvancedMode } = useUIModeStore();
 
   // Auth
   useEffect(() => {
     const initialize = async () => {
       await reinitializeAuthState();
-      setIsInitialized(true);
+      setIsAuthInitialized(true);
     };
     initialize();
   }, [reinitializeAuthState]);
@@ -101,7 +78,7 @@ function App() {
   }, [i18n]);
 
   // Show nothing while initializing to prevent flash of incorrect content
-  if (!isInitialized) {
+  if (!isAuthInitialized || !isUIModeInitialized) {
     return null;
   }
 
@@ -128,21 +105,25 @@ function App() {
           path="/simple/*"
           element={
             token ? (
-              <SimpleLayout>
-                <Routes>
-                  <Route path="/drinks" element={<SimpleDrinks />} />
-                  <Route
-                    path="/settings"
-                    element={<SimpleSettings onModeChange={setAdvancedMode} />}
-                  />
-                  <Route path="/order" element={<SimpleOrder />} />
-                  <Route path="/order-status" element={<SimpleOrderStatus />} />
-                  <Route
-                    path="*"
-                    element={<Navigate to="/simple/drinks" replace />}
-                  />
-                </Routes>
-              </SimpleLayout>
+              isAdvancedMode ? (
+                <Navigate to="/drinks" replace />
+              ) : (
+                <SimpleLayout>
+                  <Routes>
+                    <Route path="/drinks" element={<SimpleDrinks />} />
+                    <Route
+                      path="/settings"
+                      element={<SimpleSettings onModeChange={setAdvancedMode} />}
+                    />
+                    <Route path="/order" element={<SimpleOrder />} />
+                    <Route path="/order-status" element={<SimpleOrderStatus />} />
+                    <Route
+                      path="*"
+                      element={<Navigate to="/simple/drinks" replace />}
+                    />
+                  </Routes>
+                </SimpleLayout>
+              )
             ) : (
               <Navigate to="/login" replace />
             )
@@ -154,18 +135,22 @@ function App() {
           path="/*"
           element={
             token ? (
-              <MainLayout>
-                <Routes>
-                  <Route path="/drinks" element={<Drinks />} />
-                  <Route path="/ingredients" element={<Ingredients />} />
-                  <Route path="/order" element={<Order />} />
-                  <Route path="/settings" element={<Settings />} />
-                  <Route path="/users" element={<CreateUser />} />
-                  <Route path="/glasses" element={<Glasses />} />
-                  <Route path="/pumps" element={<Pumps />} />
-                  <Route path="*" element={<Navigate to="/drinks" replace />} />
-                </Routes>
-              </MainLayout>
+              !isAdvancedMode ? (
+                <Navigate to="/simple/drinks" replace />
+              ) : (
+                <MainLayout>
+                  <Routes>
+                    <Route path="/drinks" element={<Drinks />} />
+                    <Route path="/ingredients" element={<Ingredients />} />
+                    <Route path="/order" element={<Order />} />
+                    <Route path="/settings" element={<Settings />} />
+                    <Route path="/users" element={<CreateUser />} />
+                    <Route path="/glasses" element={<Glasses />} />
+                    <Route path="/pumps" element={<Pumps />} />
+                    <Route path="*" element={<Navigate to="/drinks" replace />} />
+                  </Routes>
+                </MainLayout>
+              )
             ) : (
               <Navigate to="/login" replace />
             )

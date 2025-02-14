@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { User, LogOut, Settings, Smartphone, Menu } from 'lucide-react';
 import useAuthStore from '../store/authStore';
+import useUIModeStore from '../store/uiModeStore.ts';
 import { useNavigate } from 'react-router-dom';
 import userService from '../services/user.service';
 
@@ -18,6 +19,7 @@ const HeaderBar: React.FC<HeaderBarProps> = ({ collapsed, onToggle }) => {
   const [userData, setUserData] = useState<UserData | null>(null);
   const [loading, setLoading] = useState(true);
   const { token, logoutUser } = useAuthStore();
+  const setAdvancedMode = useUIModeStore((state) => state.setAdvancedMode);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -90,6 +92,11 @@ const HeaderBar: React.FC<HeaderBarProps> = ({ collapsed, onToggle }) => {
     }
   };
 
+  const handleSimpleModeSwitch = () => {
+    setAdvancedMode(false);
+    navigate('/simple/drinks', { replace: true });
+  };
+
   return (
     <header className="fixed top-0 right-0 left-0 h-16 bg-base-100 border-b border-base-200 z-50">
       <div className="flex items-center justify-between h-full px-3 sm:px-4">
@@ -152,7 +159,7 @@ const HeaderBar: React.FC<HeaderBarProps> = ({ collapsed, onToggle }) => {
               </li>
               <li>
                 <a
-                  onClick={() => navigate('/simple')}
+                  onClick={handleSimpleModeSwitch}
                   className="flex items-center gap-2 py-2"
                 >
                   <Smartphone size={16} />
