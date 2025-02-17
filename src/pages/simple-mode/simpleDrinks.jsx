@@ -80,7 +80,7 @@ function VirtualGrid({ recipes, loading, hasMore, loadMoreData, fabricableRecipe
   const virtualizer = useVirtualizer({
     count: rowCount,
     getScrollElement: () => parentRef.current,
-    estimateSize: () => 400,
+    estimateSize: () => 500,
     overscan: 5,
   });
 
@@ -129,7 +129,7 @@ function VirtualGrid({ recipes, loading, hasMore, loadMoreData, fabricableRecipe
                 top: 0,
                 left: 0,
                 width: '100%',
-                height: '350px',
+                height: `${virtualRow.size}px`,
                 transform: `translateY(${virtualRow.start}px)`,
               }}
               className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"
