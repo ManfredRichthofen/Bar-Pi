@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback, forwardRef } from 'react';
 import { Navigate } from 'react-router-dom';
 import { Search, SlidersHorizontal, X, AlertCircle } from 'lucide-react';
 import debounce from 'lodash/debounce';
-import { VirtuosoGrid } from 'react-virtuoso';
+import { useVirtualizer } from '@tanstack/react-virtual';
 
 import useAuthStore from '../../store/authStore';
 import RecipeService from '../../services/recipe.service.js';
@@ -66,70 +66,108 @@ const ErrorMessage = React.memo(({ error, onDismiss }) => (
   </div>
 ));
 
-const LoadingFooter = React.memo(() => (
-  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mt-4">
-    {[...Array(4)].map((_, index) => (
-      <SimpleDrinkCardSkeleton key={`skeleton-${Date.now()}-${index}`} />
-    ))}
-  </div>
-));
+function VirtualGrid({ recipes, loading, hasMore, loadMoreData, fabricableRecipes }) {
+  const parentRef = React.useRef(null);
+  const parentOffsetRef = React.useRef(null);
+  
+  const columnCount = window.innerWidth < 640 ? 1 
+    : window.innerWidth < 768 ? 2 
+    : window.innerWidth < 1024 ? 3 
+    : 4;
 
-const NoMoreDrinks = React.memo(({ recipesLength }) => (
-  <p className="text-center text-gray-500 mt-4">
-    {recipesLength === 0 ? 'No drinks found' : "That's all the drinks!"}
-  </p>
-));
+  const rowCount = Math.ceil(recipes.length / columnCount);
+  
+  const virtualizer = useVirtualizer({
+    count: rowCount,
+    getScrollElement: () => parentRef.current,
+    estimateSize: () => 400,
+    overscan: 5,
+  });
 
-const ItemContainer = React.memo(({ children, ...props }) => (
-  <div {...props} className="w-full sm:w-1/2 md:w-1/3 lg:w-1/4 p-2">
-    {children}
-  </div>
-));
+  const totalHeight = virtualizer.getTotalSize();
+  const items = virtualizer.getVirtualItems();
 
-const ListContainer = forwardRef(({ style, children }, ref) => (
-  <div
-    ref={ref}
-    style={{
-      ...style,
-      display: 'flex',
-      flexWrap: 'wrap',
-      margin: '0 -0.5rem',
-      msOverflowStyle: 'none', // IE/Edge
-      scrollbarWidth: 'none', // Firefox
-    }}
-    className="hide-scrollbar" // Webkit browsers
-  >
-    {children}
-  </div>
-));
+  useEffect(() => {
+    const scrollElement = parentRef.current;
+    if (!scrollElement) return;
 
-const ScrollContainer = forwardRef(({ style, children }, ref) => (
-  <div
-    ref={ref}
-    style={{
-      ...style,
-      msOverflowStyle: 'none',
-      scrollbarWidth: 'none',
-    }}
-    className="hide-scrollbar"
-  >
-    {children}
-  </div>
-));
+    const handleScroll = () => {
+      const { scrollTop, scrollHeight, clientHeight } = scrollElement;
+      if (scrollHeight - scrollTop - clientHeight < 300 && !loading && hasMore) {
+        loadMoreData();
+      }
+    };
 
-const gridComponents = {
-  List: ListContainer,
-  Item: ItemContainer,
-  ScrollSeekPlaceholder: () => (
-    <div
-      className="w-full sm:w-1/2 md:w-1/3 lg:w-1/4 p-2"
-      style={{ minHeight: '350px' }}
+    scrollElement.addEventListener('scroll', handleScroll);
+    return () => scrollElement.removeEventListener('scroll', handleScroll);
+  }, [loading, hasMore, loadMoreData]);
+
+  return (
+    <div 
+      ref={parentRef}
+      className="h-[calc(100vh-200px)] overflow-auto"
+      style={{
+        msOverflowStyle: 'none',
+        scrollbarWidth: 'none',
+      }}
     >
-      <div className="h-full bg-base-200 animate-pulse rounded-lg"></div>
+      <div
+        ref={parentOffsetRef}
+        style={{
+          height: totalHeight,
+          width: '100%',
+          position: 'relative',
+        }}
+      >
+        {items.map(virtualRow => {
+          const rowStartIndex = virtualRow.index * columnCount;
+          return (
+            <div
+              key={virtualRow.key}
+              style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                width: '100%',
+                height: '350px',
+                transform: `translateY(${virtualRow.start}px)`,
+              }}
+              className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"
+            >
+              {Array.from({ length: columnCount }).map((_, columnIndex) => {
+                const recipeIndex = rowStartIndex + columnIndex;
+                const recipe = recipes[recipeIndex];
+                
+                if (!recipe) return null;
+                
+                return (
+                  <div key={`${virtualRow.key}-${columnIndex}`} className="p-2">
+                    <SimpleDrinkCard
+                      recipe={recipe}
+                      isFabricable={fabricableRecipes.has(recipe.id)}
+                    />
+                  </div>
+                );
+              })}
+            </div>
+          );
+        })}
+      </div>
+      {loading && (
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mt-4">
+          {[...Array(4)].map((_, index) => (
+            <SimpleDrinkCardSkeleton key={`skeleton-${Date.now()}-${index}`} />
+          ))}
+        </div>
+      )}
+      {!hasMore && !loading && (
+        <p className="text-center text-gray-500 mt-4">
+          {recipes.length === 0 ? 'No drinks found' : "That's all the drinks!"}
+        </p>
+      )}
     </div>
-  ),
-  Scroller: ScrollContainer,
-};
+  );
+}
 
 // Add CSS for webkit browsers
 const globalStyles = `
@@ -412,34 +450,12 @@ function SimpleDrinks() {
         </div>
       </div>
       {error && <ErrorMessage error={error} onDismiss={() => setError(null)} />}
-      <VirtuosoGrid
-        useWindowScroll
-        data={recipes}
-        endReached={loadMoreData}
-        overscan={1000}
-        scrollSeekConfiguration={{
-          enter: (velocity) => Math.abs(velocity) > 1000,
-          exit: (velocity) => Math.abs(velocity) < 100,
-          change: () => null,
-          placeholder: () => ({
-            height: 350,
-          }),
-        }}
-        components={{
-          ...gridComponents,
-          Footer: () =>
-            loading ? (
-              <LoadingFooter />
-            ) : (
-              !hasMore && <NoMoreDrinks recipesLength={recipes.length} />
-            ),
-        }}
-        itemContent={(index, recipe) => (
-          <SimpleDrinkCard
-            recipe={recipe}
-            isFabricable={fabricableRecipes.has(recipe.id)}
-          />
-        )}
+      <VirtualGrid
+        recipes={recipes}
+        loading={loading}
+        hasMore={hasMore}
+        loadMoreData={loadMoreData}
+        fabricableRecipes={fabricableRecipes}
       />
     </div>
   );
