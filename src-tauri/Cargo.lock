@@ -3634,16 +3634,16 @@ dependencies = [
 
 [[package]]
 name = "tauri-plugin-log"
-version = "2.2.1"
+version = "2.2.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "367a28a5e0ca39eac98005699466e8906edc4a2a8f8e13a5f1a71dc0bea6c677"
+checksum = "6b443b2f872badfa3a452c28596e8d8af49f48624b20060aba00e360e01f3950"
 dependencies = [
  "android_logger",
  "byte-unit",
  "fern",
  "log",
- "objc2 0.5.2",
- "objc2-foundation 0.2.2",
+ "objc2 0.6.0",
+ "objc2-foundation 0.3.0",
  "serde",
  "serde_json",
  "serde_repr",
