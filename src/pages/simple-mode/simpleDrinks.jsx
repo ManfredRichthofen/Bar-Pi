@@ -1,126 +1,204 @@
-import React, { useState, useEffect, useCallback, forwardRef } from 'react';
-import { Navigate } from 'react-router-dom';
-import { Search, SlidersHorizontal, X, AlertCircle } from 'lucide-react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { Navigate, useNavigate } from 'react-router-dom';
+import { Search, X, AlertCircle, ChevronLeft, ChevronRight } from 'lucide-react';
 import debounce from 'lodash/debounce';
-import { useVirtualizer } from '@tanstack/react-virtual';
+import { useWindowVirtualizer } from '@tanstack/react-virtual';
+import { useInfiniteQuery } from '@tanstack/react-query';
 
 import useAuthStore from '../../store/authStore';
 import RecipeService from '../../services/recipe.service.js';
 import CocktailService from '../../services/cocktail.service.js';
+import { isAutomatic, filterRecipes } from '../../utils/recipeFilters.js';
 import SimpleDrinkCard from '../../components/simple-mode/drinks/simpleDrinkCard';
 import SimpleDrinkCardSkeleton from '../../components/simple-mode/drinks/simpleDrinkCardSkeleton';
+import SimpleDrinkModal from '../../components/simple-mode/drinks/simpleDrinkModal';
 
 const SearchForm = React.memo(({ onSubmit, onInput, loading }) => (
   <form onSubmit={onSubmit} className="join w-full">
     <input
       name="search"
-      className="input h-12 min-h-[48px] join-item w-full border-2 border-accent-content border-r-0"
+      className="input h-8 min-h-[32px] join-item w-full border-2 border-accent-content border-r-0 text-xs"
       placeholder="Search drinks..."
       onChange={onInput}
       disabled={loading}
     />
     <button
       type="submit"
-      className="btn h-12 min-h-[48px] w-12 border-2 border-accent-content bg-base-100 join-item border-l-1 hover:bg-base-200 px-0"
+      className="btn h-8 min-h-[32px] w-8 border-2 border-accent-content bg-base-100 join-item border-l-1 hover:bg-base-200 px-0"
       disabled={loading}
     >
       {loading ? (
-        <span className="loading loading-spinner loading-sm"></span>
+        <span className="loading loading-spinner loading-xs"></span>
       ) : (
-        <Search className="w-5 h-5" />
+        <Search className="w-3 h-3" />
       )}
     </button>
   </form>
 ));
 
 const FilterButtons = React.memo(({ filters, onFilterChange }) => (
-  <div className="flex flex-wrap gap-2 mb-3">
-    <button
-      className={`btn btn-sm ${filters.automatic ? 'btn-primary' : 'btn-outline'}`}
-      onClick={() => onFilterChange('automatic')}
-    >
-      Fully Automatic
-    </button>
-    <button
-      className={`btn btn-sm ${filters.manual ? 'btn-primary' : 'btn-outline'}`}
-      onClick={() => onFilterChange('manual')}
-    >
-      Manual
-    </button>
-    <button
-      className={`btn btn-sm ${filters.fabricable ? 'btn-primary' : 'btn-outline'}`}
-      onClick={() => onFilterChange('fabricable')}
-    >
-      Available Now
-    </button>
+  <div className="flex flex-col gap-1">
+    <div className="flex flex-wrap gap-1">
+      <button
+        className={`btn btn-xs ${filters.automatic ? 'btn-primary' : 'btn-outline'}`}
+        onClick={() => onFilterChange('automatic')}
+        title="Show drinks that can be made automatically"
+      >
+        <span className="flex items-center gap-1">
+          <span className="w-2 h-2 rounded-full bg-primary"></span>
+          Automatic
+        </span>
+      </button>
+      <button
+        className={`btn btn-xs ${filters.manual ? 'btn-primary' : 'btn-outline'}`}
+        onClick={() => onFilterChange('manual')}
+        title="Show drinks that require manual preparation"
+      >
+        <span className="flex items-center gap-1">
+          <span className="w-2 h-2 rounded-full bg-primary"></span>
+          Manual
+        </span>
+      </button>
+      <button
+        className={`btn btn-xs ${filters.fabricable ? 'btn-primary' : 'btn-outline'}`}
+        onClick={() => onFilterChange('fabricable')}
+        title="Show only drinks that can be made right now"
+      >
+        <span className="flex items-center gap-1">
+          <span className="w-2 h-2 rounded-full bg-primary"></span>
+          Available
+        </span>
+      </button>
+    </div>
+    {(filters.automatic || filters.manual || filters.fabricable) && (
+      <button
+        className="btn btn-ghost btn-xs text-error"
+        onClick={() => onFilterChange('clear')}
+      >
+        Clear Filters
+      </button>
+    )}
   </div>
 ));
 
 const ErrorMessage = React.memo(({ error, onDismiss }) => (
-  <div className="alert alert-error mb-4">
-    <AlertCircle className="w-6 h-6" />
+  <div className="alert alert-error mb-2 text-xs">
+    <AlertCircle className="w-4 h-4" />
     <span>{error}</span>
-    <button className="btn btn-ghost btn-sm" onClick={onDismiss}>
-      <X className="w-4 h-4" />
+    <button className="btn btn-ghost btn-xs" onClick={onDismiss}>
+      <X className="w-3 h-3" />
     </button>
   </div>
 ));
 
-function VirtualGrid({ recipes, loading, hasMore, loadMoreData, fabricableRecipes }) {
-  const parentRef = React.useRef(null);
-  const parentOffsetRef = React.useRef(null);
-  
-  const columnCount = window.innerWidth < 640 ? 1 
-    : window.innerWidth < 768 ? 2 
-    : window.innerWidth < 1024 ? 3 
-    : 4;
+function VirtualGrid({ fabricableRecipes, onCardClick, token, searchTerm, filters, onCheckFabricability, onFilterRecipes }) {
+  const listRef = React.useRef(null);
+  const itemsPerRow = 4;
+  const rowHeight = 160;
 
-  const rowCount = Math.ceil(recipes.length / columnCount);
-  
-  const virtualizer = useVirtualizer({
-    count: rowCount,
-    getScrollElement: () => parentRef.current,
-    estimateSize: () => 500,
-    overscan: 5,
+  const {
+    status,
+    data,
+    error,
+    isFetching,
+    isFetchingNextPage,
+    fetchNextPage,
+    hasNextPage,
+  } = useInfiniteQuery({
+    queryKey: ['recipes', searchTerm, filters],
+    queryFn: async ({ pageParam = 0 }) => {
+      const response = await RecipeService.getRecipes(
+        pageParam,
+        null,
+        null,
+        null,
+        null,
+        searchTerm,
+        null,
+        null,
+        token
+      );
+
+      if (response.content) {
+        await onCheckFabricability(response.content);
+        response.content = onFilterRecipes(response.content, filters, fabricableRecipes);
+      }
+
+      return {
+        content: response.content,
+        last: response.last,
+        nextOffset: pageParam + 1
+      };
+    },
+    getNextPageParam: (lastGroup) => lastGroup.last ? undefined : lastGroup.nextOffset,
+    initialPageParam: 0,
   });
 
-  const totalHeight = virtualizer.getTotalSize();
-  const items = virtualizer.getVirtualItems();
+  const allRecipes = data ? data.pages.flatMap((d) => d.content) : [];
+  const rowCount = Math.ceil(allRecipes.length / itemsPerRow);
+  const totalRowCount = rowCount;
+
+  const virtualizer = useWindowVirtualizer({
+    count: totalRowCount,
+    estimateSize: () => rowHeight,
+    overscan: 5,
+    scrollMargin: 0,
+  });
 
   useEffect(() => {
-    const scrollElement = parentRef.current;
-    if (!scrollElement) return;
+    const [lastItem] = [...virtualizer.getVirtualItems()].reverse();
+    if (!lastItem) return;
 
+    if (lastItem.index >= rowCount - 3 && hasNextPage && !isFetchingNextPage) {
+      fetchNextPage();
+    }
+  }, [hasNextPage, fetchNextPage, rowCount, isFetchingNextPage, virtualizer.getVirtualItems()]);
+
+  useEffect(() => {
     const handleScroll = () => {
-      const { scrollTop, scrollHeight, clientHeight } = scrollElement;
-      if (scrollHeight - scrollTop - clientHeight < 300 && !loading && hasMore) {
-        loadMoreData();
+      const { scrollTop, scrollHeight, clientHeight } = document.documentElement;
+      const remainingScroll = scrollHeight - scrollTop - clientHeight;
+      const scrollThreshold = 1000;
+
+      if (remainingScroll < scrollThreshold && hasNextPage && !isFetchingNextPage) {
+        fetchNextPage();
       }
     };
 
-    scrollElement.addEventListener('scroll', handleScroll);
-    return () => scrollElement.removeEventListener('scroll', handleScroll);
-  }, [loading, hasMore, loadMoreData]);
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [hasNextPage, fetchNextPage, isFetchingNextPage]);
+
+  if (status === 'pending') {
+    return (
+      <div className="grid grid-cols-4 gap-1 sm:gap-2 mt-2">
+        {[...Array(4)].map((_, index) => (
+          <SimpleDrinkCardSkeleton key={`skeleton-${Date.now()}-${index}`} />
+        ))}
+      </div>
+    );
+  }
+
+  if (status === 'error') {
+    return <div className="text-error text-sm p-4">Error: {error.message}</div>;
+  }
 
   return (
-    <div 
-      ref={parentRef}
-      className="h-[calc(100vh-200px)] overflow-auto"
-      style={{
-        msOverflowStyle: 'none',
-        scrollbarWidth: 'none',
-      }}
-    >
+    <div ref={listRef} className="px-2 py-1 relative">
       <div
-        ref={parentOffsetRef}
         style={{
-          height: totalHeight,
+          height: `${virtualizer.getTotalSize()}px`,
           width: '100%',
           position: 'relative',
         }}
       >
-        {items.map(virtualRow => {
-          const rowStartIndex = virtualRow.index * columnCount;
+        {virtualizer.getVirtualItems().map((virtualRow) => {
+          const rowIndex = virtualRow.index;
+          const rowRecipes = allRecipes.slice(
+            rowIndex * itemsPerRow,
+            rowIndex * itemsPerRow + itemsPerRow
+          );
+
           return (
             <div
               key={virtualRow.key}
@@ -129,75 +207,133 @@ function VirtualGrid({ recipes, loading, hasMore, loadMoreData, fabricableRecipe
                 top: 0,
                 left: 0,
                 width: '100%',
-                height: `${virtualRow.size}px`,
                 transform: `translateY(${virtualRow.start}px)`,
+                height: `${virtualRow.size}px`,
               }}
-              className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"
             >
-              {Array.from({ length: columnCount }).map((_, columnIndex) => {
-                const recipeIndex = rowStartIndex + columnIndex;
-                const recipe = recipes[recipeIndex];
-                
-                if (!recipe) return null;
-                
-                return (
-                  <div key={`${virtualRow.key}-${columnIndex}`} className="p-2">
+              <div className="grid grid-cols-4 gap-1 sm:gap-2 h-full">
+                {rowRecipes.map((recipe) => (
+                  <div key={recipe.id} className="flex items-center justify-center">
                     <SimpleDrinkCard
                       recipe={recipe}
                       isFabricable={fabricableRecipes.has(recipe.id)}
+                      onCardClick={onCardClick}
                     />
                   </div>
-                );
-              })}
+                ))}
+              </div>
             </div>
           );
         })}
       </div>
-      {loading && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mt-4">
+      {isFetchingNextPage && hasNextPage && (
+        <div className="grid grid-cols-4 gap-1 sm:gap-2 mt-2">
           {[...Array(4)].map((_, index) => (
             <SimpleDrinkCardSkeleton key={`skeleton-${Date.now()}-${index}`} />
           ))}
         </div>
       )}
-      {!hasMore && !loading && (
-        <p className="text-center text-gray-500 mt-4">
-          {recipes.length === 0 ? 'No drinks found' : "That's all the drinks!"}
-        </p>
+      {!hasNextPage && !isFetching && (
+        <div className="flex items-center justify-center py-4">
+          <p className="text-center text-base-content/60 text-xs">
+            {allRecipes.length === 0 ? 'No drinks found' : "No more drinks to load"}
+          </p>
+        </div>
       )}
     </div>
   );
 }
 
-// Add CSS for webkit browsers
-const globalStyles = `
-  .hide-scrollbar::-webkit-scrollbar {
-    display: none;
-  }
-`;
-
-const styleTag = document.createElement('style');
-styleTag.textContent = globalStyles;
-document.head.appendChild(styleTag);
-
 function SimpleDrinks() {
-  const [recipes, setRecipes] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
   const [searchLoading, setSearchLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [page, setPage] = useState(0);
-  const [hasMore, setHasMore] = useState(true);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [showFilters, setShowFilters] = useState(false);
   const [filters, setFilters] = useState({
     automatic: false,
     manual: false,
     fabricable: false,
   });
   const [fabricableRecipes, setFabricableRecipes] = useState(new Set());
-  const [isPreloading, setIsPreloading] = useState(false);
-
+  const [selectedRecipe, setSelectedRecipe] = useState(null);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const navigate = useNavigate();
   const token = useAuthStore((state) => state.token);
+
+  const {
+    status,
+    data,
+    error: queryError,
+    isFetching,
+    isFetchingNextPage,
+    fetchNextPage,
+    hasNextPage,
+  } = useInfiniteQuery({
+    queryKey: ['recipes', searchTerm, filters],
+    queryFn: async ({ pageParam = 0 }) => {
+      console.log('[queryFn] Fetching recipes with params:', { pageParam, searchTerm, filters });
+      
+      const response = await RecipeService.getRecipes(
+        pageParam,
+        null, // onlyOwnRecipes
+        null, // collectionId
+        filters.fabricable ? true : null, // fabricable
+        null, // containsIngredients
+        searchTerm,
+        null, // categoryId
+        null  // orderBy
+      );
+
+      console.log('[queryFn] Received recipes:', response.content?.length);
+
+      if (response.content) {
+        // Check fabricability for new recipes
+        await checkFabricability(response.content);
+        
+        // Filter recipes using the service
+        response.content = filterRecipes(response.content, filters, fabricableRecipes);
+      }
+
+      return {
+        content: response.content,
+        last: response.last,
+        nextOffset: pageParam + 1
+      };
+    },
+    getNextPageParam: (lastGroup) => lastGroup.last ? undefined : lastGroup.nextOffset,
+    initialPageParam: 0,
+  });
+
+  // Update recipes when filters change
+  useEffect(() => {
+    console.log('[Filters] Changed, updating recipes');
+    setSearchLoading(true);
+    // The query will automatically refetch due to the queryKey including filters
+    setTimeout(() => {
+      setSearchLoading(false);
+    }, 500);
+  }, [filters]);
+
+  const handleFilterChange = (filterName) => {
+    console.log('[handleFilterChange] Changing filter:', filterName);
+    setSearchLoading(true);
+    if (filterName === 'clear') {
+      console.log('[handleFilterChange] Clearing all filters');
+      setFilters({
+        automatic: false,
+        manual: false,
+        fabricable: false,
+      });
+    } else {
+      setFilters((prev) => {
+        const newFilters = {
+          ...prev,
+          [filterName]: !prev[filterName],
+        };
+        console.log('[handleFilterChange] New filter state:', newFilters);
+        return newFilters;
+      });
+    }
+  };
 
   const getOrderConfig = useCallback(
     (recipe) => ({
@@ -223,15 +359,34 @@ function SimpleDrinks() {
         await Promise.all(
           batch.map(async (recipe) => {
             try {
-              const orderConfig = getOrderConfig(recipe);
+              // Check if recipe can be made with any available ingredients
+              const orderConfig = {
+                amountOrderedInMl: recipe.defaultGlass?.sizeInMl || 250,
+                customisations: {
+                  boost: 100,
+                  additionalIngredients: [],
+                },
+                productionStepReplacements: [],
+                ingredientGroupReplacements: [],
+                useAutomaticIngredients: true,
+                skipMissingIngredients: false,
+                // Allow both automatic and manual ingredients
+                allowManualIngredients: true,
+                allowAutomaticIngredients: true
+              };
+
               const result = await CocktailService.checkFeasibility(
                 recipe.id,
                 orderConfig,
                 false,
                 token,
               );
+
               if (result?.feasible) {
+                console.log(`[checkFabricability] Recipe ${recipe.id} (${recipe.name}) is available`);
                 fabricableSet.add(recipe.id);
+              } else {
+                console.log(`[checkFabricability] Recipe ${recipe.id} (${recipe.name}) is not available:`, result?.reason);
               }
             } catch (err) {
               console.error(
@@ -242,115 +397,18 @@ function SimpleDrinks() {
           }),
         );
       }
+      console.log(`[checkFabricability] Found ${fabricableSet.size} available recipes`);
       setFabricableRecipes(fabricableSet);
     },
-    [token, getOrderConfig],
-  );
-
-  const isFullyAutomatic = useCallback((recipe) => {
-    if (!recipe.ingredients) return false;
-    return recipe.ingredients.every((ingredient) => ingredient.onPump);
-  }, []);
-
-  const filterRecipes = useCallback(
-    (recipes, filters, fabricableRecipes) => {
-      let filteredContent = recipes;
-      if (filters.automatic || filters.manual) {
-        filteredContent = filteredContent.filter((recipe) => {
-          const isAutomatic = isFullyAutomatic(recipe);
-          return (
-            (filters.automatic && isAutomatic) ||
-            (filters.manual && !isAutomatic)
-          );
-        });
-      }
-      if (filters.fabricable) {
-        filteredContent = filteredContent.filter((recipe) =>
-          fabricableRecipes.has(recipe.id),
-        );
-      }
-      return filteredContent;
-    },
-    [isFullyAutomatic],
-  );
-
-  const fetchRecipes = useCallback(
-    async (pageNumber, search = '') => {
-      if (!token) return;
-      const loadingState = pageNumber === 0 ? setSearchLoading : setLoading;
-      loadingState(true);
-      setError(null);
-      try {
-        const response = await RecipeService.getRecipes(
-          pageNumber,
-          null,
-          null,
-          null,
-          null,
-          search,
-          null,
-          null,
-          token,
-        );
-        if (response && response.content) {
-          try {
-            await checkFabricability(response.content);
-          } catch (err) {
-            console.error('Error checking fabricability:', err);
-          }
-          const filteredContent = filterRecipes(
-            response.content,
-            filters,
-            fabricableRecipes,
-          );
-          if (pageNumber === 0) {
-            setRecipes(filteredContent);
-          } else {
-            setRecipes((prevRecipes) => {
-              const uniqueRecipes = new Map([
-                ...prevRecipes.map((recipe) => [recipe.id, recipe]),
-                ...filteredContent.map((recipe) => [recipe.id, recipe]),
-              ]);
-              return Array.from(uniqueRecipes.values());
-            });
-          }
-          setHasMore(
-            filters.fabricable
-              ? !response.last &&
-                  filteredContent.some((recipe) =>
-                    fabricableRecipes.has(recipe.id),
-                  )
-              : !response.last,
-          );
-        } else {
-          setError('Invalid response format from server');
-        }
-      } catch (err) {
-        console.error('Error fetching recipes:', err);
-        setError(err.message || 'Failed to fetch recipes. Please try again.');
-      } finally {
-        loadingState(false);
-      }
-    },
-    [token, filters, fabricableRecipes, checkFabricability, filterRecipes],
+    [token],
   );
 
   const debouncedSearch = useCallback(
     debounce((value) => {
       setSearchTerm(value);
-      setPage(0);
-      setRecipes([]);
-      fetchRecipes(0, value);
     }, 300),
-    [filters, fetchRecipes],
+    [],
   );
-
-  useEffect(() => {
-    fetchRecipes(0, searchTerm);
-    return () => {
-      debouncedSearch.cancel();
-    };
-  }, [token, filters]);
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -362,60 +420,17 @@ function SimpleDrinks() {
     debouncedSearch(e.target.value);
   };
 
-  const handleFilterChange = (filterName) => {
-    setSearchLoading(true);
-    setFilters((prev) => ({
-      ...prev,
-      [filterName]: !prev[filterName],
-    }));
-    setPage(0);
-    setRecipes([]);
+  const handleCardClick = (recipe) => {
+    setSelectedRecipe(recipe);
   };
 
-  const loadMoreData = () => {
-    if (loading || !hasMore) return;
-    setPage((prev) => {
-      const nextPage = prev + 1;
-      fetchRecipes(nextPage, searchTerm);
-      return nextPage;
-    });
+  const handleModalClose = () => {
+    setSelectedRecipe(null);
   };
 
-  const prefetchNextPage = useCallback(async () => {
-    if (!hasMore || loading || isPreloading) return;
-    setIsPreloading(true);
-    try {
-      const nextPage = page + 1;
-      const response = await RecipeService.getRecipes(
-        nextPage,
-        null,
-        null,
-        null,
-        null,
-        searchTerm,
-        null,
-        null,
-        token,
-      );
-      if (response?.content) {
-        await checkFabricability(response.content);
-      }
-    } catch (err) {
-      console.error('Error prefetching:', err);
-    } finally {
-      setIsPreloading(false);
-    }
-  }, [page, hasMore, loading, searchTerm, token]);
-
-  useEffect(() => {
-    if (recipes.length > 0 && hasMore && !loading) {
-      prefetchNextPage();
-    }
-  }, [recipes, hasMore, loading]);
-
-  const generateSkeletonKey = (index, prefix = '') => {
-    const timestamp = Date.now();
-    return `skeleton-${prefix}-${timestamp}-${index}`;
+  const handleMakeDrink = () => {
+    navigate('/simple/order', { state: { recipe: selectedRecipe } });
+    handleModalClose();
   };
 
   if (!token) {
@@ -423,42 +438,90 @@ function SimpleDrinks() {
   }
 
   return (
-    <div className="container mx-auto px-2 py-2 pt-16 pb-4">
-      <div className="mb-3">
-        <h2 className="text-xl font-bold text-center mb-3">Available Drinks</h2>
-        <div className="max-w-md mx-auto mb-2">
+    <div className="min-h-screen">
+      <button
+        onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+        className="fixed left-0 top-1/2 -translate-y-1/2 z-10 bg-base-200 border border-base-300 rounded-r-lg p-1 shadow-sm hover:bg-base-300 transition-colors md:hidden"
+      >
+        {isSidebarOpen ? (
+          <ChevronLeft className="w-4 h-4" />
+        ) : (
+          <ChevronRight className="w-4 h-4" />
+        )}
+      </button>
+
+      <div
+        className={`md:hidden fixed left-0 top-0 h-screen bg-base-200 border-r border-base-300 transition-transform duration-200 ease-in-out z-20 ${
+          isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
+        }`}
+        style={{ width: '8rem' }}
+      >
+        <div className="p-2 flex flex-col gap-2 h-full">
+          <div className="flex items-center justify-between">
+            <h2 className="text-xs font-bold">Filters</h2>
+            <button
+              onClick={() => setIsSidebarOpen(false)}
+              className="btn btn-ghost btn-xs p-0"
+            >
+              <X className="w-3 h-3" />
+            </button>
+          </div>
           <SearchForm
             onSubmit={handleSearch}
             onInput={handleSearchInput}
             loading={searchLoading}
           />
+          <FilterButtons
+            filters={filters}
+            onFilterChange={handleFilterChange}
+          />
+          {error && <ErrorMessage error={error} onDismiss={() => setError(null)} />}
         </div>
-        <div className="max-w-md mx-auto">
-          <button
-            className="btn btn-sm btn-ghost gap-2 mb-2"
-            onClick={() => setShowFilters(!showFilters)}
-          >
-            <SlidersHorizontal className="w-4 h-4" />
-            Filters
-          </button>
-          {showFilters && (
+      </div>
+
+      <div className="md:ml-0 ml-8">
+        <div className="md:block hidden p-2 border-b border-base-300 sticky top-0 bg-base-100 z-10">
+          <div className="max-w-2xl mx-auto space-y-2">
+            <h2 className="text-xs font-bold text-center">Available Drinks</h2>
+            <SearchForm
+              onSubmit={handleSearch}
+              onInput={handleSearchInput}
+              loading={searchLoading}
+            />
             <FilterButtons
               filters={filters}
               onFilterChange={handleFilterChange}
             />
-          )}
+            {error && <ErrorMessage error={error} onDismiss={() => setError(null)} />}
+          </div>
         </div>
+
+        <div className="md:hidden p-2 sticky top-0 bg-base-100 z-10">
+          <h2 className="text-xs font-bold text-center">Available Drinks</h2>
+        </div>
+
+        <VirtualGrid
+          fabricableRecipes={fabricableRecipes}
+          onCardClick={handleCardClick}
+          token={token}
+          searchTerm={searchTerm}
+          filters={filters}
+          onCheckFabricability={checkFabricability}
+          onFilterRecipes={filterRecipes}
+        />
       </div>
-      {error && <ErrorMessage error={error} onDismiss={() => setError(null)} />}
-      <VirtualGrid
-        recipes={recipes}
-        loading={loading}
-        hasMore={hasMore}
-        loadMoreData={loadMoreData}
-        fabricableRecipes={fabricableRecipes}
-      />
+
+      {selectedRecipe && (
+        <SimpleDrinkModal
+          recipe={selectedRecipe}
+          isOpen={true}
+          onClose={handleModalClose}
+          onMakeDrink={handleMakeDrink}
+        />
+      )}
     </div>
   );
 }
 
 export default React.memo(SimpleDrinks);
+

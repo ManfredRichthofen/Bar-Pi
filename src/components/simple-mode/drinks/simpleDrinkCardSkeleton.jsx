@@ -3,18 +3,18 @@ import React from 'react';
 const SimpleDrinkCardSkeleton = () => {
   return (
     <div className="card bg-base-100 shadow-md h-full overflow-hidden">
-      {/* Image skeleton with shimmer effect */}
-      <div className="relative aspect-[16/9] sm:aspect-[3/2]">
-        <div className="absolute inset-0 bg-base-200" />
-        <div
-          className="absolute inset-0 animate-shimmer bg-gradient-to-r from-transparent via-base-100/10 to-transparent"
-          style={{ backgroundSize: '200% 100%' }}
-        />
-      </div>
+      <div className="grid grid-rows-[auto_1fr] h-full gap-2 p-2 sm:p-3">
+        {/* Image skeleton */}
+        <figure className="relative aspect-[16/9] sm:aspect-[3/2] rounded-lg overflow-hidden shadow-sm">
+          <div className="absolute inset-0 bg-base-200" />
+          <div
+            className="absolute inset-0 animate-shimmer bg-gradient-to-r from-transparent via-base-100/10 to-transparent"
+            style={{ backgroundSize: '200% 100%' }}
+          />
+        </figure>
 
-      <div className="card-body p-2 sm:p-3">
         {/* Title and badge skeleton */}
-        <div className="flex items-center justify-between gap-1 sm:gap-2 mb-0.5 sm:mb-1">
+        <div className="flex items-center justify-between gap-1 sm:gap-2 min-h-[2rem]">
           <div className="h-4 sm:h-5 bg-base-200 rounded-full w-2/3 relative overflow-hidden">
             <div
               className="absolute inset-0 animate-shimmer bg-gradient-to-r from-transparent via-base-100/10 to-transparent"

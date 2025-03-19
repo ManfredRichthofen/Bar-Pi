@@ -5,6 +5,7 @@ import {
   Navigate,
 } from 'react-router-dom';
 import { useEffect, useState } from 'react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import useAuthStore from './store/authStore';
 import useUIModeStore from './store/uiModeStore';
 import { themeChange } from 'theme-change';
@@ -27,6 +28,14 @@ import SimpleDrinks from './pages/simple-mode/simpleDrinks';
 import SimpleSettings from './pages/simple-mode/simpleSettings';
 import SimpleOrder from './pages/simple-mode/simpleOrder';
 import SimpleOrderStatus from './pages/simple-mode/simpleOrderStatus';
+
+  defaultOptions: {
+    queries: {
+      staleTime: 1000 * 60 * 5,
+      refetchOnWindowFocus: false,
+    },
+  },
+});
 
 function App() {
   const reinitializeAuthState = useAuthStore(
@@ -87,100 +96,102 @@ function App() {
   }
 
   return (
-    <Router>
-      <Routes>
-        {/* Public routes */}
-        <Route
-          path="/login"
-          element={
-            !token ? (
-              <Login />
-            ) : (
+    <QueryClientProvider client={queryClient}>
+      <Router>
+        <Routes>
+          {/* Public routes */}
+          <Route
+            path="/login"
+            element={
+              !token ? (
+                <Login />
+              ) : (
+                <Navigate
+                  to={isAdvancedMode ? '/drinks' : '/simple/drinks'}
+                  replace
+                />
+              )
+            }
+          />
+
+          {/* Simple Mode routes */}
+          <Route
+            path="/simple/*"
+            element={
+              token ? (
+                isAdvancedMode ? (
+                  <Navigate to="/drinks" replace />
+                ) : (
+                  <SimpleLayout>
+                    <Routes>
+                      <Route path="/drinks" element={<SimpleDrinks />} />
+                      <Route
+                        path="/settings"
+                        element={
+                          <SimpleSettings onModeChange={setAdvancedMode} />
+                        }
+                      />
+                      <Route path="/order" element={<SimpleOrder />} />
+                      <Route
+                        path="/order-status"
+                        element={<SimpleOrderStatus />}
+                      />
+                      <Route
+                        path="*"
+                        element={<Navigate to="/simple/drinks" replace />}
+                      />
+                    </Routes>
+                  </SimpleLayout>
+                )
+              ) : (
+                <Navigate to="/login" replace />
+              )
+            }
+          />
+
+          {/* Main app routes */}
+          <Route
+            path="/*"
+            element={
+              token ? (
+                !isAdvancedMode ? (
+                  <Navigate to="/simple/drinks" replace />
+                ) : (
+                  <MainLayout>
+                    <Routes>
+                      <Route path="/drinks" element={<Drinks />} />
+                      <Route path="/ingredients" element={<Ingredients />} />
+                      <Route path="/order" element={<Order />} />
+                      <Route path="/settings" element={<Settings />} />
+                      <Route path="/users" element={<CreateUser />} />
+                      <Route path="/glasses" element={<Glasses />} />
+                      <Route path="/pumps" element={<Pumps />} />
+                      <Route
+                        path="*"
+                        element={<Navigate to="/drinks" replace />}
+                      />
+                    </Routes>
+                  </MainLayout>
+                )
+              ) : (
+                <Navigate to="/login" replace />
+              )
+            }
+          />
+
+          {/* Root redirect based on mode preference */}
+          <Route
+            path="/"
+            element={
               <Navigate
                 to={isAdvancedMode ? '/drinks' : '/simple/drinks'}
                 replace
               />
-            )
-          }
-        />
-
-        {/* Simple Mode routes */}
-        <Route
-          path="/simple/*"
-          element={
-            token ? (
-              isAdvancedMode ? (
-                <Navigate to="/drinks" replace />
-              ) : (
-                <SimpleLayout>
-                  <Routes>
-                    <Route path="/drinks" element={<SimpleDrinks />} />
-                    <Route
-                      path="/settings"
-                      element={
-                        <SimpleSettings onModeChange={setAdvancedMode} />
-                      }
-                    />
-                    <Route path="/order" element={<SimpleOrder />} />
-                    <Route
-                      path="/order-status"
-                      element={<SimpleOrderStatus />}
-                    />
-                    <Route
-                      path="*"
-                      element={<Navigate to="/simple/drinks" replace />}
-                    />
-                  </Routes>
-                </SimpleLayout>
-              )
-            ) : (
-              <Navigate to="/login" replace />
-            )
-          }
-        />
-
-        {/* Main app routes */}
-        <Route
-          path="/*"
-          element={
-            token ? (
-              !isAdvancedMode ? (
-                <Navigate to="/simple/drinks" replace />
-              ) : (
-                <MainLayout>
-                  <Routes>
-                    <Route path="/drinks" element={<Drinks />} />
-                    <Route path="/ingredients" element={<Ingredients />} />
-                    <Route path="/order" element={<Order />} />
-                    <Route path="/settings" element={<Settings />} />
-                    <Route path="/users" element={<CreateUser />} />
-                    <Route path="/glasses" element={<Glasses />} />
-                    <Route path="/pumps" element={<Pumps />} />
-                    <Route
-                      path="*"
-                      element={<Navigate to="/drinks" replace />}
-                    />
-                  </Routes>
-                </MainLayout>
-              )
-            ) : (
-              <Navigate to="/login" replace />
-            )
-          }
-        />
-
-        {/* Root redirect based on mode preference */}
-        <Route
-          path="/"
-          element={
-            <Navigate
-              to={isAdvancedMode ? '/drinks' : '/simple/drinks'}
-              replace
-            />
-          }
-        />
-      </Routes>
-    </Router>
+            }
+          />
+        </Routes>
+      </Router>
+    </QueryClientProvider>
   );
 }
 
