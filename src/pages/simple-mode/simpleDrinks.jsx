@@ -270,8 +270,6 @@ function SimpleDrinks() {
   } = useInfiniteQuery({
     queryKey: ['recipes', searchTerm, filters],
     queryFn: async ({ pageParam = 0 }) => {
-      console.log('[queryFn] Fetching recipes with params:', { pageParam, searchTerm, filters });
-      
       const response = await RecipeService.getRecipes(
         pageParam,
         null, // onlyOwnRecipes
@@ -282,8 +280,6 @@ function SimpleDrinks() {
         null, // categoryId
         null  // orderBy
       );
-
-      console.log('[queryFn] Received recipes:', response.content?.length);
 
       if (response.content) {
         // Check fabricability for new recipes
@@ -305,7 +301,6 @@ function SimpleDrinks() {
 
   // Update recipes when filters change
   useEffect(() => {
-    console.log('[Filters] Changed, updating recipes');
     setSearchLoading(true);
     // The query will automatically refetch due to the queryKey including filters
     setTimeout(() => {
@@ -314,24 +309,18 @@ function SimpleDrinks() {
   }, [filters]);
 
   const handleFilterChange = (filterName) => {
-    console.log('[handleFilterChange] Changing filter:', filterName);
     setSearchLoading(true);
     if (filterName === 'clear') {
-      console.log('[handleFilterChange] Clearing all filters');
       setFilters({
         automatic: false,
         manual: false,
         fabricable: false,
       });
     } else {
-      setFilters((prev) => {
-        const newFilters = {
-          ...prev,
-          [filterName]: !prev[filterName],
-        };
-        console.log('[handleFilterChange] New filter state:', newFilters);
-        return newFilters;
-      });
+      setFilters((prev) => ({
+        ...prev,
+        [filterName]: !prev[filterName],
+      }));
     }
   };
 
@@ -383,10 +372,7 @@ function SimpleDrinks() {
               );
 
               if (result?.feasible) {
-                console.log(`[checkFabricability] Recipe ${recipe.id} (${recipe.name}) is available`);
                 fabricableSet.add(recipe.id);
-              } else {
-                console.log(`[checkFabricability] Recipe ${recipe.id} (${recipe.name}) is not available:`, result?.reason);
               }
             } catch (err) {
               console.error(
@@ -397,7 +383,6 @@ function SimpleDrinks() {
           }),
         );
       }
-      console.log(`[checkFabricability] Found ${fabricableSet.size} available recipes`);
       setFabricableRecipes(fabricableSet);
     },
     [token],
