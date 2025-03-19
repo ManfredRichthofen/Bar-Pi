@@ -41,32 +41,63 @@
           width: 25px;
         }
       }
+      .choice-button {
+        margin-top: 20px;
+        padding: 10px 20px;
+        font-size: 18px;
+        background-color: #4CAF50;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-family: Courier New;
+      }
+      .choice-button:hover {
+        background-color: #45a049;
+      }
     </style>
     <script>
-      const url = 'http://localhost?isKiosk&isMobile';
+      const urls = {
+        local: 'http://localhost?isKiosk&isMobile',
+        port5000: 'http://localhost:5000?isKiosk&isMobile'
+      };
+      let selectedUrl = null;
       const options = {
         method: 'GET',
         mode: 'no-cors',
       };
 
+      function selectUrl(url) {
+        selectedUrl = url;
+        document.getElementById('text').textContent = 'Connecting to selected URL...';
+        document.getElementById('choiceButton').style.display = 'none';
+        checkConnection();
+      }
+
       function checkConnection() {
-        fetch(url, options).then((response) => {
-          window.location.replace(url);
+        if (!selectedUrl) return;
+        
+        fetch(selectedUrl, options).then((response) => {
+          window.location.replace(selectedUrl);
         });
         setTimeout(() => checkConnection(), 1000);
       }
     </script>
   </head>
-  <body onload="checkConnection()">
+  <body>
     <div class="wrapper">
       <div class="content">
         <div>
           <img style="width: 100%" src="./animation.gif" />
         </div>
         <div>
-          <p id="text" style="width: 435px" class="waiting-text loading">
-            Waiting for application
+          <p id="text" style="width: 435px" class="waiting-text">
+            Select connection URL
           </p>
+        </div>
+        <div id="choiceButton">
+          <button class="choice-button" onclick="selectUrl(urls.local)">Connect to Original Ui</button>
+          <button class="choice-button" onclick="selectUrl(urls.port5000)">Connect to Bar-Pi Ui</button>
         </div>
       </div>
     </div>
