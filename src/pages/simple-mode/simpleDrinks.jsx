@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
 import { Search, X, AlertCircle, ChevronLeft, ChevronRight } from 'lucide-react';
 import debounce from 'lodash/debounce';
@@ -17,54 +17,54 @@ const SearchForm = React.memo(({ onSubmit, onInput, loading }) => (
   <form onSubmit={onSubmit} className="join w-full">
     <input
       name="search"
-      className="input h-8 min-h-[32px] join-item w-full border-2 border-accent-content border-r-0 text-xs"
+      className="input h-10 min-h-[40px] join-item w-full border-2 border-base-300 text-sm bg-base-200 focus:bg-base-100 transition-colors placeholder:text-base-content/50"
       placeholder="Search drinks..."
       onChange={onInput}
       disabled={loading}
     />
     <button
       type="submit"
-      className="btn h-8 min-h-[32px] w-8 border-2 border-accent-content bg-base-100 join-item border-l-1 hover:bg-base-200 px-0"
+      className="btn h-10 min-h-[40px] w-10 border-2 border-base-300 bg-base-200 hover:bg-base-300 join-item border-l-1 transition-colors px-0"
       disabled={loading}
     >
       {loading ? (
-        <span className="loading loading-spinner loading-xs"></span>
+        <span className="loading loading-spinner loading-sm"></span>
       ) : (
-        <Search className="w-3 h-3" />
+        <Search className="w-4 h-4" />
       )}
     </button>
   </form>
 ));
 
 const FilterButtons = React.memo(({ filters, onFilterChange }) => (
-  <div className="flex flex-col gap-1">
-    <div className="flex flex-wrap gap-1">
+  <div className="flex flex-col gap-2">
+    <div className="flex flex-wrap gap-2">
       <button
-        className={`btn btn-xs ${filters.automatic ? 'btn-primary' : 'btn-outline'}`}
+        className={`btn btn-sm ${filters.automatic ? 'btn-primary' : 'btn-outline'} transition-colors`}
         onClick={() => onFilterChange('automatic')}
         title="Show drinks that can be made automatically"
       >
-        <span className="flex items-center gap-1">
+        <span className="flex items-center gap-1.5">
           <span className="w-2 h-2 rounded-full bg-primary"></span>
           Automatic
         </span>
       </button>
       <button
-        className={`btn btn-xs ${filters.manual ? 'btn-primary' : 'btn-outline'}`}
+        className={`btn btn-sm ${filters.manual ? 'btn-primary' : 'btn-outline'} transition-colors`}
         onClick={() => onFilterChange('manual')}
         title="Show drinks that require manual preparation"
       >
-        <span className="flex items-center gap-1">
+        <span className="flex items-center gap-1.5">
           <span className="w-2 h-2 rounded-full bg-primary"></span>
           Manual
         </span>
       </button>
       <button
-        className={`btn btn-xs ${filters.fabricable ? 'btn-primary' : 'btn-outline'}`}
+        className={`btn btn-sm ${filters.fabricable ? 'btn-primary' : 'btn-outline'} transition-colors`}
         onClick={() => onFilterChange('fabricable')}
         title="Show only drinks that can be made right now"
       >
-        <span className="flex items-center gap-1">
+        <span className="flex items-center gap-1.5">
           <span className="w-2 h-2 rounded-full bg-primary"></span>
           Available
         </span>
@@ -72,7 +72,7 @@ const FilterButtons = React.memo(({ filters, onFilterChange }) => (
     </div>
     {(filters.automatic || filters.manual || filters.fabricable) && (
       <button
-        className="btn btn-ghost btn-xs text-error"
+        className="btn btn-ghost btn-sm text-error hover:bg-error/10 transition-colors"
         onClick={() => onFilterChange('clear')}
       >
         Clear Filters
@@ -82,11 +82,11 @@ const FilterButtons = React.memo(({ filters, onFilterChange }) => (
 ));
 
 const ErrorMessage = React.memo(({ error, onDismiss }) => (
-  <div className="alert alert-error mb-2 text-xs">
+  <div className="alert alert-error mb-2 text-sm">
     <AlertCircle className="w-4 h-4" />
     <span>{error}</span>
-    <button className="btn btn-ghost btn-xs" onClick={onDismiss}>
-      <X className="w-3 h-3" />
+    <button className="btn btn-ghost btn-sm p-0 hover:bg-error/10" onClick={onDismiss}>
+      <X className="w-4 h-4" />
     </button>
   </div>
 ));
@@ -256,8 +256,83 @@ function SimpleDrinks() {
   const [fabricableRecipes, setFabricableRecipes] = useState(new Set());
   const [selectedRecipe, setSelectedRecipe] = useState(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const sidebarRef = useRef(null);
   const navigate = useNavigate();
   const token = useAuthStore((state) => state.token);
+
+  const checkFabricability = useCallback(
+    async (recipes) => {
+      if (!token) return; // Skip if no token
+
+      const fabricableSet = new Set(fabricableRecipes);
+      const batchSize = 50; // Increased batch size for faster processing
+      
+      for (let i = 0; i < recipes.length; i += batchSize) {
+        const batch = recipes.slice(i, i + batchSize);
+        const results = await Promise.allSettled(
+          batch.map(async (recipe) => {
+            try {
+              const orderConfig = {
+                amountOrderedInMl: recipe.defaultGlass?.sizeInMl || 250,
+                customisations: {
+                  boost: 100,
+                  additionalIngredients: [],
+                },
+                productionStepReplacements: [],
+                ingredientGroupReplacements: [],
+                useAutomaticIngredients: true,
+                skipMissingIngredients: false,
+                allowManualIngredients: true,
+                allowAutomaticIngredients: true
+              };
+
+              const result = await CocktailService.checkFeasibility(
+                recipe.id,
+                orderConfig,
+                false,
+                token,
+              );
+
+              return { id: recipe.id, feasible: result?.feasible };
+            } catch (err) {
+              if (err.response?.status === 401) {
+                navigate('/login');
+                return { id: recipe.id, feasible: false };
+              }
+              console.error(
+                `Error checking fabricability for recipe ${recipe.id}:`,
+                err,
+              );
+              return { id: recipe.id, feasible: false };
+            }
+          }),
+        );
+
+        // Process results in bulk
+        results.forEach((result) => {
+          if (result.status === 'fulfilled' && result.value.feasible) {
+            fabricableSet.add(result.value.id);
+          }
+        });
+
+        // Update fabricable recipes after each batch
+        setFabricableRecipes(new Set(fabricableSet));
+      }
+    },
+    [token, fabricableRecipes, navigate],
+  );
+
+  // Memoize the filter function to prevent unnecessary recalculations
+  const filterRecipesMemo = useCallback((recipes) => {
+    if (!recipes?.length) return [];
+    
+    // Early return if no filters are active
+    if (!filters.automatic && !filters.manual && !filters.fabricable) {
+      return recipes;
+    }
+
+    return filterRecipes(recipes, filters, fabricableRecipes);
+  }, [filters, fabricableRecipes]);
 
   const {
     status,
@@ -268,47 +343,78 @@ function SimpleDrinks() {
     fetchNextPage,
     hasNextPage,
   } = useInfiniteQuery({
-    queryKey: ['recipes', searchTerm, filters],
+    queryKey: ['recipes', searchTerm],
     queryFn: async ({ pageParam = 0 }) => {
-      const response = await RecipeService.getRecipes(
-        pageParam,
-        null, // onlyOwnRecipes
-        null, // collectionId
-        filters.fabricable ? true : null, // fabricable
-        null, // containsIngredients
-        searchTerm,
-        null, // categoryId
-        null  // orderBy
-      );
-
-      if (response.content) {
-        // Check fabricability for new recipes
-        await checkFabricability(response.content);
-        
-        // Filter recipes using the service
-        response.content = filterRecipes(response.content, filters, fabricableRecipes);
+      // Check if token is available
+      if (!token) {
+        throw new Error('No authentication token available');
       }
 
-      return {
-        content: response.content,
-        last: response.last,
-        nextOffset: pageParam + 1
-      };
+      try {
+        const response = await RecipeService.getRecipes(
+          pageParam,
+          null, // onlyOwnRecipes
+          null, // collectionId
+          null, // fabricable - we'll handle this client-side
+          null, // containsIngredients
+          searchTerm,
+          null, // categoryId
+          null, // orderBy
+          token
+        );
+
+        if (response.content) {
+          // Only check fabricability for new recipes
+          const newRecipes = response.content.filter(recipe => !fabricableRecipes.has(recipe.id));
+          if (newRecipes.length > 0) {
+            await checkFabricability(newRecipes);
+          }
+          
+          // Apply filters client-side
+          response.content = filterRecipesMemo(response.content);
+        }
+
+        return {
+          content: response.content,
+          last: response.last,
+          nextOffset: pageParam + 1
+        };
+      } catch (error) {
+        // If unauthorized, redirect to login
+        if (error.response?.status === 401) {
+          navigate('/login');
+          throw new Error('Session expired. Please login again.');
+        }
+        throw error;
+      }
     },
     getNextPageParam: (lastGroup) => lastGroup.last ? undefined : lastGroup.nextOffset,
     initialPageParam: 0,
+    staleTime: 30000,
+    gcTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    retry: 2, // Retry failed requests twice
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000), // Exponential backoff
   });
 
   // Update recipes when filters change
   useEffect(() => {
     setSearchLoading(true);
-    // The query will automatically refetch due to the queryKey including filters
+    // Apply filters to existing data instead of refetching
+    if (data?.pages) {
+      data.pages = data.pages.map(page => ({
+        ...page,
+        content: filterRecipesMemo(page.content)
+      }));
+    }
+    // Reduced timeout for better responsiveness
     setTimeout(() => {
       setSearchLoading(false);
-    }, 500);
-  }, [filters]);
+    }, 100);
+  }, [filters, filterRecipesMemo, data?.pages]);
 
-  const handleFilterChange = (filterName) => {
+  const handleFilterChange = useCallback((filterName) => {
     setSearchLoading(true);
     if (filterName === 'clear') {
       setFilters({
@@ -322,7 +428,7 @@ function SimpleDrinks() {
         [filterName]: !prev[filterName],
       }));
     }
-  };
+  }, []);
 
   const getOrderConfig = useCallback(
     (recipe) => ({
@@ -339,59 +445,10 @@ function SimpleDrinks() {
     [],
   );
 
-  const checkFabricability = useCallback(
-    async (recipes) => {
-      const fabricableSet = new Set();
-      const batchSize = 5;
-      for (let i = 0; i < recipes.length; i += batchSize) {
-        const batch = recipes.slice(i, i + batchSize);
-        await Promise.all(
-          batch.map(async (recipe) => {
-            try {
-              // Check if recipe can be made with any available ingredients
-              const orderConfig = {
-                amountOrderedInMl: recipe.defaultGlass?.sizeInMl || 250,
-                customisations: {
-                  boost: 100,
-                  additionalIngredients: [],
-                },
-                productionStepReplacements: [],
-                ingredientGroupReplacements: [],
-                useAutomaticIngredients: true,
-                skipMissingIngredients: false,
-                // Allow both automatic and manual ingredients
-                allowManualIngredients: true,
-                allowAutomaticIngredients: true
-              };
-
-              const result = await CocktailService.checkFeasibility(
-                recipe.id,
-                orderConfig,
-                false,
-                token,
-              );
-
-              if (result?.feasible) {
-                fabricableSet.add(recipe.id);
-              }
-            } catch (err) {
-              console.error(
-                `Error checking fabricability for recipe ${recipe.id}:`,
-                err,
-              );
-            }
-          }),
-        );
-      }
-      setFabricableRecipes(fabricableSet);
-    },
-    [token],
-  );
-
   const debouncedSearch = useCallback(
     debounce((value) => {
       setSearchTerm(value);
-    }, 300),
+    }, 500), // Increased debounce time to reduce API calls
     [],
   );
 
@@ -418,56 +475,81 @@ function SimpleDrinks() {
     handleModalClose();
   };
 
+  // Handle click outside to close sidebar
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (sidebarRef.current && !sidebarRef.current.contains(event.target) && isSidebarOpen) {
+        setIsSidebarOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isSidebarOpen]);
+
   if (!token) {
     return <Navigate to="/login" />;
   }
 
   return (
     <div className="min-h-screen">
+      {/* Backdrop blur when sidebar is open */}
+      {isSidebarOpen && (
+        <div 
+          className="fixed inset-0 bg-black/20 backdrop-blur-sm z-10 md:hidden transition-opacity duration-300"
+          onClick={() => setIsSidebarOpen(false)}
+        />
+      )}
+
       <button
         onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-        className="fixed left-0 top-1/2 -translate-y-1/2 z-10 bg-base-200 border border-base-300 rounded-r-lg p-1 shadow-sm hover:bg-base-300 transition-colors md:hidden"
+        className="fixed left-0 top-1/2 -translate-y-1/2 z-20 bg-base-200 border border-base-300 rounded-r-lg p-2 shadow-lg hover:bg-base-300 transition-all duration-200 md:hidden"
       >
         {isSidebarOpen ? (
-          <ChevronLeft className="w-4 h-4" />
+          <ChevronLeft className="w-5 h-5" />
         ) : (
-          <ChevronRight className="w-4 h-4" />
+          <ChevronRight className="w-5 h-5" />
         )}
       </button>
 
       <div
-        className={`md:hidden fixed left-0 top-0 h-screen bg-base-200 border-r border-base-300 transition-transform duration-200 ease-in-out z-20 ${
+        ref={sidebarRef}
+        className={`md:hidden fixed left-0 top-0 h-screen bg-base-200 border-r border-base-300 transition-all duration-300 ease-in-out z-30 shadow-lg ${
           isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
-        style={{ width: '8rem' }}
+        style={{ width: '16rem' }}
       >
-        <div className="p-2 flex flex-col gap-2 h-full">
+        <div className="p-4 flex flex-col gap-4 h-full">
           <div className="flex items-center justify-between">
-            <h2 className="text-xs font-bold">Filters</h2>
+            <h2 className="text-sm font-semibold">Filters</h2>
             <button
               onClick={() => setIsSidebarOpen(false)}
-              className="btn btn-ghost btn-xs p-0"
+              className="btn btn-ghost btn-sm p-1 hover:bg-base-300"
             >
-              <X className="w-3 h-3" />
+              <X className="w-4 h-4" />
             </button>
           </div>
-          <SearchForm
-            onSubmit={handleSearch}
-            onInput={handleSearchInput}
-            loading={searchLoading}
-          />
-          <FilterButtons
-            filters={filters}
-            onFilterChange={handleFilterChange}
-          />
-          {error && <ErrorMessage error={error} onDismiss={() => setError(null)} />}
+          <div className="space-y-4">
+            <SearchForm
+              onSubmit={handleSearch}
+              onInput={handleSearchInput}
+              loading={searchLoading}
+            />
+            <FilterButtons
+              filters={filters}
+              onFilterChange={handleFilterChange}
+            />
+            {error && <ErrorMessage error={error} onDismiss={() => setError(null)} />}
+          </div>
         </div>
       </div>
 
-      <div className="md:ml-0 ml-8">
-        <div className="md:block hidden p-2 border-b border-base-300 sticky top-0 bg-base-100 z-10">
-          <div className="max-w-2xl mx-auto space-y-2">
-            <h2 className="text-xs font-bold text-center">Available Drinks</h2>
+      <div className={`md:ml-0 transition-all duration-300 ${isSidebarOpen ? 'ml-16' : 'ml-0'}`}>
+        <div className="md:block hidden p-4 border-b border-base-300 sticky top-0 bg-base-100 z-10 shadow-sm">
+          <div className="max-w-2xl mx-auto space-y-4">
+            <h2 className="text-sm font-semibold text-center">Available Drinks</h2>
             <SearchForm
               onSubmit={handleSearch}
               onInput={handleSearchInput}
@@ -481,8 +563,8 @@ function SimpleDrinks() {
           </div>
         </div>
 
-        <div className="md:hidden p-2 sticky top-0 bg-base-100 z-10">
-          <h2 className="text-xs font-bold text-center">Available Drinks</h2>
+        <div className="md:hidden p-4 sticky top-0 bg-base-100 z-10 shadow-sm">
+          <h2 className="text-sm font-semibold text-center">Available Drinks</h2>
         </div>
 
         <VirtualGrid
@@ -492,7 +574,7 @@ function SimpleDrinks() {
           searchTerm={searchTerm}
           filters={filters}
           onCheckFabricability={checkFabricability}
-          onFilterRecipes={filterRecipes}
+          onFilterRecipes={filterRecipesMemo}
         />
       </div>
 

@@ -74,60 +74,57 @@ const hasAutomaticIngredientsOnPump = (recipe) => {
  * @returns {Array} - Filtered array of recipes
  */
 export const filterRecipes = (recipes, filters, fabricableRecipes) => {
-  if (!recipes) return [];
+  if (!recipes?.length) return [];
   
-  let filteredContent = [...recipes];
-  
-  // Apply automatic/manual filters if either is active
-  if (filters.automatic || filters.manual) {
-    filteredContent = filteredContent.filter((recipe) => {
+  // Early return if no filters are active
+  if (!filters.automatic && !filters.manual && !filters.fabricable) {
+    return recipes;
+  }
+
+  // Pre-compute recipe properties to avoid repeated calculations
+  const recipeProperties = recipes.map(recipe => ({
+    recipe,
+    isAutomatic: isAutomatic(recipe),
+    requiresManual: requiresManual(recipe),
+    isFullyAutomaticOnPump: isAutomatic(recipe) && allAutomaticIngredientsOnPump(recipe),
+    hasPumpIngredientsAndManual: hasAutomaticIngredientsOnPump(recipe) && requiresManual(recipe),
+    isFabricable: fabricableRecipes.has(recipe.id)
+  }));
+
+  // Filter recipes based on active filters
+  const filteredContent = recipeProperties
+    .filter(({ recipe, isAutomatic, requiresManual, isFullyAutomaticOnPump, hasPumpIngredientsAndManual }) => {
       if (!recipe) return false;
-      
-      const canBeAutomatic = isAutomatic(recipe);
-      const needsManual = requiresManual(recipe);
-      
-      // If both filters are active, show both types
-      if (filters.automatic && filters.manual) {
-        return canBeAutomatic || needsManual;
+
+      // Apply automatic/manual filters
+      if (filters.automatic || filters.manual) {
+        if (filters.automatic && filters.manual) {
+          return isAutomatic || requiresManual;
+        }
+        if (filters.automatic) {
+          return isAutomatic;
+        }
+        if (filters.manual) {
+          return requiresManual && !isAutomatic;
+        }
       }
-      
-      // If only automatic is active, show drinks that can be made automatically
-      if (filters.automatic) {
-        return canBeAutomatic;
+
+      // Apply fabricable filter
+      if (filters.fabricable) {
+        return isFullyAutomaticOnPump || hasPumpIngredientsAndManual;
       }
-      
-      // If only manual is active, show drinks that require manual ingredients AND are not fully automatic
-      if (filters.manual) {
-        return needsManual && !canBeAutomatic;
-      }
-      
+
       return true;
-    });
-  }
-
-  // Apply fabricable filter if active
-  if (filters.fabricable) {
-    filteredContent = filteredContent.filter((recipe) => {
-      if (!recipe) return false;
-
-      const isFullyAutomaticOnPump = isAutomatic(recipe) && allAutomaticIngredientsOnPump(recipe);
-      const hasPumpIngredientsAndManual = hasAutomaticIngredientsOnPump(recipe) && requiresManual(recipe);
-      
-      return isFullyAutomaticOnPump || hasPumpIngredientsAndManual;
-    });
-  }
+    })
+    .map(({ recipe, isFabricable }) => ({ recipe, isFabricable }));
 
   // Sort results: fabricable first, then by name
-  filteredContent.sort((a, b) => {
-    if (!a || !b) return 0;
-    
-    const aFabricable = fabricableRecipes.has(a.id);
-    const bFabricable = fabricableRecipes.has(b.id);
-    if (aFabricable !== bFabricable) {
-      return bFabricable - aFabricable;
-    }
-    return a.name.localeCompare(b.name);
-  });
-
-  return filteredContent;
+  return filteredContent
+    .sort((a, b) => {
+      if (a.isFabricable !== b.isFabricable) {
+        return b.isFabricable - a.isFabricable;
+      }
+      return a.recipe.name.localeCompare(b.recipe.name);
+    })
+    .map(({ recipe }) => recipe);
 }; 

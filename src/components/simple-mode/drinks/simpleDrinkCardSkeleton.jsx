@@ -2,11 +2,10 @@ import React from 'react';
 
 const SimpleDrinkCardSkeleton = () => {
   return (
-    <div className="card bg-base-100 shadow-md h-full overflow-hidden">
-      <div className="grid grid-rows-[auto_1fr] h-full gap-2 p-2 sm:p-3">
+    <div className="card bg-base-100 shadow-sm h-full overflow-hidden border border-base-200">
+      <div className="flex flex-col h-full gap-1.5 p-2 sm:p-3">
         {/* Image skeleton */}
-        <figure className="relative aspect-[16/9] sm:aspect-[3/2] rounded-lg overflow-hidden shadow-sm">
-          <div className="absolute inset-0 bg-base-200" />
+        <figure className="relative w-full aspect-[16/9] rounded-lg overflow-hidden shadow-sm bg-base-200">
           <div
             className="absolute inset-0 animate-shimmer bg-gradient-to-r from-transparent via-base-100/10 to-transparent"
             style={{ backgroundSize: '200% 100%' }}
@@ -14,7 +13,7 @@ const SimpleDrinkCardSkeleton = () => {
         </figure>
 
         {/* Title and badge skeleton */}
-        <div className="flex items-center justify-between gap-1 sm:gap-2 min-h-[2rem]">
+        <div className="flex items-start justify-between gap-1.5">
           <div className="h-4 sm:h-5 bg-base-200 rounded-full w-2/3 relative overflow-hidden">
             <div
               className="absolute inset-0 animate-shimmer bg-gradient-to-r from-transparent via-base-100/10 to-transparent"
@@ -26,52 +25,6 @@ const SimpleDrinkCardSkeleton = () => {
               className="absolute inset-0 animate-shimmer bg-gradient-to-r from-transparent via-base-100/10 to-transparent"
               style={{ backgroundSize: '200% 100%' }}
             />
-          </div>
-        </div>
-
-        {/* Description skeleton */}
-        <div className="space-y-1.5 mb-1 sm:mb-2">
-          <div className="h-2 sm:h-3 bg-base-200 rounded-full w-full relative overflow-hidden">
-            <div
-              className="absolute inset-0 animate-shimmer bg-gradient-to-r from-transparent via-base-100/10 to-transparent"
-              style={{ backgroundSize: '200% 100%' }}
-            />
-          </div>
-          <div className="h-2 sm:h-3 bg-base-200 rounded-full w-4/5 relative overflow-hidden">
-            <div
-              className="absolute inset-0 animate-shimmer bg-gradient-to-r from-transparent via-base-100/10 to-transparent"
-              style={{ backgroundSize: '200% 100%' }}
-            />
-          </div>
-        </div>
-
-        {/* Ingredients skeleton */}
-        <div className="mt-auto space-y-2">
-          <div className="h-3 sm:h-4 bg-base-200 rounded-full w-1/3 relative overflow-hidden">
-            <div
-              className="absolute inset-0 animate-shimmer bg-gradient-to-r from-transparent via-base-100/10 to-transparent"
-              style={{ backgroundSize: '200% 100%' }}
-            />
-          </div>
-          <div className="space-y-1.5">
-            {[...Array(3)].map((_, index) => (
-              <div key={index} className="flex items-center gap-1.5">
-                <div className="w-1.5 h-1.5 rounded-full bg-base-200 relative overflow-hidden">
-                  <div
-                    className="absolute inset-0 animate-shimmer bg-gradient-to-r from-transparent via-base-100/10 to-transparent"
-                    style={{ backgroundSize: '200% 100%' }}
-                  />
-                </div>
-                <div
-                  className={`h-2 sm:h-3 bg-base-200 rounded-full relative overflow-hidden ${index === 0 ? 'w-3/4' : index === 1 ? 'w-2/3' : 'w-1/2'}`}
-                >
-                  <div
-                    className="absolute inset-0 animate-shimmer bg-gradient-to-r from-transparent via-base-100/10 to-transparent"
-                    style={{ backgroundSize: '200% 100%' }}
-                  />
-                </div>
-              </div>
-            ))}
           </div>
         </div>
       </div>
