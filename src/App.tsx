@@ -29,6 +29,7 @@ import SimpleSettings from './pages/simple-mode/simpleSettings';
 import SimpleOrder from './pages/simple-mode/simpleOrder';
 import SimpleOrderStatus from './pages/simple-mode/simpleOrderStatus';
 
+const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       staleTime: 1000 * 60 * 5,
