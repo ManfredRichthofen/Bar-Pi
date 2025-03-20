@@ -48,6 +48,8 @@ jobs:
           latest_tag=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
           # Remove the 'v' prefix
           version=${latest_tag#v}
+          # Remove the 'app-' prefix if it exists
+          version=${version#app-}
           # Split the version into parts
           IFS='.' read -r major minor patch <<< "$version"
           # Increment the patch version
