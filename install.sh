@@ -35,6 +35,37 @@ if ! command_exists serve; then
     sudo npm install -g serve
 fi
 
+# Create wait-for-app-html directory if it doesn't exist
+echo "📁 Creating wait-for-app-html directory..."
+sudo mkdir -p /home/pi/wait-for-app-html
+
+# Copy animation.gif if it exists
+if [ -f "scripts/wait-for-app-html/animation.gif" ]; then
+    echo "📄 Copying animation.gif..."
+    sudo cp scripts/wait-for-app-html/animation.gif /home/pi/wait-for-app-html/
+fi
+
+# Ask user which HTML file to use
+echo "🔍 Please choose which HTML file to use as index.html:"
+echo "1) choice.html (Shows a choice between Original UI and Bar-Pi UI)"
+echo "2) only-new.html (Directly connects to Bar-Pi UI)"
+read -p "Enter your choice (1 or 2): " html_choice
+
+case $html_choice in
+    1)
+        echo "📄 Copying choice.html as index.html..."
+        sudo cp scripts/wait-for-app-html/choice.html /home/pi/wait-for-app-html/index.html
+        ;;
+    2)
+        echo "📄 Copying only-new.html as index.html..."
+        sudo cp scripts/wait-for-app-html/only-new.html /home/pi/wait-for-app-html/index.html
+        ;;
+    *)
+        echo "❌ Invalid choice. Using only-new.html as default."
+        sudo cp scripts/wait-for-app-html/only-new.html /home/pi/wait-for-app-html/index.html
+        ;;
+esac
+
 # Create systemd service file
 echo "📝 Creating systemd service..."
 cat > barpi.service << EOL
