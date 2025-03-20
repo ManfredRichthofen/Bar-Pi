@@ -15,7 +15,8 @@ jobs:
         node-version: [20.x, 22.x]
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
           fetch-tags: true
@@ -25,46 +26,61 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
 
-      - name: Build
-        run: |
-          npm install
-          npm run build
+      - name: Cache npm dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ matrix.node-version }}-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-${{ matrix.node-version }}-
 
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+      # Run release steps only on main branch and only for one matrix combination to avoid duplication
       - name: Get latest release version
-        if: github.ref == 'refs/heads/main'
+        if: github.ref == 'refs/heads/main' && matrix.node-version == '20.x'
         id: get_version
         run: |
-          # Get the latest release tag
+          # Get the latest release tag, defaulting to v0.0.0 if none exists
           latest_tag=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
-          # Remove 'v' prefix
+          # Remove the 'v' prefix
           version=${latest_tag#v}
-          # Split into major.minor.patch
+          # Split the version into parts
           IFS='.' read -r major minor patch <<< "$version"
-          # Increment patch version
+          # Increment the patch version
           new_patch=$((patch + 1))
           new_version="$major.$minor.$new_patch"
           echo "new_version=$new_version" >> $GITHUB_OUTPUT
 
+      - name: Zip dist folder
+        if: github.ref == 'refs/heads/main' && matrix.node-version == '20.x'
+        run: |
+          zip -r dist-v${{ steps.get_version.outputs.new_version }}.zip dist
+
       - name: Create Release
-        if: github.ref == 'refs/heads/main'
+        if: github.ref == 'refs/heads/main' && matrix.node-version == '20.x'
         uses: softprops/action-gh-release@v1
         with:
           tag_name: "v${{ steps.get_version.outputs.new_version }}"
           name: "Release v${{ steps.get_version.outputs.new_version }}"
           files: |
-            dist/**/*
+            dist-v${{ steps.get_version.outputs.new_version }}.zip
           draft: false
           prerelease: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Upload Release Asset
-        if: github.ref == 'refs/heads/main'
+        if: github.ref == 'refs/heads/main' && matrix.node-version == '20.x'
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./dist
+          asset_path: ./dist-v${{ steps.get_version.outputs.new_version }}.zip
           asset_name: "dist-v${{ steps.get_version.outputs.new_version }}.zip"
           asset_content_type: application/zip

@@ -55,6 +55,50 @@ Bar Pi is built with modern web technologies:
    npm run tauri dev
    ```
 
+### Quick Installation (Raspberry Pi)
+
+For Raspberry Pi users, we provide an installation script that automates the setup process:
+
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/ManfredRichthofen/Bar-Pi.git
+   cd bar-pi
+   ```
+
+2. Make the install script executable:
+   ```bash
+   chmod +x scripts/install/install.sh
+   ```
+
+3. Run the installation script:
+   ```bash
+   ./scripts/install/install.sh
+   ```
+
+The script will:
+- Install Node.js if not present
+- Install project dependencies
+- Build the project
+- Set up a systemd service for automatic startup
+- Configure the web server to run on port 5000
+
+After installation, the app will be available at `http://localhost:5000` and will start automatically on boot.
+
+You can manage the service using these commands:
+```bash
+# Start the service
+sudo systemctl start barpi
+
+# Stop the service
+sudo systemctl stop barpi
+
+# Restart the service
+sudo systemctl restart barpi
+
+# Check service status
+sudo systemctl status barpi
+```
+
 ### Building for Production
 
 To create a production build:
