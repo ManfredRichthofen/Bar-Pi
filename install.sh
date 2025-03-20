@@ -29,10 +29,10 @@ npm install
 echo "🔨 Building the project..."
 npm run build
 
-# Install serve globally if not present
-if ! command_exists serve; then
-    echo "📦 Installing serve package globally..."
-    sudo npm install -g serve
+# Install sirv-cli globally if not present
+if ! command_exists sirv; then
+    echo "📦 Installing sirv-cli package globally..."
+    sudo npm install -g sirv-cli
 fi
 
 # Create wait-for-app-html directory if it doesn't exist
@@ -77,7 +77,7 @@ After=network.target
 Type=simple
 User=$USER
 WorkingDirectory=${INSTALL_DIR}
-ExecStart=$(which serve) -s dist -l 5000
+ExecStart=$(which sirv) dist -p 5000
 Restart=always
 RestartSec=3
 
