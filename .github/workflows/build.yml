@@ -72,14 +72,3 @@ jobs:
           prerelease: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Upload Release Asset
-        if: github.ref == 'refs/heads/main' && matrix.node-version == '20.x'
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./dist-v${{ steps.get_version.outputs.new_version }}.zip
-          asset_name: "dist-v${{ steps.get_version.outputs.new_version }}.zip"
-          asset_content_type: application/zip
