@@ -57,28 +57,26 @@ Bar Pi is built with modern web technologies:
 
 ### Quick Installation (Raspberry Pi)
 
-For Raspberry Pi users, we provide an installation script that automates the setup process:
+For Raspberry Pi users, we provide a simple installation script that automates the setup process:
 
-1. Clone the repository:
+1. Download the install script:
    ```bash
-   git clone https://github.com/ManfredRichthofen/Bar-Pi.git
-   cd bar-pi
+   curl -L https://raw.githubusercontent.com/ManfredRichthofen/Bar-Pi/main/scripts/install/install.sh -o install.sh
    ```
 
 2. Make the install script executable:
    ```bash
-   chmod +x scripts/install/install.sh
+   chmod +x install.sh
    ```
 
 3. Run the installation script:
    ```bash
-   ./scripts/install/install.sh
+   ./install.sh
    ```
 
 The script will:
 - Install Node.js if not present
-- Install project dependencies
-- Build the project
+- Download the latest release from GitHub
 - Set up a systemd service for automatic startup
 - Configure the web server to run on port 5000
 
