@@ -64,7 +64,7 @@ jobs:
       - name: Zip wait-for-app-html folder
         if: github.ref == 'refs/heads/main' && matrix.node-version == '20.x'
         run: |
-          zip -r wait-for-app-html.zip wait-for-app-html
+          zip -r wait-for-app-html.zip scripts/wait-for-app-html
 
       - name: Create Release
         if: github.ref == 'refs/heads/main' && matrix.node-version == '20.x'
