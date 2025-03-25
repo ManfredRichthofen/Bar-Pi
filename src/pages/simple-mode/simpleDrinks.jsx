@@ -1,11 +1,18 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
-import { Search, X, AlertCircle, ChevronLeft, ChevronRight } from 'lucide-react';
+import {
+  Search,
+  X,
+  AlertCircle,
+  ChevronLeft,
+  ChevronRight,
+} from 'lucide-react';
 import debounce from 'lodash/debounce';
 import { useWindowVirtualizer } from '@tanstack/react-virtual';
 import { useInfiniteQuery } from '@tanstack/react-query';
 
 import useAuthStore from '../../store/authStore';
+import useFilterStore from '../../store/filterStore';
 import RecipeService from '../../services/recipe.service.js';
 import CocktailService from '../../services/cocktail.service.js';
 import { isAutomatic, filterRecipes } from '../../utils/recipeFilters.js';
@@ -85,13 +92,24 @@ const ErrorMessage = React.memo(({ error, onDismiss }) => (
   <div className="alert alert-error mb-2 text-sm">
     <AlertCircle className="w-4 h-4" />
     <span>{error}</span>
-    <button className="btn btn-ghost btn-sm p-0 hover:bg-error/10" onClick={onDismiss}>
+    <button
+      className="btn btn-ghost btn-sm p-0 hover:bg-error/10"
+      onClick={onDismiss}
+    >
       <X className="w-4 h-4" />
     </button>
   </div>
 ));
 
-function VirtualGrid({ fabricableRecipes, onCardClick, token, searchTerm, filters, onCheckFabricability, onFilterRecipes }) {
+function VirtualGrid({
+  fabricableRecipes,
+  onCardClick,
+  token,
+  searchTerm,
+  filters,
+  onCheckFabricability,
+  onFilterRecipes,
+}) {
   const listRef = React.useRef(null);
   const itemsPerRow = 4;
   const rowHeight = 160;
@@ -116,22 +134,43 @@ function VirtualGrid({ fabricableRecipes, onCardClick, token, searchTerm, filter
         searchTerm,
         null,
         null,
-        token
+        token,
       );
 
       if (response.content) {
-        await onCheckFabricability(response.content);
-        response.content = onFilterRecipes(response.content, filters, fabricableRecipes);
+        // Only check fabricability for new recipes
+        const newRecipes = response.content.filter(
+          (recipe) => !fabricableRecipes.has(recipe.id),
+        );
+        if (newRecipes.length > 0) {
+          await onCheckFabricability(newRecipes);
+        }
+        response.content = onFilterRecipes(
+          response.content,
+          filters,
+          fabricableRecipes,
+        );
       }
 
       return {
         content: response.content,
         last: response.last,
-        nextOffset: pageParam + 1
+        nextOffset: pageParam + 1,
       };
     },
-    getNextPageParam: (lastGroup) => lastGroup.last ? undefined : lastGroup.nextOffset,
+    getNextPageParam: (lastGroup) =>
+      lastGroup.last ? undefined : lastGroup.nextOffset,
     initialPageParam: 0,
+    staleTime: 30000, // Consider data fresh for 30 seconds
+    gcTime: 5 * 60 * 1000, // Keep unused data in cache for 5 minutes
+    refetchOnWindowFocus: false, // Don't refetch when window regains focus
+    refetchOnMount: false, // Don't refetch when component mounts
+    retry: 2, // Retry failed requests twice
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000), // Exponential backoff
+    select: (data) => ({
+      pages: data.pages,
+      pageParams: data.pageParams,
+    }),
   });
 
   const allRecipes = data ? data.pages.flatMap((d) => d.content) : [];
@@ -145,36 +184,69 @@ function VirtualGrid({ fabricableRecipes, onCardClick, token, searchTerm, filter
     scrollMargin: 0,
   });
 
+  // Prefetch next page when we're close to the end
   useEffect(() => {
     const [lastItem] = [...virtualizer.getVirtualItems()].reverse();
     if (!lastItem) return;
 
-    if (lastItem.index >= rowCount - 3 && hasNextPage && !isFetchingNextPage) {
+    if (lastItem.index >= rowCount - 5 && hasNextPage && !isFetchingNextPage) {
       fetchNextPage();
     }
-  }, [hasNextPage, fetchNextPage, rowCount, isFetchingNextPage, virtualizer.getVirtualItems()]);
+  }, [
+    hasNextPage,
+    fetchNextPage,
+    rowCount,
+    isFetchingNextPage,
+    virtualizer.getVirtualItems(),
+  ]);
 
+  // Optimize scroll handler with debounce
   useEffect(() => {
-    const handleScroll = () => {
-      const { scrollTop, scrollHeight, clientHeight } = document.documentElement;
+    const handleScroll = debounce(() => {
+      const { scrollTop, scrollHeight, clientHeight } =
+        document.documentElement;
       const remainingScroll = scrollHeight - scrollTop - clientHeight;
       const scrollThreshold = 1000;
 
-      if (remainingScroll < scrollThreshold && hasNextPage && !isFetchingNextPage) {
+      if (
+        remainingScroll < scrollThreshold &&
+        hasNextPage &&
+        !isFetchingNextPage
+      ) {
         fetchNextPage();
       }
-    };
+    }, 100);
 
     window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      handleScroll.cancel();
+    };
   }, [hasNextPage, fetchNextPage, isFetchingNextPage]);
 
   if (status === 'pending') {
     return (
-      <div className="grid grid-cols-4 gap-1 sm:gap-2 mt-2">
-        {[...Array(4)].map((_, index) => (
-          <SimpleDrinkCardSkeleton key={`skeleton-${Date.now()}-${index}`} />
-        ))}
+      <div className="space-y-4">
+        <div className="grid grid-cols-4 gap-1 sm:gap-2">
+          {[...Array(12)].map((_, index) => (
+            <SimpleDrinkCardSkeleton key={`skeleton-${Date.now()}-${index}`} />
+          ))}
+        </div>
+        <div className="grid grid-cols-4 gap-1 sm:gap-2">
+          {[...Array(12)].map((_, index) => (
+            <SimpleDrinkCardSkeleton
+              key={`skeleton-${Date.now()}-${index + 12}`}
+            />
+          ))}
+        </div>
+        <div className="flex items-center justify-center py-4">
+          <div className="flex items-center gap-2">
+            <span className="loading loading-spinner loading-sm"></span>
+            <span className="text-sm text-base-content/60">
+              Loading drinks...
+            </span>
+          </div>
+        </div>
       </div>
     );
   }
@@ -196,7 +268,7 @@ function VirtualGrid({ fabricableRecipes, onCardClick, token, searchTerm, filter
           const rowIndex = virtualRow.index;
           const rowRecipes = allRecipes.slice(
             rowIndex * itemsPerRow,
-            rowIndex * itemsPerRow + itemsPerRow
+            rowIndex * itemsPerRow + itemsPerRow,
           );
 
           return (
@@ -213,7 +285,10 @@ function VirtualGrid({ fabricableRecipes, onCardClick, token, searchTerm, filter
             >
               <div className="grid grid-cols-4 gap-1 sm:gap-2 h-full">
                 {rowRecipes.map((recipe) => (
-                  <div key={recipe.id} className="flex items-center justify-center">
+                  <div
+                    key={recipe.id}
+                    className="flex items-center justify-center"
+                  >
                     <SimpleDrinkCard
                       recipe={recipe}
                       isFabricable={fabricableRecipes.has(recipe.id)}
@@ -236,7 +311,9 @@ function VirtualGrid({ fabricableRecipes, onCardClick, token, searchTerm, filter
       {!hasNextPage && !isFetching && (
         <div className="flex items-center justify-center py-4">
           <p className="text-center text-base-content/60 text-xs">
-            {allRecipes.length === 0 ? 'No drinks found' : "No more drinks to load"}
+            {allRecipes.length === 0
+              ? 'No drinks found'
+              : 'No more drinks to load'}
           </p>
         </div>
       )}
@@ -248,11 +325,7 @@ function SimpleDrinks() {
   const [searchTerm, setSearchTerm] = useState('');
   const [searchLoading, setSearchLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [filters, setFilters] = useState({
-    automatic: false,
-    manual: false,
-    fabricable: false,
-  });
+  const { filters, updateFilter, clearFilters } = useFilterStore();
   const [fabricableRecipes, setFabricableRecipes] = useState(new Set());
   const [selectedRecipe, setSelectedRecipe] = useState(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -260,13 +333,25 @@ function SimpleDrinks() {
   const navigate = useNavigate();
   const token = useAuthStore((state) => state.token);
 
+  const handleFilterChange = useCallback(
+    (filterName) => {
+      setSearchLoading(true);
+      if (filterName === 'clear') {
+        clearFilters();
+      } else {
+        updateFilter(filterName, !filters[filterName]);
+      }
+    },
+    [filters, clearFilters, updateFilter],
+  );
+
   const checkFabricability = useCallback(
     async (recipes) => {
       if (!token) return; // Skip if no token
 
       const fabricableSet = new Set(fabricableRecipes);
       const batchSize = 50; // Increased batch size for faster processing
-      
+
       for (let i = 0; i < recipes.length; i += batchSize) {
         const batch = recipes.slice(i, i + batchSize);
         const results = await Promise.allSettled(
@@ -283,7 +368,8 @@ function SimpleDrinks() {
                 useAutomaticIngredients: true,
                 skipMissingIngredients: false,
                 allowManualIngredients: true,
-                allowAutomaticIngredients: true
+                allowAutomaticIngredients: true,
+                checkMissingIngredients: true,
               };
 
               const result = await CocktailService.checkFeasibility(
@@ -293,7 +379,25 @@ function SimpleDrinks() {
                 token,
               );
 
-              return { id: recipe.id, feasible: result?.feasible };
+              // Check for missing ingredients and ensure automatic ingredients are on pumps
+              const hasMissingIngredients = result?.requiredIngredients?.some(
+                (item) => item.amountMissing > 0,
+              );
+
+              const hasUnpumpedAutomaticIngredients =
+                result?.requiredIngredients?.some(
+                  (item) =>
+                    item.ingredient.type === 'automated' &&
+                    !item.ingredient.onPump,
+                );
+
+              return {
+                id: recipe.id,
+                feasible:
+                  result?.feasible &&
+                  !hasMissingIngredients &&
+                  !hasUnpumpedAutomaticIngredients,
+              };
             } catch (err) {
               if (err.response?.status === 401) {
                 navigate('/login');
@@ -323,16 +427,19 @@ function SimpleDrinks() {
   );
 
   // Memoize the filter function to prevent unnecessary recalculations
-  const filterRecipesMemo = useCallback((recipes) => {
-    if (!recipes?.length) return [];
-    
-    // Early return if no filters are active
-    if (!filters.automatic && !filters.manual && !filters.fabricable) {
-      return recipes;
-    }
+  const filterRecipesMemo = useCallback(
+    (recipes) => {
+      if (!recipes?.length) return [];
 
-    return filterRecipes(recipes, filters, fabricableRecipes);
-  }, [filters, fabricableRecipes]);
+      // Early return if no filters are active
+      if (!filters.automatic && !filters.manual && !filters.fabricable) {
+        return recipes;
+      }
+
+      return filterRecipes(recipes, filters, fabricableRecipes);
+    },
+    [filters, fabricableRecipes],
+  );
 
   const {
     status,
@@ -360,16 +467,18 @@ function SimpleDrinks() {
           searchTerm,
           null, // categoryId
           null, // orderBy
-          token
+          token,
         );
 
         if (response.content) {
           // Only check fabricability for new recipes
-          const newRecipes = response.content.filter(recipe => !fabricableRecipes.has(recipe.id));
+          const newRecipes = response.content.filter(
+            (recipe) => !fabricableRecipes.has(recipe.id),
+          );
           if (newRecipes.length > 0) {
             await checkFabricability(newRecipes);
           }
-          
+
           // Apply filters client-side
           response.content = filterRecipesMemo(response.content);
         }
@@ -377,7 +486,7 @@ function SimpleDrinks() {
         return {
           content: response.content,
           last: response.last,
-          nextOffset: pageParam + 1
+          nextOffset: pageParam + 1,
         };
       } catch (error) {
         // If unauthorized, redirect to login
@@ -388,7 +497,8 @@ function SimpleDrinks() {
         throw error;
       }
     },
-    getNextPageParam: (lastGroup) => lastGroup.last ? undefined : lastGroup.nextOffset,
+    getNextPageParam: (lastGroup) =>
+      lastGroup.last ? undefined : lastGroup.nextOffset,
     initialPageParam: 0,
     staleTime: 30000,
     gcTime: 5 * 60 * 1000,
@@ -403,9 +513,9 @@ function SimpleDrinks() {
     setSearchLoading(true);
     // Apply filters to existing data instead of refetching
     if (data?.pages) {
-      data.pages = data.pages.map(page => ({
+      data.pages = data.pages.map((page) => ({
         ...page,
-        content: filterRecipesMemo(page.content)
+        content: filterRecipesMemo(page.content),
       }));
     }
     // Reduced timeout for better responsiveness
@@ -413,22 +523,6 @@ function SimpleDrinks() {
       setSearchLoading(false);
     }, 100);
   }, [filters, filterRecipesMemo, data?.pages]);
-
-  const handleFilterChange = useCallback((filterName) => {
-    setSearchLoading(true);
-    if (filterName === 'clear') {
-      setFilters({
-        automatic: false,
-        manual: false,
-        fabricable: false,
-      });
-    } else {
-      setFilters((prev) => ({
-        ...prev,
-        [filterName]: !prev[filterName],
-      }));
-    }
-  }, []);
 
   const getOrderConfig = useCallback(
     (recipe) => ({
@@ -478,7 +572,11 @@ function SimpleDrinks() {
   // Handle click outside to close sidebar
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (sidebarRef.current && !sidebarRef.current.contains(event.target) && isSidebarOpen) {
+      if (
+        sidebarRef.current &&
+        !sidebarRef.current.contains(event.target) &&
+        isSidebarOpen
+      ) {
         setIsSidebarOpen(false);
       }
     };
@@ -497,7 +595,7 @@ function SimpleDrinks() {
     <div className="min-h-screen">
       {/* Backdrop blur when sidebar is open */}
       {isSidebarOpen && (
-        <div 
+        <div
           className="fixed inset-0 bg-black/20 backdrop-blur-sm z-10 md:hidden transition-opacity duration-300"
           onClick={() => setIsSidebarOpen(false)}
         />
@@ -541,15 +639,21 @@ function SimpleDrinks() {
               filters={filters}
               onFilterChange={handleFilterChange}
             />
-            {error && <ErrorMessage error={error} onDismiss={() => setError(null)} />}
+            {error && (
+              <ErrorMessage error={error} onDismiss={() => setError(null)} />
+            )}
           </div>
         </div>
       </div>
 
-      <div className={`md:ml-0 transition-all duration-300 ${isSidebarOpen ? 'ml-16' : 'ml-0'}`}>
+      <div
+        className={`md:ml-0 transition-all duration-300 ${isSidebarOpen ? 'ml-16' : 'ml-0'}`}
+      >
         <div className="md:block hidden p-4 border-b border-base-300 sticky top-0 bg-base-100 z-10 shadow-sm">
           <div className="max-w-2xl mx-auto space-y-4">
-            <h2 className="text-sm font-semibold text-center">Available Drinks</h2>
+            <h2 className="text-sm font-semibold text-center">
+              Available Drinks
+            </h2>
             <SearchForm
               onSubmit={handleSearch}
               onInput={handleSearchInput}
@@ -559,12 +663,16 @@ function SimpleDrinks() {
               filters={filters}
               onFilterChange={handleFilterChange}
             />
-            {error && <ErrorMessage error={error} onDismiss={() => setError(null)} />}
+            {error && (
+              <ErrorMessage error={error} onDismiss={() => setError(null)} />
+            )}
           </div>
         </div>
 
         <div className="md:hidden p-4 sticky top-0 bg-base-100 z-10 shadow-sm">
-          <h2 className="text-sm font-semibold text-center">Available Drinks</h2>
+          <h2 className="text-sm font-semibold text-center">
+            Available Drinks
+          </h2>
         </div>
 
         <VirtualGrid
@@ -591,4 +699,3 @@ function SimpleDrinks() {
 }
 
 export default React.memo(SimpleDrinks);
-

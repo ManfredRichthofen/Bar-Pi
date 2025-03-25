@@ -45,7 +45,9 @@ const SimpleDrinkModal = ({ recipe, isOpen, onClose, onMakeDrink }) => {
             {/* Description */}
             {recipe.description && (
               <div>
-                <h3 className="text-sm font-semibold mb-1.5 sm:mb-2 text-base-content/80">Description</h3>
+                <h3 className="text-sm font-semibold mb-1.5 sm:mb-2 text-base-content/80">
+                  Description
+                </h3>
                 <p className="text-base-content/70 text-sm leading-relaxed">
                   {recipe.description}
                 </p>
@@ -57,16 +59,23 @@ const SimpleDrinkModal = ({ recipe, isOpen, onClose, onMakeDrink }) => {
           <div className="space-y-3 sm:space-y-4">
             {/* Ingredients */}
             <div>
-              <h3 className="text-sm font-semibold mb-2 sm:mb-3 text-base-content/80">Ingredients</h3>
+              <h3 className="text-sm font-semibold mb-2 sm:mb-3 text-base-content/80">
+                Ingredients
+              </h3>
               <ul className="space-y-1.5 sm:space-y-2">
                 {recipe.ingredients.map((ingredient, index) => (
-                  <li key={index} className="text-sm text-base-content/70 flex items-center gap-2">
+                  <li
+                    key={index}
+                    className="text-sm text-base-content/70 flex items-center gap-2"
+                  >
                     <span className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-base-200 flex items-center justify-center text-xs font-medium">
                       {index + 1}
                     </span>
                     <span>{ingredient.name}</span>
                     <span className="text-base-content/50">•</span>
-                    <span className="text-base-content/60">{ingredient.amount} {ingredient.unit}</span>
+                    <span className="text-base-content/60">
+                      {ingredient.amount} {ingredient.unit}
+                    </span>
                   </li>
                 ))}
               </ul>
@@ -87,4 +96,4 @@ const SimpleDrinkModal = ({ recipe, isOpen, onClose, onMakeDrink }) => {
   );
 };
 
-export default SimpleDrinkModal; 
+export default SimpleDrinkModal;

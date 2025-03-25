@@ -5,7 +5,7 @@ on:
     branches: ['main']
   pull_request:
     branches: ['main']
-  workflow_dispatch: 
+  workflow_dispatch:
 
 jobs:
   build:
@@ -54,7 +54,7 @@ jobs:
         run: |
           # Get the previous tag
           previous_tag=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
-          
+
           if [ -z "$previous_tag" ]; then
             # If no previous tag, get all commits
             git log --pretty=format:"* %s (%h)" > release_notes.txt
@@ -62,7 +62,7 @@ jobs:
             # Get commits since last tag
             git log --pretty=format:"* %s (%h)" $previous_tag..HEAD > release_notes.txt
           fi
-          
+
           # Read the content and escape it for GitHub Actions
           notes=$(cat release_notes.txt)
           echo "notes<<EOF" >> $GITHUB_OUTPUT
@@ -85,8 +85,8 @@ jobs:
         if: github.event_name == 'workflow_dispatch' && matrix.node-version == '20.x'
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: "v${{ steps.get_version.outputs.version }}"
-          name: "Release ${{ steps.get_version.outputs.version }}"
+          tag_name: 'v${{ steps.get_version.outputs.version }}'
+          name: 'Release ${{ steps.get_version.outputs.version }}'
           body: ${{ steps.release_notes.outputs.notes }}
           files: |
             ${{ steps.get_version.outputs.version }}.zip

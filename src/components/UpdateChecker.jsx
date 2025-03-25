@@ -22,13 +22,13 @@ const UpdateChecker = () => {
 
   const handleUpdate = async () => {
     if (!updateInfo?.hasUpdate) return;
-    
+
     setIsUpdating(true);
     try {
       const success = await updateService.performUpdate();
       if (success) {
         // Update was successful, but we don't reload since the user needs to manually apply the update
-        setUpdateInfo(prev => ({ ...prev, updateDownloaded: true }));
+        setUpdateInfo((prev) => ({ ...prev, updateDownloaded: true }));
       }
     } catch (error) {
       console.error('Error during update:', error);
@@ -48,11 +48,16 @@ const UpdateChecker = () => {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm opacity-70">
-                {t('settings.updates.current_version', 'Current Version')}: {updateInfo?.currentVersion || 'Unknown'}
+                {t('settings.updates.current_version', 'Current Version')}:{' '}
+                {updateInfo?.currentVersion || 'Unknown'}
               </p>
               {updateInfo?.hasUpdate && (
                 <p className="text-sm text-primary">
-                  {t('settings.updates.new_version_available', 'New Version Available')}: {updateInfo.latestVersion}
+                  {t(
+                    'settings.updates.new_version_available',
+                    'New Version Available',
+                  )}
+                  : {updateInfo.latestVersion}
                 </p>
               )}
             </div>
@@ -72,22 +77,28 @@ const UpdateChecker = () => {
           {updateInfo?.hasUpdate && (
             <div className="space-y-2">
               <div className="text-sm">
-                <h3 className="font-medium mb-2">{t('settings.updates.release_notes', 'Release Notes')}:</h3>
+                <h3 className="font-medium mb-2">
+                  {t('settings.updates.release_notes', 'Release Notes')}:
+                </h3>
                 <div className="bg-base-100 rounded-lg p-3 space-y-3">
-                  {updateInfo.releaseNotes.split('\n\n').map((section, index) => {
-                    const lines = section.split('\n');
-                    const title = lines[0];
-                    const content = lines.slice(1).join('\n');
-                    
-                    return (
-                      <div key={index} className="space-y-1">
-                        <h4 className="font-semibold text-primary">{title}</h4>
-                        <div className="whitespace-pre-wrap opacity-80 text-sm">
-                          {content}
+                  {updateInfo.releaseNotes
+                    .split('\n\n')
+                    .map((section, index) => {
+                      const lines = section.split('\n');
+                      const title = lines[0];
+                      const content = lines.slice(1).join('\n');
+
+                      return (
+                        <div key={index} className="space-y-1">
+                          <h4 className="font-semibold text-primary">
+                            {title}
+                          </h4>
+                          <div className="whitespace-pre-wrap opacity-80 text-sm">
+                            {content}
+                          </div>
                         </div>
-                      </div>
-                    );
-                  })}
+                      );
+                    })}
                 </div>
               </div>
               <div className="flex justify-end">
@@ -108,7 +119,10 @@ const UpdateChecker = () => {
               {updateInfo.updateDownloaded && (
                 <div className="alert alert-info mt-2">
                   <span className="text-sm">
-                    {t('settings.updates.manual_install_required', 'Please check your downloads folder for the update package. Extract and replace your current installation files with the new ones.')}
+                    {t(
+                      'settings.updates.manual_install_required',
+                      'Please check your downloads folder for the update package. Extract and replace your current installation files with the new ones.',
+                    )}
                   </span>
                 </div>
               )}
@@ -120,4 +134,4 @@ const UpdateChecker = () => {
   );
 };
 
-export default UpdateChecker; 
+export default UpdateChecker;

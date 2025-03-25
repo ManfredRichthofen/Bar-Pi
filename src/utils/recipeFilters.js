@@ -51,7 +51,7 @@ const allAutomaticIngredientsOnPump = (recipe) => {
   if (!recipe?.ingredients || !Array.isArray(recipe.ingredients)) return false;
   return recipe.ingredients
     .filter(isAutomaticIngredient)
-    .every(ingredient => ingredient.onPump);
+    .every((ingredient) => ingredient.onPump);
 };
 
 /**
@@ -63,7 +63,7 @@ const hasAutomaticIngredientsOnPump = (recipe) => {
   if (!recipe?.ingredients || !Array.isArray(recipe.ingredients)) return false;
   return recipe.ingredients
     .filter(isAutomaticIngredient)
-    .some(ingredient => ingredient.onPump);
+    .some((ingredient) => ingredient.onPump);
 };
 
 /**
@@ -75,51 +75,83 @@ const hasAutomaticIngredientsOnPump = (recipe) => {
  */
 export const filterRecipes = (recipes, filters, fabricableRecipes) => {
   if (!recipes?.length) return [];
-  
+
   // Early return if no filters are active
   if (!filters.automatic && !filters.manual && !filters.fabricable) {
     return recipes;
   }
 
   // Pre-compute recipe properties to avoid repeated calculations
-  const recipeProperties = recipes.map(recipe => ({
+  const recipeProperties = recipes.map((recipe) => ({
     recipe,
     isAutomatic: isAutomatic(recipe),
     requiresManual: requiresManual(recipe),
-    isFullyAutomaticOnPump: isAutomatic(recipe) && allAutomaticIngredientsOnPump(recipe),
-    hasPumpIngredientsAndManual: hasAutomaticIngredientsOnPump(recipe) && requiresManual(recipe),
-    isFabricable: fabricableRecipes.has(recipe.id)
+    isFullyAutomaticOnPump:
+      isAutomatic(recipe) && allAutomaticIngredientsOnPump(recipe),
+    hasPumpIngredientsAndManual:
+      hasAutomaticIngredientsOnPump(recipe) && requiresManual(recipe),
+    isFabricable: fabricableRecipes.has(recipe.id),
   }));
 
   // Filter recipes based on active filters
   const filteredContent = recipeProperties
-    .filter(({ recipe, isAutomatic, requiresManual, isFullyAutomaticOnPump, hasPumpIngredientsAndManual }) => {
-      if (!recipe) return false;
+    .filter(
+      ({
+        recipe,
+        isAutomatic,
+        requiresManual,
+        isFullyAutomaticOnPump,
+        hasPumpIngredientsAndManual,
+      }) => {
+        if (!recipe) return false;
 
-      // Apply automatic/manual filters
-      if (filters.automatic || filters.manual) {
-        if (filters.automatic && filters.manual) {
-          return isAutomatic || requiresManual;
+        // Apply automatic/manual filters
+        if (filters.automatic || filters.manual) {
+          if (filters.automatic && filters.manual) {
+            return isAutomatic || requiresManual;
+          }
+          if (filters.automatic) {
+            return isAutomatic;
+          }
+          if (filters.manual) {
+            return requiresManual && !isAutomatic;
+          }
         }
-        if (filters.automatic) {
-          return isAutomatic;
-        }
-        if (filters.manual) {
-          return requiresManual && !isAutomatic;
-        }
-      }
 
-      // Apply fabricable filter
-      if (filters.fabricable) {
-        return isFullyAutomaticOnPump || hasPumpIngredientsAndManual;
-      }
+        // Apply fabricable filter
+        if (filters.fabricable) {
+          return fabricableRecipes.has(recipe.id);
+        }
 
-      return true;
-    })
+        return true;
+      },
+    )
     .map(({ recipe, isFabricable }) => ({ recipe, isFabricable }));
 
   // Sort results: fabricable first, then by name
   return filteredContent
+    .filter(({ recipe, isFabricable }) => {
+      // If multiple filters are active, apply all of them
+      const activeFilters = Object.entries(filters).filter(
+        ([_, value]) => value,
+      );
+
+      if (activeFilters.length <= 1) return true;
+
+      // Check each active filter
+      return activeFilters.every(([filterName]) => {
+        switch (filterName) {
+          case 'automatic':
+            return isAutomatic(recipe);
+          case 'manual':
+            return requiresManual(recipe) && !isAutomatic(recipe);
+          case 'fabricable':
+            return fabricableRecipes.has(recipe.id);
+          default:
+            return true;
+        }
+      });
+    })
     .sort((a, b) => {
       if (a.isFabricable !== b.isFabricable) {
         return b.isFabricable - a.isFabricable;
@@ -127,4 +159,4 @@ export const filterRecipes = (recipes, filters, fabricableRecipes) => {
       return a.recipe.name.localeCompare(b.recipe.name);
     })
     .map(({ recipe }) => recipe);
-}; 
+};

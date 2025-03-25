@@ -2,7 +2,7 @@ import React from 'react';
 
 const SimpleDrinkCard = ({ recipe, onCardClick }) => {
   return (
-    <div 
+    <div
       className="card bg-base-100 shadow-sm hover:shadow-md cursor-pointer transition-all duration-300 hover:-translate-y-0.5 h-full overflow-hidden border border-base-200"
       onClick={() => onCardClick(recipe)}
     >
@@ -22,9 +22,13 @@ const SimpleDrinkCard = ({ recipe, onCardClick }) => {
         </figure>
 
         <div className="flex items-start justify-between gap-1.5">
-          <h3 className="text-sm sm:text-base font-medium break-words flex-1 text-base-content/90">{recipe.name}</h3>
+          <h3 className="text-sm sm:text-base font-medium break-words flex-1 text-base-content/90">
+            {recipe.name}
+          </h3>
           {recipe.alcoholic && (
-            <div className="badge badge-error badge-sm whitespace-nowrap shrink-0">21+</div>
+            <div className="badge badge-error badge-sm whitespace-nowrap shrink-0">
+              21+
+            </div>
           )}
         </div>
       </div>

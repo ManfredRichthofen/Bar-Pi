@@ -60,11 +60,13 @@ Bar Pi is built with modern web technologies:
 For Raspberry Pi users, we provide a simple installation script that automates the setup process:
 
 1. Download the install script:
+
    ```bash
    curl -L https://raw.githubusercontent.com/ManfredRichthofen/Bar-Pi/main/scripts/install/install.sh -o install.sh
    ```
 
 2. Make the install script executable:
+
    ```bash
    chmod +x install.sh
    ```
@@ -75,6 +77,7 @@ For Raspberry Pi users, we provide a simple installation script that automates t
    ```
 
 The script will:
+
 - Install Node.js if not present
 - Download the latest release from GitHub
 - Set up a systemd service for automatic startup
@@ -83,6 +86,7 @@ The script will:
 After installation, the app will be available at `http://localhost:5000` and will start automatically on boot.
 
 You can manage the service using these commands:
+
 ```bash
 # Start the service
 sudo systemctl start barpi
