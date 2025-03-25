@@ -1,8 +1,9 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { themeChange } from 'theme-change';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import useAuthStore from '../../store/authStore';
+import UpdateChecker from '../../components/UpdateChecker';
 
 const SimpleSettings = ({ onModeChange }) => {
   const { t, i18n } = useTranslation();
@@ -84,6 +85,9 @@ const SimpleSettings = ({ onModeChange }) => {
 
       {/* Main Content */}
       <div className="p-2 pb-20 max-w-2xl mx-auto space-y-2">
+        {/* Update Check Card */}
+        <UpdateChecker />
+
         {/* General Settings Card */}
         <div className="card bg-base-200">
           <div className="card-body p-3">

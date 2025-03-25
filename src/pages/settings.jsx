@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import useConfigStore from '../store/configStore';
 import useAuthStore from '../store/authStore';
 import { Save, AlertCircle } from 'lucide-react';
+import UpdateChecker from '../components/UpdateChecker';
 
 const Settings = () => {
   const { t, i18n } = useTranslation();
@@ -221,6 +222,7 @@ const Settings = () => {
               )}
             </div>
           </div>
+          <UpdateChecker />
         </div>
       </div>
     </div>
@@ -250,15 +252,171 @@ const Settings = () => {
   );
 
   return (
-    <div className="p-3 sm:p-4 max-w-4xl mx-auto pt-20 sm:pt-24">
-      <h1 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-8">
-        {t('settings.title')}
-      </h1>
+    <div className="min-h-screen bg-base-100">
+      {/* Fixed Header */}
+      <div className="sticky top-0 z-10 bg-base-100 border-b border-base-200">
+        <div className="px-3 py-3 flex items-center">
+          <h1 className="text-xl font-bold">
+            {t('settings.title', 'Settings')}
+          </h1>
+        </div>
+      </div>
 
-      <div className="space-y-4 sm:space-y-6">
-        {renderGeneralSettings()}
-        {renderAdvancedSettings()}
-        {renderThemeSettings()}
+      {/* Main Content */}
+      <div className="p-2 pb-20 max-w-2xl mx-auto space-y-2">
+        {/* Update Check Card */}
+        <UpdateChecker />
+
+        {/* API Settings Card */}
+        <div className="card bg-base-200">
+          <div className="card-body p-3">
+            <h2 className="card-title text-lg mb-3">
+              {t('settings.api.title')}
+            </h2>
+
+            <div className="space-y-3">
+              <div className="form-control">
+                <label className="label py-1">
+                  <span className="label-text font-medium">
+                    {t('settings.api.url_label')}
+                  </span>
+                </label>
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    className="input input-bordered flex-1"
+                    value={tempApiUrl}
+                    onChange={(e) => setTempApiUrl(e.target.value)}
+                    placeholder={t('settings.api.url_placeholder')}
+                  />
+                  <button
+                    className="btn btn-primary"
+                    onClick={async () => {
+                      if (!validateUrl(tempApiUrl)) {
+                        setError(t('settings.api.invalid_url'));
+                        return;
+                      }
+
+                      const isConnected = await testApiConnection(tempApiUrl);
+                      if (!isConnected) {
+                        setError(t('settings.api.connection_failed'));
+                        return;
+                      }
+
+                      setApiBaseUrl(tempApiUrl);
+                      setSaveStatus(t('settings.api.saved'));
+                      setError('');
+                    }}
+                  >
+                    <Save size={20} />
+                  </button>
+                </div>
+                {error && (
+                  <div className="flex items-center gap-2 text-error text-sm mt-1">
+                    <AlertCircle size={16} />
+                    <span>{error}</span>
+                  </div>
+                )}
+                {saveStatus && (
+                  <div className="text-success text-sm mt-1">{saveStatus}</div>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* General Settings Card */}
+        <div className="card bg-base-200">
+          <div className="card-body p-3">
+            <h2 className="card-title text-lg mb-3">
+              {t('settings.general.title')}
+            </h2>
+
+            <div className="space-y-3">
+              {/* Language Selector */}
+              <div className="form-control">
+                <label className="label py-1">
+                  <span className="label-text font-medium">
+                    {t('settings.general.language_label')}
+                  </span>
+                </label>
+                <select
+                  className="select select-bordered w-full h-12 min-h-12"
+                  value={i18n.language}
+                  onChange={(e) => handleLanguageChange(e.target.value)}
+                >
+                  {languages.map((lang) => (
+                    <option key={lang.code} value={lang.code}>
+                      {lang.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="divider my-1"></div>
+
+              {/* Toggle Switches */}
+              <div className="space-y-2">
+                <label className="flex items-center justify-between py-2 touch-none">
+                  <span className="label-text flex-1 mr-4">
+                    {t('settings.general.notifications')}
+                  </span>
+                  <input
+                    type="checkbox"
+                    className="toggle toggle-primary toggle-lg"
+                  />
+                </label>
+
+                <label className="flex items-center justify-between py-2 touch-none">
+                  <span className="label-text flex-1 mr-4">
+                    {t('settings.general.sound_effects')}
+                  </span>
+                  <input
+                    type="checkbox"
+                    className="toggle toggle-primary toggle-lg"
+                  />
+                </label>
+
+                <div className="divider my-1"></div>
+
+                {/* Logout Button */}
+                <div className="flex items-center justify-between py-2">
+                  <span className="label-text flex-1 mr-4">
+                    {t('common.logout')}
+                  </span>
+                  <button
+                    className="btn btn-error h-12 min-h-12 px-6"
+                    onClick={logoutUser}
+                  >
+                    {t('common.logout')}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Theme Selector Card */}
+        <div className="card bg-base-200">
+          <div className="card-body p-3">
+            <h2 className="card-title text-lg mb-3">
+              {t('settings.appearance.title')}
+            </h2>
+
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-1.5">
+              {themes.map((theme) => (
+                <button
+                  key={theme}
+                  data-set-theme={theme}
+                  data-act-class="active"
+                  className="theme-controller btn h-12 min-h-12 normal-case hover:btn-primary active:btn-primary text-sm px-2"
+                >
+                  {theme}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
