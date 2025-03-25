@@ -28,12 +28,10 @@ const SearchForm = React.memo(({ onSubmit, onInput, loading }) => (
       className="input h-10 min-h-[40px] join-item w-full border-2 border-base-300 text-sm bg-base-200 focus:bg-base-100 transition-colors placeholder:text-base-content/50"
       placeholder="Search drinks..."
       onChange={onInput}
-      disabled={loading}
     />
     <button
       type="submit"
       className="btn h-10 min-h-[40px] w-10 border-2 border-base-300 bg-base-200 hover:bg-base-300 join-item border-l-1 transition-colors px-0"
-      disabled={loading}
     >
       {loading ? (
         <span className="loading loading-spinner loading-sm"></span>
