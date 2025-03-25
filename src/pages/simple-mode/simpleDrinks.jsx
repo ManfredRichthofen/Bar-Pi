@@ -6,6 +6,7 @@ import {
   AlertCircle,
   ChevronLeft,
   ChevronRight,
+  ArrowUp,
 } from 'lucide-react';
 import debounce from 'lodash/debounce';
 import { useWindowVirtualizer } from '@tanstack/react-virtual';
@@ -332,6 +333,7 @@ function SimpleDrinks() {
   const sidebarRef = useRef(null);
   const navigate = useNavigate();
   const token = useAuthStore((state) => state.token);
+  const [showScrollTop, setShowScrollTop] = useState(false);
 
   const handleFilterChange = useCallback(
     (filterName) => {
@@ -587,6 +589,24 @@ function SimpleDrinks() {
     };
   }, [isSidebarOpen]);
 
+  // Handle scroll to show/hide scroll top button
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollTop = window.scrollY || document.documentElement.scrollTop;
+      setShowScrollTop(scrollTop > 300); // Show button after 300px scroll
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  const scrollToTop = useCallback(() => {
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    });
+  }, []);
+
   if (!token) {
     return <Navigate to="/login" />;
   }
@@ -693,6 +713,17 @@ function SimpleDrinks() {
           onClose={handleModalClose}
           onMakeDrink={handleMakeDrink}
         />
+      )}
+
+      {/* Scroll to top button */}
+      {showScrollTop && (
+        <button
+          onClick={scrollToTop}
+          className="fixed bottom-20 right-4 z-[100] btn btn-circle btn-primary shadow-lg hover:shadow-xl transition-all duration-200"
+          aria-label="Scroll to top"
+        >
+          <ArrowUp className="w-5 h-5" />
+        </button>
       )}
     </div>
   );
