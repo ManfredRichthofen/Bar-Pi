@@ -20,11 +20,14 @@ class UpdateService {
       // Compare versions
       const hasUpdate = this.compareVersions(CURRENT_VERSION, latestVersion) < 0;
       
+      // Format release notes
+      const formattedReleaseNotes = this.formatReleaseNotes(latestRelease.body);
+      
       return {
         hasUpdate,
         currentVersion: CURRENT_VERSION,
         latestVersion,
-        releaseNotes: latestRelease.body,
+        releaseNotes: formattedReleaseNotes,
         downloadUrl: latestRelease.html_url,
         assets: latestRelease.assets
       };
@@ -46,6 +49,48 @@ class UpdateService {
       if (v1Parts[i] < v2Parts[i]) return -1;
     }
     return 0;
+  }
+
+  formatReleaseNotes(notes) {
+    if (!notes) return 'No release notes available.';
+    
+    const sections = notes.split(/(?=^#{1,6}\s)/m);
+    
+    return sections.map(section => {
+
+      section = section.trim();
+      
+      if (section.startsWith('#')) {
+        const [header, ...content] = section.split('\n');
+        const level = header.match(/^#+/)[0].length;
+        const title = header.replace(/^#+\s+/, '');
+        
+        // Format the content
+        const formattedContent = content
+          .join('\n')
+          .trim()
+          .split('\n')
+          .map(line => {
+            if (line.trim().startsWith('- ')) {
+              return `• ${line.trim().substring(2)}`;
+            }
+            return line.replace(/\[([^\]]+)\]\([^)]+\)/g, '$1');
+          })
+          .join('\n');
+        
+        return `${title}\n${formattedContent}`;
+      }
+      
+      return section
+        .split('\n')
+        .map(line => {
+          if (line.trim().startsWith('- ')) {
+            return `• ${line.trim().substring(2)}`;
+          }
+          return line.replace(/\[([^\]]+)\]\([^)]+\)/g, '$1');
+        })
+        .join('\n');
+    }).join('\n\n');
   }
 
   async performUpdate() {

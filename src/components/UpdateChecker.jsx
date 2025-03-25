@@ -72,8 +72,23 @@ const UpdateChecker = () => {
           {updateInfo?.hasUpdate && (
             <div className="space-y-2">
               <div className="text-sm">
-                <h3 className="font-medium mb-1">{t('settings.updates.release_notes', 'Release Notes')}:</h3>
-                <div className="whitespace-pre-wrap opacity-70">{updateInfo.releaseNotes}</div>
+                <h3 className="font-medium mb-2">{t('settings.updates.release_notes', 'Release Notes')}:</h3>
+                <div className="bg-base-100 rounded-lg p-3 space-y-3">
+                  {updateInfo.releaseNotes.split('\n\n').map((section, index) => {
+                    const lines = section.split('\n');
+                    const title = lines[0];
+                    const content = lines.slice(1).join('\n');
+                    
+                    return (
+                      <div key={index} className="space-y-1">
+                        <h4 className="font-semibold text-primary">{title}</h4>
+                        <div className="whitespace-pre-wrap opacity-80 text-sm">
+                          {content}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
               <div className="flex justify-end">
                 <button
