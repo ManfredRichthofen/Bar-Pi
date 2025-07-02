@@ -19,7 +19,6 @@ import CocktailService from '../../services/cocktail.service.js';
 import { isAutomatic, filterRecipes } from '../../utils/recipeFilters.js';
 import SimpleDrinkCard from '../../components/simple-mode/drinks/simpleDrinkCard';
 import SimpleDrinkCardSkeleton from '../../components/simple-mode/drinks/simpleDrinkCardSkeleton';
-import SimpleDrinkModal from '../../components/simple-mode/drinks/simpleDrinkModal';
 
 const SearchForm = React.memo(({ onSubmit, onInput, loading }) => (
   <form onSubmit={onSubmit} className="join w-full">
@@ -110,8 +109,30 @@ function VirtualGrid({
   onFilterRecipes,
 }) {
   const listRef = React.useRef(null);
-  const itemsPerRow = 4;
+  const [itemsPerRow, setItemsPerRow] = React.useState(4);
   const rowHeight = 160;
+
+  // Responsive grid columns
+  React.useEffect(() => {
+    const updateGridColumns = () => {
+      const width = window.innerWidth;
+      if (width < 640) { // sm breakpoint
+        setItemsPerRow(2);
+      } else if (width < 768) { // md breakpoint
+        setItemsPerRow(3);
+      } else if (width < 1024) { // lg breakpoint
+        setItemsPerRow(4);
+      } else if (width < 1280) { // xl breakpoint
+        setItemsPerRow(5);
+      } else { // 2xl and above
+        setItemsPerRow(6);
+      }
+    };
+
+    updateGridColumns();
+    window.addEventListener('resize', updateGridColumns);
+    return () => window.removeEventListener('resize', updateGridColumns);
+  }, []);
 
   const {
     status,
@@ -226,12 +247,12 @@ function VirtualGrid({
   if (status === 'pending') {
     return (
       <div className="space-y-4">
-        <div className="grid grid-cols-4 gap-1 sm:gap-2">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 sm:gap-3">
           {[...Array(12)].map((_, index) => (
             <SimpleDrinkCardSkeleton key={`skeleton-${Date.now()}-${index}`} />
           ))}
         </div>
-        <div className="grid grid-cols-4 gap-1 sm:gap-2">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 sm:gap-3">
           {[...Array(12)].map((_, index) => (
             <SimpleDrinkCardSkeleton
               key={`skeleton-${Date.now()}-${index + 12}`}
@@ -255,7 +276,7 @@ function VirtualGrid({
   }
 
   return (
-    <div ref={listRef} className="px-2 py-1 relative">
+    <div ref={listRef} className="px-3 py-2 relative">
       <div
         style={{
           height: `${virtualizer.getTotalSize()}px`,
@@ -282,7 +303,7 @@ function VirtualGrid({
                 height: `${virtualRow.size}px`,
               }}
             >
-              <div className="grid grid-cols-4 gap-1 sm:gap-2 h-full">
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-1.5 sm:gap-2 h-full">
                 {rowRecipes.map((recipe) => (
                   <div
                     key={recipe.id}
@@ -301,7 +322,7 @@ function VirtualGrid({
         })}
       </div>
       {isFetchingNextPage && hasNextPage && (
-        <div className="grid grid-cols-4 gap-1 sm:gap-2 mt-2">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 sm:gap-3 mt-2">
           {[...Array(4)].map((_, index) => (
             <SimpleDrinkCardSkeleton key={`skeleton-${Date.now()}-${index}`} />
           ))}
@@ -326,7 +347,7 @@ function SimpleDrinks() {
   const [error, setError] = useState(null);
   const { filters, updateFilter, clearFilters } = useFilterStore();
   const [fabricableRecipes, setFabricableRecipes] = useState(new Set());
-  const [selectedRecipe, setSelectedRecipe] = useState(null);
+
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const sidebarRef = useRef(null);
   const navigate = useNavigate();
@@ -557,16 +578,7 @@ function SimpleDrinks() {
   };
 
   const handleCardClick = (recipe) => {
-    setSelectedRecipe(recipe);
-  };
-
-  const handleModalClose = () => {
-    setSelectedRecipe(null);
-  };
-
-  const handleMakeDrink = () => {
-    navigate('/simple/order', { state: { recipe: selectedRecipe } });
-    handleModalClose();
+    navigate('/simple/drink/' + recipe.id, { state: { recipe } });
   };
 
   // Handle click outside to close sidebar
@@ -610,7 +622,7 @@ function SimpleDrinks() {
   }
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen pb-20">
       {/* Backdrop blur when sidebar is open */}
       {isSidebarOpen && (
         <div
@@ -704,20 +716,13 @@ function SimpleDrinks() {
         />
       </div>
 
-      {selectedRecipe && (
-        <SimpleDrinkModal
-          recipe={selectedRecipe}
-          isOpen={true}
-          onClose={handleModalClose}
-          onMakeDrink={handleMakeDrink}
-        />
-      )}
+
 
       {/* Scroll to top button */}
       {showScrollTop && (
         <button
           onClick={scrollToTop}
-          className="fixed bottom-20 right-4 z-[100] btn btn-circle btn-primary shadow-lg hover:shadow-xl transition-all duration-200"
+          className="fixed bottom-24 right-4 z-[100] btn btn-circle btn-primary shadow-lg hover:shadow-xl transition-all duration-200"
           aria-label="Scroll to top"
         >
           <ArrowUp className="w-5 h-5" />

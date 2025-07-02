@@ -29,6 +29,7 @@ import Pumps from './pages/pumps';
 //Simple Mode
 import SimpleLayout from './components/simple-mode/simpleLayout';
 import SimpleDrinks from './pages/simple-mode/simpleDrinks';
+import SimpleDrinkDetail from './pages/simple-mode/simpleDrinkDetail';
 import SimpleSettings from './pages/simple-mode/simpleSettings';
 import SimpleOrder from './pages/simple-mode/simpleOrder';
 import SimpleOrderStatus from './pages/simple-mode/simpleOrderStatus';
@@ -121,6 +122,7 @@ function App() {
                   <SimpleLayout>
                     <Routes>
                       <Route path="/drinks" element={<SimpleDrinks />} />
+                      <Route path="/drink/:id" element={<SimpleDrinkDetail />} />
                       <Route
                         path="/settings"
                         element={
