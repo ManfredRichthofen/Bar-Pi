@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { PlusCircle } from 'lucide-react';
+import { PlusCircle, Settings } from 'lucide-react';
 
 const SimpleDrinkCustomizer = ({
   disableBoosting = false,
@@ -59,19 +59,20 @@ const SimpleDrinkCustomizer = ({
   );
 
   return (
-    <div className="card shadow-xl">
+    <div className="card bg-base-200/50">
       <div className="collapse collapse-arrow">
         <input type="checkbox" defaultChecked className="peer" />
-        <div className="collapse-title text-xl font-medium">
+        <div className="collapse-title text-lg font-semibold flex items-center gap-2">
+          <Settings className="w-5 h-5" />
           Customize Drink
         </div>
         <div className="collapse-content">
           <div className="mb-6 mt-4">
-            <h3 className="text-lg font-bold mb-2 break-words">
+            <h3 className="text-lg font-bold mb-3 break-words">
               Alcohol Content Adjustment
             </h3>
             {disableBoosting ? (
-              <div className="alert alert-warning mb-2">
+              <div className="alert alert-warning mb-4">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   className="stroke-current shrink-0 h-6 w-6"
@@ -90,49 +91,51 @@ const SimpleDrinkCustomizer = ({
                 </span>
               </div>
             ) : (
-              <p className="text-base-content/70 mb-2 whitespace-normal break-words">
+              <p className="text-base-content/70 mb-4 whitespace-normal break-words">
                 Adjust the strength of your drink by modifying the alcohol
                 content
               </p>
             )}
-            <div className="flex items-center gap-4">
-              <input
-                type="range"
-                min={0}
-                max={200}
-                value={customisations?.boost || 100}
-                onChange={handleBoostChange}
-                step={10}
-                className={`range range-primary ${disableBoosting ? 'range-disabled opacity-50' : ''}`}
-                disabled={disableBoosting}
-              />
-              <div
-                className={`badge ${customisations?.boost > 100 ? 'badge-error' : customisations?.boost < 100 ? 'badge-warning' : 'badge-success'} badge-lg ${disableBoosting ? 'opacity-50' : ''}`}
-              >
-                {customisations?.boost === 100
-                  ? 'Normal'
-                  : `${customisations?.boost > 100 ? '+' : ''}${(customisations?.boost || 100) - 100}%`}
+            <div className="space-y-4">
+              <div className="flex items-center gap-4">
+                <input
+                  type="range"
+                  min={0}
+                  max={200}
+                  value={customisations?.boost || 100}
+                  onChange={handleBoostChange}
+                  step={10}
+                  className={`range range-primary flex-1 ${disableBoosting ? 'range-disabled opacity-50' : ''}`}
+                  disabled={disableBoosting}
+                />
+                <div
+                  className={`badge ${customisations?.boost > 100 ? 'badge-error' : customisations?.boost < 100 ? 'badge-warning' : 'badge-success'} badge-lg ${disableBoosting ? 'opacity-50' : ''}`}
+                >
+                  {customisations?.boost === 100
+                    ? 'Normal'
+                    : `${customisations?.boost > 100 ? '+' : ''}${(customisations?.boost || 100) - 100}%`}
+                </div>
               </div>
-            </div>
-            <div
-              className={`w-full flex justify-between text-xs px-2 mt-1 text-base-content/70 ${disableBoosting ? 'opacity-50' : ''}`}
-            >
-              <span>No Alcohol</span>
-              <span>Normal</span>
-              <span>Double</span>
+              <div
+                className={`w-full flex justify-between text-sm px-2 text-base-content/70 ${disableBoosting ? 'opacity-50' : ''}`}
+              >
+                <span>No Alcohol</span>
+                <span>Normal</span>
+                <span>Double</span>
+              </div>
             </div>
           </div>
 
           {automatedIngredients.length > 0 && (
             <div>
-              <h3 className="text-lg font-bold mb-2 break-words">
+              <h3 className="text-lg font-bold mb-3 break-words">
                 Additional Ingredients
               </h3>
               <p className="text-base-content/70 mb-4 whitespace-normal break-words">
                 Add extra ingredients to customize your drink
               </p>
 
-              <div className="grid grid-cols-1 gap-4 mb-4">
+              <div className="space-y-4 mb-4">
                 {additionalIngredients.map(({ ingredient, amount }) => (
                   <div
                     key={ingredient.id}
@@ -167,9 +170,9 @@ const SimpleDrinkCustomizer = ({
                 {addingIngredient ? (
                   <div className="card bg-base-100 shadow-sm">
                     <div className="card-body p-4">
-                      <h4 className="font-bold mb-2">Add New Ingredient</h4>
+                      <h4 className="font-bold mb-3">Add New Ingredient</h4>
                       <select
-                        className="select select-bordered w-full mb-2"
+                        className="select select-bordered w-full mb-3"
                         value={selectedIngredient?.id || ''}
                         onChange={(e) => {
                           const ingredient = automatedIngredients.find(
@@ -214,10 +217,10 @@ const SimpleDrinkCustomizer = ({
                   </div>
                 ) : (
                   <button
-                    className="btn btn-outline w-full"
+                    className="btn btn-outline w-full h-12 gap-2"
                     onClick={() => setAddingIngredient(true)}
                   >
-                    <PlusCircle className="mr-2" size={20} />
+                    <PlusCircle className="w-5 h-5" />
                     Add Ingredient
                   </button>
                 )}

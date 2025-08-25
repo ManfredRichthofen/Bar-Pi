@@ -4,9 +4,9 @@ import {
   Search,
   X,
   AlertCircle,
-  ChevronLeft,
-  ChevronRight,
+  Filter,
   ArrowUp,
+  Menu,
 } from 'lucide-react';
 import debounce from 'lodash/debounce';
 import { useWindowVirtualizer } from '@tanstack/react-virtual';
@@ -20,32 +20,35 @@ import { isAutomatic, filterRecipes } from '../../utils/recipeFilters.js';
 import SimpleDrinkCard from '../../components/simple-mode/drinks/simpleDrinkCard';
 import SimpleDrinkCardSkeleton from '../../components/simple-mode/drinks/simpleDrinkCardSkeleton';
 
-const SearchForm = React.memo(({ onSubmit, onInput, loading }) => (
-  <form onSubmit={onSubmit} className="join w-full">
-    <input
-      name="search"
-      className="input h-10 min-h-[40px] join-item w-full border-2 border-base-300 text-sm bg-base-200 focus:bg-base-100 transition-colors placeholder:text-base-content/50"
-      placeholder="Search drinks..."
-      onChange={onInput}
-    />
-    <button
-      type="submit"
-      className="btn h-10 min-h-[40px] w-10 border-2 border-base-300 bg-base-200 hover:bg-base-300 join-item border-l-1 transition-colors px-0"
-    >
-      {loading ? (
-        <span className="loading loading-spinner loading-sm"></span>
-      ) : (
-        <Search className="w-4 h-4" />
-      )}
-    </button>
+const SearchForm = React.memo(({ onSubmit, onInput, loading, value }) => (
+  <form onSubmit={onSubmit} className="w-full">
+    <div className="relative">
+      <input
+        name="search"
+        value={value}
+        className="input h-12 w-full border-2 border-base-300 text-base bg-base-200 focus:bg-base-100 transition-colors placeholder:text-base-content/50 pr-12"
+        placeholder="Search drinks..."
+        onChange={onInput}
+      />
+      <button
+        type="submit"
+        className="absolute right-2 top-1/2 -translate-y-1/2 btn btn-ghost btn-sm p-2 hover:bg-base-300 rounded-lg"
+      >
+        {loading ? (
+          <span className="loading loading-spinner loading-sm"></span>
+        ) : (
+          <Search className="w-5 h-5" />
+        )}
+      </button>
+    </div>
   </form>
 ));
 
 const FilterButtons = React.memo(({ filters, onFilterChange }) => (
-  <div className="flex flex-col gap-2">
+  <div className="flex flex-col gap-3">
     <div className="flex flex-wrap gap-2">
       <button
-        className={`btn btn-sm ${filters.automatic ? 'btn-primary' : 'btn-outline'} transition-colors`}
+        className={`btn btn-sm h-10 ${filters.automatic ? 'btn-primary' : 'btn-outline'} transition-colors`}
         onClick={() => onFilterChange('automatic')}
         title="Show drinks that can be made automatically"
       >
@@ -55,7 +58,7 @@ const FilterButtons = React.memo(({ filters, onFilterChange }) => (
         </span>
       </button>
       <button
-        className={`btn btn-sm ${filters.manual ? 'btn-primary' : 'btn-outline'} transition-colors`}
+        className={`btn btn-sm h-10 ${filters.manual ? 'btn-primary' : 'btn-outline'} transition-colors`}
         onClick={() => onFilterChange('manual')}
         title="Show drinks that require manual preparation"
       >
@@ -65,7 +68,7 @@ const FilterButtons = React.memo(({ filters, onFilterChange }) => (
         </span>
       </button>
       <button
-        className={`btn btn-sm ${filters.fabricable ? 'btn-primary' : 'btn-outline'} transition-colors`}
+        className={`btn btn-sm h-10 ${filters.fabricable ? 'btn-primary' : 'btn-outline'} transition-colors`}
         onClick={() => onFilterChange('fabricable')}
         title="Show only drinks that can be made right now"
       >
@@ -77,7 +80,7 @@ const FilterButtons = React.memo(({ filters, onFilterChange }) => (
     </div>
     {(filters.automatic || filters.manual || filters.fabricable) && (
       <button
-        className="btn btn-ghost btn-sm text-error hover:bg-error/10 transition-colors"
+        className="btn btn-ghost btn-sm h-10 text-error hover:bg-error/10 transition-colors"
         onClick={() => onFilterChange('clear')}
       >
         Clear Filters
@@ -87,7 +90,7 @@ const FilterButtons = React.memo(({ filters, onFilterChange }) => (
 ));
 
 const ErrorMessage = React.memo(({ error, onDismiss }) => (
-  <div className="alert alert-error mb-2 text-sm">
+  <div className="alert alert-error mb-3 text-sm">
     <AlertCircle className="w-4 h-4" />
     <span>{error}</span>
     <button
@@ -109,14 +112,16 @@ function VirtualGrid({
   onFilterRecipes,
 }) {
   const listRef = React.useRef(null);
-  const [itemsPerRow, setItemsPerRow] = React.useState(4);
-  const rowHeight = 160;
+  const [itemsPerRow, setItemsPerRow] = React.useState(2);
+  const rowHeight = 200;
 
-  // Responsive grid columns
+  // Responsive grid columns - mobile-first
   React.useEffect(() => {
     const updateGridColumns = () => {
       const width = window.innerWidth;
-      if (width < 640) { // sm breakpoint
+      if (width < 480) { // xs breakpoint
+        setItemsPerRow(1);
+      } else if (width < 640) { // sm breakpoint
         setItemsPerRow(2);
       } else if (width < 768) { // md breakpoint
         setItemsPerRow(3);
@@ -246,23 +251,16 @@ function VirtualGrid({
 
   if (status === 'pending') {
     return (
-      <div className="space-y-4">
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 sm:gap-3">
+      <div className="space-y-4 p-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4">
           {[...Array(12)].map((_, index) => (
             <SimpleDrinkCardSkeleton key={`skeleton-${Date.now()}-${index}`} />
           ))}
         </div>
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 sm:gap-3">
-          {[...Array(12)].map((_, index) => (
-            <SimpleDrinkCardSkeleton
-              key={`skeleton-${Date.now()}-${index + 12}`}
-            />
-          ))}
-        </div>
-        <div className="flex items-center justify-center py-4">
-          <div className="flex items-center gap-2">
-            <span className="loading loading-spinner loading-sm"></span>
-            <span className="text-sm text-base-content/60">
+        <div className="flex items-center justify-center py-8">
+          <div className="flex items-center gap-3">
+            <span className="loading loading-spinner loading-md"></span>
+            <span className="text-base text-base-content/60">
               Loading drinks...
             </span>
           </div>
@@ -272,11 +270,18 @@ function VirtualGrid({
   }
 
   if (status === 'error') {
-    return <div className="text-error text-sm p-4">Error: {error.message}</div>;
+    return (
+      <div className="p-4">
+        <div className="alert alert-error">
+          <AlertCircle className="w-5 h-5" />
+          <span>Error: {error.message}</span>
+        </div>
+      </div>
+    );
   }
 
   return (
-    <div ref={listRef} className="px-3 py-2 relative">
+    <div ref={listRef} className="relative">
       <div
         style={{
           height: `${virtualizer.getTotalSize()}px`,
@@ -303,11 +308,11 @@ function VirtualGrid({
                 height: `${virtualRow.size}px`,
               }}
             >
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-1.5 sm:gap-2 h-full">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4 h-full p-4">
                 {rowRecipes.map((recipe) => (
                   <div
                     key={recipe.id}
-                    className="flex items-center justify-center"
+                    className="flex items-stretch justify-center"
                   >
                     <SimpleDrinkCard
                       recipe={recipe}
@@ -322,18 +327,27 @@ function VirtualGrid({
         })}
       </div>
       {isFetchingNextPage && hasNextPage && (
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 sm:gap-3 mt-2">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4 p-4">
           {[...Array(4)].map((_, index) => (
             <SimpleDrinkCardSkeleton key={`skeleton-${Date.now()}-${index}`} />
           ))}
         </div>
       )}
-      {!hasNextPage && !isFetching && (
-        <div className="flex items-center justify-center py-4">
-          <p className="text-center text-base-content/60 text-xs">
-            {allRecipes.length === 0
-              ? 'No drinks found'
-              : 'No more drinks to load'}
+      {!hasNextPage && !isFetching && allRecipes.length > 0 && (
+        <div className="flex items-center justify-center py-8">
+          <p className="text-center text-base-content/60 text-sm">
+            No more drinks to load
+          </p>
+        </div>
+      )}
+      {allRecipes.length === 0 && !isFetching && (
+        <div className="flex flex-col items-center justify-center py-12 px-4">
+          <div className="text-base-content/40 mb-4">
+            <Search className="w-16 h-16" />
+          </div>
+          <h3 className="text-lg font-semibold mb-2">No drinks found</h3>
+          <p className="text-base-content/60 text-center text-sm">
+            Try adjusting your search or filters
           </p>
         </div>
       )}
@@ -343,13 +357,14 @@ function VirtualGrid({
 
 function SimpleDrinks() {
   const [searchTerm, setSearchTerm] = useState('');
+  const [searchValue, setSearchValue] = useState('');
   const [searchLoading, setSearchLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [isFilterPanelOpen, setIsFilterPanelOpen] = useState(false);
   const { filters, updateFilter, clearFilters } = useFilterStore();
   const [fabricableRecipes, setFabricableRecipes] = useState(new Set());
 
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const sidebarRef = useRef(null);
+  const filterPanelRef = useRef(null);
   const navigate = useNavigate();
   const token = useAuthStore((state) => state.token);
   const [showScrollTop, setShowScrollTop] = useState(false);
@@ -570,26 +585,29 @@ function SimpleDrinks() {
   const handleSearch = (e) => {
     e.preventDefault();
     const value = e.target.search.value;
+    setSearchValue(value);
     debouncedSearch(value);
   };
 
   const handleSearchInput = (e) => {
-    debouncedSearch(e.target.value);
+    const value = e.target.value;
+    setSearchValue(value);
+    debouncedSearch(value);
   };
 
   const handleCardClick = (recipe) => {
     navigate('/simple/drink/' + recipe.id, { state: { recipe } });
   };
 
-  // Handle click outside to close sidebar
+  // Handle click outside to close filter panel
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (
-        sidebarRef.current &&
-        !sidebarRef.current.contains(event.target) &&
-        isSidebarOpen
+        filterPanelRef.current &&
+        !filterPanelRef.current.contains(event.target) &&
+        isFilterPanelOpen
       ) {
-        setIsSidebarOpen(false);
+        setIsFilterPanelOpen(false);
       }
     };
 
@@ -597,7 +615,7 @@ function SimpleDrinks() {
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [isSidebarOpen]);
+  }, [isFilterPanelOpen]);
 
   // Handle scroll to show/hide scroll top button
   useEffect(() => {
@@ -622,101 +640,54 @@ function SimpleDrinks() {
   }
 
   return (
-    <div className="min-h-screen pb-20">
-      {/* Backdrop blur when sidebar is open */}
-      {isSidebarOpen && (
-        <div
-          className="fixed inset-0 bg-black/20 backdrop-blur-sm z-10 md:hidden transition-opacity duration-300"
-          onClick={() => setIsSidebarOpen(false)}
-        />
-      )}
-
-      <button
-        onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-        className="fixed left-0 top-1/2 -translate-y-1/2 z-20 bg-base-200 border border-base-300 rounded-r-lg p-2 shadow-lg hover:bg-base-300 transition-all duration-200 md:hidden"
-      >
-        {isSidebarOpen ? (
-          <ChevronLeft className="w-5 h-5" />
-        ) : (
-          <ChevronRight className="w-5 h-5" />
-        )}
-      </button>
-
-      <div
-        ref={sidebarRef}
-        className={`md:hidden fixed left-0 top-0 h-screen bg-base-200 border-r border-base-300 transition-all duration-300 ease-in-out z-30 shadow-lg ${
-          isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
-        }`}
-        style={{ width: '16rem' }}
-      >
-        <div className="p-4 flex flex-col gap-4 h-full">
+    <div className="min-h-screen bg-base-100">
+      {/* Header */}
+      <div className="sticky top-0 z-20 bg-base-100/95 backdrop-blur-md border-b border-base-200 shadow-sm">
+        <div className="p-4 space-y-4">
           <div className="flex items-center justify-between">
-            <h2 className="text-sm font-semibold">Filters</h2>
+            <h1 className="text-xl font-bold">Available Drinks</h1>
             <button
-              onClick={() => setIsSidebarOpen(false)}
-              className="btn btn-ghost btn-sm p-1 hover:bg-base-300"
+              onClick={() => setIsFilterPanelOpen(!isFilterPanelOpen)}
+              className={`btn btn-ghost btn-sm p-2 rounded-lg transition-all duration-200 ${
+                isFilterPanelOpen ? 'bg-primary text-primary-content' : 'hover:bg-base-200'
+              }`}
             >
-              <X className="w-4 h-4" />
+              <Filter className="w-5 h-5" />
             </button>
           </div>
-          <div className="space-y-4">
-            <SearchForm
-              onSubmit={handleSearch}
-              onInput={handleSearchInput}
-              loading={searchLoading}
-            />
-            <FilterButtons
-              filters={filters}
-              onFilterChange={handleFilterChange}
-            />
-            {error && (
-              <ErrorMessage error={error} onDismiss={() => setError(null)} />
-            )}
-          </div>
+          
+          <SearchForm
+            onSubmit={handleSearch}
+            onInput={handleSearchInput}
+            loading={searchLoading}
+            value={searchValue}
+          />
         </div>
       </div>
 
-      <div
-        className={`md:ml-0 transition-all duration-300 ${isSidebarOpen ? 'ml-16' : 'ml-0'}`}
-      >
-        <div className="md:block hidden p-4 border-b border-base-300 sticky top-0 bg-base-100 z-10 shadow-sm">
-          <div className="max-w-2xl mx-auto space-y-4">
-            <h2 className="text-sm font-semibold text-center">
-              Available Drinks
-            </h2>
-            <SearchForm
-              onSubmit={handleSearch}
-              onInput={handleSearchInput}
-              loading={searchLoading}
-            />
-            <FilterButtons
-              filters={filters}
-              onFilterChange={handleFilterChange}
-            />
-            {error && (
-              <ErrorMessage error={error} onDismiss={() => setError(null)} />
-            )}
-          </div>
+      {/* Filter Panel */}
+      {isFilterPanelOpen && (
+        <div className="bg-base-200/50 border-b border-base-200 p-4">
+          <FilterButtons
+            filters={filters}
+            onFilterChange={handleFilterChange}
+          />
+          {error && (
+            <ErrorMessage error={error} onDismiss={() => setError(null)} />
+          )}
         </div>
+      )}
 
-        <div className="md:hidden p-4 sticky top-0 bg-base-100 z-10 shadow-sm">
-          <h2 className="text-sm font-semibold text-center">
-            Available Drinks
-          </h2>
-        </div>
-
-        <VirtualGrid
-          fabricableRecipes={fabricableRecipes}
-          onCardClick={handleCardClick}
-          token={token}
-          searchTerm={searchTerm}
-          filters={filters}
-          onCheckFabricability={checkFabricability}
-          onFilterRecipes={filterRecipesMemo}
-        />
-      </div>
-
-
+      {/* Main Content */}
+      <VirtualGrid
+        fabricableRecipes={fabricableRecipes}
+        onCardClick={handleCardClick}
+        token={token}
+        searchTerm={searchTerm}
+        filters={filters}
+        onCheckFabricability={checkFabricability}
+        onFilterRecipes={filterRecipesMemo}
+      />
 
       {/* Scroll to top button */}
       {showScrollTop && (

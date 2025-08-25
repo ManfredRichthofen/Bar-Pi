@@ -12,46 +12,43 @@ const Dock: React.FC = () => {
   };
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-base-100 border-t border-base-300 z-50">
-      <div className="flex justify-around items-center h-16 px-4">
-        <button className={`flex flex-col items-center justify-center gap-1 p-2 rounded-lg transition-all duration-200 ${
-          isActive('/simple/drinks') 
-            ? 'bg-primary text-primary-content shadow-md' 
-            : 'text-base-content/70 hover:text-base-content hover:bg-base-200'
-        }`}>
-          <Link to="/simple/drinks" className="flex flex-col items-center gap-1">
-            <GlassWater className="h-5 w-5" />
-            <span className="text-xs font-medium">{t('navigation.drinks')}</span>
-          </Link>
-        </button>
+    <div className="fixed bottom-0 left-0 right-0 bg-base-100/95 backdrop-blur-md border-t border-base-300 z-50 shadow-lg">
+      <div className="flex justify-around items-center h-20 px-2 max-w-md mx-auto">
+        <Link 
+          to="/simple/drinks" 
+          className={`flex flex-col items-center justify-center gap-1.5 p-3 rounded-xl transition-all duration-200 min-w-[4rem] ${
+            isActive('/simple/drinks') 
+              ? 'bg-primary text-primary-content shadow-lg scale-105' 
+              : 'text-base-content/70 hover:text-base-content hover:bg-base-200 active:scale-95'
+          }`}
+        >
+          <GlassWater className="h-6 w-6" />
+          <span className="text-xs font-medium">{t('navigation.drinks')}</span>
+        </Link>
 
-        <button className={`flex flex-col items-center justify-center gap-1 p-2 rounded-lg transition-all duration-200 ${
-          isActive('/simple/order-status') 
-            ? 'bg-primary text-primary-content shadow-md' 
-            : 'text-base-content/70 hover:text-base-content hover:bg-base-200'
-        }`}>
-          <Link
-            to="/simple/order-status"
-            className="flex flex-col items-center gap-1"
-          >
-            <Clock className="h-5 w-5" />
-            <span className="text-xs font-medium">{t('navigation.order_status')}</span>
-          </Link>
-        </button>
+        <Link
+          to="/simple/order-status"
+          className={`flex flex-col items-center justify-center gap-1.5 p-3 rounded-xl transition-all duration-200 min-w-[4rem] ${
+            isActive('/simple/order-status') 
+              ? 'bg-primary text-primary-content shadow-lg scale-105' 
+              : 'text-base-content/70 hover:text-base-content hover:bg-base-200 active:scale-95'
+          }`}
+        >
+          <Clock className="h-6 w-6" />
+          <span className="text-xs font-medium">{t('navigation.order_status')}</span>
+        </Link>
 
-        <button className={`flex flex-col items-center justify-center gap-1 p-2 rounded-lg transition-all duration-200 ${
-          isActive('/simple/settings') 
-            ? 'bg-primary text-primary-content shadow-md' 
-            : 'text-base-content/70 hover:text-base-content hover:bg-base-200'
-        }`}>
-          <Link
-            to="/simple/settings"
-            className="flex flex-col items-center gap-1"
-          >
-            <Settings className="h-5 w-5" />
-            <span className="text-xs font-medium">{t('navigation.settings')}</span>
-          </Link>
-        </button>
+        <Link
+          to="/simple/settings"
+          className={`flex flex-col items-center justify-center gap-1.5 p-3 rounded-xl transition-all duration-200 min-w-[4rem] ${
+            isActive('/simple/settings') 
+              ? 'bg-primary text-primary-content shadow-lg scale-105' 
+              : 'text-base-content/70 hover:text-base-content hover:bg-base-200 active:scale-95'
+          }`}
+        >
+          <Settings className="h-6 w-6" />
+          <span className="text-xs font-medium">{t('navigation.settings')}</span>
+        </Link>
       </div>
     </div>
   );

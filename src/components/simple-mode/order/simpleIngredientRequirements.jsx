@@ -1,5 +1,5 @@
 import React from 'react';
-import { XCircle, AlertCircle } from 'lucide-react';
+import { XCircle, AlertCircle, CheckCircle } from 'lucide-react';
 
 const SimpleIngredientRequirements = ({ requiredIngredients }) => {
   const isAutomatedIngredient = (ingredient) => {
@@ -42,36 +42,40 @@ const SimpleIngredientRequirements = ({ requiredIngredients }) => {
       {/* Automated Ingredients Section */}
       {automaticIngredients.length > 0 && (
         <div>
-          <div className="flex items-center gap-2 mb-3">
+          <div className="flex items-center gap-2 mb-4">
             <h3 className="font-semibold text-base">Automated Ingredients</h3>
+            <CheckCircle className="w-4 h-4 text-success" />
           </div>
-          <div className="space-y-2">
+          <div className="space-y-3">
             {automaticIngredients.map((item, index) => (
               <div
                 key={index}
-                className={`flex justify-between w-full p-2 rounded-lg ${
+                className={`flex justify-between items-center w-full p-4 rounded-lg ${
                   item.amountMissing > 0 || !item.ingredient.onPump
-                    ? 'bg-error/10'
-                    : 'bg-base-200'
+                    ? 'bg-error/10 border border-error/20'
+                    : 'bg-success/10 border border-success/20'
                 }`}
               >
-                <span className="break-words flex-1 pr-2">
-                  {item.ingredient.name}
-                </span>
+                <div className="flex-1 pr-3">
+                  <span className="break-words font-medium">
+                    {item.ingredient.name}
+                  </span>
+                  {(item.amountMissing > 0 || !item.ingredient.onPump) && (
+                    <div className="flex items-center gap-1 mt-1">
+                      <XCircle className="w-3 h-3 text-error" />
+                      <span className="text-error text-xs">
+                        {item.amountMissing > 0 
+                          ? `Missing: ${item.amountMissing} ${item.ingredient.unit}`
+                          : 'Not on pump system'
+                        }
+                      </span>
+                    </div>
+                  )}
+                </div>
                 <div className="text-right shrink-0">
                   <span className="font-semibold whitespace-nowrap">
                     {item.amountRequired} {item.ingredient.unit}
                   </span>
-                  {item.amountMissing > 0 && (
-                    <div className="text-error text-sm whitespace-nowrap">
-                      Missing: {item.amountMissing} {item.ingredient.unit}
-                    </div>
-                  )}
-                  {!item.ingredient.onPump && (
-                    <div className="text-error text-sm whitespace-nowrap">
-                      Not on pump system
-                    </div>
-                  )}
                 </div>
               </div>
             ))}
@@ -82,30 +86,35 @@ const SimpleIngredientRequirements = ({ requiredIngredients }) => {
       {/* Manual Ingredients Section */}
       {manualIngredients.length > 0 && (
         <div>
-          <div className="flex items-center gap-2 mb-3">
+          <div className="flex items-center gap-2 mb-4">
             <h3 className="font-semibold text-base">Manual Ingredients</h3>
             <AlertCircle className="text-warning" size={16} />
           </div>
-          <div className="space-y-2">
+          <div className="space-y-3">
             {manualIngredients.map((item, index) => (
               <div
                 key={index}
-                className={`flex justify-between w-full p-2 rounded-lg ${
-                  !item.ingredient.inBar ? 'bg-warning/10' : 'bg-base-200'
+                className={`flex justify-between items-center w-full p-4 rounded-lg ${
+                  !item.ingredient.inBar ? 'bg-warning/10 border border-warning/20' : 'bg-base-200 border border-base-300'
                 }`}
               >
-                <span className="break-words flex-1 pr-2">
-                  {item.ingredient.name}
-                </span>
+                <div className="flex-1 pr-3">
+                  <span className="break-words font-medium">
+                    {item.ingredient.name}
+                  </span>
+                  {!item.ingredient.inBar && (
+                    <div className="flex items-center gap-1 mt-1">
+                      <AlertCircle className="w-3 h-3 text-warning" />
+                      <span className="text-warning text-xs">
+                        Add manually
+                      </span>
+                    </div>
+                  )}
+                </div>
                 <div className="text-right shrink-0">
                   <span className="font-semibold whitespace-nowrap">
                     {item.amountRequired} {item.ingredient.unit}
                   </span>
-                  {!item.ingredient.inBar && (
-                    <div className="text-warning text-sm whitespace-nowrap">
-                      Add manually
-                    </div>
-                  )}
                 </div>
               </div>
             ))}
