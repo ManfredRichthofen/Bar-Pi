@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { PlusCircle, Edit, Trash2, Image as ImageIcon, X } from "lucide-react";
 import { Navigate } from "@tanstack/react-router";
-import useAuthStore from "../store/authStore";
+import useAuthStore from "../../../store/authStore";
 import ingredientService, {
 	ingredientDtoMapper,
-} from "../services/ingredient.service";
+} from "../../../services/ingredient.service";
 import { useForm } from "react-hook-form";
 
 const Ingredients = () => {

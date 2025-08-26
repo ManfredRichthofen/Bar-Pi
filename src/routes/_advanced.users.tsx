@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import CreateUser from "../pages/user";
+import CreateUser from "../pages/AdvancedMode/UsersPage/user";
 
 export const Route = createFileRoute("/_advanced/users")({
 	component: AdvancedUsersRoute,

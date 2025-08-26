@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "@tanstack/react-router";
-import UserService from "../services/user.service";
+import UserService from "../../../services/user.service";
 
 const UserPage = () => {
 	const navigate = useNavigate();

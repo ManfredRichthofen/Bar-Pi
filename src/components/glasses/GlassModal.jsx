@@ -44,10 +44,8 @@ function GlassModal({ show, onHide, onSave, glass }) {
 						{glass ? "Edit Glass" : "Add Glass"}
 					</h3>
 
-					<div className="form-control w-full">
-						<label className="label">
-							<span className="label-text">Name</span>
-						</label>
+					<fieldset className="fieldset">
+						<legend className="fieldset-legend">Name</legend>
 						<input
 							type="text"
 							name="name"
@@ -56,12 +54,10 @@ function GlassModal({ show, onHide, onSave, glass }) {
 							className="input input-bordered w-full"
 							required
 						/>
-					</div>
+					</fieldset>
 
-					<div className="form-control w-full">
-						<label className="label">
-							<span className="label-text">Description</span>
-						</label>
+					<fieldset className="fieldset">
+						<legend className="fieldset-legend">Description</legend>
 						<textarea
 							name="description"
 							value={formData.description}
@@ -69,7 +65,7 @@ function GlassModal({ show, onHide, onSave, glass }) {
 							className="textarea textarea-bordered h-24"
 							rows={3}
 						/>
-					</div>
+					</fieldset>
 
 					<div className="modal-action">
 						<button type="button" className="btn" onClick={onHide}>

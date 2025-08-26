@@ -58,28 +58,28 @@ const PumpStatus = (props) => {
 		<div className="card bg-base-100 shadow-lg">
 			<div className="collapse collapse-arrow">
 				<input type="checkbox" defaultChecked={window.innerWidth > 768} />
-				<div className="collapse-title bg-base-200 rounded-t-2xl font-semibold text-lg flex items-center">
+				<div className="collapse-title bg-base-200 rounded-t-2xl font-semibold text-lg flex items-center break-words">
 					{t("pump_status.headline")}
 				</div>
 				<div className="collapse-content px-0 pt-0">
 					<div className="flex flex-col divide-y divide-base-200">
 						{/* Pumps Summary */}
 						<div className="p-4">
-							<h3 className="font-medium mb-3 text-base-content/70 text-sm">
+							<h3 className="font-medium mb-3 text-base-content/70 text-sm break-words">
 								{t("pump_status.pumps_headline")}
 							</h3>
-							<div className="grid grid-cols-2 gap-y-2">
-								<div className="text-sm">
+							<div className="grid grid-cols-2 gap-y-2 gap-x-2">
+								<div className="text-sm break-words">
 									{t("pump_status.pumps_installed")}
 								</div>
 								<div className="text-right">
-									<span className="badge badge-primary">{nrPumps}</span>
+									<span className="badge badge-primary break-words text-xs">{nrPumps}</span>
 								</div>
-								<div className="text-sm">
+								<div className="text-sm break-words">
 									{t("pump_status.pumps_ingredients_installed")}
 								</div>
 								<div className="text-right">
-									<span className="badge badge-primary">
+									<span className="badge badge-primary break-words text-xs">
 										{nrIngredientsInstalled}
 									</span>
 								</div>
@@ -89,7 +89,7 @@ const PumpStatus = (props) => {
 						{/* Reverse Pumping Status */}
 						<div className="p-4">
 							<div className="flex justify-between items-center mb-3">
-								<h3 className="font-medium text-base-content/70 text-sm">
+								<h3 className="font-medium text-base-content/70 text-sm break-words">
 									{t("pump_status.reverse_pumping_headline")}
 								</h3>
 								<button
@@ -100,32 +100,32 @@ const PumpStatus = (props) => {
 									<Pencil className="h-4 w-4" />
 								</button>
 							</div>
-							<div className="grid grid-cols-2 gap-y-2">
-								<div className="text-sm">
+							<div className="grid grid-cols-2 gap-y-2 gap-x-2">
+								<div className="text-sm break-words">
 									{t("pump_status.reverse_pumping")}
 								</div>
 								<div className="text-right">
 									<span
-										className={`badge ${reversePumpSettings?.enable ? "badge-success" : "badge-error"}`}
+										className={`badge ${reversePumpSettings?.enable ? "badge-success" : "badge-error"} break-words text-xs`}
 									>
 										{reversePumpingStatus}
 									</span>
 								</div>
 								{reversePumpSettings?.enable && (
 									<>
-										<div className="text-sm">
+										<div className="text-sm break-words">
 											{t("pump_status.reverse_pumping_overshoot")}
 										</div>
 										<div className="text-right">
-											<span className="badge badge-ghost">
+											<span className="badge badge-ghost break-words text-xs">
 												{reversePumpSettings?.settings?.overshoot || 0}%
 											</span>
 										</div>
-										<div className="text-sm">
+										<div className="text-sm break-words">
 											{t("pump_status.reverse_pumping_timer")}
 										</div>
 										<div className="text-right">
-											<span className="badge badge-ghost">
+											<span className="badge badge-ghost break-words text-xs">
 												{reversePumpSettings?.settings?.autoPumpBackTimer || 0}{" "}
 												min
 											</span>
@@ -138,7 +138,7 @@ const PumpStatus = (props) => {
 						{/* Load Cell Status */}
 						<div className="p-4">
 							<div className="flex justify-between items-center mb-3">
-								<h3 className="font-medium text-base-content/70 text-sm">
+								<h3 className="font-medium text-base-content/70 text-sm break-words">
 									{t("pump_status.load_cell_headline")}
 								</h3>
 								<button
@@ -149,25 +149,25 @@ const PumpStatus = (props) => {
 									<Pencil className="h-4 w-4" />
 								</button>
 							</div>
-							<div className="grid grid-cols-2 gap-y-2">
-								<div className="text-sm">
+							<div className="grid grid-cols-2 gap-y-2 gap-x-2">
+								<div className="text-sm break-words">
 									{t("pump_status.load_cell_status")}
 								</div>
 								<div className="text-right">
 									<span
-										className={`badge ${loadCellSettings?.enable ? "badge-success" : "badge-error"}`}
+										className={`badge ${loadCellSettings?.enable ? "badge-success" : "badge-error"} break-words text-xs`}
 									>
 										{loadCellStatus}
 									</span>
 								</div>
 								{loadCellSettings?.enable && (
 									<>
-										<div className="text-sm">
+										<div className="text-sm break-words">
 											{t("pump_status.load_cell_calibrated")}
 										</div>
 										<div className="text-right">
 											<span
-												className={`badge ${loadCellSettings?.calibrated ? "badge-success" : "badge-error"}`}
+												className={`badge ${loadCellSettings?.calibrated ? "badge-success" : "badge-error"} break-words text-xs`}
 											>
 												{loadCellCalibrated}
 											</span>

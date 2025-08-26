@@ -13,7 +13,9 @@
 		"errors_field_required": "This field is required",
 		"api_url": "API URL",
 		"username": "Username",
-		"password": "Password"
+		"password": "Password",
+		"advanced_settings": "Advanced Settings",
+		"api_url_help": "Enter the URL of the API server. If you are using the default server, leave this field blank."
 	},
 	"navigation": {
 		"drinks": "Drinks",
@@ -53,7 +55,7 @@
 		"calibrate": "Calibrate",
 		"unnamed": "Pump #{{id}}",
 		"type_dc": "DC Pump",
-		"pump_card_type_stepper": "Stepper Pump",
+		"type_stepper": "Stepper Pump",
 		"type_valve": "Valve",
 		"no_ingredient": "No ingredient assigned",
 		"state_pumped_up": "Pumped Up",
@@ -66,6 +68,7 @@
 		"pump_up": "Pump Up",
 		"pump_down": "Pump Down",
 		"start": "Start Pump"
+
 	},
 	"pump_selector": {
 		"headline": "Select Pump Type",

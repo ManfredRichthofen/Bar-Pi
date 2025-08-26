@@ -1,6 +1,11 @@
 import { create } from "zustand";
 import AuthService from "../services/auth.service.js";
 import config from "../services/config";
+import useConfigStore from "./configStore";
+import useCocktailProgressStore from "./cocktailProgressStore";
+import useFilterStore from "./filterStore";
+import { usePumpStore } from "./pumpStore";
+import websocketService from "../services/websocket.service";
 
 const useAuthStore = create((set) => ({
 	token: null,
@@ -44,16 +49,31 @@ const useAuthStore = create((set) => ({
 
 	logoutUser: () => {
 		try {
+			// Clear localStorage and sessionStorage
 			localStorage.removeItem("token");
 			localStorage.removeItem("tokenExpiration");
 			sessionStorage.removeItem("token");
 			sessionStorage.removeItem("tokenExpiration");
+			
+			// Clear auth store state
 			set({
 				token: null,
 				tokenExpiration: null,
 				error: null,
 				loading: false,
 			});
+			
+			// Clear other stores
+			useConfigStore.getState().setApiBaseUrl("");
+			useCocktailProgressStore.getState().clearProgress();
+			useCocktailProgressStore.getState().setShowProgressDialog(false);
+			useFilterStore.getState().clearFilters();
+			usePumpStore.getState().setPumps([]);
+			usePumpStore.getState().setAllowReversePumping(false);
+			usePumpStore.getState().clearError();
+			
+			// Disconnect websocket
+			websocketService.disconnectWebsocket();
 		} catch (error) {
 			console.error("Logout error:", error);
 			throw error;

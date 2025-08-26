@@ -1,7 +1,7 @@
 import { createFileRoute, Navigate } from "@tanstack/react-router";
 import useAuthStore from "../store/authStore";
 import useUIModeStore from "../store/uiModeStore";
-import Login from "../pages/login";
+import Login from "../pages/Shared/LoginPage/login";
 
 export const Route = createFileRoute("/login")({
 	component: LoginRoute,
