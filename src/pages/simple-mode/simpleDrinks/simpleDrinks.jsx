@@ -128,7 +128,7 @@ function SimpleDrinks() {
       if (!recipes?.length) return [];
 
       // Early return if no filters are active
-      if (!filters.automatic && !filters.manual && !filters.fabricable) {
+      if (!filters.automatic && !filters.manual && !filters.available) {
         return recipes;
       }
 
@@ -167,7 +167,7 @@ function SimpleDrinks() {
   };
 
   const handleCardClick = (recipe) => {
-    navigate({ to: '/simple/drink/$id', params: { id: recipe.id } });
+    navigate({ to: '/simple/drink/$id', params: { id: recipe.id }, state: { recipe } });
   };
 
   // Handle click outside to close filter panel

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { PlusCircle, Edit, Trash2, Image as ImageIcon, X } from 'lucide-react';
-import { Navigate } from 'react-router-dom';
+import { Navigate } from '@tanstack/react-router';
 import useAuthStore from '../store/authStore';
 import ingredientService, {
   ingredientDtoMapper,

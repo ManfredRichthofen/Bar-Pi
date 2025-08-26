@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from '@tanstack/react-router';
 import { useTranslation } from 'react-i18next';
 import { Pencil } from 'lucide-react';
 import PumpSettingsService from '../../services/pumpsettings.service';
@@ -94,7 +94,7 @@ const PumpStatus = (props) => {
                 </h3>
                 <button
                   className="btn btn-ghost btn-xs"
-                  onClick={() => navigate('/reversepumpsettings')}
+                  onClick={() => navigate({ to: '/reversepumpsettings' })}
                   title={t('common.edit')}
                 >
                   <Pencil className="h-4 w-4" />
@@ -143,7 +143,7 @@ const PumpStatus = (props) => {
                 </h3>
                 <button
                   className="btn btn-ghost btn-xs"
-                  onClick={() => navigate('/loadcellsettings')}
+                  onClick={() => navigate({ to: '/loadcellsettings' })}
                   title={t('common.edit')}
                 >
                   <Pencil className="h-4 w-4" />

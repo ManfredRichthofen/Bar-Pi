@@ -1,6 +1,6 @@
 // CPumpCard.jsx
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from '@tanstack/react-router';
 import { useTranslation } from 'react-i18next';
 import {
   Pencil,
@@ -275,7 +275,7 @@ const PumpCard = ({ pump, showDetailed = false }) => {
           </div>
           <div className="flex flex-col items-end gap-1">
             <button
-              onClick={() => navigate(`/editpump/${pump.id}`)}
+                              onClick={() => navigate({ to: `/editpump/${pump.id}` })}
               className="btn btn-ghost btn-sm px-2"
               title={t('common.edit')}
             >

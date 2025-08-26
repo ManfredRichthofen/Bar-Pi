@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { BeakerIcon, XCircle, PlayCircle } from 'lucide-react';
-import { Navigate, useLocation, useNavigate } from 'react-router-dom';
+import { Navigate, useLocation, useNavigate } from '@tanstack/react-router';
 import useAuthStore from '../store/authStore';
 import cocktailService from '../services/cocktail.service';
 import DrinkCustomizer from '../components/order/DrinkCustomizer';
@@ -105,7 +105,7 @@ const Order = () => {
 
       await cocktailService.order(recipeId, orderConfig, false, token);
       showToast('Drink ordered successfully', 'success');
-      navigate('/drinks');
+      navigate({ to: '/drinks' });
     } catch (error) {
       showToast('Failed to order drink', 'error');
     } finally {
@@ -226,7 +226,7 @@ const Order = () => {
                   </button>
                   <button
                     className="btn btn-ghost flex-1 sm:flex-none"
-                    onClick={() => navigate('/drinks')}
+                    onClick={() => navigate({ to: '/drinks' })}
                   >
                     Back to Drinks
                   </button>

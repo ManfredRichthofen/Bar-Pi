@@ -6,7 +6,7 @@ const FilterButtons = React.memo(({ filters, onFilterChange }) => (
       <button
         className={`btn btn-sm h-10 ${filters.automatic ? 'btn-primary' : 'btn-outline'} transition-colors`}
         onClick={() => onFilterChange('automatic')}
-        title="Show drinks that can be made automatically"
+        title="Show drinks with all automated ingredients"
       >
         <span className="flex items-center gap-1.5">
           <span className="w-2 h-2 rounded-full bg-primary"></span>
@@ -24,9 +24,9 @@ const FilterButtons = React.memo(({ filters, onFilterChange }) => (
         </span>
       </button>
       <button
-        className={`btn btn-sm h-10 ${filters.fabricable ? 'btn-primary' : 'btn-outline'} transition-colors`}
-        onClick={() => onFilterChange('fabricable')}
-        title="Show only drinks that can be made right now"
+        className={`btn btn-sm h-10 ${filters.available ? 'btn-primary' : 'btn-outline'} transition-colors`}
+        onClick={() => onFilterChange('available')}
+        title="Show drinks with ingredients on pumps or in the bar"
       >
         <span className="flex items-center gap-1.5">
           <span className="w-2 h-2 rounded-full bg-primary"></span>
@@ -34,7 +34,7 @@ const FilterButtons = React.memo(({ filters, onFilterChange }) => (
         </span>
       </button>
     </div>
-    {(filters.automatic || filters.manual || filters.fabricable) && (
+    {(filters.automatic || filters.manual || filters.available) && (
       <button
         className="btn btn-ghost btn-sm h-10 text-error hover:bg-error/10 transition-colors"
         onClick={() => onFilterChange('clear')}

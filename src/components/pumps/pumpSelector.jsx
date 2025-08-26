@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from '@tanstack/react-router';
 import { useTranslation } from 'react-i18next';
 import { Loader2, Droplet, Hexagon } from 'lucide-react';
 
@@ -64,7 +64,7 @@ const PumpSelector = ({ show, onClose }) => {
 
     PumpService.createPump(newPump, token)
       .then((response) => {
-        navigate(`/editpump/${response.data.id}`);
+        navigate({ to: `/editpump/${response.data.id}` });
       })
       .catch((error) => {
         console.error('Error creating pump:', error);

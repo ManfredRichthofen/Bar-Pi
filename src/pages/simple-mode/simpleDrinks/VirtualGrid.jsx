@@ -5,8 +5,8 @@ import { AlertCircle, Search } from 'lucide-react';
 import debounce from 'lodash/debounce';
 
 import RecipeService from '../../../services/recipe.service.js';
-import SimpleDrinkCard from '../../../components/simple-mode/drinks/simpleDrinkCard';
-import SimpleDrinkCardSkeleton from '../../../components/simple-mode/drinks/simpleDrinkCardSkeleton';
+import SimpleDrinkCard from './simpleDrinkCard.jsx';
+import SimpleDrinkCardSkeleton from './simpleDrinkCardSkeleton.jsx';
 
 function VirtualGrid({
   fabricableRecipes,
@@ -19,7 +19,7 @@ function VirtualGrid({
 }) {
   const listRef = React.useRef(null);
   const [itemsPerRow, setItemsPerRow] = React.useState(2);
-  const [rowHeight, setRowHeight] = React.useState(320); // base estimate; actual height measured dynamically
+  const [rowHeight, setRowHeight] = React.useState(320);
   const parentOffsetRef = React.useRef(0);
 
   React.useLayoutEffect(() => {
@@ -47,7 +47,6 @@ function VirtualGrid({
       setItemsPerRow(cols);
 
       // Tune row height by column count to avoid overlap at small widths
-      // Cards have a 4/3 image + content. Smaller widths need more vertical space.
       const computedRowHeight = cols <= 1
         ? 520
         : cols === 2
@@ -176,11 +175,24 @@ function VirtualGrid({
     };
   }, [hasNextPage, fetchNextPage, isFetchingNextPage]);
 
+  // Helper function to get grid columns class based on itemsPerRow
+  const getGridColsClass = () => {
+    switch (itemsPerRow) {
+      case 1: return 'grid-cols-1';
+      case 2: return 'grid-cols-2';
+      case 3: return 'grid-cols-3';
+      case 4: return 'grid-cols-4';
+      case 5: return 'grid-cols-5';
+      case 6: return 'grid-cols-6';
+      default: return 'grid-cols-2';
+    }
+  };
+
   if (status === 'pending') {
     return (
       <div className="space-y-4 px-4 py-2">
         <div className="flex justify-center">
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4 w-full max-w-screen-2xl mx-auto">
+          <div className={`grid ${getGridColsClass()} gap-4 w-full max-w-screen-2xl mx-auto`}>
             {[...Array(12)].map((_, index) => (
               <SimpleDrinkCardSkeleton key={`skeleton-${Date.now()}-${index}`} />
             ))}
@@ -241,22 +253,27 @@ function VirtualGrid({
                 key={virtualRow.key}
                 data-index={virtualRow.index}
                 ref={virtualizer.measureElement}
+                className="px-4 sm:px-6 lg:px-8 py-2"
               >
-                <div className="flex justify-center items-stretch px-4 sm:px-6 lg:px-8 py-2">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4 sm:gap-5 lg:gap-6 w-full max-w-screen-2xl mx-auto">
-                    {rowRecipes.map((recipe) => (
-                      <div
-                        key={recipe.id}
-                        className="flex items-stretch justify-center"
-                      >
-                        <SimpleDrinkCard
-                          recipe={recipe}
-                          isFabricable={fabricableRecipes.has(recipe.id)}
-                          onCardClick={onCardClick}
-                        />
-                      </div>
-                    ))}
-                  </div>
+                <div className={`grid ${getGridColsClass()} gap-4 sm:gap-5 lg:gap-6 w-full max-w-screen-2xl mx-auto`}>
+                  {rowRecipes.map((recipe) => (
+                    <div
+                      key={recipe.id}
+                      className="flex items-stretch justify-center"
+                    >
+                      <SimpleDrinkCard
+                        recipe={recipe}
+                        isFabricable={fabricableRecipes.has(recipe.id)}
+                        onCardClick={onCardClick}
+                      />
+                    </div>
+                  ))}
+                  {/* Fill empty slots to maintain grid structure */}
+                  {[...Array(itemsPerRow - rowRecipes.length)].map((_, index) => (
+                    <div key={`empty-${rowIndex}-${index}`} className="flex items-stretch justify-center">
+                      <div className="w-full h-full" />
+                    </div>
+                  ))}
                 </div>
               </div>
             );
@@ -265,7 +282,7 @@ function VirtualGrid({
       </div>
       {isFetchingNextPage && hasNextPage && (
         <div className="flex justify-center px-4 sm:px-6 lg:px-8 py-2">
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4 sm:gap-5 lg:gap-6 w-full max-w-screen-2xl mx-auto">
+          <div className={`grid ${getGridColsClass()} gap-4 sm:gap-5 lg:gap-6 w-full max-w-screen-2xl mx-auto`}>
             {[...Array(4)].map((_, index) => (
               <SimpleDrinkCardSkeleton key={`skeleton-${Date.now()}-${index}`} />
             ))}

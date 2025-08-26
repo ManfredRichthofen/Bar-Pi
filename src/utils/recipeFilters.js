@@ -43,120 +43,64 @@ export const requiresManual = (recipe) => {
 };
 
 /**
- * Checks if all automatic ingredients in a recipe are on pump
+ * Checks if a recipe is available (all ingredients are on pumps or in the bar)
  * @param {Object} recipe - The recipe to check
- * @returns {boolean} - Whether all automatic ingredients are on pump
+ * @returns {boolean} - Whether the recipe is available
  */
-const allAutomaticIngredientsOnPump = (recipe) => {
+export const isAvailable = (recipe) => {
   if (!recipe?.ingredients || !Array.isArray(recipe.ingredients)) return false;
-  return recipe.ingredients
-    .filter(isAutomaticIngredient)
-    .every((ingredient) => ingredient.onPump);
-};
-
-/**
- * Checks if any automatic ingredients in a recipe are on pump
- * @param {Object} recipe - The recipe to check
- * @returns {boolean} - Whether any automatic ingredients are on pump
- */
-const hasAutomaticIngredientsOnPump = (recipe) => {
-  if (!recipe?.ingredients || !Array.isArray(recipe.ingredients)) return false;
-  return recipe.ingredients
-    .filter(isAutomaticIngredient)
-    .some((ingredient) => ingredient.onPump);
+  
+  // Check that ALL ingredients are available (on pumps or in bar)
+  // AND that there are no missing amounts
+  return recipe.ingredients.every(ingredient => {
+    const isOnPump = ingredient.onPump === true;
+    const isInBar = ingredient.inBar === true;
+    
+    // Check for missing amounts in various possible formats
+    const amountMissing = ingredient.amountMissing || ingredient.missingAmount || 0;
+    const hasNoMissingAmount = amountMissing <= 0;
+    
+    return (isOnPump || isInBar) && hasNoMissingAmount;
+  });
 };
 
 /**
  * Filters recipes based on the provided filters
  * @param {Array} recipes - Array of recipes to filter
- * @param {Object} filters - Filter options (automatic, manual, fabricable)
- * @param {Set} fabricableRecipes - Set of fabricable recipe IDs
+ * @param {Object} filters - Filter options (automatic, manual, available)
+ * @param {Set} fabricableRecipes - Set of fabricable recipe IDs (unused but kept for compatibility)
  * @returns {Array} - Filtered array of recipes
  */
 export const filterRecipes = (recipes, filters, fabricableRecipes) => {
   if (!recipes?.length) return [];
 
   // Early return if no filters are active
-  if (!filters.automatic && !filters.manual && !filters.fabricable) {
+  if (!filters.automatic && !filters.manual && !filters.available) {
     return recipes;
   }
 
-  // Pre-compute recipe properties to avoid repeated calculations
-  const recipeProperties = recipes.map((recipe) => ({
-    recipe,
-    isAutomatic: isAutomatic(recipe),
-    requiresManual: requiresManual(recipe),
-    isFullyAutomaticOnPump:
-      isAutomatic(recipe) && allAutomaticIngredientsOnPump(recipe),
-    hasPumpIngredientsAndManual:
-      hasAutomaticIngredientsOnPump(recipe) && requiresManual(recipe),
-    isFabricable: fabricableRecipes.has(recipe.id),
-  }));
-
   // Filter recipes based on active filters
-  const filteredContent = recipeProperties
-    .filter(
-      ({
-        recipe,
-        isAutomatic,
-        requiresManual,
-        isFullyAutomaticOnPump,
-        hasPumpIngredientsAndManual,
-      }) => {
-        if (!recipe) return false;
+  return recipes.filter((recipe) => {
+    if (!recipe) return false;
 
-        // Apply automatic/manual filters
-        if (filters.automatic || filters.manual) {
-          if (filters.automatic && filters.manual) {
-            return isAutomatic || requiresManual;
-          }
-          if (filters.automatic) {
-            return isAutomatic;
-          }
-          if (filters.manual) {
-            return requiresManual && !isAutomatic;
-          }
-        }
+    const recipeIsAutomatic = isAutomatic(recipe);
+    const recipeRequiresManual = requiresManual(recipe);
+    const recipeIsAvailable = isAvailable(recipe);
 
-        // Apply fabricable filter
-        if (filters.fabricable) {
-          return fabricableRecipes.has(recipe.id);
-        }
+    // Apply filters - all active filters must be satisfied
+    const activeFilters = [];
+    
+    if (filters.automatic) activeFilters.push(recipeIsAutomatic);
+    if (filters.manual) activeFilters.push(recipeRequiresManual);
+    if (filters.available) activeFilters.push(recipeIsAvailable);
 
-        return true;
-      },
-    )
-    .map(({ recipe, isFabricable }) => ({ recipe, isFabricable }));
+    // If no filters are active, show all recipes
+    if (activeFilters.length === 0) return true;
 
-  // Sort results: fabricable first, then by name
-  return filteredContent
-    .filter(({ recipe, isFabricable }) => {
-      // If multiple filters are active, apply all of them
-      const activeFilters = Object.entries(filters).filter(
-        ([_, value]) => value,
-      );
-
-      if (activeFilters.length <= 1) return true;
-
-      // Check each active filter
-      return activeFilters.every(([filterName]) => {
-        switch (filterName) {
-          case 'automatic':
-            return isAutomatic(recipe);
-          case 'manual':
-            return requiresManual(recipe) && !isAutomatic(recipe);
-          case 'fabricable':
-            return fabricableRecipes.has(recipe.id);
-          default:
-            return true;
-        }
-      });
-    })
-    .sort((a, b) => {
-      if (a.isFabricable !== b.isFabricable) {
-        return b.isFabricable - a.isFabricable;
-      }
-      return a.recipe.name.localeCompare(b.recipe.name);
-    })
-    .map(({ recipe }) => recipe);
+    // All active filters must be true (AND logic)
+    return activeFilters.every(filter => filter === true);
+  }).sort((a, b) => {
+    // Sort by name for consistent ordering
+    return a.name.localeCompare(b.name);
+  });
 };

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { User, LogOut, Settings, Smartphone, Menu } from 'lucide-react';
 import useAuthStore from '../store/authStore';
 import useUIModeStore from '../store/uiModeStore.ts';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from '@tanstack/react-router';
 import userService from '../services/user.service';
 
 interface HeaderBarProps {
@@ -46,7 +46,7 @@ const HeaderBar: React.FC<HeaderBarProps> = ({ collapsed, onToggle }) => {
           error.response.status === 401
         ) {
           logoutUser();
-          navigate('/login', { replace: true });
+          navigate({ to: '/login', replace: true });
         }
         const toastElement = document.createElement('div');
         toastElement.className = 'toast toast-top toast-end';
@@ -77,7 +77,7 @@ const HeaderBar: React.FC<HeaderBarProps> = ({ collapsed, onToggle }) => {
       `;
       document.body.appendChild(toastElement);
       setTimeout(() => toastElement.remove(), 3000);
-      navigate('/login', { replace: true });
+      navigate({ to: '/login', replace: true });
     } catch (error) {
       const toastElement = document.createElement('div');
       toastElement.className = 'toast toast-top toast-end';
@@ -94,7 +94,7 @@ const HeaderBar: React.FC<HeaderBarProps> = ({ collapsed, onToggle }) => {
 
   const handleSimpleModeSwitch = () => {
     setAdvancedMode(false);
-    navigate('/simple/drinks', { replace: true });
+    navigate({ to: '/simple/drinks', replace: true });
   };
 
   return (
@@ -141,7 +141,7 @@ const HeaderBar: React.FC<HeaderBarProps> = ({ collapsed, onToggle }) => {
             >
               <li>
                 <a
-                  onClick={() => navigate('/profile')}
+                  onClick={() => navigate({ to: '/profile' })}
                   className="flex items-center gap-2 py-2"
                 >
                   <User size={16} />
@@ -150,7 +150,7 @@ const HeaderBar: React.FC<HeaderBarProps> = ({ collapsed, onToggle }) => {
               </li>
               <li>
                 <a
-                  onClick={() => navigate('/settings')}
+                  onClick={() => navigate({ to: '/settings' })}
                   className="flex items-center gap-2 py-2"
                 >
                   <Settings size={16} />

@@ -7,7 +7,7 @@ const useFilterStore = create(
       filters: {
         automatic: false,
         manual: false,
-        fabricable: false,
+        available: false,
       },
       setFilters: (filters) => set({ filters }),
       updateFilter: (filterName, value) =>
@@ -22,7 +22,7 @@ const useFilterStore = create(
           filters: {
             automatic: false,
             manual: false,
-            fabricable: false,
+            available: false,
           },
         }),
     }),
