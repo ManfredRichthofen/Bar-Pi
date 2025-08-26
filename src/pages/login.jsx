@@ -1,5 +1,5 @@
 import React from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation } from '@tanstack/react-router';
 import { useTranslation } from 'react-i18next';
 import useAuthStore from '../store/authStore';
 import useConfigStore from '../store/configStore';
@@ -38,7 +38,7 @@ const Login = () => {
         const redirectTo = new URLSearchParams(location.search).get(
           'redirectTo',
         );
-        navigate(redirectTo || '/simple/drinks');
+        navigate({ to: redirectTo || '/simple/drinks' });
       }
     } catch (error) {
       console.error('Login error:', error);

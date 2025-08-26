@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { themeChange } from 'theme-change';
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from '@tanstack/react-router';
 import { ArrowLeft, Globe, Palette, Bell, Volume2, LogOut, Settings as SettingsIcon } from 'lucide-react';
 import useAuthStore from '../../store/authStore';
 import UpdateChecker from '../../components/UpdateChecker';
@@ -64,13 +64,13 @@ const SimpleSettings = ({ onModeChange }) => {
   const handleAdvancedModeSwitch = () => {
     onModeChange(true);
     setTimeout(() => {
-      navigate('/drinks', { replace: true });
+      navigate({ to: '/drinks', replace: true });
     }, 0);
   };
 
   const handleLogout = () => {
     logout();
-    navigate('/login');
+    navigate({ to: '/login' });
   };
 
   return (
@@ -79,7 +79,7 @@ const SimpleSettings = ({ onModeChange }) => {
       <div className="sticky top-0 z-20 bg-base-100/95 backdrop-blur-md border-b border-base-200 shadow-sm">
         <div className="px-4 py-4 flex items-center justify-between">
           <button
-            onClick={() => navigate('/simple/drinks')}
+            onClick={() => navigate({ to: '/simple/drinks' })}
             className="btn btn-ghost btn-sm p-3 hover:bg-base-200 rounded-xl transition-all duration-200"
           >
             <ArrowLeft className="w-5 h-5" />

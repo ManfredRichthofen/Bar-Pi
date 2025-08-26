@@ -1,5 +1,5 @@
 import React from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation } from '@tanstack/react-router';
 import { Beaker, ArrowLeft, Clock, Info } from 'lucide-react';
 
 const SimpleDrinkDetail = () => {
@@ -9,16 +9,16 @@ const SimpleDrinkDetail = () => {
 
   // Redirect if no recipe data
   if (!recipe) {
-    navigate('/simple/drinks');
+    navigate({ to: '/simple/drinks' });
     return null;
   }
 
   const handleMakeDrink = () => {
-    navigate('/simple/order', { state: { recipe } });
+    navigate({ to: '/simple/order', state: { recipe } });
   };
 
   const handleBack = () => {
-    navigate('/simple/drinks');
+    navigate({ to: '/simple/drinks' });
   };
 
   return (

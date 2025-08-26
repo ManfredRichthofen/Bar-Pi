@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from '@tanstack/react-router';
 import { Check, AlertTriangle, Timer, Square, ArrowLeft, Info } from 'lucide-react';
 import CocktailService from '../../services/cocktail.service';
 import useCocktailProgressStore from '../../store/cocktailProgressStore';
@@ -90,7 +90,7 @@ const SimpleOrderStatus = () => {
             </p>
             <button
               className="btn btn-primary w-full h-12 text-base font-semibold"
-              onClick={() => navigate('/simple/drinks')}
+              onClick={() => navigate({ to: '/simple/drinks' })}
             >
               Order a Drink
             </button>
@@ -106,7 +106,7 @@ const SimpleOrderStatus = () => {
       <div className="sticky top-0 z-20 bg-base-100/95 backdrop-blur-md border-b border-base-200 shadow-sm">
         <div className="px-4 py-4 flex items-center justify-between">
           <button
-            onClick={() => navigate('/simple/drinks')}
+            onClick={() => navigate({ to: '/simple/drinks' })}
             className="btn btn-ghost btn-sm p-3 hover:bg-base-200 rounded-xl transition-all duration-200"
           >
             <ArrowLeft className="w-5 h-5" />

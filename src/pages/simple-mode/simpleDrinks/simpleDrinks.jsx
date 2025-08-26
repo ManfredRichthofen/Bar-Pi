@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { Navigate, useNavigate } from 'react-router-dom';
+import { Navigate, useNavigate } from '@tanstack/react-router';
 import {
   Filter,
   ArrowUp,
@@ -167,7 +167,7 @@ function SimpleDrinks() {
   };
 
   const handleCardClick = (recipe) => {
-    navigate('/simple/drink/' + recipe.id, { state: { recipe } });
+    navigate({ to: '/simple/drink/$id', params: { id: recipe.id } });
   };
 
   // Handle click outside to close filter panel
@@ -207,7 +207,7 @@ function SimpleDrinks() {
   }, []);
 
   if (!token) {
-    return <Navigate to="/login" />;
+    return <Navigate to="/login" replace />;
   }
 
   return (

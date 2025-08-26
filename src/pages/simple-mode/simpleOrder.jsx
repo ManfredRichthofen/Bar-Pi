@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { BeakerIcon, ArrowLeft, Info, AlertTriangle } from 'lucide-react';
-import { Navigate, useLocation, useNavigate } from 'react-router-dom';
+import { Navigate, useLocation, useNavigate } from '@tanstack/react-router';
 import useAuthStore from '../../store/authStore';
 import cocktailService from '../../services/cocktail.service';
 import SimpleGlassSelector from '../../components/simple-mode/order/simpleGlassSelector';
@@ -103,7 +103,7 @@ const SimpleOrder = () => {
 
       await cocktailService.order(recipeId, orderConfig, false, token);
       showToast('Drink ordered successfully', 'success');
-      navigate('/simple/order-status');
+      navigate({ to: '/simple/order-status' });
     } catch (error) {
       if (error.response?.data?.message) {
         console.error('Order failed:', error.response.data);
@@ -161,7 +161,7 @@ const SimpleOrder = () => {
       <div className="sticky top-0 z-20 bg-base-100/95 backdrop-blur-md border-b border-base-200 shadow-sm">
         <div className="px-4 py-4 flex items-center justify-between">
           <button
-            onClick={() => navigate('/simple/drinks')}
+            onClick={() => navigate({ to: '/simple/drinks' })}
             className="btn btn-ghost btn-sm p-3 hover:bg-base-200 rounded-xl transition-all duration-200"
           >
             <ArrowLeft className="w-5 h-5" />
@@ -290,7 +290,7 @@ const SimpleOrder = () => {
           </button>
           <button
             className="btn btn-ghost flex-1 h-14 text-base font-semibold"
-            onClick={() => navigate('/simple/drinks')}
+            onClick={() => navigate({ to: '/simple/drinks' })}
           >
             Back
           </button>

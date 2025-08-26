@@ -10,7 +10,7 @@ import {
   Gauge,
   Martini,
 } from 'lucide-react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation } from '@tanstack/react-router';
 
 interface SidebarProps {
   collapsed: boolean;
@@ -142,7 +142,7 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed, onCollapse }) => {
                             }
                             active:scale-[0.98] active:bg-base-300`}
                           onClick={() => {
-                            navigate(item.key);
+                            navigate({ to: item.key });
                             // Only auto-collapse on small screens
                             if (window.innerWidth < 640) {
                               onCollapse(true);

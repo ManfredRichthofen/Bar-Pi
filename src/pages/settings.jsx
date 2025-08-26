@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { themeChange } from 'theme-change';
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from '@tanstack/react-router';
 import useAuthStore from '../store/authStore';
 import useUIModeStore from '../store/uiModeStore';
 import UpdateChecker from '../components/UpdateChecker';
@@ -65,13 +65,13 @@ const Settings = () => {
   const handleSimpleModeSwitch = () => {
     setAdvancedMode(false);
     setTimeout(() => {
-      navigate('/simple/drinks', { replace: true });
+      navigate({ to: '/simple/drinks', replace: true });
     }, 0);
   };
 
   const handleLogout = () => {
     logout();
-    navigate('/login');
+    navigate({ to: '/login' });
   };
 
   return (
