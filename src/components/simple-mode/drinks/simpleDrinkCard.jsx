@@ -24,23 +24,24 @@ const SimpleDrinkCard = ({ recipe, onCardClick }) => {
         </figure>
 
         {/* Content section */}
-        <div className="flex flex-col flex-1 p-3">
-          <div className="flex items-start gap-2 mb-2">
-            <h3 className="text-sm font-semibold text-base-content/90 leading-tight flex-1 min-w-0 line-clamp-2">
+        <div className="flex flex-col flex-1 p-4">
+          {/* Title and badge section */}
+          <div className="flex items-start gap-3 mb-2">
+            <h3 className="text-base font-bold text-base-content/90 leading-tight flex-1 min-w-0 line-clamp-2">
               {recipe.name}
             </h3>
             {recipe.alcoholic && (
-              <div className="badge badge-error badge-sm whitespace-nowrap shrink-0 flex-shrink-0 text-xs">
+              <div className="badge badge-error badge-sm whitespace-nowrap shrink-0 text-xs font-semibold">
                 21+
               </div>
             )}
           </div>
           
-          {/* Optional: Add a subtle indicator for fabricable drinks */}
+          {/* Availability indicator */}
           <div className="mt-auto pt-2">
-            <div className="flex items-center gap-1 text-xs text-base-content/60">
+            <div className="flex items-center gap-2 text-xs text-base-content/60">
               <div className="w-2 h-2 rounded-full bg-success/60"></div>
-              <span>Available</span>
+              <span className="font-medium">Available</span>
             </div>
           </div>
         </div>

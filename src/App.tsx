@@ -28,7 +28,7 @@ import Pumps from './pages/pumps';
 
 //Simple Mode
 import SimpleLayout from './components/simple-mode/simpleLayout';
-import SimpleDrinks from './pages/simple-mode/simpleDrinks';
+import SimpleDrinks from './pages/simple-mode/simpleDrinks/simpleDrinks';
 import SimpleDrinkDetail from './pages/simple-mode/simpleDrinkDetail';
 import SimpleSettings from './pages/simple-mode/simpleSettings';
 import SimpleOrder from './pages/simple-mode/simpleOrder';
