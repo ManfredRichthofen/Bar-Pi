@@ -4,46 +4,44 @@ import { useInfiniteQuery } from "@tanstack/react-query";
 import { AlertCircle, Search } from "lucide-react";
 import debounce from "lodash/debounce";
 
-import RecipeService from "../../../services/recipe.service.js";
-import SimpleDrinkCard from "./simpleDrinkCard.jsx";
-import SimpleDrinkCardSkeleton from "./simpleDrinkCardSkeleton.jsx";
+import RecipeService from "../../services/recipe.service.js";
+import DrinkCard from "./DrinkCard.jsx";
 
-function VirtualGrid({
-	fabricableRecipes,
-	onCardClick,
-	token,
-	searchTerm,
-	filters,
-	onCheckFabricability,
-	onFilterRecipes,
-}) {
+function VirtualDrinksGrid({ token, searchTerm, collapsed = false }) {
 	const listRef = React.useRef(null);
 	const [itemsPerRow, setItemsPerRow] = React.useState(2);
 	const [rowHeight, setRowHeight] = React.useState(320);
 	const parentOffsetRef = React.useRef(0);
 
 	React.useLayoutEffect(() => {
-		parentOffsetRef.current = listRef.current?.offsetTop || 0;
-	}, []);
+		// Calculate offset based on sidebar state
+		const headerHeight = 64; // HeaderBar height (h-16)
+		const layoutPadding = 96; // Layout pt-24
+
+		parentOffsetRef.current = headerHeight + layoutPadding;
+	}, [collapsed]);
 
 	// Responsive grid columns and dynamic row height - mobile-first
 	React.useEffect(() => {
 		const updateGridColumns = () => {
 			const width = window.innerWidth;
+			const sidebarWidth = collapsed ? 0 : 288; // w-72 = 288px when expanded, 0 when collapsed
+			const availableWidth = width - sidebarWidth;
+
 			let cols = 1;
-			if (width < 480) {
+			if (availableWidth < 480) {
 				// xs
 				cols = 1;
-			} else if (width < 640) {
+			} else if (availableWidth < 640) {
 				// sm
 				cols = 2;
-			} else if (width < 768) {
+			} else if (availableWidth < 768) {
 				// md
 				cols = 3;
-			} else if (width < 1024) {
+			} else if (availableWidth < 1024) {
 				// lg
 				cols = 4;
-			} else if (width < 1280) {
+			} else if (availableWidth < 1280) {
 				// xl
 				cols = 5;
 			} else {
@@ -61,7 +59,7 @@ function VirtualGrid({
 		updateGridColumns();
 		window.addEventListener("resize", updateGridColumns);
 		return () => window.removeEventListener("resize", updateGridColumns);
-	}, []);
+	}, [collapsed]); // Add collapsed as dependency
 
 	const {
 		status,
@@ -72,37 +70,22 @@ function VirtualGrid({
 		fetchNextPage,
 		hasNextPage,
 	} = useInfiniteQuery({
-		queryKey: ["recipes", searchTerm, filters],
+		queryKey: ["recipes", searchTerm],
 		queryFn: async ({ pageParam = 0 }) => {
 			const response = await RecipeService.getRecipes(
 				pageParam,
-				null,
-				null,
-				null,
-				null,
-				searchTerm,
-				null,
-				null,
-				token,
+				null, // ownerId
+				null, // inCollection
+				null, // fabricable
+				null, // containsIngredients
+				searchTerm, // searchName
+				null, // inCategoryId
+				null, // orderBy
+				token, // token
 			);
 
-			if (response.content) {
-				// Only check fabricability for new recipes
-				const newRecipes = response.content.filter(
-					(recipe) => !fabricableRecipes.has(recipe.id),
-				);
-				if (newRecipes.length > 0) {
-					await onCheckFabricability(newRecipes);
-				}
-				response.content = onFilterRecipes(
-					response.content,
-					filters,
-					fabricableRecipes,
-				);
-			}
-
 			return {
-				content: response.content,
+				content: response.content || [],
 				last: response.last,
 				nextOffset: pageParam + 1,
 			};
@@ -116,10 +99,6 @@ function VirtualGrid({
 		refetchOnMount: false, // Don't refetch when component mounts
 		retry: 2, // Retry failed requests twice
 		retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000), // Exponential backoff
-		select: (data) => ({
-			pages: data.pages,
-			pageParams: data.pageParams,
-		}),
 	});
 
 	const allRecipes = data ? data.pages.flatMap((d) => d.content) : [];
@@ -204,9 +183,16 @@ function VirtualGrid({
 						className={`grid ${getGridColsClass()} gap-4 w-full max-w-screen-2xl mx-auto`}
 					>
 						{[...Array(12)].map((_, index) => (
-							<SimpleDrinkCardSkeleton
+							<div
 								key={`skeleton-${Date.now()}-${index}`}
-							/>
+								className="card bg-base-100 shadow-sm animate-pulse"
+							>
+								<div className="card-body p-4">
+									<div className="h-4 bg-base-300 rounded mb-2"></div>
+									<div className="h-3 bg-base-300 rounded mb-1"></div>
+									<div className="h-3 bg-base-300 rounded w-2/3"></div>
+								</div>
+							</div>
 						))}
 					</div>
 				</div>
@@ -275,11 +261,7 @@ function VirtualGrid({
 											key={recipe.id}
 											className="flex items-stretch justify-center"
 										>
-											<SimpleDrinkCard
-												recipe={recipe}
-												isFabricable={fabricableRecipes.has(recipe.id)}
-												onCardClick={onCardClick}
-											/>
+											<DrinkCard recipe={recipe} />
 										</div>
 									))}
 									{/* Fill empty slots to maintain grid structure */}
@@ -305,9 +287,16 @@ function VirtualGrid({
 						className={`grid ${getGridColsClass()} gap-4 sm:gap-5 lg:gap-6 w-full max-w-screen-2xl mx-auto`}
 					>
 						{[...Array(4)].map((_, index) => (
-							<SimpleDrinkCardSkeleton
+							<div
 								key={`skeleton-${Date.now()}-${index}`}
-							/>
+								className="card bg-base-100 shadow-sm animate-pulse"
+							>
+								<div className="card-body p-4">
+									<div className="h-4 bg-base-300 rounded mb-2"></div>
+									<div className="h-3 bg-base-300 rounded mb-1"></div>
+									<div className="h-3 bg-base-300 rounded w-2/3"></div>
+								</div>
+							</div>
 						))}
 					</div>
 				</div>
@@ -326,7 +315,7 @@ function VirtualGrid({
 					</div>
 					<h3 className="text-lg font-semibold mb-2">No drinks found</h3>
 					<p className="text-base-content/60 text-center text-sm">
-						Try adjusting your search or filters
+						Try adjusting your search
 					</p>
 				</div>
 			)}
@@ -334,4 +323,4 @@ function VirtualGrid({
 	);
 }
 
-export default VirtualGrid;
+export default VirtualDrinksGrid;

@@ -1,35 +1,35 @@
-import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
+import { create } from "zustand";
+import { persist } from "zustand/middleware";
 
 const useFilterStore = create(
-  persist(
-    (set) => ({
-      filters: {
-        automatic: false,
-        manual: false,
-        available: false,
-      },
-      setFilters: (filters) => set({ filters }),
-      updateFilter: (filterName, value) =>
-        set((state) => ({
-          filters: {
-            ...state.filters,
-            [filterName]: value,
-          },
-        })),
-      clearFilters: () =>
-        set({
-          filters: {
-            automatic: false,
-            manual: false,
-            available: false,
-          },
-        }),
-    }),
-    {
-      name: 'simple-drinks-filters',
-    },
-  ),
+	persist(
+		(set) => ({
+			filters: {
+				automatic: false,
+				manual: false,
+				available: false,
+			},
+			setFilters: (filters) => set({ filters }),
+			updateFilter: (filterName, value) =>
+				set((state) => ({
+					filters: {
+						...state.filters,
+						[filterName]: value,
+					},
+				})),
+			clearFilters: () =>
+				set({
+					filters: {
+						automatic: false,
+						manual: false,
+						available: false,
+					},
+				}),
+		}),
+		{
+			name: "simple-drinks-filters",
+		},
+	),
 );
 
 export default useFilterStore;

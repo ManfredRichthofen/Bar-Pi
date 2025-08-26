@@ -1,10 +1,10 @@
-import { createFileRoute } from '@tanstack/react-router';
-import SimpleOrder from '../pages/simple-mode/simpleOrder';
+import { createFileRoute } from "@tanstack/react-router";
+import SimpleOrder from "../pages/simple-mode/simpleOrder";
 
-export const Route = createFileRoute('/simple/order')({
-  component: SimpleOrderRoute,
+export const Route = createFileRoute("/simple/order")({
+	component: SimpleOrderRoute,
 });
 
 function SimpleOrderRoute() {
-  return <SimpleOrder />;
+	return <SimpleOrder />;
 }

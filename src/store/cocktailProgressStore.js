@@ -1,12 +1,12 @@
-import { create } from 'zustand';
+import { create } from "zustand";
 
 const useCocktailProgressStore = create((set) => ({
-  progress: null,
-  showProgressDialog: false,
+	progress: null,
+	showProgressDialog: false,
 
-  setProgress: (progress) => set({ progress }),
-  clearProgress: () => set({ progress: null }),
-  setShowProgressDialog: (show) => set({ showProgressDialog: show }),
+	setProgress: (progress) => set({ progress }),
+	clearProgress: () => set({ progress: null }),
+	setShowProgressDialog: (show) => set({ showProgressDialog: show }),
 }));
 
 export default useCocktailProgressStore;
