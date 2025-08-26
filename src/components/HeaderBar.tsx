@@ -142,15 +142,6 @@ const HeaderBar: React.FC<HeaderBarProps> = ({ collapsed, onToggle }) => {
 						>
 							<li>
 								<a
-									onClick={() => navigate({ to: "/profile" })}
-									className="flex items-center gap-2 py-2"
-								>
-									<User size={16} />
-									<span className="text-sm">Profile</span>
-								</a>
-							</li>
-							<li>
-								<a
 									onClick={() => navigate({ to: "/settings" })}
 									className="flex items-center gap-2 py-2"
 								>

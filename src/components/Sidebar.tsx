@@ -9,6 +9,8 @@ import {
 	LayoutGrid,
 	Gauge,
 	Martini,
+	FlaskConical,
+	Tag,
 } from "lucide-react";
 import { useNavigate, useLocation } from "@tanstack/react-router";
 
@@ -42,7 +44,7 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed, onCollapse }) => {
 			items: [
 				{
 					key: "/recipes",
-					icon: <BookText size={16} />,
+					icon: <FlaskConical size={16} />,
 					label: "Recipes",
 				},
 				{
@@ -72,7 +74,7 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed, onCollapse }) => {
 				},
 				{
 					key: "/categories",
-					icon: <LayoutGrid size={16} />,
+					icon: <Tag size={16} />,
 					label: "Categories",
 				},
 				{
