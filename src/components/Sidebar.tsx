@@ -6,7 +6,6 @@ import {
 	ArrowLeftToLine,
 	BookText,
 	Users,
-	LayoutGrid,
 	Gauge,
 	Martini,
 	FlaskConical,
