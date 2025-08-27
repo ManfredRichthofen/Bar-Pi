@@ -2,9 +2,9 @@ import React, { useState, useEffect, useCallback } from "react";
 import useAuthStore from "../../../store/authStore";
 import { usePumpStore } from "../../../store/pumpStore";
 import PumpService from "../../../services/pump.service";
-import PumpStatus from "../../../components/pumps/pumpStatus";
-import PumpCard from "../../../components/pumps/pumpCard";
-import PumpSetupTypeSelector from "../../../components/pumps/pumpSelector";
+import PumpStatus from "./components/pumpStatus.jsx";
+import PumpCard from "./components/pumpCard.jsx";
+import PumpSetupTypeSelector from "./components/pumpSelector";
 import { PlusCircle, PlayCircle, StopCircle, AlertCircle } from "lucide-react";
 
 const Pumps = () => {
@@ -107,7 +107,7 @@ const Pumps = () => {
 
 			{/* Error Alert */}
 			{error && (
-				<div className="alert alert-error mb-6 shadow-lg">
+				<div className="alert alert-error mb-4 mx-4 mt-4 shadow-lg">
 					<AlertCircle className="h-6 w-6 shrink-0" />
 					<span className="font-medium break-words">{error}</span>
 				</div>
@@ -115,54 +115,95 @@ const Pumps = () => {
 
 			{/* Header Section */}
 			<div className="sticky top-0 z-10 bg-base-100/95 backdrop-blur-md border-b border-base-200 shadow-sm">
-				<div className="px-6 py-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-					<h1 className="text-2xl font-bold text-base-content break-words">
+				<div className="px-4 sm:px-6 py-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+					<h1 className="text-xl sm:text-2xl font-bold text-base-content break-words">
 						Pump Management
 					</h1>
-					<div className="join shadow-lg flex-shrink-0">
+					<div className="join shadow-lg flex-shrink-0 w-full sm:w-auto">
 						<button
 							type="button"
-							className="btn btn-primary join-item shadow-md hover:shadow-lg transition-all duration-200"
+							className="btn btn-primary join-item shadow-md hover:shadow-lg transition-all duration-200 flex-1 sm:flex-none"
 							onClick={() => setShowAddDialog(true)}
 						>
-							<PlusCircle className="h-5 w-5 mr-2 shrink-0" />
-							<span className="break-words">Add Pump</span>
+							<PlusCircle className="h-4 w-4 sm:h-5 sm:w-5 mr-1 sm:mr-2 shrink-0" />
+							<span className="break-words text-xs sm:text-sm">Add Pump</span>
 						</button>
 						<button
 							type="button"
-							className="btn btn-success join-item shadow-md hover:shadow-lg transition-all duration-200"
+							className="btn btn-success join-item shadow-md hover:shadow-lg transition-all duration-200 flex-1 sm:flex-none"
 							onClick={onClickTurnOnAllPumps}
 						>
-							<PlayCircle className="h-5 w-5 mr-2 shrink-0" />
-							<span className="break-words">Start All</span>
+							<PlayCircle className="h-4 w-4 sm:h-5 sm:w-5 mr-1 sm:mr-2 shrink-0" />
+							<span className="break-words text-xs sm:text-sm">Start All</span>
 						</button>
 						<button
 							type="button"
-							className="btn btn-error join-item shadow-md hover:shadow-lg transition-all duration-200"
+							className="btn btn-error join-item shadow-md hover:shadow-lg transition-all duration-200 flex-1 sm:flex-none"
 							onClick={onClickTurnOffAllPumps}
 						>
-							<StopCircle className="h-5 w-5 mr-2 shrink-0" />
-							<span className="break-words">Stop All</span>
+							<StopCircle className="h-4 w-4 sm:h-5 sm:w-5 mr-1 sm:mr-2 shrink-0" />
+							<span className="break-words text-xs sm:text-sm">Stop All</span>
 						</button>
 					</div>
 				</div>
 			</div>
 
 			{/* Main Content */}
-			<div className="p-6">
-				<div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+			<div className="p-4 sm:p-6">
+				{/* Mobile Layout - Stacked */}
+				<div className="block lg:hidden space-y-6">
+					{/* Pump Status - Full width on mobile */}
+					<div className="w-full">
+						<PumpStatus />
+					</div>
+					
+					{/* Pump Cards Grid - Responsive columns */}
+					<div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+						{pumps && pumps.length > 0 ? (
+							pumps.map((pump) => (
+								<div key={pump.id} className="w-full">
+									<PumpCard pump={pump} showDetailed />
+								</div>
+							))
+						) : (
+							<div className="col-span-full">
+								<div className="card bg-base-200 shadow-lg border border-base-300">
+									<div className="card-body p-6 sm:p-8 flex flex-col items-center justify-center text-center">
+										<AlertCircle className="h-10 w-10 sm:h-12 sm:w-12 text-base-content/50 mb-4 shrink-0" />
+										<h3 className="text-base sm:text-lg font-semibold text-base-content mb-2 break-words">
+											No Pumps Found
+										</h3>
+										<p className="text-base-content/70 mb-4 break-words text-sm sm:text-base">
+											Get started by adding your first pump
+										</p>
+										<button
+											className="btn btn-primary shadow-md hover:shadow-lg transition-all duration-200"
+											onClick={() => setShowAddDialog(true)}
+										>
+											<PlusCircle className="h-4 w-4 sm:h-5 sm:w-5 mr-2 shrink-0" />
+											<span className="break-words">Add First Pump</span>
+										</button>
+									</div>
+								</div>
+							</div>
+						)}
+					</div>
+				</div>
+
+				{/* Desktop Layout - Sidebar + Main */}
+				<div className="hidden lg:grid lg:grid-cols-12 gap-6">
 					{/* Pump Status Sidebar */}
-					<div className="lg:col-span-3">
-						<div className="card bg-base-200 shadow-lg border border-base-300">
-							<div className="card-body p-6 overflow-hidden">
+					<div className="lg:col-span-3 xl:col-span-2">
+						<div className="card bg-base-200 shadow-lg border border-base-300 sticky top-24">
+							<div className="card-body p-4 xl:p-6 overflow-hidden">
 								<PumpStatus />
 							</div>
 						</div>
 					</div>
 					
 					{/* Pump Cards Grid */}
-					<div className="lg:col-span-9">
-						<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+					<div className="lg:col-span-9 xl:col-span-10">
+						<div className="grid grid-cols-1 xl:grid-cols-2 2xl:grid-cols-3 gap-4 xl:gap-6">
 							{pumps && pumps.length > 0 ? (
 								pumps.map((pump) => (
 									<div key={pump.id} className="w-full">

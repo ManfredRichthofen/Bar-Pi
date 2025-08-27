@@ -28,6 +28,7 @@ import { Route as AdvancedFavoritesRouteImport } from './routes/_advanced.favori
 import { Route as AdvancedDrinksRouteImport } from './routes/_advanced.drinks'
 import { Route as AdvancedCategoriesRouteImport } from './routes/_advanced.categories'
 import { Route as SimpleDrinkIdRouteImport } from './routes/simple.drink.$id'
+import { Route as AdvancedPumpsPumpIdEditRouteImport } from './routes/_advanced.pumps.$pumpId.edit'
 
 const SimpleRoute = SimpleRouteImport.update({
   id: '/simple',
@@ -123,6 +124,11 @@ const SimpleDrinkIdRoute = SimpleDrinkIdRouteImport.update({
   path: '/drink/$id',
   getParentRoute: () => SimpleRoute,
 } as any)
+const AdvancedPumpsPumpIdEditRoute = AdvancedPumpsPumpIdEditRouteImport.update({
+  id: '/$pumpId/edit',
+  path: '/$pumpId/edit',
+  getParentRoute: () => AdvancedPumpsRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -134,7 +140,7 @@ export interface FileRoutesByFullPath {
   '/glasses': typeof AdvancedGlassesRoute
   '/ingredients': typeof AdvancedIngredientsRoute
   '/order': typeof AdvancedOrderRoute
-  '/pumps': typeof AdvancedPumpsRoute
+  '/pumps': typeof AdvancedPumpsRouteWithChildren
   '/recipes': typeof AdvancedRecipesRoute
   '/settings': typeof AdvancedSettingsRoute
   '/users': typeof AdvancedUsersRoute
@@ -143,6 +149,7 @@ export interface FileRoutesByFullPath {
   '/simple/order-status': typeof SimpleOrderStatusRoute
   '/simple/settings': typeof SimpleSettingsRoute
   '/simple/drink/$id': typeof SimpleDrinkIdRoute
+  '/pumps/$pumpId/edit': typeof AdvancedPumpsPumpIdEditRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -154,7 +161,7 @@ export interface FileRoutesByTo {
   '/glasses': typeof AdvancedGlassesRoute
   '/ingredients': typeof AdvancedIngredientsRoute
   '/order': typeof AdvancedOrderRoute
-  '/pumps': typeof AdvancedPumpsRoute
+  '/pumps': typeof AdvancedPumpsRouteWithChildren
   '/recipes': typeof AdvancedRecipesRoute
   '/settings': typeof AdvancedSettingsRoute
   '/users': typeof AdvancedUsersRoute
@@ -163,6 +170,7 @@ export interface FileRoutesByTo {
   '/simple/order-status': typeof SimpleOrderStatusRoute
   '/simple/settings': typeof SimpleSettingsRoute
   '/simple/drink/$id': typeof SimpleDrinkIdRoute
+  '/pumps/$pumpId/edit': typeof AdvancedPumpsPumpIdEditRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -176,7 +184,7 @@ export interface FileRoutesById {
   '/_advanced/glasses': typeof AdvancedGlassesRoute
   '/_advanced/ingredients': typeof AdvancedIngredientsRoute
   '/_advanced/order': typeof AdvancedOrderRoute
-  '/_advanced/pumps': typeof AdvancedPumpsRoute
+  '/_advanced/pumps': typeof AdvancedPumpsRouteWithChildren
   '/_advanced/recipes': typeof AdvancedRecipesRoute
   '/_advanced/settings': typeof AdvancedSettingsRoute
   '/_advanced/users': typeof AdvancedUsersRoute
@@ -185,6 +193,7 @@ export interface FileRoutesById {
   '/simple/order-status': typeof SimpleOrderStatusRoute
   '/simple/settings': typeof SimpleSettingsRoute
   '/simple/drink/$id': typeof SimpleDrinkIdRoute
+  '/_advanced/pumps/$pumpId/edit': typeof AdvancedPumpsPumpIdEditRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -207,6 +216,7 @@ export interface FileRouteTypes {
     | '/simple/order-status'
     | '/simple/settings'
     | '/simple/drink/$id'
+    | '/pumps/$pumpId/edit'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -227,6 +237,7 @@ export interface FileRouteTypes {
     | '/simple/order-status'
     | '/simple/settings'
     | '/simple/drink/$id'
+    | '/pumps/$pumpId/edit'
   id:
     | '__root__'
     | '/'
@@ -248,6 +259,7 @@ export interface FileRouteTypes {
     | '/simple/order-status'
     | '/simple/settings'
     | '/simple/drink/$id'
+    | '/_advanced/pumps/$pumpId/edit'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -392,8 +404,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SimpleDrinkIdRouteImport
       parentRoute: typeof SimpleRoute
     }
+    '/_advanced/pumps/$pumpId/edit': {
+      id: '/_advanced/pumps/$pumpId/edit'
+      path: '/$pumpId/edit'
+      fullPath: '/pumps/$pumpId/edit'
+      preLoaderRoute: typeof AdvancedPumpsPumpIdEditRouteImport
+      parentRoute: typeof AdvancedPumpsRoute
+    }
   }
 }
+
+interface AdvancedPumpsRouteChildren {
+  AdvancedPumpsPumpIdEditRoute: typeof AdvancedPumpsPumpIdEditRoute
+}
+
+const AdvancedPumpsRouteChildren: AdvancedPumpsRouteChildren = {
+  AdvancedPumpsPumpIdEditRoute: AdvancedPumpsPumpIdEditRoute,
+}
+
+const AdvancedPumpsRouteWithChildren = AdvancedPumpsRoute._addFileChildren(
+  AdvancedPumpsRouteChildren,
+)
 
 interface AdvancedRouteChildren {
   AdvancedCategoriesRoute: typeof AdvancedCategoriesRoute
@@ -402,7 +433,7 @@ interface AdvancedRouteChildren {
   AdvancedGlassesRoute: typeof AdvancedGlassesRoute
   AdvancedIngredientsRoute: typeof AdvancedIngredientsRoute
   AdvancedOrderRoute: typeof AdvancedOrderRoute
-  AdvancedPumpsRoute: typeof AdvancedPumpsRoute
+  AdvancedPumpsRoute: typeof AdvancedPumpsRouteWithChildren
   AdvancedRecipesRoute: typeof AdvancedRecipesRoute
   AdvancedSettingsRoute: typeof AdvancedSettingsRoute
   AdvancedUsersRoute: typeof AdvancedUsersRoute
@@ -415,7 +446,7 @@ const AdvancedRouteChildren: AdvancedRouteChildren = {
   AdvancedGlassesRoute: AdvancedGlassesRoute,
   AdvancedIngredientsRoute: AdvancedIngredientsRoute,
   AdvancedOrderRoute: AdvancedOrderRoute,
-  AdvancedPumpsRoute: AdvancedPumpsRoute,
+  AdvancedPumpsRoute: AdvancedPumpsRouteWithChildren,
   AdvancedRecipesRoute: AdvancedRecipesRoute,
   AdvancedSettingsRoute: AdvancedSettingsRoute,
   AdvancedUsersRoute: AdvancedUsersRoute,
