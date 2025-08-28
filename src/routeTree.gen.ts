@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SimpleRouteImport } from './routes/simple'
+import { Route as ReversepumpsettingsRouteImport } from './routes/reversepumpsettings'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as AdvancedRouteImport } from './routes/_advanced'
 import { Route as IndexRouteImport } from './routes/index'
@@ -33,6 +34,11 @@ import { Route as AdvancedPumpsPumpIdEditRouteImport } from './routes/_advanced.
 const SimpleRoute = SimpleRouteImport.update({
   id: '/simple',
   path: '/simple',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ReversepumpsettingsRoute = ReversepumpsettingsRouteImport.update({
+  id: '/reversepumpsettings',
+  path: '/reversepumpsettings',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LoginRoute = LoginRouteImport.update({
@@ -133,6 +139,7 @@ const AdvancedPumpsPumpIdEditRoute = AdvancedPumpsPumpIdEditRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
+  '/reversepumpsettings': typeof ReversepumpsettingsRoute
   '/simple': typeof SimpleRouteWithChildren
   '/categories': typeof AdvancedCategoriesRoute
   '/drinks': typeof AdvancedDrinksRoute
@@ -154,6 +161,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
+  '/reversepumpsettings': typeof ReversepumpsettingsRoute
   '/simple': typeof SimpleRouteWithChildren
   '/categories': typeof AdvancedCategoriesRoute
   '/drinks': typeof AdvancedDrinksRoute
@@ -177,6 +185,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_advanced': typeof AdvancedRouteWithChildren
   '/login': typeof LoginRoute
+  '/reversepumpsettings': typeof ReversepumpsettingsRoute
   '/simple': typeof SimpleRouteWithChildren
   '/_advanced/categories': typeof AdvancedCategoriesRoute
   '/_advanced/drinks': typeof AdvancedDrinksRoute
@@ -200,6 +209,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/login'
+    | '/reversepumpsettings'
     | '/simple'
     | '/categories'
     | '/drinks'
@@ -221,6 +231,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/login'
+    | '/reversepumpsettings'
     | '/simple'
     | '/categories'
     | '/drinks'
@@ -243,6 +254,7 @@ export interface FileRouteTypes {
     | '/'
     | '/_advanced'
     | '/login'
+    | '/reversepumpsettings'
     | '/simple'
     | '/_advanced/categories'
     | '/_advanced/drinks'
@@ -266,6 +278,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdvancedRoute: typeof AdvancedRouteWithChildren
   LoginRoute: typeof LoginRoute
+  ReversepumpsettingsRoute: typeof ReversepumpsettingsRoute
   SimpleRoute: typeof SimpleRouteWithChildren
 }
 
@@ -276,6 +289,13 @@ declare module '@tanstack/react-router' {
       path: '/simple'
       fullPath: '/simple'
       preLoaderRoute: typeof SimpleRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/reversepumpsettings': {
+      id: '/reversepumpsettings'
+      path: '/reversepumpsettings'
+      fullPath: '/reversepumpsettings'
+      preLoaderRoute: typeof ReversepumpsettingsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/login': {
@@ -479,6 +499,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdvancedRoute: AdvancedRouteWithChildren,
   LoginRoute: LoginRoute,
+  ReversepumpsettingsRoute: ReversepumpsettingsRoute,
   SimpleRoute: SimpleRouteWithChildren,
 }
 export const routeTree = rootRouteImport

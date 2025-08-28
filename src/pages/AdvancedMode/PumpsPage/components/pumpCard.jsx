@@ -374,8 +374,24 @@ const PumpCard = ({ pump, showDetailed = false }) => {
 
 			{/* Improved Progress Bar */}
 			<div className="flex-shrink-0">
-				{progressBar.query ? (
-					<AnimatedProgressBar className="progress-primary w-full" />
+				{pumpJobState.runningState ? (
+					<div className="relative w-full">
+						<progress className="progress progress-primary w-full" value={30} max="100"></progress>
+						<div
+							className="absolute left-0 top-0 h-full pointer-events-none"
+							style={{ width: "30%", overflow: "hidden" }}
+						>
+							<div
+								className="h-full w-[200%]"
+								style={{
+									backgroundImage:
+										"repeating-linear-gradient(45deg, rgba(255,255,255,0.25) 0px, rgba(255,255,255,0.25) 10px, transparent 10px, transparent 20px)",
+									animation: "progressScroll 1s linear infinite",
+								}}
+							/>
+						</div>
+						<style>{`@keyframes progressScroll { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }`}</style>
+					</div>
 				) : (
 					<progress
 						className="progress progress-primary w-full"

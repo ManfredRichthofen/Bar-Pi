@@ -97,7 +97,7 @@ const Pumps = () => {
 	};
 
 	return (
-		<div className="min-h-screen bg-base-100">
+		<div className="min-h-screen bg-base-100 p-4">
 			{/* Loading Overlay */}
 			{loading && (
 				<div className="fixed inset-0 bg-base-100/50 backdrop-blur-sm flex justify-center items-center z-50">
@@ -107,81 +107,78 @@ const Pumps = () => {
 
 			{/* Error Alert */}
 			{error && (
-				<div className="alert alert-error mb-4 mx-4 mt-4 shadow-lg">
+				<div className="alert alert-error mb-4 shadow-lg">
 					<AlertCircle className="h-6 w-6 shrink-0" />
 					<span className="font-medium break-words">{error}</span>
 				</div>
 			)}
 
-			{/* Header Section */}
-			<div className="sticky top-0 z-10 bg-base-100/95 backdrop-blur-md border-b border-base-200 shadow-sm">
-				<div className="px-4 sm:px-6 py-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-					<h1 className="text-xl sm:text-2xl font-bold text-base-content break-words">
-						Pump Management
-					</h1>
-					<div className="join shadow-lg flex-shrink-0 w-full sm:w-auto">
-						<button
-							type="button"
-							className="btn btn-primary join-item shadow-md hover:shadow-lg transition-all duration-200 flex-1 sm:flex-none"
-							onClick={() => setShowAddDialog(true)}
-						>
-							<PlusCircle className="h-4 w-4 sm:h-5 sm:w-5 mr-1 sm:mr-2 shrink-0" />
-							<span className="break-words text-xs sm:text-sm">Add Pump</span>
-						</button>
-						<button
-							type="button"
-							className="btn btn-success join-item shadow-md hover:shadow-lg transition-all duration-200 flex-1 sm:flex-none"
-							onClick={onClickTurnOnAllPumps}
-						>
-							<PlayCircle className="h-4 w-4 sm:h-5 sm:w-5 mr-1 sm:mr-2 shrink-0" />
-							<span className="break-words text-xs sm:text-sm">Start All</span>
-						</button>
-						<button
-							type="button"
-							className="btn btn-error join-item shadow-md hover:shadow-lg transition-all duration-200 flex-1 sm:flex-none"
-							onClick={onClickTurnOffAllPumps}
-						>
-							<StopCircle className="h-4 w-4 sm:h-5 sm:w-5 mr-1 sm:mr-2 shrink-0" />
-							<span className="break-words text-xs sm:text-sm">Stop All</span>
-						</button>
-					</div>
-				</div>
+			{/* Header */}
+			<h1 className="text-xl sm:text-2xl font-bold text-base-content break-words mb-4">
+				Pump Management
+			</h1>
+			
+			{/* Button Group */}
+			<div className="flex flex-wrap gap-2 mb-6">
+				<button
+					type="button"
+					className="btn btn-primary shadow-md hover:shadow-lg transition-all duration-200"
+					onClick={() => setShowAddDialog(true)}
+				>
+					<PlusCircle className="h-4 w-4 mr-2" />
+					Add Pump
+				</button>
+				<button
+					type="button"
+					className="btn btn-success shadow-md hover:shadow-lg transition-all duration-200"
+					onClick={onClickTurnOnAllPumps}
+				>
+					<PlayCircle className="h-4 w-4 mr-2" />
+					Start All
+				</button>
+				<button
+					type="button"
+					className="btn btn-error shadow-md hover:shadow-lg transition-all duration-200"
+					onClick={onClickTurnOffAllPumps}
+				>
+					<StopCircle className="h-4 w-4 mr-2" />
+					Stop All
+				</button>
 			</div>
 
 			{/* Main Content */}
-			<div className="p-4 sm:p-6">
-				{/* Mobile Layout - Stacked */}
-				<div className="block lg:hidden space-y-6">
-					{/* Pump Status - Full width on mobile */}
-					<div className="w-full">
-						<PumpStatus />
-					</div>
-					
-					{/* Pump Cards Grid - Responsive columns */}
-					<div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+			<div className="grid grid-cols-12 gap-6">
+				{/* Pump Status Sidebar */}
+				<div className="col-span-12 lg:col-span-3">
+					<PumpStatus />
+				</div>
+				
+				{/* Pump Cards Grid */}
+				<div className="col-span-12 lg:col-span-9">
+					<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
 						{pumps && pumps.length > 0 ? (
 							pumps.map((pump) => (
 								<div key={pump.id} className="w-full">
-									<PumpCard pump={pump} showDetailed />
+									<PumpCard pump={pump} showDetailed={true} />
 								</div>
 							))
 						) : (
 							<div className="col-span-full">
 								<div className="card bg-base-200 shadow-lg border border-base-300">
-									<div className="card-body p-6 sm:p-8 flex flex-col items-center justify-center text-center">
-										<AlertCircle className="h-10 w-10 sm:h-12 sm:w-12 text-base-content/50 mb-4 shrink-0" />
-										<h3 className="text-base sm:text-lg font-semibold text-base-content mb-2 break-words">
+									<div className="card-body p-6 flex flex-col items-center justify-center text-center">
+										<AlertCircle className="h-12 w-12 text-base-content/50 mb-4" />
+										<h3 className="text-lg font-semibold text-base-content mb-2">
 											No Pumps Found
 										</h3>
-										<p className="text-base-content/70 mb-4 break-words text-sm sm:text-base">
+										<p className="text-base-content/70 mb-4">
 											Get started by adding your first pump
 										</p>
 										<button
 											className="btn btn-primary shadow-md hover:shadow-lg transition-all duration-200"
 											onClick={() => setShowAddDialog(true)}
 										>
-											<PlusCircle className="h-4 w-4 sm:h-5 sm:w-5 mr-2 shrink-0" />
-											<span className="break-words">Add First Pump</span>
+											<PlusCircle className="h-5 w-5 mr-2" />
+											Add First Pump
 										</button>
 									</div>
 								</div>
@@ -189,53 +186,8 @@ const Pumps = () => {
 						)}
 					</div>
 				</div>
-
-				{/* Desktop Layout - Sidebar + Main */}
-				<div className="hidden lg:grid lg:grid-cols-12 gap-6">
-					{/* Pump Status Sidebar */}
-					<div className="lg:col-span-3 xl:col-span-2">
-						<div className="card bg-base-200 shadow-lg border border-base-300 sticky top-24">
-							<div className="card-body p-4 xl:p-6 overflow-hidden">
-								<PumpStatus />
-							</div>
-						</div>
-					</div>
-					
-					{/* Pump Cards Grid */}
-					<div className="lg:col-span-9 xl:col-span-10">
-						<div className="grid grid-cols-1 xl:grid-cols-2 2xl:grid-cols-3 gap-4 xl:gap-6">
-							{pumps && pumps.length > 0 ? (
-								pumps.map((pump) => (
-									<div key={pump.id} className="w-full">
-										<PumpCard pump={pump} showDetailed />
-									</div>
-								))
-							) : (
-								<div className="col-span-full">
-									<div className="card bg-base-200 shadow-lg border border-base-300">
-										<div className="card-body p-8 flex flex-col items-center justify-center text-center">
-											<AlertCircle className="h-12 w-12 text-base-content/50 mb-4 shrink-0" />
-											<h3 className="text-lg font-semibold text-base-content mb-2 break-words">
-												No Pumps Found
-											</h3>
-											<p className="text-base-content/70 mb-4 break-words">
-												Get started by adding your first pump
-											</p>
-											<button
-												className="btn btn-primary shadow-md hover:shadow-lg transition-all duration-200"
-												onClick={() => setShowAddDialog(true)}
-											>
-												<PlusCircle className="h-5 w-5 mr-2 shrink-0" />
-												<span className="break-words">Add First Pump</span>
-											</button>
-										</div>
-									</div>
-								</div>
-							)}
-						</div>
-					</div>
-				</div>
 			</div>
+
 			{/* Add Pump Dialog */}
 			{showAddDialog && (
 				<PumpSetupTypeSelector
