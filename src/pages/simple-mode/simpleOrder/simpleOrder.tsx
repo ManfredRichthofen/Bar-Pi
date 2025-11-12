@@ -227,6 +227,29 @@ const SimpleOrder = () => {
             </div>
           </div>
 
+          {/* Make Drink Button - Prominent placement */}
+          <div className="card bg-base-200/50 shadow-sm">
+            <div className="card-body p-3 sm:p-4">
+              <button
+                type="button"
+                className="btn btn-primary w-full h-12 sm:h-14 gap-2 sm:gap-3 text-sm sm:text-base font-semibold shadow-lg hover:shadow-xl transition-all duration-200"
+                onClick={handleMakeDrink}
+                disabled={!canOrderDrink || loading}
+              >
+                {loading && <span className="loading loading-spinner loading-sm" />}
+                {!loading && <BeakerIcon size={18} className="sm:w-5 sm:h-5" />}
+                {loading ? 'Making your drink...' : 'Make Drink'}
+              </button>
+              {!canOrderDrink && !loading && (
+                <p className="text-xs sm:text-sm text-error text-center mt-2">
+                  {feasibilityResult?.requiredIngredients?.some((item: any) => item.amountMissing > 0)
+                    ? 'Missing ingredients'
+                    : 'Select a glass to continue'}
+                </p>
+              )}
+            </div>
+          </div>
+
           {/* Glass selector and ingredients */}
           <div className="card bg-base-200/50 shadow-sm">
             <div className="card-body p-3 sm:p-4">
@@ -298,27 +321,15 @@ const SimpleOrder = () => {
         </div>
       </div>
 
-      {/* Fixed bottom action buttons */}
+      {/* Fixed bottom back button */}
       <div className="bg-base-100/95 backdrop-blur-md border-t border-base-200 p-3 sm:p-4 shadow-lg">
-        <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
-          <button
-            type="button"
-            className="btn btn-primary flex-1 h-12 sm:h-14 gap-2 sm:gap-3 text-sm sm:text-base font-semibold shadow-lg hover:shadow-xl transition-all duration-200"
-            onClick={handleMakeDrink}
-            disabled={!canOrderDrink || loading}
-          >
-            {loading && <span className="loading loading-spinner loading-sm" />}
-            {!loading && <BeakerIcon size={18} className="sm:w-5 sm:h-5" />}
-            {loading ? 'Making your drink...' : 'Make Drink'}
-          </button>
-          <button
-            type="button"
-            className="btn btn-ghost flex-1 h-12 sm:h-14 text-sm sm:text-base font-semibold"
-            onClick={() => navigate({ to: '/simple/drinks' })}
-          >
-            Back
-          </button>
-        </div>
+        <button
+          type="button"
+          className="btn btn-ghost w-full h-12 sm:h-14 text-sm sm:text-base font-semibold"
+          onClick={() => navigate({ to: '/simple/drinks' })}
+        >
+          Back to Drinks
+        </button>
       </div>
     </div>
   );

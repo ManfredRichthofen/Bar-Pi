@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from '@tanstack/react-router';
 import { ArrowLeft } from 'lucide-react';
 import CocktailService from '../../../services/cocktail.service';
@@ -13,12 +13,21 @@ import NoActiveOrder from './components/NoActiveOrder';
 const SimpleOrderStatus = () => {
   const [confirming, setConfirming] = useState(false);
   const [canceling, setCanceling] = useState(false);
+  const [isWaitingForProgress, setIsWaitingForProgress] = useState(true);
   const navigate = useNavigate();
 
   const progress = useCocktailProgressStore((state) => state.progress);
   const token = useAuthStore((state) => state.token);
 
   useWebSocket(token);
+
+  // Give WebSocket time to receive progress update after ordering
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsWaitingForProgress(false);
+    }, 2000); // Wait 2 seconds for WebSocket to update
+    return () => clearTimeout(timer);
+  }, []);
 
   const handleCancel = async () => {
     if (!token) return;
@@ -45,6 +54,18 @@ const SimpleOrderStatus = () => {
       setConfirming(false);
     }
   };
+
+  // Show loading while waiting for WebSocket to update
+  if (isWaitingForProgress && !progress) {
+    return (
+      <div className="min-h-screen bg-base-100 flex items-center justify-center">
+        <div className="text-center">
+          <span className="loading loading-spinner loading-lg text-primary"></span>
+          <p className="mt-4 text-base-content/60">Connecting to order...</p>
+        </div>
+      </div>
+    );
+  }
 
   if (!progress) {
     return (

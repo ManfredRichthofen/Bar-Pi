@@ -56,12 +56,23 @@ jobs:
         if: github.ref == 'refs/heads/main'
         run: |
           echo "${{ secrets.ANDROID_KEYSTORE_FILE }}" | base64 -d > android/app/release.jks
+          ls -la android/app/release.jks
+          echo "Keystore file created successfully"
+
+      - name: Verify signing configuration
+        if: github.ref == 'refs/heads/main'
+        run: |
+          echo "RELEASE_STORE_FILE will be: ${{ github.workspace }}/android/app/release.jks"
+          echo "RELEASE_KEY_ALIAS will be: ${{ secrets.ANDROID_KEY_ALIAS }}"
+          test -f android/app/release.jks && echo "Keystore exists" || echo "Keystore missing!"
 
       - name: Build Android Release APK
         if: github.ref == 'refs/heads/main'
-        run: cd android && ./gradlew assembleRelease --no-daemon
+        run: |
+          cd android
+          ./gradlew assembleRelease --no-daemon --stacktrace
         env:
-          RELEASE_STORE_FILE: release.jks
+          RELEASE_STORE_FILE: ${{ github.workspace }}/android/app/release.jks
           RELEASE_STORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
           RELEASE_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
           RELEASE_KEY_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
