@@ -55,7 +55,7 @@ jobs:
       - name: Decode Keystore
         if: github.ref == 'refs/heads/main'
         run: |
-          echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 -d > android/app/release.jks
+          echo "${{ secrets.ANDROID_KEYSTORE }}" | base64 -d > android/app/release.jks
 
       - name: Build Android Release APK
         if: github.ref == 'refs/heads/main'
