@@ -25,8 +25,16 @@ const Favorites = ({ sidebarCollapsed = false }) => {
         <div className="max-w-4xl mx-auto">
           <div className="text-center py-12">
             <div className="text-base-content/40 mb-4">
-              <svg className="w-16 h-16 mx-auto" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clipRule="evenodd" />
+              <svg
+                className="w-16 h-16 mx-auto"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z"
+                  clipRule="evenodd"
+                />
               </svg>
             </div>
             <h3 className="text-lg font-semibold mb-2">No favorites yet</h3>

@@ -1,41 +1,41 @@
-import axios from "axios";
-import config from "./config";
+import axios from 'axios';
+import config from './config';
 axios.defaults.baseURL = config.API_BASE_URL;
 
-const API_PATH = "api/glass/";
+const API_PATH = 'api/glass/';
 
 class GlassService {
-	getAuthHeader(token) {
-		return {
-			headers: {
-				Authorization: `Bearer ${token}`,
-			},
-		};
-	}
+  getAuthHeader(token) {
+    return {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    };
+  }
 
-	getGlasses(token) {
-		return axios
-			.get(API_PATH, this.getAuthHeader(token))
-			.then((response) => response.data);
-	}
+  getGlasses(token) {
+    return axios
+      .get(API_PATH, this.getAuthHeader(token))
+      .then((response) => response.data);
+  }
 
-	getGlass(id, token) {
-		return axios
-			.get(API_PATH + String(id), this.getAuthHeader(token))
-			.then((response) => response.data);
-	}
+  getGlass(id, token) {
+    return axios
+      .get(API_PATH + String(id), this.getAuthHeader(token))
+      .then((response) => response.data);
+  }
 
-	createGlass(glass) {
-		return axios.post(API_PATH, glass);
-	}
+  createGlass(glass) {
+    return axios.post(API_PATH, glass);
+  }
 
-	updateGlass(glass) {
-		return axios.put(API_PATH + String(glass.id), glass);
-	}
+  updateGlass(glass) {
+    return axios.put(API_PATH + String(glass.id), glass);
+  }
 
-	deleteGlass(glassId) {
-		return axios.delete(API_PATH + String(glassId));
-	}
+  deleteGlass(glassId) {
+    return axios.delete(API_PATH + String(glassId));
+  }
 }
 
 export default new GlassService();

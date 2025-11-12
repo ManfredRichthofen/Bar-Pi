@@ -1,10 +1,10 @@
-import { createFileRoute } from "@tanstack/react-router";
-import SimpleDrinkDetail from "../pages/simple-mode/simpleDrinkDetail/simpleDrinkDetail";
+import { createFileRoute } from '@tanstack/react-router';
+import SimpleDrinkDetail from '../pages/simple-mode/simpleDrinkDetail/simpleDrinkDetail';
 
-export const Route = createFileRoute("/simple/drink/$id")({
-	component: SimpleDrinkDetailRoute,
+export const Route = createFileRoute('/simple/drink/$id')({
+  component: SimpleDrinkDetailRoute,
 });
 
 function SimpleDrinkDetailRoute() {
-	return <SimpleDrinkDetail />;
+  return <SimpleDrinkDetail />;
 }

@@ -25,7 +25,11 @@ const Recipes = ({ sidebarCollapsed = false }) => {
         <div className="max-w-4xl mx-auto">
           <div className="text-center py-12">
             <div className="text-base-content/40 mb-4">
-              <svg className="w-16 h-16 mx-auto" fill="currentColor" viewBox="0 0 20 20">
+              <svg
+                className="w-16 h-16 mx-auto"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+              >
                 <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             </div>
