@@ -59,27 +59,65 @@ jobs:
 
       - name: Decode Keystore
         if: github.ref == 'refs/heads/main'
-        continue-on-error: true
         run: |
-          # Decode base64 to PKCS12 keystore
-          echo "${{ secrets.ANDROID_KEYSTORE_FILE }}" > keystore_b64.txt
-          base64 -d keystore_b64.txt > android/app/release.keystore
-          rm keystore_b64.txt
-          ls -la android/app/release.keystore || true
-          file android/app/release.keystore || true
-          echo "Keystore decode attempted"
+          # Decode base64 keystore
+          echo "${{ secrets.ANDROID_KEYSTORE_FILE }}" | base64 -d > android/app/release.keystore
+          
+          # Verify keystore was created
+          if [ ! -f android/app/release.keystore ]; then
+            echo "Error: Keystore file was not created"
+            exit 1
+          fi
+          
+          # Check file size
+          KEYSTORE_SIZE=$(stat -c%s android/app/release.keystore 2>/dev/null || stat -f%z android/app/release.keystore 2>/dev/null)
+          echo "Keystore size: $KEYSTORE_SIZE bytes"
+          
+          if [ "$KEYSTORE_SIZE" -lt 100 ]; then
+            echo "Error: Keystore file is too small, likely corrupt"
+            exit 1
+          fi
 
-      - name: Verify signing configuration
+      - name: Verify and Convert Keystore
         if: github.ref == 'refs/heads/main'
-        continue-on-error: true
         run: |
-          echo "RELEASE_STORE_FILE will be: ${{ github.workspace }}/android/app/release.keystore"
-          echo "RELEASE_KEY_ALIAS will be: ${{ secrets.ANDROID_KEY_ALIAS }}"
-          test -f android/app/release.keystore && echo "Keystore exists" || echo "Keystore missing!"
+          # Verify keystore exists
+          if [ ! -f android/app/release.keystore ]; then
+            echo "Error: Keystore file not found"
+            exit 1
+          fi
+          
+          # Try to convert keystore to JKS format if it's PKCS12 with compatibility issues
+          # This fixes the "Tag number over 30 is not supported" error
+          echo "Converting keystore to compatible format..."
+          
+          # Create a backup
+          cp android/app/release.keystore android/app/release.keystore.bak
+          
+          # Convert PKCS12 to JKS format using keytool
+          keytool -importkeystore \
+            -srckeystore android/app/release.keystore.bak \
+            -srcstoretype PKCS12 \
+            -srcstorepass "${{ secrets.ANDROID_KEYSTORE_PASSWORD }}" \
+            -destkeystore android/app/release.keystore \
+            -deststoretype JKS \
+            -deststorepass "${{ secrets.ANDROID_KEYSTORE_PASSWORD }}" \
+            -destkeypass "${{ secrets.ANDROID_KEYSTORE_PASSWORD }}" \
+            -noprompt || {
+              echo "Conversion failed, using original keystore"
+              mv android/app/release.keystore.bak android/app/release.keystore
+            }
+          
+          # Clean up backup
+          rm -f android/app/release.keystore.bak
+          
+          echo "Keystore configuration:"
+          echo "  Store file: ${{ github.workspace }}/android/app/release.keystore"
+          echo "  Key alias: ${{ secrets.ANDROID_KEY_ALIAS }}"
+          echo "  Keystore ready for signing"
 
       - name: Build Android Release APK
         if: github.ref == 'refs/heads/main'
-        continue-on-error: true
         run: |
           cd android
           ./gradlew assembleRelease --no-daemon --stacktrace
@@ -91,7 +129,6 @@ jobs:
 
       - name: Upload Release APK artifact
         if: github.ref == 'refs/heads/main'
-        continue-on-error: true
         uses: actions/upload-artifact@v4
         with:
           name: app-release
@@ -101,7 +138,10 @@ jobs:
       - name: Get version from package.json
         if: github.ref == 'refs/heads/main'
         id: package-version
-        run: echo "VERSION=$(node -p \"require('./package.json').version\")" >> "$GITHUB_OUTPUT"
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          echo "VERSION=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "Detected version: $VERSION"
 
       - name: Create GitHub Release
         if: github.ref == 'refs/heads/main'
