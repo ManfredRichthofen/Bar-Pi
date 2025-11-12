@@ -60,8 +60,8 @@ jobs:
       - name: Decode Keystore
         if: github.ref == 'refs/heads/main'
         run: |
-          # Decode base64 keystore
-          echo "${{ secrets.ANDROID_KEYSTORE_FILE }}" | base64 -d > android/app/release.keystore
+          # Decode base64 keystore (remove whitespace and use printf to avoid newlines)
+          echo "${{ secrets.ANDROID_KEYSTORE_FILE }}" | tr -d '[:space:]' | base64 -d > android/app/release.keystore
           
           # Verify keystore was created
           if [ ! -f android/app/release.keystore ]; then
