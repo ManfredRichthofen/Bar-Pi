@@ -127,7 +127,7 @@ const GlassSelector = ({
             <GlassWater size={20} />
             Select Glass Size
           </h3>
-          
+
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-96 overflow-y-auto">
             {glasses.map((glass) => (
               <button
@@ -136,9 +136,10 @@ const GlassSelector = ({
                 onClick={() => handleGlassSelect(glass)}
                 className={`
                   card cursor-pointer transition-all duration-200 text-left
-                  ${selectedGlass?.id === glass.id 
-                    ? 'bg-primary text-primary-content shadow-lg ring-2 ring-primary' 
-                    : 'bg-base-100 hover:bg-base-200 border border-base-300 hover:border-primary/50'
+                  ${
+                    selectedGlass?.id === glass.id
+                      ? 'bg-primary text-primary-content shadow-lg ring-2 ring-primary'
+                      : 'bg-base-100 hover:bg-base-200 border border-base-300 hover:border-primary/50'
                   }
                 `}
               >
@@ -156,18 +157,22 @@ const GlassSelector = ({
                         <h4 className="font-semibold text-base truncate">
                           {glass.name}
                         </h4>
-                        <div className={`
+                        <div
+                          className={`
                           badge badge-sm shrink-0
                           ${selectedGlass?.id === glass.id ? 'badge-primary-content' : 'badge-primary'}
-                        `}>
+                        `}
+                        >
                           {glass.sizeInMl}ml
                         </div>
                       </div>
                       {glass.description && (
-                        <p className={`
+                        <p
+                          className={`
                           text-sm mt-1
                           ${selectedGlass?.id === glass.id ? 'opacity-90' : 'text-base-content/70'}
-                        `}>
+                        `}
+                        >
                           {glass.description}
                         </p>
                       )}
@@ -196,7 +201,9 @@ const GlassSelector = ({
           </div>
         </div>
         <form method="dialog" className="modal-backdrop">
-          <button type="button" onClick={() => setIsModalOpen(false)}>close</button>
+          <button type="button" onClick={() => setIsModalOpen(false)}>
+            close
+          </button>
         </form>
       </dialog>
     </>

@@ -19,10 +19,19 @@
       "!**/node_modules",
       "!**/dist",
       "!src-tauri/target",
-      "!**/*.html"
+      "!**/*.html",
+      "!**/android*",
+      "!**/ios*",
+      "!**/keys*",
+      "!**/public/locales*"
     ]
   },
   "linter": { "enabled": true, "rules": { "recommended": true } },
+  "css": {
+    "parser": {
+      "tailwindDirectives": true
+    }
+  },
   "javascript": {
     "formatter": {
       "jsxQuoteStyle": "double",

@@ -158,10 +158,10 @@ const SimpleOrder = () => {
   if (!token) return <Navigate to="/login" />;
   if (!recipe) return <Navigate to="/drinks" />;
 
-  const canOrderDrink = 
-    feasibilityResult?.feasible && 
-    selectedGlass !== null && 
-    !loading && 
+  const canOrderDrink =
+    feasibilityResult?.feasible &&
+    selectedGlass !== null &&
+    !loading &&
     !checking &&
     areAllIngredientsAvailable(feasibilityResult?.requiredIngredients || []);
 
@@ -241,13 +241,17 @@ const SimpleOrder = () => {
                 onClick={handleMakeDrink}
                 disabled={!canOrderDrink || loading}
               >
-                {loading && <span className="loading loading-spinner loading-sm" />}
+                {loading && (
+                  <span className="loading loading-spinner loading-sm" />
+                )}
                 {!loading && <BeakerIcon size={18} className="sm:w-5 sm:h-5" />}
                 {loading ? 'Making your drink...' : 'Make Drink'}
               </button>
               {!canOrderDrink && !loading && (
                 <p className="text-xs sm:text-sm text-error text-center mt-2">
-                  {feasibilityResult?.requiredIngredients?.some((item: any) => item.amountMissing > 0)
+                  {feasibilityResult?.requiredIngredients?.some(
+                    (item: any) => item.amountMissing > 0,
+                  )
                     ? 'Missing ingredients'
                     : 'Select a glass to continue'}
                 </p>

@@ -39,11 +39,12 @@ class WebsocketService {
   async connectWebsocket(token) {
     // Remove trailing slash from API_BASE_URL to prevent double slashes
     const baseUrl = config.API_BASE_URL.replace(/\/$/, '');
-    
+
     this.stompClient = Stomp.over(
-      () => new SockJS(`${baseUrl}/websocket`, null, {
-        transports: ['websocket', 'xhr-streaming', 'xhr-polling']
-      }),
+      () =>
+        new SockJS(`${baseUrl}/websocket`, null, {
+          transports: ['websocket', 'xhr-streaming', 'xhr-polling'],
+        }),
     );
 
     this.stompClient.connectHeaders = {
