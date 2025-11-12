@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import SimpleDrinkDetail from "../pages/simple-mode/simpleDrinkDetail";
+import SimpleDrinkDetail from "../pages/simple-mode/simpleDrinkDetail/simpleDrinkDetail";
 
 export const Route = createFileRoute("/simple/drink/$id")({
 	component: SimpleDrinkDetailRoute,

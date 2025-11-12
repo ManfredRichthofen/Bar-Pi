@@ -1,25 +1,50 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { PlusCircle, Settings } from "lucide-react";
 
-const SimpleDrinkCustomizer = ({
+interface Ingredient {
+	id: string;
+	name: string;
+	type: string;
+	unit: string;
+}
+
+interface AdditionalIngredient {
+	ingredient: Ingredient;
+	amount: number;
+	manualAdd: boolean;
+}
+
+interface Customisations {
+	boost: number;
+	additionalIngredients: AdditionalIngredient[];
+}
+
+interface DrinkCustomizerProps {
+	disableBoosting?: boolean;
+	customisations: Customisations;
+	onCustomisationsChange: (customisations: Customisations) => void;
+	availableIngredients?: Ingredient[];
+}
+
+const DrinkCustomizer = ({
 	disableBoosting = false,
 	customisations,
 	onCustomisationsChange,
 	availableIngredients = [],
-}) => {
+}: DrinkCustomizerProps) => {
 	const [addingIngredient, setAddingIngredient] = useState(false);
-	const [selectedIngredient, setSelectedIngredient] = useState(null);
+	const [selectedIngredient, setSelectedIngredient] = useState<Ingredient | null>(null);
 
 	const additionalIngredients = customisations?.additionalIngredients || [];
 
-	const handleBoostChange = (event) => {
+	const handleBoostChange = (event: React.ChangeEvent<HTMLInputElement>) => {
 		onCustomisationsChange({
 			...customisations,
 			boost: parseInt(event.target.value),
 		});
 	};
 
-	const handleAdditionalIngredientAmountChange = (ingredientId, amount) => {
+	const handleAdditionalIngredientAmountChange = (ingredientId: string, amount: number) => {
 		const updatedIngredients = additionalIngredients.map((ing) =>
 			ing.ingredient.id === ingredientId ? { ...ing, amount } : ing,
 		);
@@ -59,26 +84,27 @@ const SimpleDrinkCustomizer = ({
 	);
 
 	return (
-		<div className="card bg-base-200/50">
+		<div className="card bg-base-200/50 shadow-sm">
 			<div className="collapse collapse-arrow">
 				<input type="checkbox" defaultChecked className="peer" />
-				<div className="collapse-title text-lg font-semibold flex items-center gap-2">
-					<Settings className="w-5 h-5" />
+				<div className="collapse-title text-base sm:text-lg font-semibold flex items-center gap-2 px-3 sm:px-4">
+					<Settings className="w-4 h-4 sm:w-5 sm:h-5" />
 					Customize Drink
 				</div>
-				<div className="collapse-content">
-					<div className="mb-6 mt-4">
-						<h3 className="text-lg font-bold mb-3 break-words">
+				<div className="collapse-content px-3 sm:px-4">
+					<div className="mb-4 sm:mb-6 mt-2 sm:mt-4">
+						<h3 className="text-base sm:text-lg font-bold mb-2 sm:mb-3 break-words">
 							Alcohol Content Adjustment
 						</h3>
 						{disableBoosting ? (
-							<div className="alert alert-warning mb-4">
+							<div className="alert alert-warning mb-3 sm:mb-4 text-sm sm:text-base">
 								<svg
 									xmlns="http://www.w3.org/2000/svg"
-									className="stroke-current shrink-0 h-6 w-6"
+									className="stroke-current shrink-0 h-5 w-5 sm:h-6 sm:w-6"
 									fill="none"
 									viewBox="0 0 24 24"
 								>
+									<title>Warning</title>
 									<path
 										strokeLinecap="round"
 										strokeLinejoin="round"
@@ -91,13 +117,13 @@ const SimpleDrinkCustomizer = ({
 								</span>
 							</div>
 						) : (
-							<p className="text-base-content/70 mb-4 whitespace-normal break-words">
+							<p className="text-base-content/70 mb-3 sm:mb-4 whitespace-normal break-words text-sm sm:text-base">
 								Adjust the strength of your drink by modifying the alcohol
 								content
 							</p>
 						)}
-						<div className="space-y-4">
-							<div className="flex items-center gap-4">
+						<div className="space-y-3 sm:space-y-4">
+							<div className="flex items-center gap-3 sm:gap-4">
 								<input
 									type="range"
 									min={0}
@@ -109,7 +135,7 @@ const SimpleDrinkCustomizer = ({
 									disabled={disableBoosting}
 								/>
 								<div
-									className={`badge ${customisations?.boost > 100 ? "badge-error" : customisations?.boost < 100 ? "badge-warning" : "badge-success"} badge-lg ${disableBoosting ? "opacity-50" : ""}`}
+									className={`badge ${customisations?.boost > 100 ? "badge-error" : customisations?.boost < 100 ? "badge-warning" : "badge-success"} badge-sm sm:badge-lg shrink-0 ${disableBoosting ? "opacity-50" : ""}`}
 								>
 									{customisations?.boost === 100
 										? "Normal"
@@ -117,7 +143,7 @@ const SimpleDrinkCustomizer = ({
 								</div>
 							</div>
 							<div
-								className={`w-full flex justify-between text-sm px-2 text-base-content/70 ${disableBoosting ? "opacity-50" : ""}`}
+								className={`w-full flex justify-between text-xs sm:text-sm px-1 sm:px-2 text-base-content/70 ${disableBoosting ? "opacity-50" : ""}`}
 							>
 								<span>No Alcohol</span>
 								<span>Normal</span>
@@ -128,22 +154,22 @@ const SimpleDrinkCustomizer = ({
 
 					{automatedIngredients.length > 0 && (
 						<div>
-							<h3 className="text-lg font-bold mb-3 break-words">
+							<h3 className="text-base sm:text-lg font-bold mb-2 sm:mb-3 break-words">
 								Additional Ingredients
 							</h3>
-							<p className="text-base-content/70 mb-4 whitespace-normal break-words">
+							<p className="text-base-content/70 mb-3 sm:mb-4 whitespace-normal break-words text-sm sm:text-base">
 								Add extra ingredients to customize your drink
 							</p>
 
-							<div className="space-y-4 mb-4">
+							<div className="space-y-3 sm:space-y-4 mb-3 sm:mb-4">
 								{additionalIngredients.map(({ ingredient, amount }) => (
 									<div
 										key={ingredient.id}
-										className="card bg-base-100 shadow-sm"
+										className="card bg-base-100 shadow-sm hover:shadow-md transition-shadow"
 									>
-										<div className="card-body p-4">
-											<div className="flex items-center justify-between gap-4 flex-wrap">
-												<h4 className="font-bold break-words">
+										<div className="card-body p-3 sm:p-4">
+											<div className="flex items-center justify-between gap-3 sm:gap-4 flex-wrap">
+												<h4 className="font-bold break-words text-sm sm:text-base min-w-0 flex-1">
 													{ingredient.name}
 												</h4>
 												<div className="flex items-center gap-2 shrink-0">
@@ -158,9 +184,9 @@ const SimpleDrinkCustomizer = ({
 																parseFloat(e.target.value),
 															)
 														}
-														className="input input-bordered input-sm w-20"
+														className="input input-bordered input-sm w-16 sm:w-20 text-sm"
 													/>
-													<span className="text-sm">ml</span>
+													<span className="text-xs sm:text-sm">ml</span>
 												</div>
 											</div>
 										</div>
@@ -169,16 +195,16 @@ const SimpleDrinkCustomizer = ({
 
 								{addingIngredient ? (
 									<div className="card bg-base-100 shadow-sm">
-										<div className="card-body p-4">
-											<h4 className="font-bold mb-3">Add New Ingredient</h4>
+										<div className="card-body p-3 sm:p-4">
+											<h4 className="font-bold mb-2 sm:mb-3 text-sm sm:text-base">Add New Ingredient</h4>
 											<select
-												className="select select-bordered w-full mb-3"
+												className="select select-bordered w-full mb-2 sm:mb-3 text-sm sm:text-base h-10 sm:h-12"
 												value={selectedIngredient?.id || ""}
 												onChange={(e) => {
 													const ingredient = automatedIngredients.find(
 														(ing) => ing.id === e.target.value,
 													);
-													setSelectedIngredient(ingredient);
+													setSelectedIngredient(ingredient || null);
 												}}
 											>
 												<option value="">Select ingredient</option>
@@ -197,14 +223,16 @@ const SimpleDrinkCustomizer = ({
 											</select>
 											<div className="flex gap-2">
 												<button
-													className="btn btn-primary btn-sm flex-1"
+													type="button"
+													className="btn btn-primary btn-sm flex-1 h-9 sm:h-10 text-sm sm:text-base"
 													onClick={handleAddIngredient}
 													disabled={!selectedIngredient}
 												>
 													Add
 												</button>
 												<button
-													className="btn btn-ghost btn-sm flex-1"
+													type="button"
+													className="btn btn-ghost btn-sm flex-1 h-9 sm:h-10 text-sm sm:text-base"
 													onClick={() => {
 														setAddingIngredient(false);
 														setSelectedIngredient(null);
@@ -217,10 +245,11 @@ const SimpleDrinkCustomizer = ({
 									</div>
 								) : (
 									<button
-										className="btn btn-outline w-full h-12 gap-2"
+										type="button"
+										className="btn btn-outline w-full h-10 sm:h-12 gap-2 text-sm sm:text-base hover:shadow-md transition-shadow"
 										onClick={() => setAddingIngredient(true)}
 									>
-										<PlusCircle className="w-5 h-5" />
+										<PlusCircle className="w-4 h-4 sm:w-5 sm:h-5" />
 										Add Ingredient
 									</button>
 								)}
@@ -233,4 +262,4 @@ const SimpleDrinkCustomizer = ({
 	);
 };
 
-export default SimpleDrinkCustomizer;
+export default DrinkCustomizer;
