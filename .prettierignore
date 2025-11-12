@@ -1,7 +1,0 @@
-# Ignore artifacts:
-node_modules
-dist
-src-tauri/target
-
-# Ignore all HTML files:
-**/*.html
