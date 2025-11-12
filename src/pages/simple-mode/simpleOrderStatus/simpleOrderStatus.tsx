@@ -19,7 +19,9 @@ const SimpleOrderStatus = () => {
   const progress = useCocktailProgressStore((state) => state.progress);
   const token = useAuthStore((state) => state.token);
 
-  useWebSocket(token);
+  // Maintain constant WebSocket connection for real-time updates
+  // keepAlive=true ensures connection stays active even if component temporarily unmounts
+  useWebSocket(token, true);
 
   // Give WebSocket time to receive progress update after ordering
   useEffect(() => {
@@ -28,6 +30,13 @@ const SimpleOrderStatus = () => {
     }, 2000); // Wait 2 seconds for WebSocket to update
     return () => clearTimeout(timer);
   }, []);
+
+  // Stop waiting once we receive progress
+  useEffect(() => {
+    if (progress) {
+      setIsWaitingForProgress(false);
+    }
+  }, [progress]);
 
   const handleCancel = async () => {
     if (!token) return;

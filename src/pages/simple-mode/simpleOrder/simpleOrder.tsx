@@ -158,7 +158,12 @@ const SimpleOrder = () => {
   if (!token) return <Navigate to="/login" />;
   if (!recipe) return <Navigate to="/drinks" />;
 
-  const canOrderDrink = feasibilityResult?.feasible && !loading && !checking;
+  const canOrderDrink = 
+    feasibilityResult?.feasible && 
+    selectedGlass !== null && 
+    !loading && 
+    !checking &&
+    areAllIngredientsAvailable(feasibilityResult?.requiredIngredients || []);
 
   const hasBoostableIngredients = feasibilityResult?.requiredIngredients?.some(
     (item: any) =>
@@ -258,6 +263,11 @@ const SimpleOrder = () => {
                 defaultGlass={recipe.defaultGlass || null}
                 token={token}
                 setSelectedGlass={setSelectedGlass}
+                onGlassChange={(glass) => {
+                  if (glass) {
+                    setAmountToProduce(glass.sizeInMl);
+                  }
+                }}
               />
 
               <div className="space-y-3 sm:space-y-4 mt-4 sm:mt-6">
