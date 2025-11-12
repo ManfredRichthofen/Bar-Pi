@@ -10,7 +10,6 @@
     "format": "biome format --write",
     "lint": "biome lint --write",
     "check": "biome check --write",
-    "tauri": "tauri"
   },
   "dependencies": {
     "@capacitor/android": "^7.4.3",
@@ -49,7 +48,6 @@
     "@tanstack/react-query-devtools": "^5.69.0",
     "@tanstack/react-router-devtools": "^1.131.27",
     "@tanstack/router-plugin": "^1.131.27",
-    "@tauri-apps/cli": "^2.2.7",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
     "@vitejs/plugin-react-swc": "^4.0.0",
