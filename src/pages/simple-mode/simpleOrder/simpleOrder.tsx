@@ -38,7 +38,7 @@ const SimpleOrder = () => {
 	const token = useAuthStore((state) => state.token);
 	const location = useLocation();
 	const navigate = useNavigate();
-	const recipe = location.state?.recipe as Recipe | undefined;
+	const recipe = (location.state as any)?.recipe as Recipe | undefined;
 	const [selectedGlass, setSelectedGlass] = useState<Glass | null>(null);
 	const [boost, setBoost] = useState(100);
 	const [ingredients, setIngredients] = useState<Ingredient[]>([]);

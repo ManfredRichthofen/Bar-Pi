@@ -28,7 +28,7 @@ interface Recipe {
 const SimpleDrinkDetail = () => {
 	const navigate = useNavigate();
 	const location = useLocation();
-	const recipe = location.state?.recipe as Recipe | undefined;
+	const recipe = (location.state as any)?.recipe as Recipe | undefined;
 
 	// Redirect if no recipe data
 	if (!recipe) {
@@ -37,7 +37,7 @@ const SimpleDrinkDetail = () => {
 	}
 
 	const handleMakeDrink = () => {
-		navigate({ to: "/simple/order", state: { recipe } });
+		navigate({ to: "/simple/order", state: { recipe } as any });
 	};
 
 	const handleBack = () => {
