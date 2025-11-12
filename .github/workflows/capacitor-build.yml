@@ -55,7 +55,9 @@ jobs:
       - name: Decode Keystore
         if: github.ref == 'refs/heads/main'
         run: |
-          echo "${{ secrets.ANDROID_KEYSTORE_FILE }}" | base64 --decode > android/app/release.jks
+          echo "${{ secrets.ANDROID_KEYSTORE_FILE }}" > keystore_b64.txt
+          base64 -d keystore_b64.txt > android/app/release.jks
+          rm keystore_b64.txt
           ls -la android/app/release.jks
           file android/app/release.jks
           echo "Keystore file created successfully"
