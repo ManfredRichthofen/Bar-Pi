@@ -6,9 +6,13 @@
 		"forgot_password": "Forgot your password?",
 		"no_account": "Don't have an account?",
 		"create_account": "Create one here",
+		"create_account_short": "Sign up",
 		"headline": "Welcome to the",
+		"headline_short": "Sign in",
 		"subtitle": "Please sign in to your account",
+		"divider_text": "sign in with email",
 		"btn_label": "Sign in to your account",
+		"btn_label_short": "Login",
 		"logging_in": "Signing you in...",
 		"errors_field_required": "This field is required",
 		"api_url": "API URL",
@@ -27,7 +31,10 @@
 		"edit": "Edit",
 		"close": "Close",
 		"logout": "Logout",
-		"confirm_logout": "Are you sure you want to logout?"
+		"confirm_logout": "Are you sure you want to logout?",
+		"show": "Show",
+		"hide": "Hide",
+		"optional": "optional"
 	},
 
 	"pump_status": {

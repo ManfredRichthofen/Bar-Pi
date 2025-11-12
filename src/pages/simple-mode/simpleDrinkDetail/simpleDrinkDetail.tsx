@@ -45,7 +45,7 @@ const SimpleDrinkDetail = () => {
 	};
 
 	return (
-		<div className="min-h-screen bg-base-100 flex flex-col">
+		<div className="min-h-screen bg-base-100 flex flex-col pb-20 sm:pb-0">
 			{/* Header */}
 			<div className="sticky top-0 z-20 bg-base-100/95 backdrop-blur-md border-b border-base-200 shadow-sm">
 				<div className="px-3 sm:px-4 py-3 sm:py-4 flex items-center justify-between">
@@ -71,6 +71,16 @@ const SimpleDrinkDetail = () => {
 					{/* Image */}
 					<DrinkImage image={recipe.image} name={recipe.name} />
 
+					{/* Make Drink Button - Below Image */}
+					<button
+						type="button"
+						onClick={handleMakeDrink}
+						className="btn btn-primary w-full h-12 sm:h-14 gap-2 sm:gap-3 text-sm sm:text-base font-semibold shadow-lg hover:shadow-xl transition-all duration-200 active:scale-95"
+					>
+						<Beaker className="w-4 h-4 sm:w-5 sm:h-5" />
+						Make Drink
+					</button>
+
 					{/* Description and Info */}
 					<DrinkInfo
 						description={recipe.description}
@@ -81,18 +91,6 @@ const SimpleDrinkDetail = () => {
 					{/* Ingredients */}
 					<IngredientsList ingredients={recipe.ingredients} />
 				</div>
-			</div>
-
-			{/* Fixed bottom action button */}
-			<div className="bg-base-100/95 backdrop-blur-md border-t border-base-200 p-3 sm:p-4 shadow-lg">
-				<button
-					type="button"
-					onClick={handleMakeDrink}
-					className="btn btn-primary w-full h-12 sm:h-14 gap-2 sm:gap-3 text-sm sm:text-base font-semibold shadow-lg hover:shadow-xl transition-all duration-200"
-				>
-					<Beaker className="w-4 h-4 sm:w-5 sm:h-5" />
-					Make Drink
-				</button>
 			</div>
 		</div>
 	);

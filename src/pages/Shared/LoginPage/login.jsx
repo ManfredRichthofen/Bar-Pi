@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { useNavigate, useLocation } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 import useAuthStore from "../../../store/authStore";
@@ -8,7 +8,7 @@ import backgroundS from "../../../assets/login/background_s.jpg";
 import backgroundM from "../../../assets/login/background_m.jpg";
 import backgroundL from "../../../assets/login/background_l.jpg";
 import backgroundXL from "../../../assets/login/background_xl.jpg";
-import { User, KeyRound, ArrowRight, Globe, XCircle, ChevronDown, ChevronUp, Settings } from "lucide-react";
+import { User, KeyRound, Globe, XCircle, Settings } from "lucide-react";
 
 const Login = () => {
 	const { t } = useTranslation();
@@ -54,158 +54,166 @@ const Login = () => {
 	};
 
 	return (
-		<div
-			className="min-h-screen flex items-center justify-center bg-cover bg-center bg-no-repeat px-4 py-8"
-			style={{ backgroundImage: `url(${getBackgroundImage()})` }}
-		>
-			<div className="card w-full max-w-md bg-base-100 shadow-xl border border-base-300">
-				<div className="card-body p-6 sm:p-8">
-					<div className="text-center mb-6">
-						<img
-							src={logoFull}
-							alt="Logo"
-							className="mx-auto mb-4 w-20 sm:w-24 drop-shadow-sm"
-						/>
-						<h2 className="text-2xl font-bold mb-2 break-words text-base-content">
-							{t("login.headline")}
-						</h2>
-						<p className="text-sm text-base-content/70 break-words">
-							{t("login.subtitle") || "Please sign in to your account"}
-						</p>
+		<div className="flex h-screen w-full">
+			{/* Left Side - Background Image (Hidden on Mobile) */}
+			<div 
+				className="w-full hidden md:flex bg-cover bg-center"
+				style={{ backgroundImage: `url(${getBackgroundImage()})` }}
+			/>
+
+			{/* Right Side - Login Form */}
+			<div className="w-full flex flex-col items-center justify-center bg-base-100 p-6">
+				<form
+					name="login"
+					onSubmit={(e) => {
+						e.preventDefault();
+						const formData = new FormData(e.target);
+						onSubmit({
+							username: formData.get("username"),
+							password: formData.get("password"),
+							remember: formData.get("remember") === "on",
+						});
+					}}
+					className="md:w-96 w-80 flex flex-col items-center justify-center"
+				>
+					{/* Logo */}
+					<div className="avatar mb-6">
+						<div className="w-16 rounded-full">
+							<img src={logoFull} alt="Logo" />
+						</div>
 					</div>
 
+					{/* Header */}
+					<h2 className="text-4xl text-base-content font-medium">
+						{t("login.headline_short") || "Sign in"}
+					</h2>
+					<p className="text-sm text-base-content/60 mt-3">
+						{t("login.subtitle")}
+					</p>
+
+					{/* Error Alert */}
 					{error && (
-						<div className="alert alert-error mb-6 shadow-lg">
-							<XCircle className="w-5 h-5 shrink-0" />
-							<span className="break-words font-medium">{error}</span>
+						<div role="alert" className="alert alert-error w-full mt-6 text-sm">
+							<XCircle className="w-4 h-4 shrink-0" />
+							<span>{error}</span>
 						</div>
 					)}
 
-					<form
-						name="login"
-						onSubmit={(e) => {
-							e.preventDefault();
-							const formData = new FormData(e.target);
-							onSubmit({
-								username: formData.get("username"),
-								password: formData.get("password"),
-								remember: formData.get("remember") === "on",
-							});
-						}}
-						className="space-y-4"
-					>
-						<fieldset className="fieldset border-base-300">
-							<legend className="fieldset-legend flex items-center gap-2 text-base-content font-medium">
-								<User className="w-4 h-4 shrink-0" />
-								<span className="break-words">{t("login.username")}</span>
-							</legend>
-							<input
-								type="text"
-								name="username"
-								placeholder={t("login.username_field_label")}
-								className="input w-full bg-base-100 focus:outline-none py-3 border-base-300 focus:border-primary"
-								required
-								autoComplete="username"
-								autoCapitalize="none"
-								inputMode="email"
-							/>
-						</fieldset>
+					{/* Divider */}
+					<div className="flex items-center gap-4 w-full my-8">
+						<div className="w-full h-px bg-base-300"></div>
+						<p className="text-nowrap text-sm text-base-content/60">
+							{t("login.divider_text") || "sign in with email"}
+						</p>
+						<div className="w-full h-px bg-base-300"></div>
+					</div>
 
-						<fieldset className="fieldset border-base-300">
-							<legend className="fieldset-legend flex items-center gap-2 text-base-content font-medium">
-								<KeyRound className="w-4 h-4 shrink-0" />
-								<span className="break-words">{t("login.password")}</span>
-							</legend>
-							<input
-								type="password"
-								name="password"
-								placeholder={t("login.password_field_label")}
-								className="input w-full bg-base-100 focus:outline-none py-3 border-base-300 focus:border-primary"
-								required
-								autoComplete="current-password"
-							/>
-						</fieldset>
+					{/* Username Input */}
+					<div className="flex items-center w-full bg-transparent border border-base-300 h-12 rounded-full overflow-hidden pl-6 gap-3 focus-within:border-primary transition-colors">
+						<User className="w-4 h-4 opacity-60" />
+						<input
+							type="text"
+							name="username"
+							placeholder={t("login.username_field_label")}
+							className="bg-transparent text-base-content placeholder:text-base-content/50 outline-none text-sm w-full h-full pr-6"
+							required
+							autoComplete="username"
+							autoCapitalize="none"
+							inputMode="email"
+						/>
+					</div>
 
-						<div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-							<label className="label cursor-pointer hover:bg-base-200 rounded-lg p-2 transition-colors">
-								<input
-									type="checkbox"
-									name="remember"
-									className="checkbox checkbox-primary checkbox-sm"
-								/>
-								<span className="label-text ml-2 text-sm break-words font-medium">
-									{t("login.remember_me") || "Remember me"}
-								</span>
+					{/* Password Input */}
+					<div className="flex items-center mt-6 w-full bg-transparent border border-base-300 h-12 rounded-full overflow-hidden pl-6 gap-3 focus-within:border-primary transition-colors">
+						<KeyRound className="w-4 h-4 opacity-60" />
+						<input
+							type="password"
+							name="password"
+							placeholder={t("login.password_field_label")}
+							className="bg-transparent text-base-content placeholder:text-base-content/50 outline-none text-sm w-full h-full pr-6"
+							required
+							autoComplete="current-password"
+						/>
+					</div>
+
+					{/* Remember Me & Forgot Password */}
+					<div className="w-full flex items-center justify-between mt-8 text-base-content/70">
+						<div className="flex items-center gap-2">
+							<input
+								className="checkbox checkbox-sm"
+								type="checkbox"
+								name="remember"
+								id="remember-checkbox"
+							/>
+							<label className="text-sm cursor-pointer" htmlFor="remember-checkbox">
+								{t("login.remember_me")}
 							</label>
-
-							<a href="/forgot-password" className="link link-primary text-sm break-words hover:underline">
-								{t("login.forgot_password") || "Forgot your password?"}
-							</a>
 						</div>
+						<a className="text-sm hover:underline" href="/forgot-password">
+							{t("login.forgot_password")}
+						</a>
+					</div>
 
-						{/* Advanced Settings Expander */}
-						<div className="collapse collapse-arrow bg-base-200/50 border border-base-300 w-full">
-							<input 
-								type="checkbox" 
-								checked={showAdvanced}
-								onChange={(e) => setShowAdvanced(e.target.checked)}
-							/>
-							<div className="collapse-title text-sm font-medium flex items-center gap-2 min-h-0 hover:bg-base-200/70 transition-colors">
-								<Settings className="w-4 h-4 shrink-0" />
-								<span className="break-words">{t("login.advanced_settings") || "Advanced Settings"}</span>
+					{/* Advanced Settings */}
+					{showAdvanced && (
+						<div className="w-full mt-6">
+							<div className="flex items-center w-full bg-transparent border border-base-300 h-12 rounded-full overflow-hidden pl-6 gap-3 focus-within:border-primary transition-colors">
+								<Globe className="w-4 h-4 opacity-60" />
+								<input
+									type="url"
+									name="apiBaseUrl"
+									value={apiBaseUrl}
+									onChange={(e) => setApiBaseUrl(e.target.value)}
+									onKeyDown={(e) => {
+										if (e.key === "Backspace" || e.key === "Delete") {
+											e.stopPropagation();
+										}
+									}}
+									placeholder={`${t("login.api_url")} (${t("common.optional") || "optional"})`}
+									className="bg-transparent text-base-content placeholder:text-base-content/50 outline-none text-sm w-full h-full pr-6"
+									autoComplete="url"
+									inputMode="url"
+								/>
 							</div>
-							<div className="collapse-content">
-								<fieldset className="fieldset mt-3 border-base-300">
-									<legend className="fieldset-legend flex items-center gap-2 text-base-content font-medium">
-										<Globe className="w-4 h-4 shrink-0" />
-										<span className="break-words">{t("login.api_url")}</span>
-									</legend>
-									<input
-										type="url"
-										name="apiBaseUrl"
-										value={apiBaseUrl}
-										onChange={(e) => setApiBaseUrl(e.target.value)}
-										onKeyDown={(e) => {
-											if (e.key === "Backspace" || e.key === "Delete") {
-												e.stopPropagation();
-											}
-										}}
-										placeholder="https://api.example.com"
-										className="input w-full bg-base-100 focus:outline-none p-3 break-all border-base-300 focus:border-primary"
-										autoComplete="url"
-										inputMode="url"
-									/>
-									<p className="label text-base-content/60 break-words whitespace-normal mt-2">
-										{t("login.api_url_help") || "Leave empty to use default API endpoint"}
-									</p>
-								</fieldset>
-							</div>
-						</div>
-
-						<button
-							type="submit"
-							className="btn btn-primary w-full py-3 min-h-[3rem] text-sm mt-4 shadow-lg hover:shadow-xl transition-all duration-200"
-							disabled={loading}
-						>
-							{loading && <span className="loading loading-spinner loading-sm"></span>}
-							{!loading && <ArrowRight className="w-5 h-5 mr-2 shrink-0" />}
-							<span className="break-words font-medium">
-								{loading
-									? t("login.logging_in") || "Signing you in..."
-									: t("login.btn_label") || "Sign in to your account"}
-							</span>
-						</button>
-
-						<div className="text-center mt-6 pt-4 border-t border-base-300">
-							<p className="break-words text-base-content/70">
-								{t("login.no_account") || "Don't have an account?"}{" "}
-								<a href="/register" className="link link-primary break-words hover:underline font-medium">
-									{t("login.create_account") || "Create one here"}
-								</a>
+							<p className="text-xs text-base-content/50 mt-2 px-6">
+								{t("login.api_url_help")}
 							</p>
 						</div>
-					</form>
-				</div>
+					)}
+
+					<button
+						type="button"
+						onClick={() => setShowAdvanced(!showAdvanced)}
+						className="text-sm text-base-content/60 hover:text-base-content mt-4 flex items-center gap-1"
+					>
+						<Settings className="w-3 h-3" />
+						{showAdvanced ? t("common.hide") || "Hide" : t("common.show") || "Show"} {t("login.advanced_settings")}
+					</button>
+
+					{/* Sign In Button */}
+					<button
+						type="submit"
+						className="mt-8 w-full h-11 rounded-full text-white bg-primary hover:opacity-90 transition-opacity disabled:opacity-50 flex items-center justify-center gap-2"
+						disabled={loading}
+					>
+						{loading ? (
+							<>
+								<span className="loading loading-spinner loading-sm"></span>
+								{t("login.logging_in")}
+							</>
+						) : (
+							t("login.btn_label_short") || t("login.btn_label")
+						)}
+					</button>
+
+					{/* Sign Up Link */}
+					<p className="text-base-content/60 text-sm mt-4">
+						{t("login.no_account")}{" "}
+						<a className="text-primary hover:underline" href="/register">
+							{t("login.create_account_short") || t("login.create_account")}
+						</a>
+					</p>
+				</form>
 			</div>
 		</div>
 	);
