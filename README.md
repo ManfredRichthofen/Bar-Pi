@@ -11,22 +11,40 @@ Bar Pi is a bar management system that allows you to manage your bar's inventory
 - **Glass Selection**: Choose appropriate glassware for each drink
 - **Customization**: Adjust drink ingredients and proportions
 
+## File Structure:
+
+- `src/` - Source code
+   - `pages/`
+      - `AdvancedMode/`
+         - `Page Name` - Page Folder
+            - `index.jsx` - Page
+            - `components/` - Page Specific Components
+   - `components/` - Shared Components
+   - `services/` - API services
+   - `store/` - Zustand store
+   - `translations/` - i18next translations
+- `public/` - Static files
+- `dist/` - Production build
+- `android/` - Android app
+- `ios/` - iOS app
+
 ## Tech Stack
 
-Bar Pi is built with modern web technologies:
+Bar Pi is built with:
 
-- [React](https://reactjs.org/) - Frontend framework
-- [Tailwind CSS](https://tailwindcss.com/) - Utility-first CSS framework
-- [Vite](https://vitejs.dev/) - Next generation frontend tooling
-- [Zustand](https://github.com/pmndrs/zustand) - State management
-- [Tauri](https://tauri.app/) - Desktop application framework
+- [React](https://reactjs.org/)
+- [Tailwind CSS](https://tailwindcss.com/)
+- [Vite](https://vitejs.dev/)
+- [Zustand](https://github.com/pmndrs/zustand)
+- [Capacitor](https://capacitorjs.com/)
+- [React-i18next](https://react.i18next.com/)
+- [daisyUI](https://daisyui.com/)
 
 ## Development
 
 ### Prerequisites
 
 - [Node.js](https://nodejs.org/) (v16 or higher)
-- [Rust](https://www.rust-lang.org/) (for Tauri development)
 - [Git](https://git-scm.com/)
 
 ### Getting Started
@@ -48,11 +66,6 @@ Bar Pi is built with modern web technologies:
 
    ```bash
    npm run dev
-   ```
-
-4. Start the Tauri development application:
-   ```bash
-   npm run tauri dev
    ```
 
 ### Quick Installation (Raspberry Pi)
@@ -107,7 +120,7 @@ To create a production build:
 
 ```bash
 npm run build
-npm run tauri build
+npm run cap:build (Android Apk)
 ```
 
 ### Contributing

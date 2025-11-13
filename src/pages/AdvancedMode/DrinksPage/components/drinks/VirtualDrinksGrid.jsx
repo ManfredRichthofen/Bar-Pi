@@ -4,7 +4,7 @@ import { useInfiniteQuery } from '@tanstack/react-query';
 import { AlertCircle, Search } from 'lucide-react';
 import debounce from 'lodash/debounce';
 
-import RecipeService from '../../services/recipe.service.js';
+import RecipeService from '@/services/recipe.service.js';
 import DrinkCard from './DrinkCard.jsx';
 
 function VirtualDrinksGrid({ token, searchTerm, collapsed = false }) {

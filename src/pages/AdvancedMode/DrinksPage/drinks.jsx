@@ -1,7 +1,7 @@
 import React, { useState, useCallback } from 'react';
-import useAuthStore from '../../../store/authStore.js';
+import useAuthStore from '@/store/authStore.js';
 import { Navigate } from '@tanstack/react-router';
-import VirtualDrinksGrid from '../../../components/drinks/VirtualDrinksGrid.jsx';
+import VirtualDrinksGrid from './components/drinks/VirtualDrinksGrid.jsx';
 import { Search } from 'lucide-react';
 import debounce from 'lodash/debounce';
 

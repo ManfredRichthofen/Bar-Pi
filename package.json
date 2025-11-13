@@ -6,6 +6,9 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
+    "cap:build": "capacitor build",
+    "cap:sync": "capacitor sync",
+    "cap:open": "capacitor open",
     "preview": "vite preview",
     "format": "biome format --write",
     "lint": "biome lint --write",
