@@ -97,7 +97,7 @@ const Pumps = () => {
   };
 
   return (
-    <div className="min-h-screen bg-base-100 p-4">
+    <div className="min-h-screen bg-base-100">
       {/* Loading Overlay */}
       {loading && (
         <div className="fixed inset-0 bg-base-100/50 backdrop-blur-sm flex justify-center items-center z-50">
@@ -105,85 +105,88 @@ const Pumps = () => {
         </div>
       )}
 
-      {/* Error Alert */}
-      {error && (
-        <div className="alert alert-error mb-4 shadow-lg">
-          <AlertCircle className="h-6 w-6 shrink-0" />
-          <span className="font-medium break-words">{error}</span>
-        </div>
-      )}
-
       {/* Header */}
-      <h1 className="text-xl sm:text-2xl font-bold text-base-content break-words mb-4">
-        Pump Management
-      </h1>
-
-      {/* Button Group */}
-      <div className="flex flex-wrap gap-2 mb-6">
-        <button
-          type="button"
-          className="btn btn-primary shadow-md hover:shadow-lg transition-all duration-200"
-          onClick={() => setShowAddDialog(true)}
-        >
-          <PlusCircle className="h-4 w-4 mr-2" />
-          Add Pump
-        </button>
-        <button
-          type="button"
-          className="btn btn-success shadow-md hover:shadow-lg transition-all duration-200"
-          onClick={onClickTurnOnAllPumps}
-        >
-          <PlayCircle className="h-4 w-4 mr-2" />
-          Start All
-        </button>
-        <button
-          type="button"
-          className="btn btn-error shadow-md hover:shadow-lg transition-all duration-200"
-          onClick={onClickTurnOffAllPumps}
-        >
-          <StopCircle className="h-4 w-4 mr-2" />
-          Stop All
-        </button>
+      <div className="sticky top-0 z-20 bg-base-100/95 backdrop-blur-md border-b border-base-200 shadow-sm">
+        <div className="p-4 space-y-4">
+          <div className="flex items-center justify-between">
+            <h1 className="text-xl font-bold">Pump Management</h1>
+            <div className="flex flex-wrap gap-2">
+              <button
+                type="button"
+                className="btn btn-primary btn-sm"
+                onClick={() => setShowAddDialog(true)}
+              >
+                <PlusCircle className="h-4 w-4 mr-2" />
+                Add Pump
+              </button>
+              <button
+                type="button"
+                className="btn btn-success btn-sm"
+                onClick={onClickTurnOnAllPumps}
+              >
+                <PlayCircle className="h-4 w-4 mr-2" />
+                Start All
+              </button>
+              <button
+                type="button"
+                className="btn btn-error btn-sm"
+                onClick={onClickTurnOffAllPumps}
+              >
+                <StopCircle className="h-4 w-4 mr-2" />
+                Stop All
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Main Content */}
-      <div className="grid grid-cols-12 gap-6">
-        {/* Pump Status Sidebar */}
-        <div className="col-span-12 lg:col-span-3">
-          <PumpStatus />
-        </div>
+      <div className="p-4 sm:p-6 lg:p-8">
+        <div className="max-w-screen-2xl mx-auto">
+          {/* Error Alert */}
+          {error && (
+            <div className="alert alert-error mb-6 shadow-lg">
+              <AlertCircle className="h-6 w-6 shrink-0" />
+              <span className="font-medium break-words">{error}</span>
+            </div>
+          )}
 
-        {/* Pump Cards Grid */}
-        <div className="col-span-12 lg:col-span-9">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {pumps && pumps.length > 0 ? (
-              pumps.map((pump) => (
-                <div key={pump.id} className="w-full">
-                  <PumpCard pump={pump} showDetailed={true} />
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            {/* Pump Status Sidebar */}
+            <div className="lg:col-span-3">
+              <PumpStatus />
+            </div>
+
+            {/* Pump Cards Grid */}
+            <div className="lg:col-span-9">
+              {pumps && pumps.length > 0 ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-5 lg:gap-6">
+                  {pumps.map((pump) => (
+                    <div key={pump.id} className="w-full">
+                      <PumpCard pump={pump} showDetailed={true} />
+                    </div>
+                  ))}
                 </div>
-              ))
-            ) : (
-              <div className="col-span-full">
-                <div className="card bg-base-200 shadow-lg border border-base-300">
-                  <div className="card-body p-6 flex flex-col items-center justify-center text-center">
-                    <AlertCircle className="h-12 w-12 text-base-content/50 mb-4" />
-                    <h3 className="text-lg font-semibold text-base-content mb-2">
-                      No Pumps Found
-                    </h3>
-                    <p className="text-base-content/70 mb-4">
-                      Get started by adding your first pump
-                    </p>
-                    <button
-                      className="btn btn-primary shadow-md hover:shadow-lg transition-all duration-200"
-                      onClick={() => setShowAddDialog(true)}
-                    >
-                      <PlusCircle className="h-5 w-5 mr-2" />
-                      Add First Pump
-                    </button>
+              ) : (
+                <div className="flex flex-col items-center justify-center py-12 px-4">
+                  <div className="text-base-content/40 mb-4">
+                    <AlertCircle className="h-16 w-16" />
                   </div>
+                  <h3 className="text-lg font-semibold mb-2">No Pumps Found</h3>
+                  <p className="text-base-content/60 text-center text-sm mb-4">
+                    Get started by adding your first pump
+                  </p>
+                  <button
+                    type="button"
+                    className="btn btn-primary"
+                    onClick={() => setShowAddDialog(true)}
+                  >
+                    <PlusCircle className="h-5 w-5 mr-2" />
+                    Add First Pump
+                  </button>
                 </div>
-              </div>
-            )}
+              )}
+            </div>
           </div>
         </div>
       </div>

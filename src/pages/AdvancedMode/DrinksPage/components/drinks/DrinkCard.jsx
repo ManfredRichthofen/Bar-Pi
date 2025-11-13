@@ -1,13 +1,21 @@
 import React, { useState } from 'react';
-import { BeakerIcon, PencilIcon } from 'lucide-react';
+import { BeakerIcon, PencilIcon, Heart } from 'lucide-react';
 import { useNavigate } from '@tanstack/react-router';
+import useFavoritesStore from '@/store/favoritesStore';
 
 const DrinkCard = ({ recipe }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const navigate = useNavigate();
+  const { toggleFavorite, isFavorite } = useFavoritesStore();
+  const favorited = isFavorite(recipe.id);
 
   const showModal = () => setIsModalOpen(true);
   const handleCancel = () => setIsModalOpen(false);
+  
+  const handleToggleFavorite = (e) => {
+    e.stopPropagation();
+    toggleFavorite(recipe);
+  };
 
   const handleMakeDrink = () => {
     navigate({ to: '/order', state: { recipe } });
@@ -25,7 +33,7 @@ const DrinkCard = ({ recipe }) => {
         onClick={showModal}
         className="card bg-base-100 shadow-md hover:shadow-lg hover:-translate-y-1 transition-all duration-200 h-full cursor-pointer"
       >
-        <figure className="aspect-[4/3] sm:aspect-[16/9]">
+        <figure className="relative aspect-[4/3] sm:aspect-[16/9]">
           {recipe.image ? (
             <img
               src={recipe.image}
@@ -39,6 +47,20 @@ const DrinkCard = ({ recipe }) => {
               </span>
             </div>
           )}
+          {/* Favorite button */}
+          <div className="absolute top-2 right-2">
+            <button
+              type="button"
+              onClick={handleToggleFavorite}
+              className={`btn btn-circle btn-sm ${
+                favorited
+                  ? 'bg-error/90 hover:bg-error border-none text-error-content'
+                  : 'bg-base-100/90 hover:bg-base-100 border-base-300'
+              }`}
+            >
+              <Heart size={16} fill={favorited ? 'currentColor' : 'none'} />
+            </button>
+          </div>
         </figure>
 
         <div className="card-body p-3 sm:p-4">
@@ -167,6 +189,7 @@ const DrinkCard = ({ recipe }) => {
 
             <div className="modal-action mt-4 flex-wrap gap-2">
               <button
+                type="button"
                 className="btn btn-primary gap-2 flex-1 sm:flex-none"
                 onClick={handleMakeDrink}
               >
@@ -174,13 +197,24 @@ const DrinkCard = ({ recipe }) => {
                 Make Drink
               </button>
               <button
+                type="button"
+                className={`btn gap-2 flex-1 sm:flex-none ${
+                  favorited ? 'btn-error' : 'btn-ghost'
+                }`}
+                onClick={handleToggleFavorite}
+              >
+                <Heart size={16} fill={favorited ? 'currentColor' : 'none'} />
+                {favorited ? 'Unfavorite' : 'Favorite'}
+              </button>
+              <button
+                type="button"
                 className="btn gap-2 flex-1 sm:flex-none"
                 onClick={handleEditRecipe}
               >
                 <PencilIcon size={16} />
                 Edit Recipe
               </button>
-              <button className="btn w-full sm:w-auto" onClick={handleCancel}>
+              <button type="button" className="btn w-full sm:w-auto" onClick={handleCancel}>
                 Close
               </button>
             </div>

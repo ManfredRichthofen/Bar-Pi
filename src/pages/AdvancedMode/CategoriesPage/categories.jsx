@@ -21,15 +21,17 @@ const Categories = ({ sidebarCollapsed = false }) => {
       </div>
 
       {/* Main Content */}
-      <div className="p-6">
-        <div className="max-w-4xl mx-auto">
-          <div className="text-center py-12">
+      <div className="p-4 sm:p-6 lg:p-8">
+        <div className="max-w-screen-2xl mx-auto">
+          <div className="flex flex-col items-center justify-center py-12 px-4">
             <div className="text-base-content/40 mb-4">
               <svg
-                className="w-16 h-16 mx-auto"
+                className="w-16 h-16"
                 fill="currentColor"
                 viewBox="0 0 20 20"
+                aria-labelledby="categories-title"
               >
+                <title id="categories-title">Categories icon</title>
                 <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z" />
               </svg>
             </div>
