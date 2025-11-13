@@ -4,11 +4,6 @@ import useAuthStore from '../store/authStore';
 import useUIModeStore from '../store/uiModeStore';
 import { themeChange } from 'theme-change';
 import { useTranslation } from 'react-i18next';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
-
-// Initialize the query client
-const queryClient = new QueryClient();
 
 export const Route = createRootRoute({
   component: RootComponent,
@@ -60,17 +55,13 @@ function RootComponent() {
     });
 
     return () => observer.disconnect();
-  }, [i18n]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Show nothing while initializing to prevent flash of incorrect content
   if (!isAuthInitialized || !isUIModeInitialized) {
     return null;
   }
 
-  return (
-    <QueryClientProvider client={queryClient}>
-      <Outlet />
-      <ReactQueryDevtools initialIsOpen={false} />
-    </QueryClientProvider>
-  );
+  return <Outlet />;
 }

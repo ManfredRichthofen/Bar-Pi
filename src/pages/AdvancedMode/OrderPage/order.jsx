@@ -3,10 +3,10 @@ import { BeakerIcon, XCircle, PlayCircle } from 'lucide-react';
 import { Navigate, useLocation, useNavigate } from '@tanstack/react-router';
 import useAuthStore from '../../../store/authStore';
 import cocktailService from '../../../services/cocktail.service';
-import DrinkCustomizer from '../../../components/order/DrinkCustomizer';
+import DrinkCustomizer from './components/DrinkCustomizer';
 import glassService from '../../../services/glass.service';
-import IngredientRequirements from '../../../components/order/IngredientRequirements';
-import GlassSelector from '../../../components/order/GlassSelector';
+import IngredientRequirements from './components/IngredientRequirements';
+import GlassSelector from './components/GlassSelector';
 import ingredientService from '../../../services/ingredient.service';
 
 const Order = () => {
