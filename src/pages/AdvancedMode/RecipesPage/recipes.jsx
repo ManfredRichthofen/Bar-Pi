@@ -1,4 +1,4 @@
-import React, { useState, useEffect, lazy, Suspense } from 'react';
+import React, { useState, useEffect, lazy, Suspense, useMemo, useCallback } from 'react';
 import { Navigate } from '@tanstack/react-router';
 import { PlusCircle } from 'lucide-react';
 import useAuthStore from '../../../store/authStore';
@@ -13,7 +13,7 @@ const RecipeModal = lazy(() => import('./components/RecipeModal'));
 
 const Recipes = ({ sidebarCollapsed = false }) => {
   const token = useAuthStore((state) => state.token);
-  const { isFavorite } = useFavoritesStore();
+  const favorites = useFavoritesStore((state) => state.favorites);
   const [recipes, setRecipes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -33,15 +33,7 @@ const Recipes = ({ sidebarCollapsed = false }) => {
     removeImage: false,
   });
 
-  useEffect(() => {
-    if (token) {
-      fetchRecipes();
-      fetchIngredients();
-      fetchGlasses();
-    }
-  }, [token]);
-
-  const fetchRecipes = async () => {
+  const fetchRecipes = useCallback(async () => {
     try {
       setLoading(true);
       const data = await RecipeService.getRecipes(
@@ -54,7 +46,15 @@ const Recipes = ({ sidebarCollapsed = false }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [token]);
+
+  useEffect(() => {
+    if (token) {
+      fetchRecipes();
+      fetchIngredients();
+      fetchGlasses();
+    }
+  }, [token, fetchRecipes]);
 
   const fetchIngredients = async () => {
     try {
@@ -101,13 +101,13 @@ const Recipes = ({ sidebarCollapsed = false }) => {
     });
   };
 
-  const handleAdd = () => {
+  const handleAdd = useCallback(() => {
     setEditingRecipe(null);
     resetForm();
     setIsModalVisible(true);
-  };
+  }, [resetForm]);
 
-  const handleEdit = async (recipe) => {
+  const handleEdit = useCallback(async (recipe) => {
     setEditingRecipe(recipe);
     
     // Fetch the full recipe details to ensure we have all ingredient data
@@ -155,9 +155,9 @@ const Recipes = ({ sidebarCollapsed = false }) => {
       console.error('Error loading recipe details:', error);
       showToast('Failed to load recipe details', 'error');
     }
-  };
+  }, [token, showToast]);
 
-  const handleDelete = async (id) => {
+  const handleDelete = useCallback(async (id) => {
     if (window.confirm('Are you sure you want to delete this recipe?')) {
       try {
         await RecipeService.deleteRecipe(id);
@@ -167,9 +167,9 @@ const Recipes = ({ sidebarCollapsed = false }) => {
         showToast('Failed to delete recipe', 'error');
       }
     }
-  };
+  }, [fetchRecipes, showToast]);
 
-  const handleSave = async () => {
+  const handleSave = useCallback(async () => {
     try {
       if (!formData.name?.trim()) {
         showToast('Recipe name is required', 'error');
@@ -205,9 +205,9 @@ const Recipes = ({ sidebarCollapsed = false }) => {
       console.error('Error saving recipe:', error);
       showToast('Failed to save recipe', 'error');
     }
-  };
+  }, [editingRecipe, formData, fetchRecipes, showToast, resetForm]);
 
-  const handleImageChange = (e) => {
+  const handleImageChange = useCallback((e) => {
     const file = e.target.files[0];
     if (file) {
       setFormData(prev => ({ ...prev, image: file }));
@@ -217,9 +217,9 @@ const Recipes = ({ sidebarCollapsed = false }) => {
       };
       reader.readAsDataURL(file);
     }
-  };
+  }, []);
 
-  const addProductionStep = (type) => {
+  const addProductionStep = useCallback((type) => {
     const newStep = type === 'addIngredients'
       ? { type: 'addIngredients', stepIngredients: [] }
       : { type: 'writtenInstruction', message: '' };
@@ -228,25 +228,25 @@ const Recipes = ({ sidebarCollapsed = false }) => {
       ...prev,
       productionSteps: [...prev.productionSteps, newStep]
     }));
-  };
+  }, []);
 
-  const removeProductionStep = (index) => {
+  const removeProductionStep = useCallback((index) => {
     setFormData(prev => ({
       ...prev,
       productionSteps: prev.productionSteps.filter((_, i) => i !== index)
     }));
-  };
+  }, []);
 
-  const updateProductionStep = (index, updatedStep) => {
+  const updateProductionStep = useCallback((index, updatedStep) => {
     setFormData(prev => ({
       ...prev,
       productionSteps: prev.productionSteps.map((step, i) => 
         i === index ? updatedStep : step
       )
     }));
-  };
+  }, []);
 
-  const addIngredientToStep = (stepIndex) => {
+  const addIngredientToStep = useCallback((stepIndex) => {
     const step = formData.productionSteps[stepIndex];
     if (step.type === 'addIngredients') {
       const updatedStep = {
@@ -258,9 +258,9 @@ const Recipes = ({ sidebarCollapsed = false }) => {
       };
       updateProductionStep(stepIndex, updatedStep);
     }
-  };
+  }, [formData.productionSteps, updateProductionStep]);
 
-  const removeIngredientFromStep = (stepIndex, ingredientIndex) => {
+  const removeIngredientFromStep = useCallback((stepIndex, ingredientIndex) => {
     const step = formData.productionSteps[stepIndex];
     if (step.type === 'addIngredients') {
       const updatedStep = {
@@ -269,9 +269,9 @@ const Recipes = ({ sidebarCollapsed = false }) => {
       };
       updateProductionStep(stepIndex, updatedStep);
     }
-  };
+  }, [formData.productionSteps, updateProductionStep]);
 
-  const updateStepIngredient = (stepIndex, ingredientIndex, field, value) => {
+  const updateStepIngredient = useCallback((stepIndex, ingredientIndex, field, value) => {
     const step = formData.productionSteps[stepIndex];
     if (step.type === 'addIngredients') {
       const updatedStep = {
@@ -282,7 +282,9 @@ const Recipes = ({ sidebarCollapsed = false }) => {
       };
       updateProductionStep(stepIndex, updatedStep);
     }
-  };
+  }, [formData.productionSteps, updateProductionStep]);
+
+  const favoriteIds = useMemo(() => new Set((favorites || []).map((fav) => fav.id)), [favorites]);
 
   if (!token) {
     return <Navigate to="/login" />;
@@ -347,7 +349,7 @@ const Recipes = ({ sidebarCollapsed = false }) => {
                   <RecipeCard
                     key={recipe.id}
                     recipe={recipe}
-                    isFavorite={isFavorite(recipe.id)}
+                    isFavorite={favoriteIds.has(recipe.id)}
                     onEdit={handleEdit}
                     onDelete={handleDelete}
                   />
