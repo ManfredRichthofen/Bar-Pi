@@ -2,8 +2,16 @@ import React from 'react';
 import { Edit, Trash2, Heart } from 'lucide-react';
 
 const RecipeCard = ({ recipe, isFavorite, onEdit, onDelete }) => {
+  const handleEditClick = () => {
+    onEdit(recipe);
+  };
+
+  const handleDeleteClick = () => {
+    onDelete(recipe.id);
+  };
+
   return (
-    <div className="card bg-base-100 shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-1 border border-base-200">
+    <div className="card bg-base-100 shadow-sm hover:shadow-lg transition-transform transition-shadow duration-200 hover:-translate-y-1 border border-base-200 rounded-xl overflow-hidden">
       <figure className="relative w-full aspect-[4/3] rounded-t-lg overflow-hidden bg-base-200">
         {recipe.image ? (
           <img
@@ -46,14 +54,14 @@ const RecipeCard = ({ recipe, isFavorite, onEdit, onDelete }) => {
           <button
             type="button"
             className="btn btn-ghost btn-sm"
-            onClick={() => onEdit(recipe)}
+            onClick={handleEditClick}
           >
             <Edit size={16} />
           </button>
           <button
             type="button"
             className="btn btn-ghost btn-sm text-error"
-            onClick={() => onDelete(recipe.id)}
+            onClick={handleDeleteClick}
           >
             <Trash2 size={16} />
           </button>
@@ -63,4 +71,4 @@ const RecipeCard = ({ recipe, isFavorite, onEdit, onDelete }) => {
   );
 };
 
-export default RecipeCard;
+export default React.memo(RecipeCard);

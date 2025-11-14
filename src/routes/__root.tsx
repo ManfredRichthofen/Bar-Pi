@@ -4,10 +4,47 @@ import useAuthStore from '../store/authStore';
 import useUIModeStore from '../store/uiModeStore';
 import { themeChange } from 'theme-change';
 import { useTranslation } from 'react-i18next';
+import { StatusBar, Style } from '@capacitor/status-bar';
+import { EdgeToEdge } from '@capawesome/capacitor-android-edge-to-edge-support';
 
 export const Route = createRootRoute({
   component: RootComponent,
 });
+
+function isDarkTheme(theme: string) {
+  const darkThemes = new Set([
+    'dark',
+    'night',
+    'dracula',
+    'dim',
+    'nord',
+    'business',
+    'black',
+    'coffee',
+    'forest',
+    'luxury',
+  ]);
+  return darkThemes.has(theme);
+}
+
+async function applyStatusBarForTheme(theme: string) {
+  const dark = isDarkTheme(theme);
+
+  const darkColor = '#020617';
+  const lightColor = '#f9fafb';
+
+  await EdgeToEdge.enable();
+
+  await EdgeToEdge.setBackgroundColor({
+    color: dark ? darkColor : lightColor,
+  });
+
+  await StatusBar.setStyle({
+    style: dark ? Style.Light : Style.Dark,
+  });
+
+  await StatusBar.setOverlaysWebView({ overlay: false });
+}
 
 function RootComponent() {
   const reinitializeAuthState = useAuthStore(
@@ -32,6 +69,7 @@ function RootComponent() {
     const savedTheme = localStorage.getItem('theme') || 'light';
     document.documentElement.setAttribute('data-theme', savedTheme);
     themeChange(false);
+    applyStatusBarForTheme(savedTheme);
 
     // Language initialization
     const savedLanguage = localStorage.getItem('i18nextLng') || 'en-US';
@@ -44,6 +82,7 @@ function RootComponent() {
           const newTheme = document.documentElement.getAttribute('data-theme');
           if (newTheme) {
             localStorage.setItem('theme', newTheme);
+            applyStatusBarForTheme(newTheme);
           }
         }
       });
