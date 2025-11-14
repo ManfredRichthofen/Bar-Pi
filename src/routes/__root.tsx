@@ -5,6 +5,7 @@ import useUIModeStore from '../store/uiModeStore';
 import { themeChange } from 'theme-change';
 import { useTranslation } from 'react-i18next';
 import { StatusBar, Style } from '@capacitor/status-bar';
+import { AndroidEdgeToEdgeSupport } from '@capawesome/capacitor-android-edge-to-edge-support';
 
 export const Route = createRootRoute({
   component: RootComponent,
@@ -29,13 +30,18 @@ function isDarkTheme(theme: string) {
 async function applyStatusBarForTheme(theme: string) {
   const dark = isDarkTheme(theme);
 
-  if (dark) {
-    await StatusBar.setBackgroundColor({ color: '#020617' });
-    await StatusBar.setStyle({ style: Style.Light });
-  } else {
-    await StatusBar.setBackgroundColor({ color: '#f9fafb' });
-    await StatusBar.setStyle({ style: Style.Dark });
-  }
+  const darkColor = '#020617';
+  const lightColor = '#f9fafb';
+
+  await AndroidEdgeToEdgeSupport.enable();
+
+  await AndroidEdgeToEdgeSupport.setBackgroundColor({
+    color: dark ? darkColor : lightColor,
+  });
+
+  await StatusBar.setStyle({
+    style: dark ? Style.Light : Style.Dark,
+  });
 
   await StatusBar.setOverlaysWebView({ overlay: false });
 }
