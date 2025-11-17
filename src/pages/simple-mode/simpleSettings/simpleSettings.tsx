@@ -3,6 +3,7 @@ import { themeChange } from 'theme-change';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from '@tanstack/react-router';
 import { ArrowLeft } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import useAuthStore from '../../../store/authStore';
 import useUIModeStore from '../../../store/uiModeStore';
 import UpdateChecker from '../../../components/UpdateChecker';
@@ -78,17 +79,19 @@ const SimpleSettings = () => {
   };
 
   return (
-    <div className="min-h-screen bg-base-100 flex flex-col">
+    <div className="min-h-screen bg-background flex flex-col">
       {/* Header */}
-      <div className="sticky top-0 z-20 bg-base-100/95 backdrop-blur-md border-b border-base-200 shadow-sm">
+      <div className="sticky top-0 z-20 bg-background/95 backdrop-blur-md border-b border-border shadow-sm">
         <div className="px-3 sm:px-4 py-3 sm:py-4 flex items-center justify-between">
-          <button
+          <Button
             type="button"
             onClick={() => navigate({ to: '/simple/drinks' })}
-            className="btn btn-ghost btn-sm p-2 sm:p-3 hover:bg-base-200 rounded-xl transition-all duration-200 shadow-sm"
+            variant="ghost"
+            size="icon"
+            className="rounded-xl transition-all duration-200 shadow-sm"
           >
             <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5" />
-          </button>
+          </Button>
           <h1 className="text-lg sm:text-xl font-bold truncate flex-1 mx-2 sm:mx-3 text-center text-base-content">
             {t('settings.title', 'Settings')}
           </h1>

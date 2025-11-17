@@ -1,6 +1,12 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { BeakerIcon, ArrowLeft, Info } from 'lucide-react';
 import { Navigate, useLocation, useNavigate } from '@tanstack/react-router';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Card, CardContent } from '@/components/ui/card';
+import { Confetti, type ConfettiRef } from '@/components/ui/confetti';
+import { Spinner } from '@/components/ui/spinner';
+import { BentoGrid } from '@/components/ui/bento-grid';
 import useAuthStore from '../../../store/authStore';
 import cocktailService from '../../../services/cocktail.service';
 import GlassSelector from './components/GlassSelector';
@@ -43,6 +49,7 @@ const SimpleOrder = () => {
   const [boost, setBoost] = useState(100);
   const [ingredients, setIngredients] = useState<Ingredient[]>([]);
   const [additionalIngredients, setAdditionalIngredients] = useState<any[]>([]);
+  const confettiRef = useRef<ConfettiRef>(null);
 
   const showToast = (message: string, type = 'info') => {
     const toast = document.getElementById('toast-container');
@@ -126,7 +133,18 @@ const SimpleOrder = () => {
 
       await cocktailService.order(recipeId, orderConfig, false, token);
       showToast('Drink ordered successfully', 'success');
-      navigate({ to: '/simple/order-status' });
+      
+      // Trigger confetti celebration
+      confettiRef.current?.fire({
+        particleCount: 100,
+        spread: 70,
+        origin: { y: 0.6 },
+      });
+      
+      // Navigate after a short delay to show confetti
+      setTimeout(() => {
+        navigate({ to: '/simple/order-status' });
+      }, 1000);
     } catch (error: any) {
       if (error.response?.data?.message) {
         console.error('Order failed:', error.response.data);
@@ -172,7 +190,14 @@ const SimpleOrder = () => {
   );
 
   return (
-    <div className="min-h-screen bg-base-100 flex flex-col">
+    <div className="min-h-screen bg-background flex flex-col">
+      {/* Confetti Canvas */}
+      <Confetti
+        ref={confettiRef}
+        className="fixed inset-0 pointer-events-none z-50"
+        manualstart
+      />
+      
       {/* Toast Container */}
       <div
         id="toast-container"
@@ -180,15 +205,17 @@ const SimpleOrder = () => {
       />
 
       {/* Header */}
-      <div className="sticky top-0 z-20 bg-base-100/95 backdrop-blur-md border-b border-base-200 shadow-sm">
+      <div className="sticky top-0 z-20 bg-background/95 backdrop-blur-md border-b border-border shadow-sm">
         <div className="px-3 sm:px-4 py-3 sm:py-4 flex items-center justify-between">
-          <button
+          <Button
             type="button"
             onClick={() => navigate({ to: '/simple/drinks' })}
-            className="btn btn-ghost btn-sm p-2 sm:p-3 hover:bg-base-200 rounded-xl transition-all duration-200"
+            variant="ghost"
+            size="icon"
+            className="rounded-xl transition-all duration-200"
           >
             <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5" />
-          </button>
+          </Button>
           <h1 className="text-base sm:text-lg font-bold truncate flex-1 mx-2 sm:mx-3 text-center">
             Order Drink
           </h1>
@@ -198,70 +225,73 @@ const SimpleOrder = () => {
 
       {/* Main Content */}
       <div className="flex-1 overflow-y-auto">
-        <div className="p-3 sm:p-4 space-y-4 sm:space-y-6">
-          {/* Main drink info card */}
-          <div className="card bg-base-200/50 shadow-sm">
-            <div className="card-body p-3 sm:p-4">
-              {recipe.image && (
-                <div className="relative aspect-[4/3] w-full mb-3 sm:mb-4 rounded-xl overflow-hidden">
+        <div className="p-3 sm:p-4">
+          {/* Bento Grid Layout */}
+          <BentoGrid className="grid-cols-1 md:grid-cols-2 lg:grid-cols-3 auto-rows-[minmax(200px,auto)] gap-3 sm:gap-4 max-w-7xl mx-auto">
+          
+          {/* Hero Image - Large featured card */}
+          {recipe.image && (
+            <Card className="md:col-span-2 lg:col-span-2 md:row-span-2 overflow-hidden group">
+              <CardContent className="p-0 h-full relative">
+                <div className="relative w-full h-full min-h-[300px] md:min-h-[400px]">
                   <img
-                    className="rounded-xl object-cover absolute inset-0 w-full h-full"
+                    className="object-cover absolute inset-0 w-full h-full transition-transform duration-500 group-hover:scale-105"
                     src={recipe.image}
                     alt={recipe.name}
                     loading="lazy"
                   />
-                </div>
-              )}
-
-              <div className="flex items-center justify-between gap-2 mb-2 sm:mb-3">
-                <h3 className="text-lg sm:text-xl font-bold break-words flex-1">
-                  {recipe.name}
-                </h3>
-                {recipe.alcoholic && (
-                  <div className="badge badge-error badge-sm sm:badge-md shrink-0">
-                    Alcoholic
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
+                  <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-6">
+                    <div className="flex items-start justify-between gap-3 mb-2">
+                      <h3 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white break-words flex-1">
+                        {recipe.name}
+                      </h3>
+                      {recipe.alcoholic && (
+                        <Badge variant="destructive" className="shrink-0 text-xs sm:text-sm">
+                          Alcoholic
+                        </Badge>
+                      )}
+                    </div>
+                    {recipe.description && (
+                      <p className="text-white/90 text-sm sm:text-base whitespace-normal break-words line-clamp-3">
+                        {recipe.description}
+                      </p>
+                    )}
                   </div>
-                )}
-              </div>
+                </div>
+              </CardContent>
+            </Card>
+          )}
 
-              {recipe.description && (
-                <p className="text-base-content/70 text-xs sm:text-sm whitespace-normal break-words">
-                  {recipe.description}
-                </p>
-              )}
-            </div>
-          </div>
-
-          {/* Make Drink Button - Prominent placement */}
-          <div className="card bg-base-200/50 shadow-sm">
-            <div className="card-body p-3 sm:p-4">
-              <button
+          {/* Make Drink Button - Prominent action card */}
+          <Card className="bg-gradient-to-br from-primary/10 to-primary/5 border-primary/20">
+            <CardContent className="p-4 sm:p-6 h-full flex flex-col justify-center">
+              <Button
                 type="button"
-                className="btn btn-primary w-full h-12 sm:h-14 gap-2 sm:gap-3 text-sm sm:text-base font-semibold shadow-lg hover:shadow-xl transition-all duration-200"
+                size="lg"
+                className="w-full h-14 sm:h-16 gap-2 sm:gap-3 text-base sm:text-lg font-bold shadow-lg hover:shadow-xl transition-all duration-200"
                 onClick={handleMakeDrink}
                 disabled={!canOrderDrink || loading}
               >
-                {loading && (
-                  <span className="loading loading-spinner loading-sm" />
-                )}
-                {!loading && <BeakerIcon size={18} className="sm:w-5 sm:h-5" />}
-                {loading ? 'Making your drink...' : 'Make Drink'}
-              </button>
+                {loading && <Spinner className="w-5 h-5" />}
+                {!loading && <BeakerIcon className="w-5 h-5 sm:w-6 sm:h-6" />}
+                {loading ? 'Making...' : 'Make Drink'}
+              </Button>
               {!canOrderDrink && !loading && (
-                <p className="text-xs sm:text-sm text-error text-center mt-2">
+                <p className="text-sm sm:text-base text-error text-center mt-3 font-medium">
                   {feasibilityResult?.requiredIngredients?.some(
                     (item: any) => item.amountMissing > 0,
                   )
-                    ? 'Missing ingredients'
-                    : 'Select a glass to continue'}
+                    ? '⚠️ Missing ingredients'
+                    : '🥃 Select a glass to continue'}
                 </p>
               )}
-            </div>
-          </div>
+            </CardContent>
+          </Card>
 
-          {/* Glass selector and ingredients */}
-          <div className="card bg-base-200/50 shadow-sm">
-            <div className="card-body p-3 sm:p-4">
+          {/* Glass Selector Card */}
+          <Card className="md:col-span-2 lg:col-span-1">
+            <CardContent className="p-4 sm:p-6">
               <GlassSelector
                 selectedGlass={selectedGlass}
                 defaultGlass={recipe.defaultGlass || null}
@@ -273,77 +303,82 @@ const SimpleOrder = () => {
                   }
                 }}
               />
+            </CardContent>
+          </Card>
 
-              <div className="space-y-3 sm:space-y-4 mt-4 sm:mt-6">
-                <div className="collapse collapse-arrow bg-base-100">
-                  <input type="checkbox" defaultChecked />
-                  <div className="collapse-title font-bold break-words flex items-center gap-2 text-sm sm:text-base">
-                    <BeakerIcon className="w-4 h-4" />
-                    Recipe Ingredients
-                  </div>
-                  <div className="collapse-content">
-                    <ul className="list-disc list-inside text-xs sm:text-sm space-y-1 mt-2">
-                      {ingredients.map((item, index) => (
-                        <li
-                          key={index}
-                          className="whitespace-normal break-words"
-                        >
-                          {item.name}: {item.amount} {item.unit}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                </div>
-
-                {feasibilityResult?.requiredIngredients && (
-                  <div className="collapse collapse-arrow bg-base-100">
-                    <input type="checkbox" defaultChecked />
-                    <div className="collapse-title font-bold break-words flex items-center gap-2 text-sm sm:text-base">
-                      <Info className="w-4 h-4" />
-                      Required Ingredients
-                    </div>
-                    <div className="collapse-content">
-                      <IngredientRequirements
-                        requiredIngredients={
-                          feasibilityResult.requiredIngredients
-                        }
-                      />
-                    </div>
-                  </div>
-                )}
+          {/* Recipe Ingredients Card */}
+          <Card className="md:col-span-1">
+            <CardContent className="p-4 sm:p-6">
+              <div className="flex items-center gap-2 mb-4">
+                <BeakerIcon className="w-5 h-5 text-primary" />
+                <h3 className="font-bold text-base sm:text-lg">Recipe</h3>
               </div>
-            </div>
-          </div>
+              <ul className="space-y-2 text-sm sm:text-base">
+                {ingredients.slice(0, 5).map((item, index) => (
+                  <li
+                    key={index}
+                    className="flex justify-between gap-2 whitespace-normal break-words"
+                  >
+                    <span className="font-medium">{item.name}</span>
+                    <span className="text-muted-foreground">{item.amount} {item.unit}</span>
+                  </li>
+                ))}
+                {ingredients.length > 5 && (
+                  <li className="text-muted-foreground text-xs">+{ingredients.length - 5} more...</li>
+                )}
+              </ul>
+            </CardContent>
+          </Card>
 
-          {/* Customizer section */}
-          <DrinkCustomizer
-            disableBoosting={!hasBoostableIngredients}
-            customisations={{
-              boost,
-              additionalIngredients,
-            }}
-            onCustomisationsChange={(newCustomisations) => {
-              setBoost(newCustomisations.boost);
-              setAdditionalIngredients(newCustomisations.additionalIngredients);
-            }}
-            availableIngredients={
-              feasibilityResult?.requiredIngredients?.map(
-                (item: any) => item.ingredient,
-              ) || []
-            }
-          />
+          {/* Required Ingredients Card */}
+          {feasibilityResult?.requiredIngredients && (
+            <Card className="md:col-span-1">
+              <CardContent className="p-4 sm:p-6">
+                <div className="flex items-center gap-2 mb-4">
+                  <Info className="w-5 h-5 text-primary" />
+                  <h3 className="font-bold text-base sm:text-lg">Available</h3>
+                </div>
+                <IngredientRequirements
+                  requiredIngredients={feasibilityResult.requiredIngredients}
+                />
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Customizer section - Spans full width */}
+          <div className="md:col-span-2 lg:col-span-3">
+            <DrinkCustomizer
+              disableBoosting={!hasBoostableIngredients}
+              customisations={{
+                boost,
+                additionalIngredients,
+              }}
+              onCustomisationsChange={(newCustomisations) => {
+                setBoost(newCustomisations.boost);
+                setAdditionalIngredients(newCustomisations.additionalIngredients);
+              }}
+              availableIngredients={
+                feasibilityResult?.requiredIngredients?.map(
+                  (item: any) => item.ingredient,
+                ) || []
+              }
+            />
+          </div>
+          </BentoGrid>
         </div>
       </div>
 
       {/* Fixed bottom back button */}
-      <div className="bg-base-100/95 backdrop-blur-md border-t border-base-200 p-3 sm:p-4 shadow-lg">
-        <button
+      <div className="bg-background/95 backdrop-blur-md border-t border-border p-3 sm:p-4 shadow-lg">
+        <Button
           type="button"
-          className="btn btn-ghost w-full h-12 sm:h-14 text-sm sm:text-base font-semibold"
+          variant="ghost"
+          size="lg"
+          className="w-full h-12 sm:h-14 text-sm sm:text-base font-semibold"
           onClick={() => navigate({ to: '/simple/drinks' })}
         >
           Back to Drinks
-        </button>
+        </Button>
       </div>
     </div>
   );

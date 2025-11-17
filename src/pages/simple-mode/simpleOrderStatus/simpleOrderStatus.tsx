@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from '@tanstack/react-router';
 import { ArrowLeft } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { BentoGrid } from '@/components/ui/bento-grid';
 import CocktailService from '../../../services/cocktail.service';
 import useCocktailProgressStore from '../../../store/cocktailProgressStore';
 import useAuthStore from '../../../store/authStore';
@@ -9,6 +11,7 @@ import StatusCard from './components/StatusCard';
 import ManualIngredientPrompt from './components/ManualIngredientPrompt';
 import RecipeDetails from './components/RecipeDetails';
 import NoActiveOrder from './components/NoActiveOrder';
+import Loader from '@/components/kokonutui/loader';
 
 const SimpleOrderStatus = () => {
   const [confirming, setConfirming] = useState(false);
@@ -67,11 +70,12 @@ const SimpleOrderStatus = () => {
   // Show loading while waiting for WebSocket to update
   if (isWaitingForProgress && !progress) {
     return (
-      <div className="min-h-screen bg-base-100 flex items-center justify-center">
-        <div className="text-center">
-          <span className="loading loading-spinner loading-lg text-primary"></span>
-          <p className="mt-4 text-base-content/60">Connecting to order...</p>
-        </div>
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <Loader
+          title="Connecting to order..."
+          subtitle="Please wait while we fetch your drink status"
+          size="md"
+        />
       </div>
     );
   }
@@ -83,17 +87,18 @@ const SimpleOrderStatus = () => {
   }
 
   return (
-    <div className="min-h-screen bg-base-100 flex flex-col">
+    <div className="min-h-screen bg-background flex flex-col">
       {/* Header */}
-      <div className="sticky top-0 z-20 bg-base-100/95 backdrop-blur-md border-b border-base-200 shadow-sm">
+      <div className="sticky top-0 z-20 bg-background/95 backdrop-blur-md border-b border-border shadow-sm">
         <div className="px-3 sm:px-4 py-3 sm:py-4 flex items-center justify-between">
-          <button
-            type="button"
+          <Button
+            variant="ghost"
+            size="icon"
             onClick={() => navigate({ to: '/simple/drinks' })}
-            className="btn btn-ghost btn-sm p-2 sm:p-3 hover:bg-base-200 rounded-xl transition-all duration-200"
+            className="rounded-xl"
           >
             <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5" />
-          </button>
+          </Button>
           <h1 className="text-base sm:text-lg font-bold truncate flex-1 mx-2 sm:mx-3 text-center">
             Order Status
           </h1>
@@ -103,27 +108,37 @@ const SimpleOrderStatus = () => {
 
       {/* Main Content */}
       <div className="flex-1 overflow-y-auto">
-        <div className="p-3 sm:p-4 space-y-3 sm:space-y-4 max-w-4xl mx-auto">
-          {/* Status and Progress */}
-          <StatusCard
-            recipeName={progress.recipe.name}
-            state={progress.state}
-            progress={progress.progress}
-            onCancel={handleCancel}
-            canceling={canceling}
-          />
+        <div className="p-3 sm:p-4 max-w-7xl mx-auto">
+          {/* Bento Grid Layout */}
+          <BentoGrid className="grid-cols-1 md:grid-cols-2 lg:grid-cols-3 auto-rows-[minmax(180px,auto)] gap-3 sm:gap-4">
+            
+            {/* Status and Progress - Large featured card */}
+            <div className="md:col-span-2 lg:col-span-2">
+              <StatusCard
+                recipeName={progress.recipe.name}
+                state={progress.state}
+                progress={progress.progress}
+                onCancel={handleCancel}
+                canceling={canceling}
+              />
+            </div>
 
-          {/* Manual Ingredient Add Confirmation */}
-          {progress.state === 'MANUAL_INGREDIENT_ADD' && (
-            <ManualIngredientPrompt
-              ingredients={progress.currentIngredientsToAddManually || []}
-              onConfirm={handleConfirmManualAdd}
-              confirming={confirming}
-            />
-          )}
+            {/* Manual Ingredient Add Confirmation - Spans appropriately */}
+            {progress.state === 'MANUAL_INGREDIENT_ADD' && (
+              <div className="md:col-span-2 lg:col-span-3">
+                <ManualIngredientPrompt
+                  ingredients={progress.currentIngredientsToAddManually || []}
+                  onConfirm={handleConfirmManualAdd}
+                  confirming={confirming}
+                />
+              </div>
+            )}
 
-          {/* Recipe Information */}
-          <RecipeDetails recipe={progress.recipe} />
+            {/* Recipe Information - Spans full width */}
+            <div className="md:col-span-2 lg:col-span-3">
+              <RecipeDetails recipe={progress.recipe} />
+            </div>
+          </BentoGrid>
         </div>
       </div>
     </div>

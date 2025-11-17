@@ -2,6 +2,8 @@ import type React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useLocation } from '@tanstack/react-router';
 import { Clock, Settings, GlassWater } from 'lucide-react';
+import { motion } from 'motion/react';
+import { cn } from '@/lib/utils';
 
 const Dock: React.FC = () => {
   const { t } = useTranslation();
@@ -11,52 +13,142 @@ const Dock: React.FC = () => {
     return location.pathname.startsWith(path);
   };
 
+  const dockVariants = {
+    hidden: { y: 100, opacity: 0 },
+    visible: {
+      y: 0,
+      opacity: 1,
+      transition: {
+        type: "spring" as const,
+        stiffness: 300,
+        damping: 25,
+        staggerChildren: 0.1,
+        delayChildren: 0.2,
+      },
+    },
+  };
+
+  const itemVariants = {
+    hidden: { y: 20, opacity: 0 },
+    visible: {
+      y: 0,
+      opacity: 1,
+      transition: {
+        type: "spring" as const,
+        stiffness: 300,
+        damping: 25,
+      },
+    },
+  };
+
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-base-100/95 backdrop-blur-md border-t border-base-300 z-50 shadow-lg sm:shadow-xl">
-      <div className="flex justify-around items-center h-16 sm:h-20 md:h-24 px-2 sm:px-4 md:px-6 max-w-md sm:max-w-2xl md:max-w-4xl mx-auto">
-        <Link
-          to="/simple/drinks"
-          className={`flex flex-col items-center justify-center gap-1 sm:gap-1.5 md:gap-2 p-2 sm:p-3 md:p-4 rounded-lg sm:rounded-xl transition-all duration-200 min-w-[3.5rem] sm:min-w-[4rem] md:min-w-[5rem] ${
-            isActive('/simple/drinks')
-              ? 'bg-primary text-primary-content shadow-md sm:shadow-lg scale-105 sm:scale-110'
-              : 'text-base-content/70 hover:text-base-content hover:bg-base-200 active:scale-95'
-          }`}
+    <motion.div
+      className="fixed bottom-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-md border-t border-border shadow-lg"
+      initial="hidden"
+      animate="visible"
+      variants={dockVariants}
+    >
+      <div className="flex justify-center items-center h-16 sm:h-20 px-4 sm:px-6 max-w-3xl mx-auto gap-4 sm:gap-8">
+        <motion.div
+          variants={itemVariants}
+          whileHover={{ scale: 1.1, y: -4 }}
+          whileTap={{ scale: 0.95 }}
+          className="flex-shrink-0"
         >
-          <GlassWater className="h-5 w-5 sm:h-6 sm:w-6 md:h-7 md:w-7" />
-          <span className="text-[10px] sm:text-xs md:text-sm font-medium">
-            {t('navigation.drinks')}
-          </span>
-        </Link>
+          <Link
+            to="/simple/drinks"
+            className={cn(
+              'flex flex-col items-center justify-center gap-1 py-2 px-4 sm:py-3 sm:px-6 rounded-xl transition-all duration-200 min-w-[80px] sm:min-w-[100px]',
+              isActive('/simple/drinks')
+                ? 'bg-primary text-primary-foreground shadow-md'
+                : 'text-foreground/70 hover:text-foreground hover:bg-muted'
+            )}
+          >
+            <motion.div
+              animate={isActive('/simple/drinks') ? {
+                scale: [1, 1.15, 1],
+                rotate: [0, -5, 5, 0],
+              } : {}}
+              transition={{
+                duration: 0.5,
+                ease: "easeInOut",
+              }}
+            >
+              <GlassWater className="h-6 w-6" />
+            </motion.div>
+            <span className="text-xs font-medium">
+              {t('navigation.drinks')}
+            </span>
+          </Link>
+        </motion.div>
 
-        <Link
-          to="/simple/order-status"
-          className={`flex flex-col items-center justify-center gap-1 sm:gap-1.5 md:gap-2 p-2 sm:p-3 md:p-4 rounded-lg sm:rounded-xl transition-all duration-200 min-w-[3.5rem] sm:min-w-[4rem] md:min-w-[5rem] ${
-            isActive('/simple/order-status')
-              ? 'bg-primary text-primary-content shadow-md sm:shadow-lg scale-105 sm:scale-110'
-              : 'text-base-content/70 hover:text-base-content hover:bg-base-200 active:scale-95'
-          }`}
+        <motion.div
+          variants={itemVariants}
+          whileHover={{ scale: 1.1, y: -4 }}
+          whileTap={{ scale: 0.95 }}
+          className="flex-shrink-0"
         >
-          <Clock className="h-5 w-5 sm:h-6 sm:w-6 md:h-7 md:w-7" />
-          <span className="text-[10px] sm:text-xs md:text-sm font-medium">
-            {t('navigation.order_status')}
-          </span>
-        </Link>
+          <Link
+            to="/simple/order-status"
+            className={cn(
+              'flex flex-col items-center justify-center gap-1 py-2 px-4 sm:py-3 sm:px-6 rounded-xl transition-all duration-200 min-w-[80px] sm:min-w-[100px]',
+              isActive('/simple/order-status')
+                ? 'bg-primary text-primary-foreground shadow-md'
+                : 'text-foreground/70 hover:text-foreground hover:bg-muted'
+            )}
+          >
+            <motion.div
+              animate={isActive('/simple/order-status') ? {
+                scale: [1, 1.15, 1],
+                rotate: [0, -5, 5, 0],
+              } : {}}
+              transition={{
+                duration: 0.5,
+                ease: "easeInOut",
+              }}
+            >
+              <Clock className="h-6 w-6" />
+            </motion.div>
+            <span className="text-xs font-medium">
+              {t('navigation.order_status')}
+            </span>
+          </Link>
+        </motion.div>
 
-        <Link
-          to="/simple/settings"
-          className={`flex flex-col items-center justify-center gap-1 sm:gap-1.5 md:gap-2 p-2 sm:p-3 md:p-4 rounded-lg sm:rounded-xl transition-all duration-200 min-w-[3.5rem] sm:min-w-[4rem] md:min-w-[5rem] ${
-            isActive('/simple/settings')
-              ? 'bg-primary text-primary-content shadow-md sm:shadow-lg scale-105 sm:scale-110'
-              : 'text-base-content/70 hover:text-base-content hover:bg-base-200 active:scale-95'
-          }`}
+        <motion.div
+          variants={itemVariants}
+          whileHover={{ scale: 1.1, y: -4 }}
+          whileTap={{ scale: 0.95 }}
+          className="flex-shrink-0"
         >
-          <Settings className="h-5 w-5 sm:h-6 sm:w-6 md:h-7 md:w-7" />
-          <span className="text-[10px] sm:text-xs md:text-sm font-medium">
-            {t('navigation.settings')}
-          </span>
-        </Link>
+          <Link
+            to="/simple/settings"
+            className={cn(
+              'flex flex-col items-center justify-center gap-1 py-2 px-4 sm:py-3 sm:px-6 rounded-xl transition-all duration-200 min-w-[80px] sm:min-w-[100px]',
+              isActive('/simple/settings')
+                ? 'bg-primary text-primary-foreground shadow-md'
+                : 'text-foreground/70 hover:text-foreground hover:bg-muted'
+            )}
+          >
+            <motion.div
+              animate={isActive('/simple/settings') ? {
+                scale: [1, 1.15, 1],
+                rotate: [0, -5, 5, 0],
+              } : {}}
+              transition={{
+                duration: 0.5,
+                ease: "easeInOut",
+              }}
+            >
+              <Settings className="h-6 w-6" />
+            </motion.div>
+            <span className="text-xs font-medium">
+              {t('navigation.settings')}
+            </span>
+          </Link>
+        </motion.div>
       </div>
-    </div>
+    </motion.div>
   );
 };
 

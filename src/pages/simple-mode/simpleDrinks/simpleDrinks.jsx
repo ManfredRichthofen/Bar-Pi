@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Navigate, useNavigate } from '@tanstack/react-router';
 import { Filter, ArrowUp } from 'lucide-react';
 import debounce from 'lodash/debounce';
+import { Button } from '@/components/ui/button';
 
 import useAuthStore from '../../../store/authStore.js';
 import useFilterStore from '../../../store/filterStore.js';
@@ -212,22 +213,20 @@ function SimpleDrinks() {
   }
 
   return (
-    <div className="min-h-screen bg-base-100">
+    <div className="min-h-screen bg-background">
       {/* Header */}
-      <div className="sticky top-0 z-20 bg-base-100/95 backdrop-blur-md border-b border-base-200 shadow-sm">
+      <div className="sticky top-0 z-20 bg-background/95 backdrop-blur-md border-b border-border shadow-sm">
         <div className="p-4 space-y-4">
           <div className="flex items-center justify-between">
             <h1 className="text-xl font-bold">Available Drinks</h1>
-            <button
+            <Button
               onClick={() => setIsFilterPanelOpen(!isFilterPanelOpen)}
-              className={`btn btn-ghost btn-sm p-2 rounded-lg transition-all duration-200 ${
-                isFilterPanelOpen
-                  ? 'bg-primary text-primary-content'
-                  : 'hover:bg-base-200'
-              }`}
+              variant={isFilterPanelOpen ? 'default' : 'ghost'}
+              size="icon"
+              className="rounded-lg transition-all duration-200"
             >
               <Filter className="w-5 h-5" />
-            </button>
+            </Button>
           </div>
 
           <SearchForm
@@ -241,7 +240,7 @@ function SimpleDrinks() {
 
       {/* Filter Panel */}
       {isFilterPanelOpen && (
-        <div className="bg-base-200/50 border-b border-base-200 p-4">
+        <div className="bg-muted/50 border-b border-border p-4">
           <FilterButtons
             filters={filters}
             onFilterChange={handleFilterChange}
@@ -265,13 +264,14 @@ function SimpleDrinks() {
 
       {/* Scroll to top button */}
       {showScrollTop && (
-        <button
+        <Button
           onClick={scrollToTop}
-          className="fixed bottom-24 right-4 z-[100] btn btn-circle btn-primary shadow-lg hover:shadow-xl transition-all duration-200"
+          size="icon"
+          className="fixed bottom-24 right-4 z-[100] rounded-full shadow-lg hover:shadow-xl transition-all duration-200"
           aria-label="Scroll to top"
         >
           <ArrowUp className="w-5 h-5" />
-        </button>
+        </Button>
       )}
     </div>
   );

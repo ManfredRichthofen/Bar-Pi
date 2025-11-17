@@ -1,4 +1,5 @@
-import { Info } from 'lucide-react';
+import { Info, ChefHat } from 'lucide-react';
+import { Card, CardContent } from '@/components/ui/card';
 
 interface Ingredient {
   name: string;
@@ -17,47 +18,51 @@ interface RecipeDetailsProps {
 
 const RecipeDetails = ({ recipe }: RecipeDetailsProps) => {
   return (
-    <div className="grid gap-3 sm:gap-4">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
       {/* Ingredients List */}
       {recipe.ingredients && (
-        <div className="card bg-base-200/50 shadow-sm">
-          <div className="card-body p-3 sm:p-4">
-            <h3 className="font-bold text-base sm:text-lg mb-2 sm:mb-3 flex items-center gap-2">
-              <Info className="w-3 h-3 sm:w-4 sm:h-4" />
-              Ingredients
-            </h3>
-            <div className="space-y-1.5 sm:space-y-2">
+        <Card className={recipe.description ? 'md:col-span-1' : 'md:col-span-2'}>
+          <CardContent className="p-4 sm:p-6">
+            <div className="flex items-center gap-2 mb-4">
+              <ChefHat className="w-5 h-5 text-primary" />
+              <h3 className="text-base sm:text-lg font-bold">
+                Ingredients
+              </h3>
+            </div>
+            <div className="space-y-2">
               {recipe.ingredients.map((ingredient, index) => (
                 <div
                   key={`${ingredient.name}-${index}`}
-                  className="flex justify-between items-center p-2 sm:p-3 bg-base-100 rounded-lg"
+                  className="flex justify-between items-center p-3 bg-muted/50 rounded-lg hover:bg-muted transition-colors"
                 >
                   <span className="font-medium text-sm sm:text-base min-w-0 break-words flex-1 pr-2">
                     {ingredient.name}
                   </span>
-                  <span className="text-xs sm:text-sm text-base-content/70 shrink-0">
+                  <span className="text-xs sm:text-sm text-muted-foreground shrink-0 font-semibold">
                     {ingredient.amount} {ingredient.unit}
                   </span>
                 </div>
               ))}
             </div>
-          </div>
-        </div>
+          </CardContent>
+        </Card>
       )}
 
       {/* Description */}
       {recipe.description && (
-        <div className="card bg-base-200/50 shadow-sm">
-          <div className="card-body p-3 sm:p-4">
-            <h3 className="font-bold text-base sm:text-lg mb-2 sm:mb-3 flex items-center gap-2">
-              <Info className="w-3 h-3 sm:w-4 sm:h-4" />
-              Description
-            </h3>
-            <p className="text-base-content/70 text-xs sm:text-sm leading-relaxed">
+        <Card className="md:col-span-1">
+          <CardContent className="p-4 sm:p-6">
+            <div className="flex items-center gap-2 mb-4">
+              <Info className="w-5 h-5 text-primary" />
+              <h3 className="text-base sm:text-lg font-bold">
+                About This Drink
+              </h3>
+            </div>
+            <p className="text-muted-foreground text-sm sm:text-base leading-relaxed">
               {recipe.description}
             </p>
-          </div>
-        </div>
+          </CardContent>
+        </Card>
       )}
     </div>
   );
