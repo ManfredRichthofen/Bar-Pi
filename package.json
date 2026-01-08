@@ -15,8 +15,8 @@
     "check": "biome check --write"
   },
   "dependencies": {
-    "@capacitor/android": "^7.4.3",
-    "@capacitor/core": "^7.4.3",
+    "@capacitor/android": "^8.0.0",
+    "@capacitor/core": "^8.0.0",
     "@capacitor/status-bar": "^7.0.3",
     "@capawesome/capacitor-android-edge-to-edge-support": "^7.2.3",
     "@stomp/stompjs": "^7.2.1",
@@ -49,7 +49,7 @@
   },
   "devDependencies": {
     "@biomejs/biome": "^2.2.2",
-    "@capacitor/cli": "^7.4.3",
+    "@capacitor/cli": "^8.0.0",
     "@tailwindcss/vite": "^4.1.17",
     "@tanstack/react-query-devtools": "^5.69.0",
     "@tanstack/react-router-devtools": "^1.136.2",
