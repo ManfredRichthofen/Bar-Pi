@@ -1,4 +1,16 @@
 import React, { useState, useEffect } from 'react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 
 function GlassModal({ show, onHide, onSave, glass }) {
   const [formData, setFormData] = useState({
@@ -34,53 +46,47 @@ function GlassModal({ show, onHide, onSave, glass }) {
     onSave(formData);
   };
 
-  if (!show) return null;
-
   return (
-    <dialog open className="modal modal-open">
-      <div className="modal-box">
+    <Dialog open={show} onOpenChange={(open) => !open && onHide()}>
+      <DialogContent className="sm:max-w-[425px]">
         <form onSubmit={handleSubmit}>
-          <h3 className="font-bold text-lg">
-            {glass ? 'Edit Glass' : 'Add Glass'}
-          </h3>
-
-          <fieldset className="fieldset">
-            <legend className="fieldset-legend">Name</legend>
-            <input
-              type="text"
-              name="name"
-              value={formData.name}
-              onChange={handleChange}
-              className="input input-bordered w-full"
-              required
-            />
-          </fieldset>
-
-          <fieldset className="fieldset">
-            <legend className="fieldset-legend">Description</legend>
-            <textarea
-              name="description"
-              value={formData.description}
-              onChange={handleChange}
-              className="textarea textarea-bordered h-24"
-              rows={3}
-            />
-          </fieldset>
-
-          <div className="modal-action">
-            <button type="button" className="btn" onClick={onHide}>
-              Cancel
-            </button>
-            <button type="submit" className="btn btn-primary">
-              Save
-            </button>
+          <DialogHeader>
+            <DialogTitle>{glass ? 'Edit Glass' : 'Add Glass'}</DialogTitle>
+            <DialogDescription>
+              {glass ? 'Update the glass details below.' : 'Add a new glass to your collection.'}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid gap-2">
+              <Label htmlFor="name">Name</Label>
+              <Input
+                id="name"
+                name="name"
+                value={formData.name}
+                onChange={handleChange}
+                required
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="description">Description</Label>
+              <Textarea
+                id="description"
+                name="description"
+                value={formData.description}
+                onChange={handleChange}
+                rows={3}
+              />
+            </div>
           </div>
+          <DialogFooter>
+            <Button type="button" variant="outline" onClick={onHide}>
+              Cancel
+            </Button>
+            <Button type="submit">Save</Button>
+          </DialogFooter>
         </form>
-      </div>
-      <form method="dialog" className="modal-backdrop">
-        <button onClick={onHide}>close</button>
-      </form>
-    </dialog>
+      </DialogContent>
+    </Dialog>
   );
 }
 

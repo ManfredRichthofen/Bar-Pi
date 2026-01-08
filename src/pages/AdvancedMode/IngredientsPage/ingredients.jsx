@@ -1,11 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { PlusCircle, Edit, Trash2, Image as ImageIcon, X } from 'lucide-react';
+import { PlusCircle, Edit, Trash2, Image as ImageIcon, X, AlertCircle } from 'lucide-react';
 import { Navigate } from '@tanstack/react-router';
 import useAuthStore from '../../../store/authStore';
 import ingredientService, {
   ingredientDtoMapper,
 } from '../../../services/ingredient.service';
 import { useForm } from 'react-hook-form';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { toast } from 'sonner';
 
 const Ingredients = () => {
   const [ingredients, setIngredients] = useState([]);
@@ -45,32 +49,17 @@ const Ingredients = () => {
       );
       setIngredients(data);
     } catch (error) {
-      showToast('Failed to fetch ingredients');
+      toast.error('Failed to fetch ingredients');
     } finally {
       setLoading(false);
     }
   };
 
-  const showToast = (message, type = 'error') => {
-    const toast = document.createElement('div');
-    toast.className = `toast toast-top toast-end`;
-
-    const alert = document.createElement('div');
-    alert.className = `alert ${type === 'error' ? 'alert-error' : 'alert-success'}`;
-    alert.textContent = message;
-
-    toast.appendChild(alert);
-    document.body.appendChild(toast);
-
-    setTimeout(() => {
-      document.body.removeChild(toast);
-    }, 3000);
-  };
 
   const handleAddEdit = async (values) => {
     try {
       if (!values.name?.trim()) {
-        showToast('Name is required');
+        toast.error('Name is required');
         return;
       }
 
@@ -93,17 +82,17 @@ const Ingredients = () => {
         processedValues.alcoholContent < 0 ||
         processedValues.alcoholContent > 100
       ) {
-        showToast('Alcohol content must be between 0 and 100');
+        toast.error('Alcohol content must be between 0 and 100');
         return;
       }
 
       if (processedValues.bottleSize < 0) {
-        showToast('Bottle size must be positive');
+        toast.error('Bottle size must be positive');
         return;
       }
 
       if (processedValues.pumpTimeMultiplier <= 0) {
-        showToast('Pump time multiplier must be greater than 0');
+        toast.error('Pump time multiplier must be greater than 0');
         return;
       }
 
@@ -119,7 +108,7 @@ const Ingredients = () => {
           token,
           values.removeImage,
         );
-        showToast('Ingredient updated successfully', 'success');
+        toast.success('Ingredient updated successfully');
       } else {
         const createDto =
           ingredientDtoMapper.toIngredientCreateDto(processedValues);
@@ -131,14 +120,14 @@ const Ingredients = () => {
             token,
           );
           console.log('Create response:', response);
-          showToast('Ingredient added successfully', 'success');
+          toast.success('Ingredient added successfully');
         } catch (error) {
           if (error.response?.data?.message) {
-            showToast(`Server error: ${error.response.data.message}`);
+            toast.error(`Server error: ${error.response.data.message}`);
           } else if (error.response?.status === 400) {
-            showToast('Invalid input data. Please check all fields.');
+            toast.error('Invalid input data. Please check all fields.');
           } else {
-            showToast('Failed to create ingredient');
+            toast.error('Failed to create ingredient');
           }
           console.error('Create error details:', {
             data: error.response?.data,
@@ -165,9 +154,9 @@ const Ingredients = () => {
     } catch (error) {
       console.error('Error saving ingredient:', error);
       if (error.response?.data?.message) {
-        showToast(`Error: ${error.response.data.message}`);
+        toast.error(`Error: ${error.response.data.message}`);
       } else {
-        showToast(
+        toast.error(
           'Failed to save ingredient. Please check your input and try again.',
         );
       }
@@ -177,10 +166,10 @@ const Ingredients = () => {
   const handleDelete = async (id) => {
     try {
       await ingredientService.deleteIngredient(id, token);
-      showToast('Ingredient deleted successfully', 'success');
+      toast.success('Ingredient deleted successfully');
       fetchIngredients();
     } catch (error) {
-      showToast('Failed to delete ingredient');
+      toast.error('Failed to delete ingredient');
     }
   };
 
@@ -246,14 +235,12 @@ const Ingredients = () => {
   }
 
   return (
-    <div className="min-h-screen bg-base-100">
-      {/* Header */}
-      <div className="sticky top-0 z-20 bg-base-100/95 backdrop-blur-md border-b border-base-200 shadow-sm">
-        <div className="p-4 space-y-4">
+    <div className="min-h-screen bg-background">
+      <div className="sticky top-0 z-20 bg-background border-b shadow-sm">
+        <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
-            <h1 className="text-xl font-bold">Ingredients</h1>
-            <button
-              className="btn btn-primary btn-sm"
+            <h1 className="text-2xl font-bold">Ingredients</h1>
+            <Button
               onClick={() => {
                 setEditingIngredient(null);
                 reset({
@@ -265,116 +252,100 @@ const Ingredients = () => {
                 setIsModalVisible(true);
               }}
             >
-              <PlusCircle size={16} className="mr-2" />
+              <PlusCircle />
               Add Ingredient
-            </button>
+            </Button>
           </div>
         </div>
       </div>
 
-      {/* Main Content */}
-      <div className="p-4 sm:p-6 lg:p-8">
-        <div className="max-w-screen-2xl mx-auto">
-          {ingredients.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-12 px-4">
-              <div className="text-base-content/40 mb-4">
-                <svg
-                  className="w-16 h-16"
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
-                  aria-labelledby="no-ingredients-title"
-                >
-                  <title id="no-ingredients-title">No ingredients icon</title>
-                  <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z" />
-                </svg>
-              </div>
-              <h3 className="text-lg font-semibold mb-2">No ingredients found</h3>
-              <p className="text-base-content/60 text-center text-sm mb-4">
-                Get started by adding your first ingredient
-              </p>
-              <button
-                className="btn btn-primary"
-                onClick={() => {
-                  setEditingIngredient(null);
-                  reset({
-                    type: 'manual',
-                    alcoholContent: 0,
-                    bottleSize: 0,
-                    pumpTimeMultiplier: 1,
-                  });
-                  setIsModalVisible(true);
-                }}
-              >
-                <PlusCircle size={16} className="mr-2" />
-                Add Ingredient
-              </button>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4 sm:gap-5 lg:gap-6">
-              {ingredients.map((ingredient) => (
-                <div
-                  key={ingredient.id}
-                  className="card bg-base-100 shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-1 border border-base-200"
-                >
-                  <div className="card-body p-4">
-                    <div className="flex items-start justify-between gap-2 mb-2">
-                      <h3 className="card-title text-base font-bold text-base-content/90 line-clamp-1 flex-1">
-                        {ingredient.name}
-                      </h3>
-                      {ingredient.inBar && (
-                        <div className="badge badge-success badge-sm">In Bar</div>
-                      )}
-                    </div>
-                    
-                    <div className="space-y-1 text-sm flex-1">
-                      {ingredient.parentGroupId && (
-                        <div className="flex items-center gap-2">
-                          <span className="text-base-content/60">Group:</span>
-                          <div className="badge badge-primary badge-sm">
-                            {ingredients.find((ing) => ing.id === ingredient.parentGroupId)?.name || 'Unknown'}
-                          </div>
-                        </div>
-                      )}
-                      <div className="flex items-center gap-2">
-                        <span className="text-base-content/60">Type:</span>
-                        <div className={`badge badge-sm ${ingredient.type === 'automated' ? 'badge-info' : 'badge-ghost'}`}>
-                          {ingredient.type || 'manual'}
-                        </div>
-                      </div>
-                      {ingredient.alcoholContent > 0 && (
-                        <div className="text-base-content/70">
-                          Alcohol: {ingredient.alcoholContent}%
-                        </div>
-                      )}
-                    </div>
-
-                    <div className="card-actions justify-end mt-4 pt-4 border-t border-base-200">
-                      <button
-                        className="btn btn-ghost btn-sm"
-                        onClick={() => {
-                          setEditingIngredient(ingredient);
-                          Object.entries(ingredient).forEach(([key, value]) => {
-                            setValue(key, value);
-                          });
-                          setValue('type', ingredient.type || 'manual');
-                          setIsModalVisible(true);
-                        }}
-                      >
-                        <Edit size={16} />
-                      </button>
-                      <button
-                        className="btn btn-ghost btn-sm text-error"
-                        onClick={() => handleDelete(ingredient.id)}
-                      >
-                        <Trash2 size={16} />
-                      </button>
-                    </div>
+      <div className="container mx-auto px-4 py-6 sm:py-8">
+        {ingredients.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-16 px-4 min-h-[400px]">
+            <AlertCircle className="h-16 w-16 text-muted-foreground mb-4" />
+            <h3 className="text-xl font-semibold mb-2">No Ingredients Found</h3>
+            <p className="text-muted-foreground text-center mb-6 max-w-sm">
+              Get started by adding your first ingredient to begin managing your inventory
+            </p>
+            <Button
+              size="lg"
+              onClick={() => {
+                setEditingIngredient(null);
+                reset({
+                  type: 'manual',
+                  alcoholContent: 0,
+                  bottleSize: 0,
+                  pumpTimeMultiplier: 1,
+                });
+                setIsModalVisible(true);
+              }}
+            >
+              <PlusCircle className="mr-2" />
+              Add First Ingredient
+            </Button>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4">
+            {ingredients.map((ingredient) => (
+              <Card key={ingredient.id} className="hover:shadow-lg transition-all">
+                <CardHeader>
+                  <div className="flex items-start justify-between gap-2">
+                    <CardTitle className="text-base line-clamp-1 flex-1">
+                      {ingredient.name}
+                    </CardTitle>
+                    {ingredient.inBar && (
+                      <Badge variant="default">In Bar</Badge>
+                    )}
                   </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
+                </CardHeader>
+                <CardContent className="space-y-2">
+                  {ingredient.parentGroupId && (
+                    <div className="flex items-center gap-2 text-sm">
+                      <span className="text-muted-foreground">Group:</span>
+                      <Badge variant="secondary">
+                        {ingredients.find((ing) => ing.id === ingredient.parentGroupId)?.name || 'Unknown'}
+                      </Badge>
+                    </div>
+                  )}
+                  <div className="flex items-center gap-2 text-sm">
+                    <span className="text-muted-foreground">Type:</span>
+                    <Badge variant={ingredient.type === 'automated' ? 'default' : 'outline'}>
+                      {ingredient.type || 'manual'}
+                    </Badge>
+                  </div>
+                  {ingredient.alcoholContent > 0 && (
+                    <div className="text-sm text-muted-foreground">
+                      Alcohol: {ingredient.alcoholContent}%
+                    </div>
+                  )}
+                </CardContent>
+                <CardFooter className="flex justify-end gap-2">
+                  <Button
+                    variant="ghost"
+                    size="icon-sm"
+                    onClick={() => {
+                      setEditingIngredient(ingredient);
+                      Object.entries(ingredient).forEach(([key, value]) => {
+                        setValue(key, value);
+                      });
+                      setValue('type', ingredient.type || 'manual');
+                      setIsModalVisible(true);
+                    }}
+                  >
+                    <Edit className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon-sm"
+                    onClick={() => handleDelete(ingredient.id)}
+                  >
+                    <Trash2 className="h-4 w-4 text-destructive" />
+                  </Button>
+                </CardFooter>
+              </Card>
+            ))}
+          </div>
+        )}
       </div>
 
       {isModalVisible && (
