@@ -1,10 +1,10 @@
 import { createFileRoute } from '@tanstack/react-router';
-import Pumps from '../pages/AdvancedMode/PumpsPage/pumps';
+import { PumpsPage } from '../pages/AdvancedMode/PumpsPage/PumpsPage';
 
 export const Route = createFileRoute('/_advanced/pumps')({
   component: AdvancedPumpsRoute,
 });
 
 function AdvancedPumpsRoute() {
-  return <Pumps />;
+  return <PumpsPage />;
 }

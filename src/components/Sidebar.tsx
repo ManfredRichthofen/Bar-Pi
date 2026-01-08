@@ -109,66 +109,64 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed, onCollapse }) => {
           ${collapsed ? 'w-0 -translate-x-full' : 'w-[280px] sm:w-72 translate-x-0'}`}
       >
         <div
-          className={`transition-all duration-300 h-full flex flex-col bg-base-100 relative border-r border-base-200 
+          className={`transition-all duration-300 h-full flex flex-col bg-background relative border-r border-border shadow-sm
             ${collapsed ? 'opacity-0' : 'opacity-100'}`}
         >
-          <div className="h-14 flex-none flex items-center justify-between px-4 sm:px-6 transition-colors duration-300 bg-base-100 border-b border-base-200">
-            <span className="text-base font-semibold text-base-content/90">
+          <div className="h-14 flex-none flex items-center justify-between px-4 sm:px-6 transition-colors duration-300 bg-muted/30 border-b border-border">
+            <span className="text-base font-semibold">
               Menu
             </span>
             <button
               onClick={() => onCollapse(true)}
-              className="btn btn-ghost btn-sm btn-square hover:bg-base-200/80 active:bg-base-300"
+              className="inline-flex items-center justify-center rounded-md h-8 w-8 hover:bg-accent hover:text-accent-foreground transition-colors"
             >
-              <ArrowLeftToLine size={16} className="text-base-content/70" />
+              <ArrowLeftToLine size={16} />
             </button>
           </div>
 
           <div className="flex-1 overflow-y-auto overflow-x-hidden">
-            <ul className="menu menu-sm p-3 sm:p-4 gap-2 transition-colors duration-300 bg-base-100 min-h-full">
+            <nav className="p-3 sm:p-4 space-y-6">
               {menuItems.map((group) => (
-                <li key={group.group} className="mb-4 sm:mb-6">
-                  <h2 className="menu-title text-xs font-semibold tracking-wider text-base-content/50 px-2 mb-2 sm:mb-3 uppercase">
+                <div key={group.group}>
+                  <h2 className="text-xs font-semibold tracking-wider text-muted-foreground px-2 mb-2 uppercase">
                     {group.group}
                   </h2>
-                  <ul className="space-y-1">
+                  <div className="space-y-1">
                     {group.items.map((item) => (
-                      <li key={item.key}>
-                        <a
-                          className={`flex items-center gap-3 px-3 sm:px-4 py-2.5 rounded-lg transition-all duration-300 
-                            ${
-                              location.pathname === item.key
-                                ? 'bg-primary/10 text-primary hover:bg-primary/15 shadow-sm'
-                                : 'text-base-content/70 hover:text-base-content hover:bg-base-200/70'
-                            }
-                            active:scale-[0.98] active:bg-base-300`}
-                          onClick={() => {
-                            navigate({ to: item.key });
-                            // Only auto-collapse on small screens
-                            if (window.innerWidth < 640) {
-                              onCollapse(true);
-                            }
-                          }}
-                        >
-                          {React.cloneElement(item.icon, {
-                            size: 18,
-                            strokeWidth: 2,
-                            className: `transition-colors duration-300 ${
-                              location.pathname === item.key
-                                ? 'text-primary'
-                                : 'text-base-content/60 group-hover:text-base-content'
-                            }`,
-                          })}
-                          <span className="font-medium text-sm whitespace-nowrap">
-                            {item.label}
-                          </span>
-                        </a>
-                      </li>
+                      <button
+                        key={item.key}
+                        className={`w-full flex items-center gap-3 px-3 sm:px-4 py-2.5 rounded-lg transition-all duration-200 text-left
+                          ${
+                            location.pathname === item.key
+                              ? 'bg-primary/10 text-primary hover:bg-primary/15 font-medium'
+                              : 'text-muted-foreground hover:text-foreground hover:bg-accent'
+                          }
+                          active:scale-[0.98]`}
+                        onClick={() => {
+                          navigate({ to: item.key });
+                          if (window.innerWidth < 640) {
+                            onCollapse(true);
+                          }
+                        }}
+                      >
+                        {React.cloneElement(item.icon, {
+                          size: 18,
+                          strokeWidth: 2,
+                          className: `transition-colors duration-200 ${
+                            location.pathname === item.key
+                              ? 'text-primary'
+                              : ''
+                          }`,
+                        })}
+                        <span className="text-sm whitespace-nowrap">
+                          {item.label}
+                        </span>
+                      </button>
                     ))}
-                  </ul>
-                </li>
+                  </div>
+                </div>
               ))}
-            </ul>
+            </nav>
           </div>
         </div>
       </aside>

@@ -1,10 +1,10 @@
 import { createFileRoute } from '@tanstack/react-router';
-import Settings from '../pages/AdvancedMode/SettingsPage/settings';
+import { SettingsPage } from '../pages/AdvancedMode/SettingsPage/SettingsPage';
 
 export const Route = createFileRoute('/_advanced/settings')({
   component: AdvancedSettingsRoute,
 });
 
 function AdvancedSettingsRoute() {
-  return <Settings />;
+  return <SettingsPage />;
 }

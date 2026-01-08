@@ -2,11 +2,18 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from '@tanstack/react-router';
 import { useTranslation } from 'react-i18next';
 import { Loader2, Droplet, Hexagon } from 'lucide-react';
-
 import PumpService from '../../../../services/pump.service';
 import useAuthStore from '../../../../store/authStore';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
 
-// Add StepperMotorIcon component
 const StepperMotorIcon = ({ width = 24, height = 24, className = '' }) => (
   <svg
     width={width}
@@ -26,12 +33,12 @@ const StepperMotorIcon = ({ width = 24, height = 24, className = '' }) => (
   </svg>
 );
 
-/**
- * Props:
- * - show (Boolean): whether the modal is open.
- * - onClose (Function): callback to request closing the modal.
- */
-const PumpSelector = ({ show, onClose }) => {
+interface PumpSelectorProps {
+  show: boolean;
+  onClose: () => void;
+}
+
+export const PumpSelector: React.FC<PumpSelectorProps> = ({ show, onClose }) => {
   const navigate = useNavigate();
   const token = useAuthStore((state) => state.token);
   const { t } = useTranslation();
@@ -39,13 +46,11 @@ const PumpSelector = ({ show, onClose }) => {
   const [valveLoading, setValveLoading] = useState(false);
   const [dcLoading, setDcLoading] = useState(false);
 
-  // A computed "loading" flag
   const loading = stepperLoading || valveLoading || dcLoading;
 
-  const onClickAddPump = (type) => {
+  const onClickAddPump = (type: 'dc' | 'valve' | 'stepper') => {
     if (loading) return;
 
-    // Set loading state
     switch (type) {
       case 'dc':
         setDcLoading(true);
@@ -63,10 +68,10 @@ const PumpSelector = ({ show, onClose }) => {
     const newPump = { type };
 
     PumpService.createPump(newPump, token)
-      .then((response) => {
+      .then((response: any) => {
         navigate({ to: `/pumps/${response.data.id}/edit` });
       })
-      .catch((error) => {
+      .catch((error: any) => {
         console.error('Error creating pump:', error);
       })
       .finally(() => {
@@ -76,44 +81,37 @@ const PumpSelector = ({ show, onClose }) => {
       });
   };
 
-  // Prevent closing the modal while loading
   const handleClose = () => {
     if (!loading && onClose) {
-      onClose(false);
+      onClose();
     }
   };
 
-  // Close the modal when show becomes false
   useEffect(() => {
     if (!show) {
-      // Reset any loading state if the modal is closed externally.
       setStepperLoading(false);
       setValveLoading(false);
       setDcLoading(false);
     }
   }, [show]);
 
-  if (!show) return null;
-
   return (
-    <dialog open className="modal modal-open">
-      <div className="modal-box w-full max-w-4xl mx-4 sm:mx-auto">
-        <div className="text-center mb-6 sm:mb-8">
-          <h5 className="text-lg sm:text-xl font-semibold">
+    <Dialog open={show} onOpenChange={(open: boolean) => !open && handleClose()}>
+      <DialogContent className="max-w-4xl">
+        <DialogHeader>
+          <DialogTitle className="text-center">
             {t('pump_selector.headline')}
-          </h5>
-        </div>
+          </DialogTitle>
+        </DialogHeader>
 
-        {/* Mobile Layout - Stacked Cards */}
         <div className="block sm:hidden space-y-4">
-          {/* Valve Card */}
-          <div
-            className={`card cursor-pointer hover:shadow-lg transition-all duration-200 ${
+          <Card
+            className={`cursor-pointer hover:shadow-lg transition-all ${
               loading ? 'opacity-50 pointer-events-none' : ''
             }`}
             onClick={() => onClickAddPump('valve')}
           >
-            <div className="card-body p-6 flex flex-row items-center justify-start gap-4">
+            <CardContent className="p-6 flex flex-row items-center justify-start gap-4">
               {valveLoading ? (
                 <Loader2 className="animate-spin" size={32} />
               ) : (
@@ -121,21 +119,20 @@ const PumpSelector = ({ show, onClose }) => {
               )}
               <div className="flex-1">
                 <p className="font-bold text-lg">{t('pump_selector.valve')}</p>
-                <p className="text-sm text-base-content/70">
+                <p className="text-sm text-muted-foreground">
                   Control valve for precise flow
                 </p>
               </div>
-            </div>
-          </div>
+            </CardContent>
+          </Card>
 
-          {/* DC Pump Card */}
-          <div
-            className={`card cursor-pointer hover:shadow-lg transition-all duration-200 ${
+          <Card
+            className={`cursor-pointer hover:shadow-lg transition-all ${
               loading ? 'opacity-50 pointer-events-none' : ''
             }`}
             onClick={() => onClickAddPump('dc')}
           >
-            <div className="card-body p-6 flex flex-row items-center justify-start gap-4">
+            <CardContent className="p-6 flex flex-row items-center justify-start gap-4">
               {dcLoading ? (
                 <Loader2 className="animate-spin" size={32} />
               ) : (
@@ -145,21 +142,20 @@ const PumpSelector = ({ show, onClose }) => {
                 <p className="font-bold text-lg">
                   {t('pump_selector.dc_pump')}
                 </p>
-                <p className="text-sm text-base-content/70">
+                <p className="text-sm text-muted-foreground">
                   DC motor pump for continuous flow
                 </p>
               </div>
-            </div>
-          </div>
+            </CardContent>
+          </Card>
 
-          {/* Stepper Pump Card */}
-          <div
-            className={`card cursor-pointer hover:shadow-lg transition-all duration-200 ${
+          <Card
+            className={`cursor-pointer hover:shadow-lg transition-all ${
               loading ? 'opacity-50 pointer-events-none' : ''
             }`}
             onClick={() => onClickAddPump('stepper')}
           >
-            <div className="card-body p-6 flex flex-row items-center justify-start gap-4">
+            <CardContent className="p-6 flex flex-row items-center justify-start gap-4">
               {stepperLoading ? (
                 <Loader2 className="animate-spin" size={32} />
               ) : (
@@ -169,24 +165,22 @@ const PumpSelector = ({ show, onClose }) => {
                 <p className="font-bold text-lg">
                   {t('pump_selector.stepper_pump')}
                 </p>
-                <p className="text-sm text-base-content/70">
+                <p className="text-sm text-muted-foreground">
                   Stepper motor for precise control
                 </p>
               </div>
-            </div>
-          </div>
+            </CardContent>
+          </Card>
         </div>
 
-        {/* Tablet/Desktop Layout - Grid Cards */}
         <div className="hidden sm:grid sm:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
-          {/* Valve Card */}
-          <div
-            className={`card cursor-pointer hover:shadow-lg transition-all duration-200 ${
+          <Card
+            className={`cursor-pointer hover:shadow-lg transition-all ${
               loading ? 'opacity-50 pointer-events-none' : ''
             }`}
             onClick={() => onClickAddPump('valve')}
           >
-            <div className="card-body flex flex-col items-center justify-center p-4 sm:p-6">
+            <CardContent className="flex flex-col items-center justify-center p-4 sm:p-6">
               {valveLoading ? (
                 <Loader2 className="animate-spin mb-3 sm:mb-4" size={40} />
               ) : (
@@ -195,20 +189,19 @@ const PumpSelector = ({ show, onClose }) => {
               <p className="font-bold text-center text-base sm:text-lg">
                 {t('pump_selector.valve')}
               </p>
-              <p className="text-xs sm:text-sm text-base-content/70 text-center mt-1">
+              <p className="text-xs sm:text-sm text-muted-foreground text-center mt-1">
                 Control valve for precise flow
               </p>
-            </div>
-          </div>
+            </CardContent>
+          </Card>
 
-          {/* DC Pump Card */}
-          <div
-            className={`card cursor-pointer hover:shadow-lg transition-all duration-200 ${
+          <Card
+            className={`cursor-pointer hover:shadow-lg transition-all ${
               loading ? 'opacity-50 pointer-events-none' : ''
             }`}
             onClick={() => onClickAddPump('dc')}
           >
-            <div className="card-body flex flex-col items-center justify-center p-4 sm:p-6">
+            <CardContent className="flex flex-col items-center justify-center p-4 sm:p-6">
               {dcLoading ? (
                 <Loader2 className="animate-spin mb-3 sm:mb-4" size={40} />
               ) : (
@@ -217,20 +210,19 @@ const PumpSelector = ({ show, onClose }) => {
               <p className="font-bold text-center text-base sm:text-lg">
                 {t('pump_selector.dc_pump')}
               </p>
-              <p className="text-xs sm:text-sm text-base-content/70 text-center mt-1">
+              <p className="text-xs sm:text-sm text-muted-foreground text-center mt-1">
                 DC motor pump for continuous flow
               </p>
-            </div>
-          </div>
+            </CardContent>
+          </Card>
 
-          {/* Stepper Pump Card */}
-          <div
-            className={`card cursor-pointer hover:shadow-lg transition-all duration-200 ${
+          <Card
+            className={`cursor-pointer hover:shadow-lg transition-all ${
               loading ? 'opacity-50 pointer-events-none' : ''
             }`}
             onClick={() => onClickAddPump('stepper')}
           >
-            <div className="card-body flex flex-col items-center justify-center p-4 sm:p-6">
+            <CardContent className="flex flex-col items-center justify-center p-4 sm:p-6">
               {stepperLoading ? (
                 <Loader2 className="animate-spin mb-3 sm:mb-4" size={40} />
               ) : (
@@ -243,24 +235,21 @@ const PumpSelector = ({ show, onClose }) => {
               <p className="font-bold text-center text-base sm:text-lg">
                 {t('pump_selector.stepper_pump')}
               </p>
-              <p className="text-xs sm:text-sm text-base-content/70 text-center mt-1">
+              <p className="text-xs sm:text-sm text-muted-foreground text-center mt-1">
                 Stepper motor for precise control
               </p>
-            </div>
-          </div>
+            </CardContent>
+          </Card>
         </div>
 
         {!loading && (
-          <div className="modal-action mt-6 sm:mt-8">
-            <button className="btn btn-secondary" onClick={handleClose}>
+          <DialogFooter>
+            <Button variant="secondary" onClick={handleClose}>
               {t('common.close')}
-            </button>
-          </div>
+            </Button>
+          </DialogFooter>
         )}
-      </div>
-      <div className="modal-backdrop" onClick={handleClose}></div>
-    </dialog>
+      </DialogContent>
+    </Dialog>
   );
 };
-
-export default PumpSelector;

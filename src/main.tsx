@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom/client';
 import { RouterProvider, createRouter } from '@tanstack/react-router';
 import { TanStackRouterDevtools } from '@tanstack/react-router-devtools';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { Toaster } from './components/ui/sonner';
 import './index.css';
 import './i18n';
 
@@ -38,6 +39,7 @@ if (!rootElement.innerHTML) {
       <QueryClientProvider client={queryClient}>
         <RouterProvider router={router} />
         <TanStackRouterDevtools router={router} />
+        <Toaster />
       </QueryClientProvider>
     </React.StrictMode>,
   );

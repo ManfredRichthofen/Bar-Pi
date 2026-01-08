@@ -1,51 +1,20 @@
 import * as React from "react"
-import { Input as InputPrimitive } from "@base-ui-components/react/input"
+import { Input as InputPrimitive } from "@base-ui/react/input"
 
 import { cn } from "@/lib/utils"
 
-type InputProps = Omit<
-  InputPrimitive.Props & React.RefAttributes<HTMLInputElement>,
-  "size"
-> & {
-  size?: "sm" | "default" | "lg" | number
-  unstyled?: boolean
-}
-
-function Input({
-  className,
-  size = "default",
-  unstyled = false,
-  ...props
-}: InputProps) {
+function Input({ className, type, ...props }: React.ComponentProps<"input">) {
   return (
-    <span
-      data-slot="input-control"
-      data-size={size}
-      className={
-        cn(
-          !unstyled &&
-            "relative inline-flex w-full rounded-lg border border-input bg-background bg-clip-padding text-base/5 shadow-xs ring-ring/24 transition-shadow before:pointer-events-none before:absolute before:inset-0 before:rounded-[calc(var(--radius-lg)-1px)] not-has-disabled:not-has-focus-visible:not-has-aria-invalid:before:shadow-[0_1px_--theme(--color-black/4%)] has-focus-visible:border-ring has-focus-visible:ring-[3px] has-disabled:opacity-64 has-aria-invalid:border-destructive/36 has-focus-visible:has-aria-invalid:border-destructive/64 has-focus-visible:has-aria-invalid:ring-destructive/16 has-[:disabled,:focus-visible,[aria-invalid]]:shadow-none sm:text-sm dark:bg-input/32 dark:not-in-data-[slot=group]:bg-clip-border dark:not-has-disabled:not-has-focus-visible:not-has-aria-invalid:before:shadow-[0_-1px_--theme(--color-white/8%)] dark:has-aria-invalid:ring-destructive/24",
-          className
-        ) || undefined
-      }
-    >
-      <InputPrimitive
-        data-slot="input"
-        className={cn(
-          "w-full min-w-0 rounded-[inherit] px-[calc(--spacing(3)-1px)] py-[calc(--spacing(1.5)-1px)] outline-none placeholder:text-muted-foreground/64",
-          size === "sm" &&
-            "px-[calc(--spacing(2.5)-1px)] py-[calc(--spacing(1)-1px)]",
-          size === "lg" && "py-[calc(--spacing(2)-1px)]",
-          props.type === "search" &&
-            "[&::-webkit-search-cancel-button]:appearance-none [&::-webkit-search-decoration]:appearance-none [&::-webkit-search-results-button]:appearance-none [&::-webkit-search-results-decoration]:appearance-none",
-          props.type === "file" &&
-            "text-muted-foreground file:me-3 file:bg-transparent file:text-sm file:font-medium file:text-foreground"
-        )}
-        size={typeof size === "number" ? size : undefined}
-        {...props}
-      />
-    </span>
+    <InputPrimitive
+      type={type}
+      data-slot="input"
+      className={cn(
+        "dark:bg-input/30 border-input focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive dark:aria-invalid:border-destructive/50 h-9 rounded-md border bg-transparent px-2.5 py-1 text-base shadow-xs transition-[color,box-shadow] file:h-7 file:text-sm file:font-medium focus-visible:ring-[3px] aria-invalid:ring-[3px] md:text-sm file:text-foreground placeholder:text-muted-foreground w-full min-w-0 outline-none file:inline-flex file:border-0 file:bg-transparent disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50",
+        className
+      )}
+      {...props}
+    />
   )
 }
 
-export { Input, type InputProps }
+export { Input }

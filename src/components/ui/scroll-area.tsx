@@ -1,37 +1,26 @@
-"use client"
-
-import { ScrollArea as ScrollAreaPrimitive } from "@base-ui-components/react/scroll-area"
+import { ScrollArea as ScrollAreaPrimitive } from "@base-ui/react/scroll-area"
 
 import { cn } from "@/lib/utils"
 
 function ScrollArea({
   className,
   children,
-  orientation,
   ...props
-}: ScrollAreaPrimitive.Root.Props & {
-  orientation?: "horizontal" | "vertical" | "both"
-}) {
+}: ScrollAreaPrimitive.Root.Props) {
   return (
-    <ScrollAreaPrimitive.Root className="min-h-0" {...props}>
+    <ScrollAreaPrimitive.Root
+      data-slot="scroll-area"
+      className={cn("relative", className)}
+      {...props}
+    >
       <ScrollAreaPrimitive.Viewport
         data-slot="scroll-area-viewport"
-        className={cn(
-          "size-full overscroll-contain rounded-[inherit] transition-[box-shadow] outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1 focus-visible:ring-offset-background",
-          className
-        )}
+        className="focus-visible:ring-ring/50 size-full rounded-[inherit] transition-[color,box-shadow] outline-none focus-visible:ring-[3px] focus-visible:outline-1"
       >
         {children}
       </ScrollAreaPrimitive.Viewport>
-      {orientation === "both" ? (
-        <>
-          <ScrollBar orientation="vertical" />
-          <ScrollBar orientation="horizontal" />
-        </>
-      ) : (
-        <ScrollBar orientation={orientation} />
-      )}
-      <ScrollAreaPrimitive.Corner data-slot="scroll-area-corner" />
+      <ScrollBar />
+      <ScrollAreaPrimitive.Corner />
     </ScrollAreaPrimitive.Root>
   )
 }
@@ -44,16 +33,17 @@ function ScrollBar({
   return (
     <ScrollAreaPrimitive.Scrollbar
       data-slot="scroll-area-scrollbar"
+      data-orientation={orientation}
       orientation={orientation}
       className={cn(
-        "m-0.5 flex opacity-0 transition-opacity delay-300 data-hovering:opacity-100 data-hovering:delay-0 data-hovering:duration-100 data-scrolling:opacity-100 data-scrolling:delay-0 data-scrolling:duration-100 data-[orientation=horizontal]:h-1.5 data-[orientation=horizontal]:flex-col data-[orientation=vertical]:w-1.5",
+        "data-horizontal:h-2.5 data-horizontal:flex-col data-horizontal:border-t data-horizontal:border-t-transparent data-vertical:h-full data-vertical:w-2.5 data-vertical:border-l data-vertical:border-l-transparent flex touch-none p-px transition-colors select-none",
         className
       )}
       {...props}
     >
       <ScrollAreaPrimitive.Thumb
         data-slot="scroll-area-thumb"
-        className="relative flex-1 rounded-full bg-foreground/20"
+        className="rounded-full bg-border relative flex-1"
       />
     </ScrollAreaPrimitive.Scrollbar>
   )
