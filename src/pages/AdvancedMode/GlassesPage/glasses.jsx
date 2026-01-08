@@ -4,7 +4,13 @@ import GlassModal from './components/GlassModal';
 import useAuthStore from '@/store/authStore';
 import { PlusCircle, Edit, Trash2, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import { toast } from 'sonner';
 
 function Glasses() {
@@ -84,7 +90,8 @@ function Glasses() {
             <AlertCircle className="h-16 w-16 text-muted-foreground mb-4" />
             <h3 className="text-xl font-semibold mb-2">No Glasses Found</h3>
             <p className="text-muted-foreground text-center mb-6 max-w-sm">
-              Get started by adding your first glass to begin managing your collection
+              Get started by adding your first glass to begin managing your
+              collection
             </p>
             <Button size="lg" onClick={handleAdd}>
               <PlusCircle className="mr-2" />

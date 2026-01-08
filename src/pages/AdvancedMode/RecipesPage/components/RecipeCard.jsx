@@ -1,7 +1,12 @@
 import React from 'react';
 import { Edit, Trash2, Heart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+} from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 
 const RecipeCard = ({ recipe, isFavorite, onEdit, onDelete }) => {
@@ -40,11 +45,9 @@ const RecipeCard = ({ recipe, isFavorite, onEdit, onDelete }) => {
       </div>
 
       <CardHeader className="p-4 pb-2">
-        <h3 className="text-base font-bold line-clamp-1">
-          {recipe.name}
-        </h3>
+        <h3 className="text-base font-bold line-clamp-1">{recipe.name}</h3>
       </CardHeader>
-      
+
       <CardContent className="p-4 pt-0">
         {recipe.description && (
           <p className="text-sm text-muted-foreground line-clamp-2 mb-2">
@@ -52,23 +55,16 @@ const RecipeCard = ({ recipe, isFavorite, onEdit, onDelete }) => {
           </p>
         )}
         <div className="text-xs text-muted-foreground">
-          {recipe.productionSteps?.length || 0} step{recipe.productionSteps?.length !== 1 ? 's' : ''}
+          {recipe.productionSteps?.length || 0} step
+          {recipe.productionSteps?.length !== 1 ? 's' : ''}
         </div>
       </CardContent>
 
       <CardFooter className="flex justify-end gap-2 p-4 pt-0">
-        <Button
-          variant="ghost"
-          size="icon-sm"
-          onClick={handleEditClick}
-        >
+        <Button variant="ghost" size="icon-sm" onClick={handleEditClick}>
           <Edit className="h-4 w-4" />
         </Button>
-        <Button
-          variant="ghost"
-          size="icon-sm"
-          onClick={handleDeleteClick}
-        >
+        <Button variant="ghost" size="icon-sm" onClick={handleDeleteClick}>
           <Trash2 className="h-4 w-4 text-destructive" />
         </Button>
       </CardFooter>

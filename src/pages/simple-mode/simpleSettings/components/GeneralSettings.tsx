@@ -40,11 +40,13 @@ const GeneralSettings = ({
         </CardTitle>
       </CardHeader>
       <CardContent>
-
         <div className="space-y-4">
           {/* Language Selector */}
           <div className="space-y-2">
-            <Label htmlFor="language-select" className="flex items-center gap-2">
+            <Label
+              htmlFor="language-select"
+              className="flex items-center gap-2"
+            >
               <Globe className="w-3 h-3 sm:w-4 sm:h-4" />
               Language
             </Label>
@@ -67,7 +69,10 @@ const GeneralSettings = ({
           {/* Toggle Switches */}
           <div className="space-y-4">
             <div className="flex items-center justify-between py-2 px-2 hover:bg-muted/50 rounded-lg transition-colors">
-              <Label htmlFor="notifications" className="flex items-center gap-2 cursor-pointer">
+              <Label
+                htmlFor="notifications"
+                className="flex items-center gap-2 cursor-pointer"
+              >
                 <Bell className="w-3 h-3 sm:w-4 sm:h-4" />
                 Notifications
               </Label>
@@ -75,7 +80,10 @@ const GeneralSettings = ({
             </div>
 
             <div className="flex items-center justify-between py-2 px-2 hover:bg-muted/50 rounded-lg transition-colors">
-              <Label htmlFor="sound-effects" className="flex items-center gap-2 cursor-pointer">
+              <Label
+                htmlFor="sound-effects"
+                className="flex items-center gap-2 cursor-pointer"
+              >
                 <Volume2 className="w-3 h-3 sm:w-4 sm:h-4" />
                 Sound Effects
               </Label>
@@ -89,10 +97,7 @@ const GeneralSettings = ({
               <span className="text-sm font-medium">
                 Switch to Advanced Mode
               </span>
-              <Button
-                onClick={onAdvancedModeSwitch}
-                size="default"
-              >
+              <Button onClick={onAdvancedModeSwitch} size="default">
                 Switch
               </Button>
             </div>
@@ -105,10 +110,7 @@ const GeneralSettings = ({
                 <LogOut className="w-3 h-3 sm:w-4 sm:h-4" />
                 Logout
               </Label>
-              <Button
-                variant="destructive"
-                onClick={onLogout}
-              >
+              <Button variant="destructive" onClick={onLogout}>
                 Logout
               </Button>
             </div>

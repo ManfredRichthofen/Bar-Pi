@@ -53,7 +53,9 @@ function GlassModal({ show, onHide, onSave, glass }) {
           <DialogHeader>
             <DialogTitle>{glass ? 'Edit Glass' : 'Add Glass'}</DialogTitle>
             <DialogDescription>
-              {glass ? 'Update the glass details below.' : 'Add a new glass to your collection.'}
+              {glass
+                ? 'Update the glass details below.'
+                : 'Add a new glass to your collection.'}
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">

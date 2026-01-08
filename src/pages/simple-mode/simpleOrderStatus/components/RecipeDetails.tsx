@@ -21,13 +21,13 @@ const RecipeDetails = ({ recipe }: RecipeDetailsProps) => {
     <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
       {/* Ingredients List */}
       {recipe.ingredients && (
-        <Card className={recipe.description ? 'md:col-span-1' : 'md:col-span-2'}>
+        <Card
+          className={recipe.description ? 'md:col-span-1' : 'md:col-span-2'}
+        >
           <CardContent className="p-4 sm:p-6">
             <div className="flex items-center gap-2 mb-4">
               <ChefHat className="w-5 h-5 text-primary" />
-              <h3 className="text-base sm:text-lg font-bold">
-                Ingredients
-              </h3>
+              <h3 className="text-base sm:text-lg font-bold">Ingredients</h3>
             </div>
             <div className="space-y-2">
               {recipe.ingredients.map((ingredient, index) => (

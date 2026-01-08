@@ -19,11 +19,7 @@ const NoActiveOrder = ({ onOrderDrink }: NoActiveOrderProps) => {
           <p className="text-muted-foreground mb-4 sm:mb-6 text-xs sm:text-sm">
             There is currently no cocktail being prepared
           </p>
-          <Button
-            size="lg"
-            className="w-full"
-            onClick={onOrderDrink}
-          >
+          <Button size="lg" className="w-full" onClick={onOrderDrink}>
             Order a Drink
           </Button>
         </div>

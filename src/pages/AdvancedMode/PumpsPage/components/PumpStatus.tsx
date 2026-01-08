@@ -58,7 +58,9 @@ export const PumpStatus: React.FC = () => {
 
   return (
     <Card>
-      <Collapsible defaultOpen={typeof window !== 'undefined' && window.innerWidth > 768}>
+      <Collapsible
+        defaultOpen={typeof window !== 'undefined' && window.innerWidth > 768}
+      >
         <CardHeader className="bg-muted/50 rounded-t-2xl border-b">
           <CardTitle className="text-base sm:text-lg">
             {t('pump_status.headline')}
@@ -78,15 +80,11 @@ export const PumpStatus: React.FC = () => {
                   {t('pump_status.pumps_installed')}
                 </span>
                 <span className="sm:hidden">
-                  <Badge variant="default">
-                    {nrPumps}
-                  </Badge>
+                  <Badge variant="default">{nrPumps}</Badge>
                 </span>
               </div>
               <div className="hidden sm:block text-right">
-                <Badge variant="default">
-                  {nrPumps}
-                </Badge>
+                <Badge variant="default">{nrPumps}</Badge>
               </div>
               <div className="text-sm flex justify-between sm:block">
                 <span className="sm:hidden">
@@ -96,15 +94,11 @@ export const PumpStatus: React.FC = () => {
                   {t('pump_status.pumps_ingredients_installed')}
                 </span>
                 <span className="sm:hidden">
-                  <Badge variant="default">
-                    {nrIngredientsInstalled}
-                  </Badge>
+                  <Badge variant="default">{nrIngredientsInstalled}</Badge>
                 </span>
               </div>
               <div className="hidden sm:block text-right">
-                <Badge variant="default">
-                  {nrIngredientsInstalled}
-                </Badge>
+                <Badge variant="default">{nrIngredientsInstalled}</Badge>
               </div>
             </div>
           </div>
@@ -133,7 +127,9 @@ export const PumpStatus: React.FC = () => {
                 </span>
                 <span className="sm:hidden">
                   <Badge
-                    variant={reversePumpSettings?.enable ? 'default' : 'destructive'}
+                    variant={
+                      reversePumpSettings?.enable ? 'default' : 'destructive'
+                    }
                   >
                     {reversePumpingStatus}
                   </Badge>
@@ -141,7 +137,9 @@ export const PumpStatus: React.FC = () => {
               </div>
               <div className="hidden sm:block text-right">
                 <Badge
-                  variant={reversePumpSettings?.enable ? 'default' : 'destructive'}
+                  variant={
+                    reversePumpSettings?.enable ? 'default' : 'destructive'
+                  }
                 >
                   {reversePumpingStatus}
                 </Badge>
@@ -215,7 +213,9 @@ export const PumpStatus: React.FC = () => {
                 </span>
                 <span className="sm:hidden">
                   <Badge
-                    variant={loadCellSettings?.enable ? 'default' : 'destructive'}
+                    variant={
+                      loadCellSettings?.enable ? 'default' : 'destructive'
+                    }
                   >
                     {loadCellStatus}
                   </Badge>
@@ -239,7 +239,11 @@ export const PumpStatus: React.FC = () => {
                     </span>
                     <span className="sm:hidden">
                       <Badge
-                        variant={loadCellSettings?.calibrated ? 'default' : 'destructive'}
+                        variant={
+                          loadCellSettings?.calibrated
+                            ? 'default'
+                            : 'destructive'
+                        }
                       >
                         {loadCellCalibrated}
                       </Badge>
@@ -247,7 +251,9 @@ export const PumpStatus: React.FC = () => {
                   </div>
                   <div className="hidden sm:block text-right">
                     <Badge
-                      variant={loadCellSettings?.calibrated ? 'default' : 'destructive'}
+                      variant={
+                        loadCellSettings?.calibrated ? 'default' : 'destructive'
+                      }
                     >
                       {loadCellCalibrated}
                     </Badge>

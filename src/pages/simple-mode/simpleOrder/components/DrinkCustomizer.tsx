@@ -103,9 +103,10 @@ const DrinkCustomizer = ({
 
       {/* Bento Grid for Customization Options */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
-        
         {/* Alcohol Strength Card */}
-        <Card className={`md:col-span-${automatedIngredients.length > 0 ? '1' : '2'}`}>
+        <Card
+          className={`md:col-span-${automatedIngredients.length > 0 ? '1' : '2'}`}
+        >
           <CardContent className="p-4 sm:p-6">
             <div className="flex items-center gap-2 mb-4">
               <BeakerIcon className="w-5 h-5 text-primary" />
@@ -113,7 +114,7 @@ const DrinkCustomizer = ({
                 Alcohol Strength
               </h3>
             </div>
-            
+
             {disableBoosting ? (
               <Alert className="bg-yellow-500/10 border-yellow-500/30">
                 <AlertTriangle className="h-4 w-4 text-yellow-600 dark:text-yellow-400" />
@@ -133,7 +134,7 @@ const DrinkCustomizer = ({
                     Alcohol content adjustment
                   </p>
                 </div>
-                
+
                 <Slider
                   value={[customisations?.boost || 100]}
                   onValueChange={handleBoostChange}
@@ -142,11 +143,23 @@ const DrinkCustomizer = ({
                   step={10}
                   className="my-6"
                 />
-                
+
                 <div className="flex justify-between text-xs text-muted-foreground">
-                  <span className="font-medium">0%<br/>None</span>
-                  <span className="font-medium">100%<br/>Normal</span>
-                  <span className="font-medium">200%<br/>Double</span>
+                  <span className="font-medium">
+                    0%
+                    <br />
+                    None
+                  </span>
+                  <span className="font-medium">
+                    100%
+                    <br />
+                    Normal
+                  </span>
+                  <span className="font-medium">
+                    200%
+                    <br />
+                    Double
+                  </span>
                 </div>
               </div>
             )}
@@ -163,14 +176,17 @@ const DrinkCustomizer = ({
                   Extra Ingredients
                 </h3>
               </div>
-              
+
               <p className="text-sm text-muted-foreground mb-4">
                 Add extra ingredients to personalize your drink
               </p>
 
               <div className="space-y-3">
                 {additionalIngredients.map(({ ingredient, amount }) => (
-                  <div key={ingredient.id} className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
+                  <div
+                    key={ingredient.id}
+                    className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg"
+                  >
                     <Label className="font-medium text-sm flex-1">
                       {ingredient.name}
                     </Label>

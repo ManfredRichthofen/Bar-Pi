@@ -38,7 +38,10 @@ interface PumpSelectorProps {
   onClose: () => void;
 }
 
-export const PumpSelector: React.FC<PumpSelectorProps> = ({ show, onClose }) => {
+export const PumpSelector: React.FC<PumpSelectorProps> = ({
+  show,
+  onClose,
+}) => {
   const navigate = useNavigate();
   const token = useAuthStore((state) => state.token);
   const { t } = useTranslation();
@@ -96,7 +99,10 @@ export const PumpSelector: React.FC<PumpSelectorProps> = ({ show, onClose }) => 
   }, [show]);
 
   return (
-    <Dialog open={show} onOpenChange={(open: boolean) => !open && handleClose()}>
+    <Dialog
+      open={show}
+      onOpenChange={(open: boolean) => !open && handleClose()}
+    >
       <DialogContent className="max-w-4xl">
         <DialogHeader>
           <DialogTitle className="text-center">

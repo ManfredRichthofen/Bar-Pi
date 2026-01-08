@@ -13,10 +13,20 @@ import {
 import WebSocketService from '../../../../services/websocket.service';
 import PumpService from '../../../../services/pump.service';
 import useAuthStore from '../../../../store/authStore';
-import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '@/components/ui/card';
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardContent,
+  CardFooter,
+} from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Progress, ProgressTrack, ProgressIndicator } from '@/components/ui/progress';
+import {
+  Progress,
+  ProgressTrack,
+  ProgressIndicator,
+} from '@/components/ui/progress';
 import { toast } from 'sonner';
 
 const StepperMotorIcon = ({ width = 24, height = 24, className = '' }) => (
@@ -285,9 +295,7 @@ export const PumpCard: React.FC<PumpCardProps> = ({ pump }) => {
       <CardHeader className="bg-muted/30 border-b">
         <div className="flex items-start justify-between gap-3">
           <div className="flex-1 min-w-0">
-            <CardTitle className="text-lg truncate">
-              {displayName}
-            </CardTitle>
+            <CardTitle className="text-lg truncate">{displayName}</CardTitle>
             <div className="flex items-center gap-1.5 mt-1.5 text-sm text-muted-foreground">
               {pumpTypeInfo.PumpTypeIcon}
               <span>{pumpTypeInfo.printPumpType}</span>
@@ -355,12 +363,18 @@ export const PumpCard: React.FC<PumpCardProps> = ({ pump }) => {
       <CardContent className="flex-1 flex flex-col gap-3">
         <div className="space-y-2 text-sm">
           <div className="flex items-center justify-between">
-            <span className="text-muted-foreground">{t('pump_card.ingredient')}</span>
+            <span className="text-muted-foreground">
+              {t('pump_card.ingredient')}
+            </span>
             <span className="font-medium truncate ml-2">{printIngredient}</span>
           </div>
           <div className="flex items-center justify-between">
-            <span className="text-muted-foreground">{t('pump_card.filling_level')}</span>
-            <span className={`font-medium ${displayAttributes.fillingLevel.className}`}>
+            <span className="text-muted-foreground">
+              {t('pump_card.filling_level')}
+            </span>
+            <span
+              className={`font-medium ${displayAttributes.fillingLevel.className}`}
+            >
               {displayAttributes.fillingLevel.label}
             </span>
           </div>
@@ -402,11 +416,7 @@ export const PumpCard: React.FC<PumpCardProps> = ({ pump }) => {
                 : t('pump_card.start')
             }
           >
-            {pumpJobState.runningState ? (
-              <StopCircle />
-            ) : (
-              <PlayCircle />
-            )}
+            {pumpJobState.runningState ? <StopCircle /> : <PlayCircle />}
           </Button>
         </div>
       </CardFooter>

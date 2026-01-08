@@ -55,14 +55,18 @@ const ThemeSelector = ({ themes }: ThemeSelectorProps) => {
           </div>
           {theme === 'system' && (
             <p className="text-xs text-muted-foreground">
-              Currently using: {currentTheme === 'dark' ? 'Dark' : 'Light'} (system preference)
+              Currently using: {currentTheme === 'dark' ? 'Dark' : 'Light'}{' '}
+              (system preference)
             </p>
           )}
         </div>
 
         {/* DaisyUI Theme Selector (Optional) */}
         <div className="space-y-2">
-          <Label htmlFor="theme-select" className="flex items-center gap-2 text-sm font-medium">
+          <Label
+            htmlFor="theme-select"
+            className="flex items-center gap-2 text-sm font-medium"
+          >
             <Palette className="w-3 h-3 sm:w-4 sm:h-4" />
             Color Theme (Optional)
           </Label>
@@ -71,7 +75,10 @@ const ThemeSelector = ({ themes }: ThemeSelectorProps) => {
             defaultValue="default"
             onChange={(e) => {
               if (e.target.value !== 'default') {
-                document.documentElement.setAttribute('data-theme', e.target.value);
+                document.documentElement.setAttribute(
+                  'data-theme',
+                  e.target.value,
+                );
               } else {
                 document.documentElement.removeAttribute('data-theme');
               }
@@ -79,11 +86,13 @@ const ThemeSelector = ({ themes }: ThemeSelectorProps) => {
             className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
           >
             <option value="default">Default</option>
-            {themes.filter(t => !['light', 'dark'].includes(t)).map((theme) => (
-              <option key={theme} value={theme}>
-                {theme.charAt(0).toUpperCase() + theme.slice(1)}
-              </option>
-            ))}
+            {themes
+              .filter((t) => !['light', 'dark'].includes(t))
+              .map((theme) => (
+                <option key={theme} value={theme}>
+                  {theme.charAt(0).toUpperCase() + theme.slice(1)}
+                </option>
+              ))}
           </select>
           <p className="text-xs text-muted-foreground">
             Choose a color scheme variant (experimental)

@@ -89,44 +89,45 @@ export const PumpsPage: React.FC = () => {
       </div>
 
       <div className="container mx-auto px-4 py-6 sm:py-8">
-          {error && (
-            <Alert variant="destructive" className="mb-6">
-              <AlertCircle />
-              <AlertDescription>{error}</AlertDescription>
-            </Alert>
-          )}
+        {error && (
+          <Alert variant="destructive" className="mb-6">
+            <AlertCircle />
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+        )}
 
-          <div className="grid grid-cols-1 lg:grid-cols-[300px_1fr] gap-6">
-            <aside className="lg:sticky lg:top-24 lg:self-start">
-              <PumpStatus />
-            </aside>
+        <div className="grid grid-cols-1 lg:grid-cols-[300px_1fr] gap-6">
+          <aside className="lg:sticky lg:top-24 lg:self-start">
+            <PumpStatus />
+          </aside>
 
-            <main>
-              {pumps && pumps.length > 0 ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-3 gap-4">
-                  {pumps.map((pump: any) => (
-                    <PumpCard key={pump.id} pump={pump} />
-                  ))}
-                </div>
-              ) : (
-                <div className="flex flex-col items-center justify-center py-16 px-4 min-h-[400px]">
-                  <AlertCircle className="h-16 w-16 text-muted-foreground mb-4" />
-                  <h3 className="text-xl font-semibold mb-2">No Pumps Found</h3>
-                  <p className="text-muted-foreground text-center mb-6 max-w-sm">
-                    Get started by adding your first pump to begin managing your system
-                  </p>
-                  <Button
-                    variant="default"
-                    size="lg"
-                    onClick={() => setShowAddDialog(true)}
-                  >
-                    <PlusCircle className="mr-2" />
-                    Add First Pump
-                  </Button>
-                </div>
-              )}
-            </main>
-          </div>
+          <main>
+            {pumps && pumps.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-3 gap-4">
+                {pumps.map((pump: any) => (
+                  <PumpCard key={pump.id} pump={pump} />
+                ))}
+              </div>
+            ) : (
+              <div className="flex flex-col items-center justify-center py-16 px-4 min-h-[400px]">
+                <AlertCircle className="h-16 w-16 text-muted-foreground mb-4" />
+                <h3 className="text-xl font-semibold mb-2">No Pumps Found</h3>
+                <p className="text-muted-foreground text-center mb-6 max-w-sm">
+                  Get started by adding your first pump to begin managing your
+                  system
+                </p>
+                <Button
+                  variant="default"
+                  size="lg"
+                  onClick={() => setShowAddDialog(true)}
+                >
+                  <PlusCircle className="mr-2" />
+                  Add First Pump
+                </Button>
+              </div>
+            )}
+          </main>
+        </div>
       </div>
 
       <PumpSelector

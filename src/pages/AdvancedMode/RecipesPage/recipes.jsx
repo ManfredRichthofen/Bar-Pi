@@ -1,4 +1,11 @@
-import React, { useState, useEffect, lazy, Suspense, useMemo, useCallback } from 'react';
+import React, {
+  useState,
+  useEffect,
+  lazy,
+  Suspense,
+  useMemo,
+  useCallback,
+} from 'react';
 import { Navigate } from '@tanstack/react-router';
 import { PlusCircle, AlertCircle } from 'lucide-react';
 import useAuthStore from '../../../store/authStore';
@@ -22,7 +29,7 @@ const Recipes = ({ sidebarCollapsed = false }) => {
   const [editingRecipe, setEditingRecipe] = useState(null);
   const [ingredients, setIngredients] = useState([]);
   const [glasses, setGlasses] = useState([]);
-  
+
   // Form state
   const [formData, setFormData] = useState({
     name: '',
@@ -39,7 +46,15 @@ const Recipes = ({ sidebarCollapsed = false }) => {
     try {
       setLoading(true);
       const data = await RecipeService.getRecipes(
-        0, null, null, null, null, null, null, null, token
+        0,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        token,
       );
       setRecipes(data.content || []);
     } catch (error) {
@@ -63,7 +78,10 @@ const Recipes = ({ sidebarCollapsed = false }) => {
       // Fetch ALL ingredients without filters to ensure recipe ingredients are available
       const data = await ingredientService.getIngredients(token);
       console.log('Fetched ingredients:', data.length, 'ingredients');
-      console.log('Sample ingredient IDs:', data.slice(0, 5).map(i => ({ id: i.id, name: i.name })));
+      console.log(
+        'Sample ingredient IDs:',
+        data.slice(0, 5).map((i) => ({ id: i.id, name: i.name })),
+      );
       setIngredients(data);
     } catch (error) {
       console.error('Failed to fetch ingredients:', error);
@@ -78,7 +96,6 @@ const Recipes = ({ sidebarCollapsed = false }) => {
       console.error('Failed to fetch glasses:', error);
     }
   };
-
 
   const resetForm = () => {
     setFormData({
@@ -99,67 +116,79 @@ const Recipes = ({ sidebarCollapsed = false }) => {
     setIsModalVisible(true);
   }, [resetForm]);
 
-  const handleEdit = useCallback(async (recipe) => {
-    setEditingRecipe(recipe);
-    
-    // Fetch the full recipe details to ensure we have all ingredient data
-    try {
-      const fullRecipe = await RecipeService.getRecipe(recipe.id, false, token);
-      
-      // Deep clone production steps to ensure ingredient objects are properly loaded
-      const productionSteps = fullRecipe.productionSteps?.map(step => {
-        if (step.type === 'addIngredients') {
-          return {
-            ...step,
-            stepIngredients: step.stepIngredients?.map(si => {
-              // Ensure ingredient has an id property
-              const ingredient = si.ingredient || {};
-              return {
-                ingredient: {
-                  id: ingredient.id,
-                  name: ingredient.name,
-                  ...ingredient
-                },
-                amount: si.amount || 0,
-                scale: si.scale || 'ml',
-                boostable: si.boostable || false
-              };
-            }) || []
-          };
-        }
-        return { ...step };
-      }) || [];
-      
-      console.log('Loaded production steps:', productionSteps);
-      
-      setFormData({
-        name: fullRecipe.name || '',
-        description: fullRecipe.description || '',
-        defaultGlass: fullRecipe.defaultGlass || null,
-        defaultAmountToFill: fullRecipe.defaultAmountToFill || 250,
-        productionSteps: productionSteps,
-        image: null,
-        imagePreview: fullRecipe.image || null,
-        removeImage: false,
-      });
-      setIsModalVisible(true);
-    } catch (error) {
-      console.error('Error loading recipe details:', error);
-      toast.error('Failed to load recipe details');
-    }
-  }, [token]);
+  const handleEdit = useCallback(
+    async (recipe) => {
+      setEditingRecipe(recipe);
 
-  const handleDelete = useCallback(async (id) => {
-    if (window.confirm('Are you sure you want to delete this recipe?')) {
+      // Fetch the full recipe details to ensure we have all ingredient data
       try {
-        await RecipeService.deleteRecipe(id);
-        toast.success('Recipe deleted successfully');
-        fetchRecipes();
+        const fullRecipe = await RecipeService.getRecipe(
+          recipe.id,
+          false,
+          token,
+        );
+
+        // Deep clone production steps to ensure ingredient objects are properly loaded
+        const productionSteps =
+          fullRecipe.productionSteps?.map((step) => {
+            if (step.type === 'addIngredients') {
+              return {
+                ...step,
+                stepIngredients:
+                  step.stepIngredients?.map((si) => {
+                    // Ensure ingredient has an id property
+                    const ingredient = si.ingredient || {};
+                    return {
+                      ingredient: {
+                        id: ingredient.id,
+                        name: ingredient.name,
+                        ...ingredient,
+                      },
+                      amount: si.amount || 0,
+                      scale: si.scale || 'ml',
+                      boostable: si.boostable || false,
+                    };
+                  }) || [],
+              };
+            }
+            return { ...step };
+          }) || [];
+
+        console.log('Loaded production steps:', productionSteps);
+
+        setFormData({
+          name: fullRecipe.name || '',
+          description: fullRecipe.description || '',
+          defaultGlass: fullRecipe.defaultGlass || null,
+          defaultAmountToFill: fullRecipe.defaultAmountToFill || 250,
+          productionSteps: productionSteps,
+          image: null,
+          imagePreview: fullRecipe.image || null,
+          removeImage: false,
+        });
+        setIsModalVisible(true);
       } catch (error) {
-        toast.error('Failed to delete recipe');
+        console.error('Error loading recipe details:', error);
+        toast.error('Failed to load recipe details');
       }
-    }
-  }, [fetchRecipes]);
+    },
+    [token],
+  );
+
+  const handleDelete = useCallback(
+    async (id) => {
+      if (window.confirm('Are you sure you want to delete this recipe?')) {
+        try {
+          await RecipeService.deleteRecipe(id);
+          toast.success('Recipe deleted successfully');
+          fetchRecipes();
+        } catch (error) {
+          toast.error('Failed to delete recipe');
+        }
+      }
+    },
+    [fetchRecipes],
+  );
 
   const handleSave = useCallback(async () => {
     try {
@@ -182,7 +211,7 @@ const Recipes = ({ sidebarCollapsed = false }) => {
           editingRecipe.id,
           recipeDto,
           formData.image,
-          formData.removeImage
+          formData.removeImage,
         );
         toast.success('Recipe updated successfully');
       } else {
@@ -202,81 +231,96 @@ const Recipes = ({ sidebarCollapsed = false }) => {
   const handleImageChange = useCallback((e) => {
     const file = e.target.files[0];
     if (file) {
-      setFormData(prev => ({ ...prev, image: file }));
+      setFormData((prev) => ({ ...prev, image: file }));
       const reader = new FileReader();
       reader.onloadend = () => {
-        setFormData(prev => ({ ...prev, imagePreview: reader.result }));
+        setFormData((prev) => ({ ...prev, imagePreview: reader.result }));
       };
       reader.readAsDataURL(file);
     }
   }, []);
 
   const addProductionStep = useCallback((type) => {
-    const newStep = type === 'addIngredients'
-      ? { type: 'addIngredients', stepIngredients: [] }
-      : { type: 'writtenInstruction', message: '' };
-    
-    setFormData(prev => ({
+    const newStep =
+      type === 'addIngredients'
+        ? { type: 'addIngredients', stepIngredients: [] }
+        : { type: 'writtenInstruction', message: '' };
+
+    setFormData((prev) => ({
       ...prev,
-      productionSteps: [...prev.productionSteps, newStep]
+      productionSteps: [...prev.productionSteps, newStep],
     }));
   }, []);
 
   const removeProductionStep = useCallback((index) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      productionSteps: prev.productionSteps.filter((_, i) => i !== index)
+      productionSteps: prev.productionSteps.filter((_, i) => i !== index),
     }));
   }, []);
 
   const updateProductionStep = useCallback((index, updatedStep) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      productionSteps: prev.productionSteps.map((step, i) => 
-        i === index ? updatedStep : step
-      )
+      productionSteps: prev.productionSteps.map((step, i) =>
+        i === index ? updatedStep : step,
+      ),
     }));
   }, []);
 
-  const addIngredientToStep = useCallback((stepIndex) => {
-    const step = formData.productionSteps[stepIndex];
-    if (step.type === 'addIngredients') {
-      const updatedStep = {
-        ...step,
-        stepIngredients: [
-          ...step.stepIngredients,
-          { ingredient: null, amount: 30, scale: 'ml', boostable: false }
-        ]
-      };
-      updateProductionStep(stepIndex, updatedStep);
-    }
-  }, [formData.productionSteps, updateProductionStep]);
+  const addIngredientToStep = useCallback(
+    (stepIndex) => {
+      const step = formData.productionSteps[stepIndex];
+      if (step.type === 'addIngredients') {
+        const updatedStep = {
+          ...step,
+          stepIngredients: [
+            ...step.stepIngredients,
+            { ingredient: null, amount: 30, scale: 'ml', boostable: false },
+          ],
+        };
+        updateProductionStep(stepIndex, updatedStep);
+      }
+    },
+    [formData.productionSteps, updateProductionStep],
+  );
 
-  const removeIngredientFromStep = useCallback((stepIndex, ingredientIndex) => {
-    const step = formData.productionSteps[stepIndex];
-    if (step.type === 'addIngredients') {
-      const updatedStep = {
-        ...step,
-        stepIngredients: step.stepIngredients.filter((_, i) => i !== ingredientIndex)
-      };
-      updateProductionStep(stepIndex, updatedStep);
-    }
-  }, [formData.productionSteps, updateProductionStep]);
+  const removeIngredientFromStep = useCallback(
+    (stepIndex, ingredientIndex) => {
+      const step = formData.productionSteps[stepIndex];
+      if (step.type === 'addIngredients') {
+        const updatedStep = {
+          ...step,
+          stepIngredients: step.stepIngredients.filter(
+            (_, i) => i !== ingredientIndex,
+          ),
+        };
+        updateProductionStep(stepIndex, updatedStep);
+      }
+    },
+    [formData.productionSteps, updateProductionStep],
+  );
 
-  const updateStepIngredient = useCallback((stepIndex, ingredientIndex, field, value) => {
-    const step = formData.productionSteps[stepIndex];
-    if (step.type === 'addIngredients') {
-      const updatedStep = {
-        ...step,
-        stepIngredients: step.stepIngredients.map((ing, i) => 
-          i === ingredientIndex ? { ...ing, [field]: value } : ing
-        )
-      };
-      updateProductionStep(stepIndex, updatedStep);
-    }
-  }, [formData.productionSteps, updateProductionStep]);
+  const updateStepIngredient = useCallback(
+    (stepIndex, ingredientIndex, field, value) => {
+      const step = formData.productionSteps[stepIndex];
+      if (step.type === 'addIngredients') {
+        const updatedStep = {
+          ...step,
+          stepIngredients: step.stepIngredients.map((ing, i) =>
+            i === ingredientIndex ? { ...ing, [field]: value } : ing,
+          ),
+        };
+        updateProductionStep(stepIndex, updatedStep);
+      }
+    },
+    [formData.productionSteps, updateProductionStep],
+  );
 
-  const favoriteIds = useMemo(() => new Set((favorites || []).map((fav) => fav.id)), [favorites]);
+  const favoriteIds = useMemo(
+    () => new Set((favorites || []).map((fav) => fav.id)),
+    [favorites],
+  );
 
   if (!token) {
     return <Navigate to="/login" />;
@@ -314,7 +358,13 @@ const Recipes = ({ sidebarCollapsed = false }) => {
             </Button>
           </div>
         ) : (
-          <Suspense fallback={<div className="flex justify-center items-center py-12"><span className="loading loading-spinner loading-lg"></span></div>}>
+          <Suspense
+            fallback={
+              <div className="flex justify-center items-center py-12">
+                <span className="loading loading-spinner loading-lg"></span>
+              </div>
+            }
+          >
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4">
               {recipes.map((recipe) => (
                 <RecipeCard

@@ -11,7 +11,7 @@ const DrinkCard = ({ recipe }) => {
 
   const showModal = () => setIsModalOpen(true);
   const handleCancel = () => setIsModalOpen(false);
-  
+
   const handleToggleFavorite = (e) => {
     e.stopPropagation();
     toggleFavorite(recipe);
@@ -214,7 +214,11 @@ const DrinkCard = ({ recipe }) => {
                 <PencilIcon size={16} />
                 Edit Recipe
               </button>
-              <button type="button" className="btn w-full sm:w-auto" onClick={handleCancel}>
+              <button
+                type="button"
+                className="btn w-full sm:w-auto"
+                onClick={handleCancel}
+              >
                 Close
               </button>
             </div>

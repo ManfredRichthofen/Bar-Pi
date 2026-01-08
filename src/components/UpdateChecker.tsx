@@ -68,7 +68,8 @@ const UpdateChecker: React.FC = () => {
             </p>
             {updateInfo?.hasUpdate && (
               <p className="text-sm font-medium text-primary">
-                {t('settings.updates.new_version_available', 'New Version')}: {updateInfo.latestVersion}
+                {t('settings.updates.new_version_available', 'New Version')}:{' '}
+                {updateInfo.latestVersion}
               </p>
             )}
           </div>
@@ -125,7 +126,7 @@ const UpdateChecker: React.FC = () => {
                 <Button
                   onClick={handleUpdate}
                   disabled={isUpdating || updateInfo.updateDownloaded}
-                  variant={updateInfo.updateDownloaded ? "outline" : "default"}
+                  variant={updateInfo.updateDownloaded ? 'outline' : 'default'}
                 >
                   {isUpdating ? (
                     <>

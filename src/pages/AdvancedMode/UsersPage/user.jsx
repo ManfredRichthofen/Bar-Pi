@@ -138,12 +138,16 @@ const UserPage = () => {
                             {user.role === 'ADMIN' ? (
                               <>
                                 <Shield size={14} className="text-error" />
-                                <span className="badge badge-error badge-sm">Admin</span>
+                                <span className="badge badge-error badge-sm">
+                                  Admin
+                                </span>
                               </>
                             ) : (
                               <>
                                 <UserIcon size={14} className="text-primary" />
-                                <span className="badge badge-primary badge-sm">User</span>
+                                <span className="badge badge-primary badge-sm">
+                                  User
+                                </span>
                               </>
                             )}
                           </div>

@@ -19,7 +19,7 @@ const Dock: React.FC = () => {
       y: 0,
       opacity: 1,
       transition: {
-        type: "spring" as const,
+        type: 'spring' as const,
         stiffness: 300,
         damping: 25,
         staggerChildren: 0.1,
@@ -34,7 +34,7 @@ const Dock: React.FC = () => {
       y: 0,
       opacity: 1,
       transition: {
-        type: "spring" as const,
+        type: 'spring' as const,
         stiffness: 300,
         damping: 25,
       },
@@ -61,17 +61,21 @@ const Dock: React.FC = () => {
               'flex flex-col items-center justify-center gap-1 py-2 px-4 sm:py-3 sm:px-6 rounded-xl transition-all duration-200 min-w-[80px] sm:min-w-[100px]',
               isActive('/simple/drinks')
                 ? 'bg-primary text-primary-foreground shadow-md'
-                : 'text-foreground/70 hover:text-foreground hover:bg-muted'
+                : 'text-foreground/70 hover:text-foreground hover:bg-muted',
             )}
           >
             <motion.div
-              animate={isActive('/simple/drinks') ? {
-                scale: [1, 1.15, 1],
-                rotate: [0, -5, 5, 0],
-              } : {}}
+              animate={
+                isActive('/simple/drinks')
+                  ? {
+                      scale: [1, 1.15, 1],
+                      rotate: [0, -5, 5, 0],
+                    }
+                  : {}
+              }
               transition={{
                 duration: 0.5,
-                ease: "easeInOut",
+                ease: 'easeInOut',
               }}
             >
               <GlassWater className="h-6 w-6" />
@@ -94,17 +98,21 @@ const Dock: React.FC = () => {
               'flex flex-col items-center justify-center gap-1 py-2 px-4 sm:py-3 sm:px-6 rounded-xl transition-all duration-200 min-w-[80px] sm:min-w-[100px]',
               isActive('/simple/order-status')
                 ? 'bg-primary text-primary-foreground shadow-md'
-                : 'text-foreground/70 hover:text-foreground hover:bg-muted'
+                : 'text-foreground/70 hover:text-foreground hover:bg-muted',
             )}
           >
             <motion.div
-              animate={isActive('/simple/order-status') ? {
-                scale: [1, 1.15, 1],
-                rotate: [0, -5, 5, 0],
-              } : {}}
+              animate={
+                isActive('/simple/order-status')
+                  ? {
+                      scale: [1, 1.15, 1],
+                      rotate: [0, -5, 5, 0],
+                    }
+                  : {}
+              }
               transition={{
                 duration: 0.5,
-                ease: "easeInOut",
+                ease: 'easeInOut',
               }}
             >
               <Clock className="h-6 w-6" />
@@ -127,17 +135,21 @@ const Dock: React.FC = () => {
               'flex flex-col items-center justify-center gap-1 py-2 px-4 sm:py-3 sm:px-6 rounded-xl transition-all duration-200 min-w-[80px] sm:min-w-[100px]',
               isActive('/simple/settings')
                 ? 'bg-primary text-primary-foreground shadow-md'
-                : 'text-foreground/70 hover:text-foreground hover:bg-muted'
+                : 'text-foreground/70 hover:text-foreground hover:bg-muted',
             )}
           >
             <motion.div
-              animate={isActive('/simple/settings') ? {
-                scale: [1, 1.15, 1],
-                rotate: [0, -5, 5, 0],
-              } : {}}
+              animate={
+                isActive('/simple/settings')
+                  ? {
+                      scale: [1, 1.15, 1],
+                      rotate: [0, -5, 5, 0],
+                    }
+                  : {}
+              }
               transition={{
                 duration: 0.5,
-                ease: "easeInOut",
+                ease: 'easeInOut',
               }}
             >
               <Settings className="h-6 w-6" />

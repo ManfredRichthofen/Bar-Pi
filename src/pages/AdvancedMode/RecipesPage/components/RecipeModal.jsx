@@ -58,7 +58,9 @@ const RecipeModal = ({
                 id="recipe-name"
                 placeholder="Enter recipe name"
                 value={formData.name}
-                onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                onChange={(e) =>
+                  setFormData((prev) => ({ ...prev, name: e.target.value }))
+                }
               />
             </div>
             <div className="space-y-2">
@@ -66,8 +68,11 @@ const RecipeModal = ({
               <Select
                 value={formData.defaultGlass?.id?.toString() || ''}
                 onValueChange={(value) => {
-                  const glass = glasses.find(g => g.id === parseInt(value));
-                  setFormData(prev => ({ ...prev, defaultGlass: glass || null }));
+                  const glass = glasses.find((g) => g.id === parseInt(value));
+                  setFormData((prev) => ({
+                    ...prev,
+                    defaultGlass: glass || null,
+                  }));
                 }}
               >
                 <SelectTrigger id="default-glass">
@@ -88,7 +93,12 @@ const RecipeModal = ({
                 id="default-amount"
                 type="number"
                 value={formData.defaultAmountToFill}
-                onChange={(e) => setFormData(prev => ({ ...prev, defaultAmountToFill: parseInt(e.target.value) || 0 }))}
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    defaultAmountToFill: parseInt(e.target.value) || 0,
+                  }))
+                }
               />
             </div>
           </div>
@@ -98,7 +108,12 @@ const RecipeModal = ({
               id="description"
               placeholder="Describe the drink, flavor profile or any notes for the bartender"
               value={formData.description}
-              onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+              onChange={(e) =>
+                setFormData((prev) => ({
+                  ...prev,
+                  description: e.target.value,
+                }))
+              }
               className="resize-y min-h-[5.5rem] max-h-40"
             />
           </div>
@@ -118,7 +133,13 @@ const RecipeModal = ({
                     variant="destructive"
                     size="icon"
                     className="absolute -top-2 -right-2 h-6 w-6 rounded-full"
-                    onClick={() => setFormData(prev => ({ ...prev, image: null, imagePreview: null }))}
+                    onClick={() =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        image: null,
+                        imagePreview: null,
+                      }))
+                    }
                   >
                     <X className="h-3 w-3" />
                   </Button>
@@ -143,7 +164,12 @@ const RecipeModal = ({
                     type="checkbox"
                     className="h-4 w-4"
                     checked={formData.removeImage}
-                    onChange={(e) => setFormData(prev => ({ ...prev, removeImage: e.target.checked }))}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        removeImage: e.target.checked,
+                      }))
+                    }
                   />
                   <span className="text-sm">Remove existing image</span>
                 </div>
@@ -156,7 +182,8 @@ const RecipeModal = ({
               <div>
                 <h4 className="font-semibold text-base">Production Steps</h4>
                 <p className="text-xs text-muted-foreground mt-1">
-                  Build the drink using ingredient steps and written instructions.
+                  Build the drink using ingredient steps and written
+                  instructions.
                 </p>
               </div>
               <div className="flex gap-2">
@@ -185,7 +212,10 @@ const RecipeModal = ({
                   <CardContent className="pt-4">
                     <div className="flex items-center justify-between gap-3 mb-3">
                       <span className="font-medium text-sm">
-                        Step {stepIndex + 1} · {step.type === 'addIngredients' ? 'Add ingredients' : 'Instruction'}
+                        Step {stepIndex + 1} ·{' '}
+                        {step.type === 'addIngredients'
+                          ? 'Add ingredients'
+                          : 'Instruction'}
                       </span>
                       <Button
                         type="button"
@@ -200,12 +230,22 @@ const RecipeModal = ({
                     {step.type === 'addIngredients' ? (
                       <div className="space-y-2">
                         {step.stepIngredients.map((ing, ingIndex) => (
-                          <div key={ingIndex} className="flex gap-2 items-center">
+                          <div
+                            key={ingIndex}
+                            className="flex gap-2 items-center"
+                          >
                             <Select
                               value={ing.ingredient?.id?.toString() || ''}
                               onValueChange={(value) => {
-                                const ingredient = ingredients.find(i => i.id === parseInt(value));
-                                updateStepIngredient(stepIndex, ingIndex, 'ingredient', ingredient);
+                                const ingredient = ingredients.find(
+                                  (i) => i.id === parseInt(value),
+                                );
+                                updateStepIngredient(
+                                  stepIndex,
+                                  ingIndex,
+                                  'ingredient',
+                                  ingredient,
+                                );
                               }}
                             >
                               <SelectTrigger className="flex-1">
@@ -213,7 +253,10 @@ const RecipeModal = ({
                               </SelectTrigger>
                               <SelectContent>
                                 {ingredients.map((ingredient) => (
-                                  <SelectItem key={ingredient.id} value={ingredient.id.toString()}>
+                                  <SelectItem
+                                    key={ingredient.id}
+                                    value={ingredient.id.toString()}
+                                  >
                                     {ingredient.name}
                                   </SelectItem>
                                 ))}
@@ -223,11 +266,25 @@ const RecipeModal = ({
                               type="number"
                               className="w-20"
                               value={ing.amount}
-                              onChange={(e) => updateStepIngredient(stepIndex, ingIndex, 'amount', parseFloat(e.target.value) || 0)}
+                              onChange={(e) =>
+                                updateStepIngredient(
+                                  stepIndex,
+                                  ingIndex,
+                                  'amount',
+                                  parseFloat(e.target.value) || 0,
+                                )
+                              }
                             />
                             <Select
                               value={ing.scale}
-                              onValueChange={(value) => updateStepIngredient(stepIndex, ingIndex, 'scale', value)}
+                              onValueChange={(value) =>
+                                updateStepIngredient(
+                                  stepIndex,
+                                  ingIndex,
+                                  'scale',
+                                  value,
+                                )
+                              }
                             >
                               <SelectTrigger className="w-20">
                                 <SelectValue />
@@ -243,7 +300,9 @@ const RecipeModal = ({
                               type="button"
                               variant="ghost"
                               size="icon-sm"
-                              onClick={() => removeIngredientFromStep(stepIndex, ingIndex)}
+                              onClick={() =>
+                                removeIngredientFromStep(stepIndex, ingIndex)
+                              }
                             >
                               <X className="h-4 w-4" />
                             </Button>
@@ -263,7 +322,12 @@ const RecipeModal = ({
                       <Textarea
                         placeholder="Enter instruction"
                         value={step.message || ''}
-                        onChange={(e) => updateProductionStep(stepIndex, { ...step, message: e.target.value })}
+                        onChange={(e) =>
+                          updateProductionStep(stepIndex, {
+                            ...step,
+                            message: e.target.value,
+                          })
+                        }
                       />
                     )}
                   </CardContent>
@@ -274,17 +338,10 @@ const RecipeModal = ({
         </div>
 
         <DialogFooter className="px-6 py-4 border-t">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={onClose}
-          >
+          <Button type="button" variant="outline" onClick={onClose}>
             Cancel
           </Button>
-          <Button
-            type="button"
-            onClick={onSave}
-          >
+          <Button type="button" onClick={onSave}>
             {editingRecipe ? 'Update Recipe' : 'Create Recipe'}
           </Button>
         </DialogFooter>

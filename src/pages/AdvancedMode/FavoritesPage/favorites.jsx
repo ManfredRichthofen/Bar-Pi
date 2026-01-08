@@ -178,10 +178,7 @@ const Favorites = ({ sidebarCollapsed = false }) => {
             </div>
           </div>
           <form method="dialog" className="modal-backdrop">
-            <button
-              type="button"
-              onClick={() => setShowClearConfirm(false)}
-            >
+            <button type="button" onClick={() => setShowClearConfirm(false)}>
               close
             </button>
           </form>

@@ -56,13 +56,18 @@ const StatusCard = ({
             <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold mb-2 sm:mb-3 break-words">
               {recipeName}
             </h2>
-            <Badge variant="secondary" className="capitalize text-xs sm:text-sm">
+            <Badge
+              variant="secondary"
+              className="capitalize text-xs sm:text-sm"
+            >
               {state.toLowerCase().replace(/_/g, ' ')}
             </Badge>
           </div>
-          
+
           {/* Status Icon */}
-          <div className={`rounded-2xl p-3 sm:p-4 ${getStatusColor()} transition-all duration-300`}>
+          <div
+            className={`rounded-2xl p-3 sm:p-4 ${getStatusColor()} transition-all duration-300`}
+          >
             {getStatusIcon()}
           </div>
         </div>
@@ -74,15 +79,16 @@ const StatusCard = ({
               {progress}%
             </div>
             <p className="text-sm sm:text-base text-muted-foreground">
-              {state === 'FINISHED' ? 'Complete!' : state === 'CANCELLED' ? 'Cancelled' : 'In Progress'}
+              {state === 'FINISHED'
+                ? 'Complete!'
+                : state === 'CANCELLED'
+                  ? 'Cancelled'
+                  : 'In Progress'}
             </p>
           </div>
-          
+
           <div className="space-y-2">
-            <Progress 
-              value={progress} 
-              className="w-full h-3 sm:h-4" 
-            />
+            <Progress value={progress} className="w-full h-3 sm:h-4" />
             <div className="flex justify-between text-xs text-muted-foreground">
               <span>0%</span>
               <span>100%</span>

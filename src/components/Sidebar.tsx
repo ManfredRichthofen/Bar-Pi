@@ -113,9 +113,7 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed, onCollapse }) => {
             ${collapsed ? 'opacity-0' : 'opacity-100'}`}
         >
           <div className="h-14 flex-none flex items-center justify-between px-4 sm:px-6 transition-colors duration-300 bg-muted/30 border-b border-border">
-            <span className="text-base font-semibold">
-              Menu
-            </span>
+            <span className="text-base font-semibold">Menu</span>
             <button
               onClick={() => onCollapse(true)}
               className="inline-flex items-center justify-center rounded-md h-8 w-8 hover:bg-accent hover:text-accent-foreground transition-colors"
@@ -153,9 +151,7 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed, onCollapse }) => {
                           size: 18,
                           strokeWidth: 2,
                           className: `transition-colors duration-200 ${
-                            location.pathname === item.key
-                              ? 'text-primary'
-                              : ''
+                            location.pathname === item.key ? 'text-primary' : ''
                           }`,
                         })}
                         <span className="text-sm whitespace-nowrap">

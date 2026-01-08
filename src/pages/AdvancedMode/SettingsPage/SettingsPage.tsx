@@ -1,14 +1,28 @@
 import React, { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from '@tanstack/react-router';
-import { LogOut, Moon, Sun, Globe, Bell, Volume2, Smartphone } from 'lucide-react';
+import {
+  LogOut,
+  Moon,
+  Sun,
+  Globe,
+  Bell,
+  Volume2,
+  Smartphone,
+} from 'lucide-react';
 import useAuthStore from '../../../store/authStore';
 import useUIModeStore from '../../../store/uiModeStore';
 import UpdateChecker from '../../../components/UpdateChecker';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
 
 export const SettingsPage: React.FC = () => {
@@ -64,7 +78,9 @@ export const SettingsPage: React.FC = () => {
     <div className="min-h-screen bg-background">
       <div className="sticky top-0 z-20 bg-background border-b shadow-sm">
         <div className="container mx-auto px-4 py-4">
-          <h1 className="text-2xl font-bold">{t('settings.title', 'Settings')}</h1>
+          <h1 className="text-2xl font-bold">
+            {t('settings.title', 'Settings')}
+          </h1>
         </div>
       </div>
 
@@ -84,7 +100,10 @@ export const SettingsPage: React.FC = () => {
                 <label className="text-sm font-medium">
                   {t('settings.general.language_label', 'Language')}
                 </label>
-                <Select value={i18n.language} onValueChange={handleLanguageChange}>
+                <Select
+                  value={i18n.language}
+                  onValueChange={handleLanguageChange}
+                >
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
@@ -105,22 +124,36 @@ export const SettingsPage: React.FC = () => {
                   <div className="flex items-center gap-3">
                     <Bell className="h-5 w-5 text-muted-foreground" />
                     <div>
-                      <p className="font-medium">{t('settings.general.notifications', 'Notifications')}</p>
-                      <p className="text-sm text-muted-foreground">Receive system notifications</p>
+                      <p className="font-medium">
+                        {t('settings.general.notifications', 'Notifications')}
+                      </p>
+                      <p className="text-sm text-muted-foreground">
+                        Receive system notifications
+                      </p>
                     </div>
                   </div>
-                  <Switch checked={notifications} onCheckedChange={setNotifications} />
+                  <Switch
+                    checked={notifications}
+                    onCheckedChange={setNotifications}
+                  />
                 </div>
 
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <Volume2 className="h-5 w-5 text-muted-foreground" />
                     <div>
-                      <p className="font-medium">{t('settings.general.sound_effects', 'Sound Effects')}</p>
-                      <p className="text-sm text-muted-foreground">Play sounds for actions</p>
+                      <p className="font-medium">
+                        {t('settings.general.sound_effects', 'Sound Effects')}
+                      </p>
+                      <p className="text-sm text-muted-foreground">
+                        Play sounds for actions
+                      </p>
                     </div>
                   </div>
-                  <Switch checked={soundEffects} onCheckedChange={setSoundEffects} />
+                  <Switch
+                    checked={soundEffects}
+                    onCheckedChange={setSoundEffects}
+                  />
                 </div>
               </div>
 
@@ -131,12 +164,12 @@ export const SettingsPage: React.FC = () => {
                   <Smartphone className="h-5 w-5 text-muted-foreground" />
                   <div>
                     <p className="font-medium">Switch to Simple Mode</p>
-                    <p className="text-sm text-muted-foreground">Use simplified interface</p>
+                    <p className="text-sm text-muted-foreground">
+                      Use simplified interface
+                    </p>
                   </div>
                 </div>
-                <Button onClick={handleSimpleModeSwitch}>
-                  Switch
-                </Button>
+                <Button onClick={handleSimpleModeSwitch}>Switch</Button>
               </div>
 
               <Separator />
@@ -145,8 +178,12 @@ export const SettingsPage: React.FC = () => {
                 <div className="flex items-center gap-3">
                   <LogOut className="h-5 w-5 text-muted-foreground" />
                   <div>
-                    <p className="font-medium">{t('common.logout', 'Logout')}</p>
-                    <p className="text-sm text-muted-foreground">Sign out of your account</p>
+                    <p className="font-medium">
+                      {t('common.logout', 'Logout')}
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      Sign out of your account
+                    </p>
                   </div>
                 </div>
                 <Button variant="destructive" onClick={handleLogout}>
@@ -159,7 +196,11 @@ export const SettingsPage: React.FC = () => {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                {isDarkMode ? <Moon className="h-5 w-5" /> : <Sun className="h-5 w-5" />}
+                {isDarkMode ? (
+                  <Moon className="h-5 w-5" />
+                ) : (
+                  <Sun className="h-5 w-5" />
+                )}
                 {t('settings.appearance.title', 'Appearance')}
               </CardTitle>
             </CardHeader>
@@ -176,11 +217,16 @@ export const SettingsPage: React.FC = () => {
                       {isDarkMode ? 'Dark Mode' : 'Light Mode'}
                     </p>
                     <p className="text-sm text-muted-foreground">
-                      {isDarkMode ? 'Switch to light theme' : 'Switch to dark theme'}
+                      {isDarkMode
+                        ? 'Switch to light theme'
+                        : 'Switch to dark theme'}
                     </p>
                   </div>
                 </div>
-                <Switch checked={isDarkMode} onCheckedChange={handleThemeToggle} />
+                <Switch
+                  checked={isDarkMode}
+                  onCheckedChange={handleThemeToggle}
+                />
               </div>
             </CardContent>
           </Card>

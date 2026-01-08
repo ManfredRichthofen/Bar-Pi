@@ -111,7 +111,6 @@ const SimpleOrderStatus = () => {
         <div className="p-3 sm:p-4 max-w-7xl mx-auto">
           {/* Bento Grid Layout */}
           <BentoGrid className="grid-cols-1 md:grid-cols-2 lg:grid-cols-3 auto-rows-[minmax(180px,auto)] gap-3 sm:gap-4">
-            
             {/* Status and Progress - Large featured card */}
             <div className="md:col-span-2 lg:col-span-2">
               <StatusCard

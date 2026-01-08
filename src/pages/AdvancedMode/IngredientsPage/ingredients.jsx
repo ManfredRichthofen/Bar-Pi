@@ -1,5 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { PlusCircle, Edit, Trash2, Image as ImageIcon, X, AlertCircle } from 'lucide-react';
+import {
+  PlusCircle,
+  Edit,
+  Trash2,
+  Image as ImageIcon,
+  X,
+  AlertCircle,
+} from 'lucide-react';
 import { Navigate } from '@tanstack/react-router';
 import useAuthStore from '../../../store/authStore';
 import ingredientService, {
@@ -7,7 +14,13 @@ import ingredientService, {
 } from '../../../services/ingredient.service';
 import { useForm } from 'react-hook-form';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
 
@@ -54,7 +67,6 @@ const Ingredients = () => {
       setLoading(false);
     }
   };
-
 
   const handleAddEdit = async (values) => {
     try {
@@ -265,7 +277,8 @@ const Ingredients = () => {
             <AlertCircle className="h-16 w-16 text-muted-foreground mb-4" />
             <h3 className="text-xl font-semibold mb-2">No Ingredients Found</h3>
             <p className="text-muted-foreground text-center mb-6 max-w-sm">
-              Get started by adding your first ingredient to begin managing your inventory
+              Get started by adding your first ingredient to begin managing your
+              inventory
             </p>
             <Button
               size="lg"
@@ -287,7 +300,10 @@ const Ingredients = () => {
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4">
             {ingredients.map((ingredient) => (
-              <Card key={ingredient.id} className="hover:shadow-lg transition-all">
+              <Card
+                key={ingredient.id}
+                className="hover:shadow-lg transition-all"
+              >
                 <CardHeader>
                   <div className="flex items-start justify-between gap-2">
                     <CardTitle className="text-base line-clamp-1 flex-1">
@@ -303,13 +319,19 @@ const Ingredients = () => {
                     <div className="flex items-center gap-2 text-sm">
                       <span className="text-muted-foreground">Group:</span>
                       <Badge variant="secondary">
-                        {ingredients.find((ing) => ing.id === ingredient.parentGroupId)?.name || 'Unknown'}
+                        {ingredients.find(
+                          (ing) => ing.id === ingredient.parentGroupId,
+                        )?.name || 'Unknown'}
                       </Badge>
                     </div>
                   )}
                   <div className="flex items-center gap-2 text-sm">
                     <span className="text-muted-foreground">Type:</span>
-                    <Badge variant={ingredient.type === 'automated' ? 'default' : 'outline'}>
+                    <Badge
+                      variant={
+                        ingredient.type === 'automated' ? 'default' : 'outline'
+                      }
+                    >
                       {ingredient.type || 'manual'}
                     </Badge>
                   </div>
