@@ -14,14 +14,13 @@ Bar Pi is a bar management system that allows you to manage your bar's inventory
 ## RoadMap
 
 - [ ] Shadcn UI Migration
-      TODO:
-      - [ ] Category Page
-      - [X] Ingredient Page
-      - [X] Recipe Page
-      - [ ] Order Page
-      - [X] Glasses Page
-      - [X] Pumps Page
-      - [X] Settings Page
+  - [ ] Category Page
+  - [X] Ingredient Page
+  - [X] Recipe Page
+  - [ ] Order Page
+  - [X] Glasses Page
+  - [X] Pumps Page
+  - [X] Settings Page
 - [ ] Add Mobile Support
 - [ ] Add Dark Mode
 
