@@ -21,6 +21,7 @@
     "@capacitor/status-bar": "^7.0.3",
     "@capawesome/capacitor-android-edge-to-edge-support": "^7.2.3",
     "@stomp/stompjs": "^7.2.1",
+    "@tabler/icons-react": "^3.36.1",
     "@tanstack/react-query": "^5.90.9",
     "@tanstack/react-router": "^1.136.2",
     "@tanstack/react-virtual": "^3.13.0",
