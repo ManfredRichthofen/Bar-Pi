@@ -1,4 +1,6 @@
-import { AlertTriangle } from 'lucide-react';
+import { AlertTriangle, CheckCircle } from 'lucide-react';
+import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 
 interface ManualIngredient {
   ingredient: {
@@ -20,55 +22,55 @@ const ManualIngredientPrompt = ({
   confirming,
 }: ManualIngredientPromptProps) => {
   return (
-    <div className="card bg-warning/20 border border-warning/30 shadow-sm">
-      <div className="card-body p-3 sm:p-4">
-        <div className="flex gap-2 sm:gap-3">
-          <AlertTriangle
-            size={20}
-            className="text-warning shrink-0 mt-0.5 sm:mt-1 sm:w-6 sm:h-6"
-          />
-          <div className="flex-1 min-w-0">
-            <h3 className="font-bold text-base sm:text-lg mb-2 sm:mb-3">
-              Manual Ingredients Required
+    <Card className="border-yellow-500/30 bg-yellow-500/5">
+      <CardContent className="p-4 sm:p-6">
+        <div className="flex items-start gap-3 sm:gap-4 mb-4">
+          <div className="rounded-full p-2 sm:p-3 bg-yellow-500/20">
+            <AlertTriangle className="w-6 h-6 sm:w-8 sm:h-8 text-yellow-600 dark:text-yellow-400" />
+          </div>
+          <div className="flex-1">
+            <h3 className="text-lg sm:text-xl font-bold mb-1">
+              Manual Action Required
             </h3>
-            <div>
-              {ingredients.length > 0 ? (
-                <ul className="space-y-1.5 sm:space-y-2 mb-3 sm:mb-4">
-                  {ingredients.map((item, index) => (
-                    <li
-                      key={`${item.ingredient.name}-${index}`}
-                      className="flex justify-between items-center p-2 sm:p-3 bg-base-100 rounded-lg"
-                    >
-                      <span className="font-medium text-sm sm:text-base min-w-0 break-words flex-1 pr-2">
-                        {item.ingredient.name}
-                      </span>
-                      <span className="text-xs sm:text-sm text-base-content/70 shrink-0">
-                        {item.amount} {item.ingredient.unit}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <p className="text-xs sm:text-sm mb-3 sm:mb-4">
-                  Required ingredients will be listed here
-                </p>
-              )}
-              <p className="text-xs sm:text-sm opacity-75 mb-3 sm:mb-4">
-                Please add these ingredients and confirm when ready.
-              </p>
-              <button
-                type="button"
-                className="btn btn-warning w-full h-10 sm:h-12 text-sm sm:text-base font-semibold"
-                onClick={onConfirm}
-                disabled={confirming}
-              >
-                {confirming ? 'Confirming...' : 'Confirm Added'}
-              </button>
-            </div>
+            <p className="text-sm sm:text-base text-muted-foreground">
+              Please add the following ingredients manually
+            </p>
           </div>
         </div>
-      </div>
-    </div>
+
+        {ingredients.length > 0 ? (
+          <div className="space-y-2 mb-4 sm:mb-6">
+            {ingredients.map((item, index) => (
+              <div
+                key={`${item.ingredient.name}-${index}`}
+                className="flex justify-between items-center p-3 sm:p-4 bg-background rounded-lg border border-yellow-500/20 hover:border-yellow-500/40 transition-colors"
+              >
+                <span className="font-medium text-sm sm:text-base min-w-0 break-words flex-1 pr-2">
+                  {item.ingredient.name}
+                </span>
+                <span className="text-sm sm:text-base text-yellow-600 dark:text-yellow-400 shrink-0 font-bold">
+                  {item.amount} {item.ingredient.unit}
+                </span>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p className="text-sm sm:text-base text-muted-foreground mb-4 sm:mb-6">
+            Required ingredients will be listed here
+          </p>
+        )}
+
+        <Button
+          className="w-full bg-yellow-600 hover:bg-yellow-700 text-white gap-2"
+          onClick={onConfirm}
+          disabled={confirming}
+          size="lg"
+        >
+          <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5" />
+          {confirming ? 'Confirming...' : 'Confirm Ingredients Added'}
+        </Button>
+      </CardContent>
+    </Card>
   );
 };
 

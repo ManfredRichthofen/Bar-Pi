@@ -1,55 +1,96 @@
-import { Palette } from 'lucide-react';
-import { useEffect } from 'react';
+import { Palette, Sun, Moon, Monitor } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Label } from '@/components/ui/label';
+import { useTheme } from 'next-themes';
+import { Button } from '@/components/ui/button';
 
 interface ThemeSelectorProps {
   themes: string[];
 }
 
 const ThemeSelector = ({ themes }: ThemeSelectorProps) => {
-  useEffect(() => {
-    const currentTheme = localStorage.getItem('theme') || 'light';
-    const themeSelect = document.querySelector(
-      '[data-choose-theme]',
-    ) as HTMLSelectElement;
-    if (themeSelect) {
-      themeSelect.value = currentTheme;
-    }
-  }, []);
-
-  const handleThemeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const theme = e.target.value;
-    document.documentElement.setAttribute('data-theme', theme);
-    localStorage.setItem('theme', theme);
-  };
+  const { theme, setTheme, systemTheme } = useTheme();
+  const currentTheme = theme === 'system' ? systemTheme : theme;
 
   return (
-    <div className="card bg-base-200/50 shadow-sm sm:shadow-lg border border-base-300">
-      <div className="card-body p-4 sm:p-6">
-        <h2 className="card-title text-lg sm:text-xl mb-3 sm:mb-4 flex items-center gap-2 text-base-content">
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
           <Palette className="w-4 h-4 sm:w-5 sm:h-5" />
           Appearance
-        </h2>
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        {/* Quick Theme Toggle */}
+        <div className="space-y-2">
+          <Label className="text-sm font-medium">Theme Mode</Label>
+          <div className="grid grid-cols-3 gap-2">
+            <Button
+              variant={theme === 'light' ? 'default' : 'outline'}
+              onClick={() => setTheme('light')}
+              className="gap-2"
+              size="sm"
+            >
+              <Sun className="w-4 h-4" />
+              Light
+            </Button>
+            <Button
+              variant={theme === 'dark' ? 'default' : 'outline'}
+              onClick={() => setTheme('dark')}
+              className="gap-2"
+              size="sm"
+            >
+              <Moon className="w-4 h-4" />
+              Dark
+            </Button>
+            <Button
+              variant={theme === 'system' ? 'default' : 'outline'}
+              onClick={() => setTheme('system')}
+              className="gap-2"
+              size="sm"
+            >
+              <Monitor className="w-4 h-4" />
+              Auto
+            </Button>
+          </div>
+          {theme === 'system' && (
+            <p className="text-xs text-muted-foreground">
+              Currently using: {currentTheme === 'dark' ? 'Dark' : 'Light'} (system preference)
+            </p>
+          )}
+        </div>
 
-        <fieldset className="fieldset border-base-300">
-          <legend className="fieldset-legend text-base-content font-medium flex items-center gap-2 text-sm sm:text-base">
+        {/* DaisyUI Theme Selector (Optional) */}
+        <div className="space-y-2">
+          <Label htmlFor="theme-select" className="flex items-center gap-2 text-sm font-medium">
             <Palette className="w-3 h-3 sm:w-4 sm:h-4" />
-            Theme
-          </legend>
+            Color Theme (Optional)
+          </Label>
           <select
-            className="select select-bordered w-full h-10 sm:h-12 text-sm sm:text-base border-base-300 focus:border-primary"
-            data-choose-theme
-            defaultValue="light"
-            onChange={handleThemeChange}
+            id="theme-select"
+            defaultValue="default"
+            onChange={(e) => {
+              if (e.target.value !== 'default') {
+                document.documentElement.setAttribute('data-theme', e.target.value);
+              } else {
+                document.documentElement.removeAttribute('data-theme');
+              }
+            }}
+            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
           >
-            {themes.map((theme) => (
+            <option value="default">Default</option>
+            {themes.filter(t => !['light', 'dark'].includes(t)).map((theme) => (
               <option key={theme} value={theme}>
                 {theme.charAt(0).toUpperCase() + theme.slice(1)}
               </option>
             ))}
           </select>
-        </fieldset>
-      </div>
-    </div>
+          <p className="text-xs text-muted-foreground">
+            Choose a color scheme variant (experimental)
+          </p>
+        </div>
+      </CardContent>
+    </Card>
   );
 };
 

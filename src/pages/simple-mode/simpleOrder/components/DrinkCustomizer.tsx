@@ -1,5 +1,11 @@
 import { useState } from 'react';
-import { PlusCircle, Settings } from 'lucide-react';
+import { PlusCircle, Settings, AlertTriangle, BeakerIcon } from 'lucide-react';
+import { Card, CardContent } from '@/components/ui/card';
+import { Slider } from '@/components/ui/slider';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 
 interface Ingredient {
   id: string;
@@ -38,10 +44,11 @@ const DrinkCustomizer = ({
 
   const additionalIngredients = customisations?.additionalIngredients || [];
 
-  const handleBoostChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleBoostChange = (value: number | readonly number[]) => {
+    const newValue = Array.isArray(value) ? value[0] : value;
     onCustomisationsChange({
       ...customisations,
-      boost: parseInt(event.target.value),
+      boost: newValue,
     });
   };
 
@@ -88,181 +95,167 @@ const DrinkCustomizer = ({
   );
 
   return (
-    <div className="card bg-base-200/50 shadow-sm">
-      <div className="collapse collapse-arrow">
-        <input type="checkbox" defaultChecked className="peer" />
-        <div className="collapse-title text-base sm:text-lg font-semibold flex items-center gap-2 px-3 sm:px-4">
-          <Settings className="w-4 h-4 sm:w-5 sm:h-5" />
-          Customize Drink
-        </div>
-        <div className="collapse-content px-3 sm:px-4">
-          <div className="mb-4 sm:mb-6 mt-2 sm:mt-4">
-            <h3 className="text-base sm:text-lg font-bold mb-2 sm:mb-3 break-words">
-              Alcohol Content Adjustment
-            </h3>
+    <div className="space-y-4">
+      <div className="flex items-center gap-3 mb-4">
+        <Settings className="w-6 h-6 text-primary" />
+        <h2 className="text-xl sm:text-2xl font-bold">Customize Your Drink</h2>
+      </div>
+
+      {/* Bento Grid for Customization Options */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
+        
+        {/* Alcohol Strength Card */}
+        <Card className={`md:col-span-${automatedIngredients.length > 0 ? '1' : '2'}`}>
+          <CardContent className="p-4 sm:p-6">
+            <div className="flex items-center gap-2 mb-4">
+              <BeakerIcon className="w-5 h-5 text-primary" />
+              <h3 className="text-base sm:text-lg font-bold">
+                Alcohol Strength
+              </h3>
+            </div>
+            
             {disableBoosting ? (
-              <div className="alert alert-warning mb-3 sm:mb-4 text-sm sm:text-base">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="stroke-current shrink-0 h-5 w-5 sm:h-6 sm:w-6"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                >
-                  <title>Warning</title>
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
-                  />
-                </svg>
-                <span className="whitespace-normal">
+              <Alert className="bg-yellow-500/10 border-yellow-500/30">
+                <AlertTriangle className="h-4 w-4 text-yellow-600 dark:text-yellow-400" />
+                <AlertDescription className="text-sm">
                   This drink's strength cannot be adjusted
-                </span>
-              </div>
+                </AlertDescription>
+              </Alert>
             ) : (
-              <p className="text-base-content/70 mb-3 sm:mb-4 whitespace-normal break-words text-sm sm:text-base">
-                Adjust the strength of your drink by modifying the alcohol
-                content
-              </p>
-            )}
-            <div className="space-y-3 sm:space-y-4">
-              <div className="flex items-center gap-3 sm:gap-4">
-                <input
-                  type="range"
+              <div className="space-y-4">
+                <div className="text-center">
+                  <div className="text-3xl sm:text-4xl font-bold text-primary mb-1">
+                    {customisations?.boost === 100
+                      ? 'Normal'
+                      : `${customisations?.boost > 100 ? '+' : ''}${(customisations?.boost || 100) - 100}%`}
+                  </div>
+                  <p className="text-xs sm:text-sm text-muted-foreground">
+                    Alcohol content adjustment
+                  </p>
+                </div>
+                
+                <Slider
+                  value={[customisations?.boost || 100]}
+                  onValueChange={handleBoostChange}
                   min={0}
                   max={200}
-                  value={customisations?.boost || 100}
-                  onChange={handleBoostChange}
                   step={10}
-                  className={`range range-primary flex-1 ${disableBoosting ? 'range-disabled opacity-50' : ''}`}
-                  disabled={disableBoosting}
+                  className="my-6"
                 />
-                <div
-                  className={`badge ${customisations?.boost > 100 ? 'badge-error' : customisations?.boost < 100 ? 'badge-warning' : 'badge-success'} badge-sm sm:badge-lg shrink-0 ${disableBoosting ? 'opacity-50' : ''}`}
-                >
-                  {customisations?.boost === 100
-                    ? 'Normal'
-                    : `${customisations?.boost > 100 ? '+' : ''}${(customisations?.boost || 100) - 100}%`}
+                
+                <div className="flex justify-between text-xs text-muted-foreground">
+                  <span className="font-medium">0%<br/>None</span>
+                  <span className="font-medium">100%<br/>Normal</span>
+                  <span className="font-medium">200%<br/>Double</span>
                 </div>
               </div>
-              <div
-                className={`w-full flex justify-between text-xs sm:text-sm px-1 sm:px-2 text-base-content/70 ${disableBoosting ? 'opacity-50' : ''}`}
-              >
-                <span>No Alcohol</span>
-                <span>Normal</span>
-                <span>Double</span>
-              </div>
-            </div>
-          </div>
+            )}
+          </CardContent>
+        </Card>
 
-          {automatedIngredients.length > 0 && (
-            <div>
-              <h3 className="text-base sm:text-lg font-bold mb-2 sm:mb-3 break-words">
-                Additional Ingredients
-              </h3>
-              <p className="text-base-content/70 mb-3 sm:mb-4 whitespace-normal break-words text-sm sm:text-base">
-                Add extra ingredients to customize your drink
+        {/* Additional Ingredients Card */}
+        {automatedIngredients.length > 0 && (
+          <Card className="md:col-span-1">
+            <CardContent className="p-4 sm:p-6">
+              <div className="flex items-center gap-2 mb-4">
+                <PlusCircle className="w-5 h-5 text-primary" />
+                <h3 className="text-base sm:text-lg font-bold">
+                  Extra Ingredients
+                </h3>
+              </div>
+              
+              <p className="text-sm text-muted-foreground mb-4">
+                Add extra ingredients to personalize your drink
               </p>
 
-              <div className="space-y-3 sm:space-y-4 mb-3 sm:mb-4">
+              <div className="space-y-3">
                 {additionalIngredients.map(({ ingredient, amount }) => (
-                  <div
-                    key={ingredient.id}
-                    className="card bg-base-100 shadow-sm hover:shadow-md transition-shadow"
-                  >
-                    <div className="card-body p-3 sm:p-4">
-                      <div className="flex items-center justify-between gap-3 sm:gap-4 flex-wrap">
-                        <h4 className="font-bold break-words text-sm sm:text-base min-w-0 flex-1">
-                          {ingredient.name}
-                        </h4>
-                        <div className="flex items-center gap-2 shrink-0">
-                          <input
-                            type="number"
-                            min={0}
-                            max={100}
-                            value={amount}
-                            onChange={(e) =>
-                              handleAdditionalIngredientAmountChange(
-                                ingredient.id,
-                                parseFloat(e.target.value),
-                              )
-                            }
-                            className="input input-bordered input-sm w-16 sm:w-20 text-sm"
-                          />
-                          <span className="text-xs sm:text-sm">ml</span>
-                        </div>
-                      </div>
-                    </div>
+                  <div key={ingredient.id} className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
+                    <Label className="font-medium text-sm flex-1">
+                      {ingredient.name}
+                    </Label>
+                    <Input
+                      type="number"
+                      min={0}
+                      max={100}
+                      value={amount}
+                      onChange={(e) =>
+                        handleAdditionalIngredientAmountChange(
+                          ingredient.id,
+                          parseFloat(e.target.value),
+                        )
+                      }
+                      className="w-20 text-sm"
+                    />
                   </div>
                 ))}
 
                 {addingIngredient ? (
-                  <div className="card bg-base-100 shadow-sm">
-                    <div className="card-body p-3 sm:p-4">
-                      <h4 className="font-bold mb-2 sm:mb-3 text-sm sm:text-base">
-                        Add New Ingredient
-                      </h4>
-                      <select
-                        className="select select-bordered w-full mb-2 sm:mb-3 text-sm sm:text-base h-10 sm:h-12"
-                        value={selectedIngredient?.id || ''}
-                        onChange={(e) => {
-                          const ingredient = automatedIngredients.find(
-                            (ing) => ing.id === e.target.value,
-                          );
-                          setSelectedIngredient(ingredient || null);
-                        }}
+                  <div className="space-y-3 p-3 border-2 border-dashed border-primary/30 rounded-lg">
+                    <Label className="font-medium text-sm">
+                      Select Ingredient
+                    </Label>
+                    <select
+                      className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                      value={selectedIngredient?.id || ''}
+                      onChange={(e) => {
+                        const ingredient = automatedIngredients.find(
+                          (ing) => ing.id === e.target.value,
+                        );
+                        setSelectedIngredient(ingredient || null);
+                      }}
+                    >
+                      <option value="">Choose an ingredient...</option>
+                      {automatedIngredients
+                        .filter(
+                          (ing) =>
+                            !additionalIngredients.some(
+                              (added) => added.ingredient.id === ing.id,
+                            ),
+                        )
+                        .map((ing) => (
+                          <option key={ing.id} value={ing.id}>
+                            {ing.name}
+                          </option>
+                        ))}
+                    </select>
+                    <div className="flex gap-2">
+                      <Button
+                        onClick={handleAddIngredient}
+                        disabled={!selectedIngredient}
+                        size="sm"
+                        className="flex-1"
                       >
-                        <option value="">Select ingredient</option>
-                        {automatedIngredients
-                          .filter(
-                            (ing) =>
-                              !additionalIngredients.some(
-                                (added) => added.ingredient.id === ing.id,
-                              ),
-                          )
-                          .map((ing) => (
-                            <option key={ing.id} value={ing.id}>
-                              {ing.name}
-                            </option>
-                          ))}
-                      </select>
-                      <div className="flex gap-2">
-                        <button
-                          type="button"
-                          className="btn btn-primary btn-sm flex-1 h-9 sm:h-10 text-sm sm:text-base"
-                          onClick={handleAddIngredient}
-                          disabled={!selectedIngredient}
-                        >
-                          Add
-                        </button>
-                        <button
-                          type="button"
-                          className="btn btn-ghost btn-sm flex-1 h-9 sm:h-10 text-sm sm:text-base"
-                          onClick={() => {
-                            setAddingIngredient(false);
-                            setSelectedIngredient(null);
-                          }}
-                        >
-                          Cancel
-                        </button>
-                      </div>
+                        Add
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          setAddingIngredient(false);
+                          setSelectedIngredient(null);
+                        }}
+                        className="flex-1"
+                      >
+                        Cancel
+                      </Button>
                     </div>
                   </div>
                 ) : (
-                  <button
-                    type="button"
-                    className="btn btn-outline w-full h-10 sm:h-12 gap-2 text-sm sm:text-base hover:shadow-md transition-shadow"
+                  <Button
+                    variant="outline"
                     onClick={() => setAddingIngredient(true)}
+                    className="w-full gap-2"
+                    size="sm"
                   >
-                    <PlusCircle className="w-4 h-4 sm:w-5 sm:h-5" />
+                    <PlusCircle className="w-4 h-4" />
                     Add Ingredient
-                  </button>
+                  </Button>
                 )}
               </div>
-            </div>
-          )}
-        </div>
+            </CardContent>
+          </Card>
+        )}
       </div>
     </div>
   );

@@ -5,6 +5,11 @@ import {
   LogOut,
   Settings as SettingsIcon,
 } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
+import { Separator } from '@/components/ui/separator';
 
 interface Language {
   code: string;
@@ -27,22 +32,25 @@ const GeneralSettings = ({
   onLogout,
 }: GeneralSettingsProps) => {
   return (
-    <div className="card bg-base-200/50 shadow-sm sm:shadow-lg border border-base-300">
-      <div className="card-body p-4 sm:p-6">
-        <h2 className="card-title text-lg sm:text-xl mb-3 sm:mb-4 flex items-center gap-2 text-base-content">
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
           <SettingsIcon className="w-4 h-4 sm:w-5 sm:h-5" />
           General Settings
-        </h2>
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
 
-        <div className="space-y-4 sm:space-y-5">
+        <div className="space-y-4">
           {/* Language Selector */}
-          <fieldset className="fieldset border-base-300">
-            <legend className="fieldset-legend text-base-content font-medium flex items-center gap-2 text-sm sm:text-base">
+          <div className="space-y-2">
+            <Label htmlFor="language-select" className="flex items-center gap-2">
               <Globe className="w-3 h-3 sm:w-4 sm:h-4" />
               Language
-            </legend>
+            </Label>
             <select
-              className="select select-bordered w-full h-10 sm:h-12 text-sm sm:text-base border-base-300 focus:border-primary"
+              id="language-select"
+              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
               value={currentLanguage}
               onChange={(e) => onLanguageChange(e.target.value)}
             >
@@ -52,70 +60,62 @@ const GeneralSettings = ({
                 </option>
               ))}
             </select>
-          </fieldset>
+          </div>
 
-          <div className="divider my-1 sm:my-2" />
+          <Separator />
 
           {/* Toggle Switches */}
-          <div className="space-y-3 sm:space-y-4">
-            <label className="flex items-center justify-between py-2 sm:py-3 touch-none hover:bg-base-300/50 rounded-lg px-2 transition-colors cursor-pointer">
-              <span className="label-text flex-1 mr-3 sm:mr-4 flex items-center gap-2 font-medium text-base-content text-sm sm:text-base">
+          <div className="space-y-4">
+            <div className="flex items-center justify-between py-2 px-2 hover:bg-muted/50 rounded-lg transition-colors">
+              <Label htmlFor="notifications" className="flex items-center gap-2 cursor-pointer">
                 <Bell className="w-3 h-3 sm:w-4 sm:h-4" />
                 Notifications
-              </span>
-              <input
-                type="checkbox"
-                className="toggle toggle-primary toggle-sm sm:toggle-lg"
-              />
-            </label>
-
-            <label className="flex items-center justify-between py-2 sm:py-3 touch-none hover:bg-base-300/50 rounded-lg px-2 transition-colors cursor-pointer">
-              <span className="label-text flex-1 mr-3 sm:mr-4 flex items-center gap-2 font-medium text-base-content text-sm sm:text-base">
-                <Volume2 className="w-3 h-3 sm:w-4 sm:h-4" />
-                Sound Effects
-              </span>
-              <input
-                type="checkbox"
-                className="toggle toggle-primary toggle-sm sm:toggle-lg"
-              />
-            </label>
-
-            <div className="divider my-1 sm:my-2" />
-
-            {/* Advanced Mode Switch */}
-            <div className="flex items-center justify-between py-2 sm:py-3 hover:bg-base-300/50 rounded-lg px-2 transition-colors">
-              <span className="label-text flex-1 mr-3 sm:mr-4 font-medium text-base-content text-sm sm:text-base">
-                Switch to Advanced Mode
-              </span>
-              <button
-                type="button"
-                className="btn btn-primary h-10 sm:h-12 px-4 sm:px-6 text-sm sm:text-base font-semibold shadow-lg hover:shadow-xl transition-all duration-200"
-                onClick={onAdvancedModeSwitch}
-              >
-                Switch
-              </button>
+              </Label>
+              <Switch id="notifications" />
             </div>
 
-            <div className="divider my-1 sm:my-2" />
+            <div className="flex items-center justify-between py-2 px-2 hover:bg-muted/50 rounded-lg transition-colors">
+              <Label htmlFor="sound-effects" className="flex items-center gap-2 cursor-pointer">
+                <Volume2 className="w-3 h-3 sm:w-4 sm:h-4" />
+                Sound Effects
+              </Label>
+              <Switch id="sound-effects" />
+            </div>
+
+            <Separator />
+
+            {/* Advanced Mode Switch */}
+            <div className="flex items-center justify-between py-2 px-2 hover:bg-muted/50 rounded-lg transition-colors">
+              <span className="text-sm font-medium">
+                Switch to Advanced Mode
+              </span>
+              <Button
+                onClick={onAdvancedModeSwitch}
+                size="default"
+              >
+                Switch
+              </Button>
+            </div>
+
+            <Separator />
 
             {/* Logout Button */}
-            <div className="flex items-center justify-between py-2 sm:py-3 hover:bg-base-300/50 rounded-lg px-2 transition-colors">
-              <span className="label-text flex-1 mr-3 sm:mr-4 flex items-center gap-2 font-medium text-base-content text-sm sm:text-base">
+            <div className="flex items-center justify-between py-2 px-2 hover:bg-muted/50 rounded-lg transition-colors">
+              <Label className="flex items-center gap-2">
                 <LogOut className="w-3 h-3 sm:w-4 sm:h-4" />
                 Logout
-              </span>
-              <button
-                type="button"
-                className="btn btn-error h-10 sm:h-12 px-4 sm:px-6 text-sm sm:text-base font-semibold shadow-lg hover:shadow-xl transition-all duration-200"
+              </Label>
+              <Button
+                variant="destructive"
                 onClick={onLogout}
               >
                 Logout
-              </button>
+              </Button>
             </div>
           </div>
         </div>
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   );
 };
 

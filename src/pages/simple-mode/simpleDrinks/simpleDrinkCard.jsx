@@ -1,4 +1,8 @@
 import React from 'react';
+import { motion } from 'motion/react';
+import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { cn } from '@/lib/utils';
 
 const SimpleDrinkCard = ({ recipe, onCardClick }) => {
   // Determine recipe characteristics
@@ -55,13 +59,18 @@ const SimpleDrinkCard = ({ recipe, onCardClick }) => {
   }
 
   return (
-    <div
-      className="card bg-base-100 shadow-sm hover:shadow-lg cursor-pointer transition-all duration-300 hover:-translate-y-1 active:scale-95 overflow-hidden border border-base-200 w-full h-full"
-      onClick={() => onCardClick(recipe)}
+    <motion.div
+      whileHover={{ y: -4, scale: 1.02 }}
+      whileTap={{ scale: 0.98 }}
+      transition={{ type: "spring", stiffness: 400, damping: 25 }}
     >
+      <Card
+        className="cursor-pointer overflow-hidden w-full h-full"
+        onClick={() => onCardClick(recipe)}
+      >
       <div className="flex flex-col h-full">
         {/* Image section - fixed aspect ratio */}
-        <figure className="relative w-full aspect-[4/3] rounded-t-lg overflow-hidden bg-base-200 flex-shrink-0">
+        <figure className="relative w-full aspect-[4/3] rounded-t-lg overflow-hidden bg-muted flex-shrink-0">
           {recipe.image ? (
             <img
               src={recipe.image}
@@ -70,8 +79,8 @@ const SimpleDrinkCard = ({ recipe, onCardClick }) => {
               loading="lazy"
             />
           ) : (
-            <div className="w-full h-full bg-gradient-to-br from-base-200 to-base-300 flex items-center justify-center">
-              <span className="text-base-content/40 text-sm font-medium">
+            <div className="w-full h-full bg-gradient-to-br from-muted to-accent flex items-center justify-center">
+              <span className="text-muted-foreground/60 text-sm font-medium">
                 No image
               </span>
             </div>
@@ -79,31 +88,32 @@ const SimpleDrinkCard = ({ recipe, onCardClick }) => {
         </figure>
 
         {/* Content section */}
-        <div className="flex flex-col flex-1 p-4">
+        <CardContent className="flex flex-col flex-1 p-4">
           {/* Title and badge section */}
           <div className="flex items-start gap-3 mb-2">
-            <h3 className="text-base font-bold text-base-content/90 leading-tight flex-1 min-w-0 line-clamp-2">
+            <h3 className="text-base font-bold text-foreground leading-tight flex-1 min-w-0 line-clamp-2">
               {recipe.name}
             </h3>
             {recipe.alcoholic && (
-              <div className="badge badge-error badge-sm whitespace-nowrap shrink-0 text-xs font-semibold">
+              <Badge variant="destructive" className="whitespace-nowrap shrink-0 text-xs">
                 21+
-              </div>
+              </Badge>
             )}
           </div>
 
           {/* Availability indicator */}
           <div className="mt-auto pt-2">
-            <div className="flex items-center gap-2 text-xs text-base-content/60">
+            <div className="flex items-center gap-2 text-xs text-muted-foreground">
               <div
                 className={`w-2 h-2 rounded-full ${availabilityColor}`}
               ></div>
               <span className="font-medium">{availabilityText}</span>
             </div>
           </div>
-        </div>
+        </CardContent>
       </div>
-    </div>
+    </Card>
+    </motion.div>
   );
 };
 

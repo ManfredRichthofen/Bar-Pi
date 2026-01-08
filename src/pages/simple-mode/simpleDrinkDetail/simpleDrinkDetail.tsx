@@ -1,5 +1,7 @@
 import { useNavigate, useLocation } from '@tanstack/react-router';
 import { Beaker, ArrowLeft } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import DrinkImage from './components/DrinkImage';
 import IngredientsList from './components/IngredientsList';
 import DrinkInfo from './components/DrinkInfo';
@@ -49,20 +51,22 @@ const SimpleDrinkDetail = () => {
       {/* Header */}
       <div className="sticky top-0 z-20 bg-base-100/95 backdrop-blur-md border-b border-base-200 shadow-sm">
         <div className="px-3 sm:px-4 py-3 sm:py-4 flex items-center justify-between">
-          <button
+          <Button
             type="button"
             onClick={handleBack}
-            className="btn btn-ghost btn-sm p-2 sm:p-3 hover:bg-base-200 rounded-xl transition-all duration-200"
+            variant="ghost"
+            size="icon"
+            className="rounded-xl transition-all duration-200"
           >
             <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5" />
-          </button>
+          </Button>
           <h1 className="text-base sm:text-lg font-bold truncate flex-1 mx-2 sm:mx-3 text-center">
             {recipe.name}
           </h1>
           {recipe.alcoholic && (
-            <div className="badge badge-error badge-xs sm:badge-sm shrink-0">
+            <Badge variant="destructive" className="shrink-0 text-xs">
               21+
-            </div>
+            </Badge>
           )}
         </div>
       </div>
@@ -74,14 +78,15 @@ const SimpleDrinkDetail = () => {
           <DrinkImage image={recipe.image} name={recipe.name} />
 
           {/* Make Drink Button - Below Image */}
-          <button
+          <Button
             type="button"
             onClick={handleMakeDrink}
-            className="btn btn-primary w-full h-12 sm:h-14 gap-2 sm:gap-3 text-sm sm:text-base font-semibold shadow-lg hover:shadow-xl transition-all duration-200 active:scale-95"
+            size="lg"
+            className="w-full h-12 sm:h-14 gap-2 sm:gap-3 text-sm sm:text-base font-semibold shadow-lg hover:shadow-xl transition-all duration-200 active:scale-95"
           >
             <Beaker className="w-4 h-4 sm:w-5 sm:h-5" />
             Make Drink
-          </button>
+          </Button>
 
           {/* Description and Info */}
           <DrinkInfo
