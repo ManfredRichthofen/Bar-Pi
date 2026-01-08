@@ -18,6 +18,7 @@
     "@base-ui/react": "^1.0.0",
     "@capacitor/android": "^8.0.0",
     "@capacitor/core": "^8.0.0",
+    "@capacitor/ios": "^8.0.0",
     "@capacitor/status-bar": "^8.0.0",
     "@capawesome/capacitor-android-edge-to-edge-support": "^7.2.3",
     "@stomp/stompjs": "^7.2.1",
