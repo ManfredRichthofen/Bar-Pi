@@ -63,6 +63,7 @@
   },
   "devDependencies": {
     "@biomejs/biome": "^2.2.2",
+    "@capacitor/assets": "^3.0.5",
     "@capacitor/cli": "^7.4.3",
     "@tailwindcss/vite": "^4.1.17",
     "@tanstack/react-query-devtools": "^5.69.0",
