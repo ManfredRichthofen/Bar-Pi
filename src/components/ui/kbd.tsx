@@ -1,5 +1,3 @@
-import * as React from "react"
-
 import { cn } from "@/lib/utils"
 
 function Kbd({ className, ...props }: React.ComponentProps<"kbd">) {
@@ -7,7 +5,7 @@ function Kbd({ className, ...props }: React.ComponentProps<"kbd">) {
     <kbd
       data-slot="kbd"
       className={cn(
-        "pointer-events-none inline-flex h-5 min-w-5 items-center justify-center gap-1 rounded bg-muted px-1 font-sans text-xs font-medium text-muted-foreground select-none [&_svg:not([class*='size-'])]:size-3",
+        "bg-muted text-muted-foreground [[data-slot=tooltip-content]_&]:bg-background/20 [[data-slot=tooltip-content]_&]:text-background dark:[[data-slot=tooltip-content]_&]:bg-background/10 h-5 w-fit min-w-5 gap-1 rounded-sm px-1 font-sans text-xs font-medium [&_svg:not([class*='size-'])]:size-3 pointer-events-none inline-flex items-center justify-center select-none",
         className
       )}
       {...props}
@@ -15,11 +13,11 @@ function Kbd({ className, ...props }: React.ComponentProps<"kbd">) {
   )
 }
 
-function KbdGroup({ className, ...props }: React.ComponentProps<"kbd">) {
+function KbdGroup({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <kbd
       data-slot="kbd-group"
-      className={cn("inline-flex items-center gap-1", className)}
+      className={cn("gap-1 inline-flex items-center", className)}
       {...props}
     />
   )
