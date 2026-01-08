@@ -11,6 +11,20 @@ Bar Pi is a bar management system that allows you to manage your bar's inventory
 - **Glass Selection**: Choose appropriate glassware for each drink
 - **Customization**: Adjust drink ingredients and proportions
 
+## RoadMap
+
+- [ ] Shadcn UI Migration
+      TODO:
+      - [ ] Category Page
+      - [ ] Ingredient Page
+      - [X] Recipe Page
+      - [ ] Order Page
+      - [X] Glasses Page
+      - [X] Pumps Page
+      - [X] Settings Page
+- [ ] Add Mobile Support
+- [ ] Add Dark Mode
+
 ## File Structure:
 
 - `src/` - Source code
@@ -38,7 +52,7 @@ Bar Pi is built with:
 - [Zustand](https://github.com/pmndrs/zustand)
 - [Capacitor](https://capacitorjs.com/)
 - [React-i18next](https://react.i18next.com/)
-- [daisyUI](https://daisyui.com/)
+- [Shadcn](https://ui.shadcn.com/)
 
 ## Development
 

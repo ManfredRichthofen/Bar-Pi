@@ -1,11 +1,13 @@
 import React, { useState, useEffect, lazy, Suspense, useMemo, useCallback } from 'react';
 import { Navigate } from '@tanstack/react-router';
-import { PlusCircle } from 'lucide-react';
+import { PlusCircle, AlertCircle } from 'lucide-react';
 import useAuthStore from '../../../store/authStore';
 import RecipeService from '../../../services/recipe.service';
 import ingredientService from '../../../services/ingredient.service';
 import glassService from '../../../services/glass.service';
 import useFavoritesStore from '../../../store/favoritesStore';
+import { Button } from '@/components/ui/button';
+import { toast } from 'sonner';
 
 // Lazy load components for code splitting
 const RecipeCard = lazy(() => import('./components/RecipeCard'));
@@ -41,7 +43,7 @@ const Recipes = ({ sidebarCollapsed = false }) => {
       );
       setRecipes(data.content || []);
     } catch (error) {
-      showToast('Failed to fetch recipes', 'error');
+      toast.error('Failed to fetch recipes');
       console.error(error);
     } finally {
       setLoading(false);
@@ -77,16 +79,6 @@ const Recipes = ({ sidebarCollapsed = false }) => {
     }
   };
 
-  const showToast = (message, type = 'error') => {
-    const toast = document.createElement('div');
-    toast.className = 'toast toast-top toast-end';
-    const alert = document.createElement('div');
-    alert.className = `alert ${type === 'error' ? 'alert-error' : 'alert-success'}`;
-    alert.textContent = message;
-    toast.appendChild(alert);
-    document.body.appendChild(toast);
-    setTimeout(() => document.body.removeChild(toast), 3000);
-  };
 
   const resetForm = () => {
     setFormData({
@@ -153,26 +145,26 @@ const Recipes = ({ sidebarCollapsed = false }) => {
       setIsModalVisible(true);
     } catch (error) {
       console.error('Error loading recipe details:', error);
-      showToast('Failed to load recipe details', 'error');
+      toast.error('Failed to load recipe details');
     }
-  }, [token, showToast]);
+  }, [token]);
 
   const handleDelete = useCallback(async (id) => {
     if (window.confirm('Are you sure you want to delete this recipe?')) {
       try {
         await RecipeService.deleteRecipe(id);
-        showToast('Recipe deleted successfully', 'success');
+        toast.success('Recipe deleted successfully');
         fetchRecipes();
       } catch (error) {
-        showToast('Failed to delete recipe', 'error');
+        toast.error('Failed to delete recipe');
       }
     }
-  }, [fetchRecipes, showToast]);
+  }, [fetchRecipes]);
 
   const handleSave = useCallback(async () => {
     try {
       if (!formData.name?.trim()) {
-        showToast('Recipe name is required', 'error');
+        toast.error('Recipe name is required');
         return;
       }
 
@@ -192,10 +184,10 @@ const Recipes = ({ sidebarCollapsed = false }) => {
           formData.image,
           formData.removeImage
         );
-        showToast('Recipe updated successfully', 'success');
+        toast.success('Recipe updated successfully');
       } else {
         await RecipeService.createRecipe(recipeDto, formData.image);
-        showToast('Recipe created successfully', 'success');
+        toast.success('Recipe created successfully');
       }
 
       setIsModalVisible(false);
@@ -203,9 +195,9 @@ const Recipes = ({ sidebarCollapsed = false }) => {
       fetchRecipes();
     } catch (error) {
       console.error('Error saving recipe:', error);
-      showToast('Failed to save recipe', 'error');
+      toast.error('Failed to save recipe');
     }
-  }, [editingRecipe, formData, fetchRecipes, showToast, resetForm]);
+  }, [editingRecipe, formData, fetchRecipes, resetForm]);
 
   const handleImageChange = useCallback((e) => {
     const file = e.target.files[0];
@@ -291,73 +283,51 @@ const Recipes = ({ sidebarCollapsed = false }) => {
   }
 
   return (
-    <div className="min-h-screen bg-base-100">
-      {/* Header */}
-      <div className="sticky top-0 z-20 bg-base-100/95 backdrop-blur-md border-b border-base-200 shadow-sm">
-        <div className="p-4 space-y-4">
+    <div className="min-h-screen bg-background">
+      <div className="sticky top-0 z-20 bg-background border-b shadow-sm">
+        <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
-            <h1 className="text-xl font-bold">Recipes</h1>
-            <button
-              type="button"
-              className="btn btn-primary btn-sm"
-              onClick={handleAdd}
-            >
-              <PlusCircle size={16} className="mr-2" />
+            <h1 className="text-2xl font-bold">Recipes</h1>
+            <Button onClick={handleAdd}>
+              <PlusCircle />
               Add Recipe
-            </button>
+            </Button>
           </div>
         </div>
       </div>
 
-      {/* Main Content */}
-      <div className="p-4 sm:p-6 lg:p-8">
-        <div className="max-w-screen-2xl mx-auto">
-          {loading ? (
-            <div className="flex justify-center items-center py-12">
-              <span className="loading loading-spinner loading-lg"></span>
+      <div className="container mx-auto px-4 py-6 sm:py-8">
+        {loading ? (
+          <div className="flex justify-center items-center py-12">
+            <span className="loading loading-spinner loading-lg"></span>
+          </div>
+        ) : recipes.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-16 px-4 min-h-[400px]">
+            <AlertCircle className="h-16 w-16 text-muted-foreground mb-4" />
+            <h3 className="text-xl font-semibold mb-2">No Recipes Found</h3>
+            <p className="text-muted-foreground text-center mb-6 max-w-sm">
+              Get started by creating your first recipe to begin mixing drinks
+            </p>
+            <Button size="lg" onClick={handleAdd}>
+              <PlusCircle className="mr-2" />
+              Add First Recipe
+            </Button>
+          </div>
+        ) : (
+          <Suspense fallback={<div className="flex justify-center items-center py-12"><span className="loading loading-spinner loading-lg"></span></div>}>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4">
+              {recipes.map((recipe) => (
+                <RecipeCard
+                  key={recipe.id}
+                  recipe={recipe}
+                  isFavorite={favoriteIds.has(recipe.id)}
+                  onEdit={handleEdit}
+                  onDelete={handleDelete}
+                />
+              ))}
             </div>
-          ) : recipes.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-12 px-4">
-              <div className="text-base-content/40 mb-4">
-                <svg
-                  className="w-16 h-16"
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
-                  aria-labelledby="no-recipes-title"
-                >
-                  <title id="no-recipes-title">No recipes icon</title>
-                  <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              </div>
-              <h3 className="text-lg font-semibold mb-2">No recipes found</h3>
-              <p className="text-base-content/60 text-center text-sm mb-4">
-                Get started by creating your first recipe
-              </p>
-              <button
-                type="button"
-                className="btn btn-primary"
-                onClick={handleAdd}
-              >
-                <PlusCircle size={16} className="mr-2" />
-                Add Recipe
-              </button>
-            </div>
-          ) : (
-            <Suspense fallback={<div className="flex justify-center items-center py-12"><span className="loading loading-spinner loading-lg"></span></div>}>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4 sm:gap-5 lg:gap-6">
-                {recipes.map((recipe) => (
-                  <RecipeCard
-                    key={recipe.id}
-                    recipe={recipe}
-                    isFavorite={favoriteIds.has(recipe.id)}
-                    onEdit={handleEdit}
-                    onDelete={handleDelete}
-                  />
-                ))}
-              </div>
-            </Suspense>
-          )}
-        </div>
+          </Suspense>
+        )}
       </div>
 
       {/* Recipe Modal */}

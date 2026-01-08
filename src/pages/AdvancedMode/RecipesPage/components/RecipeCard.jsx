@@ -1,5 +1,8 @@
 import React from 'react';
 import { Edit, Trash2, Heart } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 
 const RecipeCard = ({ recipe, isFavorite, onEdit, onDelete }) => {
   const handleEditClick = () => {
@@ -11,8 +14,8 @@ const RecipeCard = ({ recipe, isFavorite, onEdit, onDelete }) => {
   };
 
   return (
-    <div className="card bg-base-100 shadow-sm hover:shadow-lg transition-transform transition-shadow duration-200 hover:-translate-y-1 border border-base-200 rounded-xl overflow-hidden">
-      <figure className="relative w-full aspect-[4/3] rounded-t-lg overflow-hidden bg-base-200">
+    <Card className="overflow-hidden hover:shadow-lg transition-all">
+      <div className="relative w-full aspect-[4/3] overflow-hidden bg-muted">
         {recipe.image ? (
           <img
             src={recipe.image}
@@ -21,53 +24,55 @@ const RecipeCard = ({ recipe, isFavorite, onEdit, onDelete }) => {
             loading="lazy"
           />
         ) : (
-          <div className="w-full h-full bg-gradient-to-br from-base-200 to-base-300 flex items-center justify-center">
-            <span className="text-base-content/40 text-sm font-medium">
+          <div className="w-full h-full bg-gradient-to-br from-muted to-muted/80 flex items-center justify-center">
+            <span className="text-muted-foreground text-sm font-medium">
               No image
             </span>
           </div>
         )}
         {isFavorite && (
           <div className="absolute top-2 right-2">
-            <div className="badge badge-error gap-1">
+            <Badge variant="destructive" className="gap-1">
               <Heart size={12} fill="currentColor" />
-            </div>
+            </Badge>
           </div>
         )}
-      </figure>
+      </div>
 
-      <div className="card-body p-4">
-        <h3 className="card-title text-base font-bold text-base-content/90 line-clamp-1">
+      <CardHeader className="p-4 pb-2">
+        <h3 className="text-base font-bold line-clamp-1">
           {recipe.name}
         </h3>
+      </CardHeader>
+      
+      <CardContent className="p-4 pt-0">
         {recipe.description && (
-          <p className="text-sm text-base-content/70 line-clamp-2">
+          <p className="text-sm text-muted-foreground line-clamp-2 mb-2">
             {recipe.description}
           </p>
         )}
-        
-        <div className="text-xs text-base-content/60 mt-2">
+        <div className="text-xs text-muted-foreground">
           {recipe.productionSteps?.length || 0} step{recipe.productionSteps?.length !== 1 ? 's' : ''}
         </div>
+      </CardContent>
 
-        <div className="card-actions justify-end mt-4 pt-4 border-t border-base-200">
-          <button
-            type="button"
-            className="btn btn-ghost btn-sm"
-            onClick={handleEditClick}
-          >
-            <Edit size={16} />
-          </button>
-          <button
-            type="button"
-            className="btn btn-ghost btn-sm text-error"
-            onClick={handleDeleteClick}
-          >
-            <Trash2 size={16} />
-          </button>
-        </div>
-      </div>
-    </div>
+      <CardFooter className="flex justify-end gap-2 p-4 pt-0">
+        <Button
+          variant="ghost"
+          size="icon-sm"
+          onClick={handleEditClick}
+        >
+          <Edit className="h-4 w-4" />
+        </Button>
+        <Button
+          variant="ghost"
+          size="icon-sm"
+          onClick={handleDeleteClick}
+        >
+          <Trash2 className="h-4 w-4 text-destructive" />
+        </Button>
+      </CardFooter>
+    </Card>
   );
 };
 
