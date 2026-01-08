@@ -40,10 +40,9 @@ const StepperMotorIcon = ({ width = 24, height = 24, className = '' }) => (
 
 interface PumpCardProps {
   pump: any;
-  showDetailed?: boolean;
 }
 
-export const PumpCard: React.FC<PumpCardProps> = ({ pump, showDetailed = false }) => {
+export const PumpCard: React.FC<PumpCardProps> = ({ pump }) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const token = useAuthStore((state) => state.token);

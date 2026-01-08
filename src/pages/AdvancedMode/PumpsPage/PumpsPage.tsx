@@ -105,7 +105,7 @@ export const PumpsPage: React.FC = () => {
               {pumps && pumps.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-3 gap-4">
                   {pumps.map((pump: any) => (
-                    <PumpCard key={pump.id} pump={pump} showDetailed={true} />
+                    <PumpCard key={pump.id} pump={pump} />
                   ))}
                 </div>
               ) : (
