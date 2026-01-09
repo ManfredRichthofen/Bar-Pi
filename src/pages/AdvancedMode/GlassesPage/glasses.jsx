@@ -4,13 +4,6 @@ import GlassModal from './components/GlassModal';
 import useAuthStore from '@/store/authStore';
 import { PlusCircle, Edit, Trash2, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
 import { toast } from 'sonner';
 
 function Glasses() {
@@ -99,37 +92,40 @@ function Glasses() {
             </Button>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4">
-            {glasses.map((glass) => (
-              <Card key={glass.id} className="hover:shadow-lg transition-all">
-                <CardHeader>
-                  <CardTitle className="text-base line-clamp-1">
-                    {glass.name}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-muted-foreground line-clamp-2">
-                    {glass.description || 'No description'}
-                  </p>
-                </CardContent>
-                <CardFooter className="flex justify-end gap-2">
-                  <Button
-                    variant="ghost"
-                    size="icon-sm"
-                    onClick={() => handleEdit(glass)}
-                  >
-                    <Edit className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon-sm"
-                    onClick={() => handleDelete(glass.id)}
-                  >
-                    <Trash2 className="h-4 w-4 text-destructive" />
-                  </Button>
-                </CardFooter>
-              </Card>
-            ))}
+          <div className="max-w-4xl mx-auto">
+            <div className="border rounded-lg divide-y">
+              {glasses.map((glass) => (
+                <div
+                  key={glass.id}
+                  className="flex items-center justify-between p-4 hover:bg-muted/50 transition-colors"
+                >
+                  <div className="flex-1 min-w-0 mr-4">
+                    <h3 className="font-semibold text-sm">{glass.name}</h3>
+                    {glass.description && (
+                      <p className="text-sm text-muted-foreground truncate">
+                        {glass.description}
+                      </p>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant="ghost"
+                      size="icon-sm"
+                      onClick={() => handleEdit(glass)}
+                    >
+                      <Edit className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon-sm"
+                      onClick={() => handleDelete(glass.id)}
+                    >
+                      <Trash2 className="h-4 w-4 text-destructive" />
+                    </Button>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         )}
       </div>

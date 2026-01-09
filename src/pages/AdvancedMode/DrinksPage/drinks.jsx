@@ -4,6 +4,8 @@ import { Navigate } from '@tanstack/react-router';
 import VirtualDrinksGrid from './components/drinks/VirtualDrinksGrid.jsx';
 import { Search } from 'lucide-react';
 import debounce from 'lodash/debounce';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
 
 const Drinks = ({ sidebarCollapsed = false }) => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -40,26 +42,25 @@ const Drinks = ({ sidebarCollapsed = false }) => {
   }
 
   return (
-    <div className="min-h-screen bg-base-100">
-      {/* Header */}
-      <div className="sticky top-0 z-20 bg-base-100/95 backdrop-blur-md border-b border-base-200 shadow-sm">
-        <div className="p-4 space-y-4">
+    <div className="min-h-screen bg-background">
+      <div className="sticky top-0 z-20 bg-background border-b shadow-sm">
+        <div className="container mx-auto px-4 py-4 space-y-4">
           <div className="flex items-center justify-between">
-            <h1 className="text-xl font-bold">Available Drinks</h1>
+            <h1 className="text-2xl font-bold">Available Drinks</h1>
           </div>
 
           <form onSubmit={handleSearch} className="max-w-md mx-auto">
-            <div className="join w-full">
-              <input
+            <div className="flex gap-2">
+              <Input
                 name="search"
                 value={searchValue}
                 onChange={handleSearchInput}
-                className="input join-item w-full"
                 placeholder="Search drinks..."
+                className="flex-1"
               />
-              <button type="submit" className="btn bg-base-100 join-item">
+              <Button type="submit" size="icon">
                 <Search className="h-5 w-5" />
-              </button>
+              </Button>
             </div>
           </form>
         </div>

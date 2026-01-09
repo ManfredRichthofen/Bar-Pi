@@ -8,6 +8,11 @@ import glassService from '../../../services/glass.service';
 import IngredientRequirements from './components/IngredientRequirements';
 import GlassSelector from './components/GlassSelector';
 import ingredientService from '../../../services/ingredient.service';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { toast } from 'sonner';
 
 const Order = () => {
   const [loading, setLoading] = useState(false);
@@ -24,17 +29,6 @@ const Order = () => {
   });
   const [selectedGlass, setSelectedGlass] = useState(null);
 
-  // Toast
-  const showToast = (message, type = 'info') => {
-    const toast = document.getElementById('toast-container');
-    if (toast) {
-      const alert = document.createElement('div');
-      alert.className = `alert ${type === 'error' ? 'alert-error' : type === 'success' ? 'alert-success' : 'alert-info'}`;
-      alert.innerHTML = `<span>${message}</span>`;
-      toast.appendChild(alert);
-      setTimeout(() => alert.remove(), 3000);
-    }
-  };
 
   useEffect(() => {
     if (recipe) {
@@ -77,7 +71,7 @@ const Order = () => {
       setFeasibilityResult(result);
       return result;
     } catch (error) {
-      showToast('Failed to check drink feasibility', 'error');
+      toast.error('Failed to check drink feasibility');
       return false;
     } finally {
       setChecking(false);
@@ -94,20 +88,20 @@ const Order = () => {
     try {
       const isFeasible = await checkFeasibility(recipeId, orderConfig);
       if (!isFeasible?.feasible) {
-        showToast('This drink cannot be made at the moment', 'error');
+        toast.error('This drink cannot be made at the moment');
         return;
       }
 
       if (!areAllIngredientsAvailable(isFeasible.requiredIngredients)) {
-        showToast('Some ingredients are missing or insufficient', 'error');
+        toast.error('Some ingredients are missing or insufficient');
         return;
       }
 
       await cocktailService.order(recipeId, orderConfig, false, token);
-      showToast('Drink ordered successfully', 'success');
+      toast.success('Drink ordered successfully');
       navigate({ to: '/drinks' });
     } catch (error) {
-      showToast('Failed to order drink', 'error');
+      toast.error('Failed to order drink');
     } finally {
       setLoading(false);
     }
@@ -121,18 +115,18 @@ const Order = () => {
   const cancelOrder = async () => {
     try {
       await cocktailService.cancelCocktail(token);
-      showToast('Order cancelled', 'success');
+      toast.success('Order cancelled');
     } catch (error) {
-      showToast('Failed to cancel order', 'error');
+      toast.error('Failed to cancel order');
     }
   };
 
   const continueProduction = async () => {
     try {
       await cocktailService.continueProduction(token);
-      showToast('Production continued', 'success');
+      toast.success('Production continued');
     } catch (error) {
-      showToast('Failed to continue production', 'error');
+      toast.error('Failed to continue production');
     }
   };
 
@@ -170,17 +164,14 @@ const Order = () => {
   };
 
   return (
-    <>
-      {/* Toast container */}
-      <div id="toast-container" className="toast toast-end z-50"></div>
-
-      <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-8 py-4 pt-20 sm:pt-24 min-h-screen">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl sm:text-2xl font-bold">Drink Production</h2>
+    <div className="min-h-screen bg-background">
+      <div className="container mx-auto px-4 py-6 sm:py-8">
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-2xl sm:text-3xl font-bold">Drink Production</h2>
         </div>
 
-        <div className="card bg-base-100 shadow-xl mb-4 sm:mb-6">
-          <div className="card-body p-3 sm:p-6">
+        <Card className="mb-6">
+          <CardContent className="p-4 sm:p-6">
             <div className="flex flex-col lg:flex-row gap-4">
               {recipe.image && (
                 <div className="w-full lg:w-1/3">
@@ -214,27 +205,28 @@ const Order = () => {
                 />
 
                 <div className="flex flex-wrap gap-2 mt-4">
-                  <button
-                    className={`btn btn-primary flex-1 sm:flex-none ${loading ? 'loading' : ''}`}
+                  <Button
                     onClick={handleMakeDrink}
-                    disabled={!canOrderDrink}
+                    disabled={!canOrderDrink || loading}
+                    className="flex-1 sm:flex-none"
                   >
-                    <BeakerIcon size={16} />
+                    <BeakerIcon className="mr-2 h-4 w-4" />
                     {feasibilityResult
                       ? `Make Drink (${feasibilityResult.totalAmountInMl}ml)`
                       : 'Make Drink'}
-                  </button>
-                  <button
-                    className="btn btn-ghost flex-1 sm:flex-none"
+                  </Button>
+                  <Button
+                    variant="outline"
                     onClick={() => navigate({ to: '/drinks' })}
+                    className="flex-1 sm:flex-none"
                   >
                     Back to Drinks
-                  </button>
+                  </Button>
                 </div>
               </div>
             </div>
-          </div>
-        </div>
+          </CardContent>
+        </Card>
 
         <DrinkCustomizer
           disableBoosting={
@@ -252,37 +244,35 @@ const Order = () => {
         />
 
         {checking ? (
-          <div className="card bg-base-100 shadow-xl mb-6">
-            <div className="card-body flex items-center justify-center">
+          <Card className="mb-6">
+            <CardContent className="flex items-center justify-center py-12">
               <span className="loading loading-spinner loading-lg"></span>
-            </div>
-          </div>
+            </CardContent>
+          </Card>
         ) : (
           feasibilityResult && (
             <>
-              <div className="card bg-base-100 shadow-xl mb-6">
-                <div className="card-body">
-                  <h4 className="text-xl font-bold">
+              <Card className="mb-6">
+                <CardContent className="pt-6">
+                  <h4 className="text-xl font-bold mb-4">
                     Feasibility Check Result
                   </h4>
-                  <div
-                    className={`alert ${feasibilityResult.feasible ? 'alert-success' : 'alert-error'}`}
-                  >
-                    <div>
+                  <Alert variant={feasibilityResult.feasible ? 'default' : 'destructive'}>
+                    <AlertDescription>
                       {feasibilityResult.feasible ? (
-                        <>
-                          <span>Drink can be made</span>
-                          <span className="text-sm">
+                        <div className="space-y-1">
+                          <div className="font-medium">Drink can be made</div>
+                          <div className="text-sm">
                             Total amount: {feasibilityResult.totalAmountInMl}ml
-                          </span>
-                        </>
+                          </div>
+                        </div>
                       ) : (
-                        <span>{feasibilityResult.reason}</span>
+                        <div>{feasibilityResult.reason}</div>
                       )}
-                    </div>
-                  </div>
-                </div>
-              </div>
+                    </AlertDescription>
+                  </Alert>
+                </CardContent>
+              </Card>
 
               {feasibilityResult.requiredIngredients?.length > 0 && (
                 <>
@@ -297,25 +287,25 @@ const Order = () => {
                     return (
                       <div className="space-y-4">
                         {ingredients.automated.length > 0 && (
-                          <div className="card bg-base-100 shadow-xl mb-6">
-                            <div className="card-body">
-                              <h5 className="text-lg font-bold">
+                          <Card className="mb-6">
+                            <CardContent className="pt-6">
+                              <h5 className="text-lg font-bold mb-4">
                                 Automated Ingredients
                               </h5>
                               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 {ingredients.automated.map((item, index) => (
-                                  <div key={index} className="card bg-base-200">
-                                    <div className="card-body p-4">
+                                  <Card key={index} className="bg-muted">
+                                    <CardContent className="p-4">
                                       <div className="flex justify-between items-center">
                                         <div>
                                           <p className="font-semibold">
                                             {item.ingredient.name}
                                           </p>
-                                          <div className="text-sm opacity-70">
+                                          <div className="text-sm text-muted-foreground">
                                             Required: {item.amountRequired}
                                             {item.ingredient.unit}
                                             {item.amountMissing > 0 && (
-                                              <div className="text-error">
+                                              <div className="text-destructive">
                                                 Missing: {item.amountMissing}
                                                 {item.ingredient.unit}
                                               </div>
@@ -323,64 +313,59 @@ const Order = () => {
                                           </div>
                                         </div>
                                       </div>
-                                    </div>
-                                  </div>
+                                    </CardContent>
+                                  </Card>
                                 ))}
                               </div>
-                            </div>
-                          </div>
+                            </CardContent>
+                          </Card>
                         )}
 
-                        {/* Manual Ingredients Section. This needs to pull from all ingredients  */}
                         {ingredients.manual.length > 0 && (
-                          <div className="card bg-base-100 shadow-xl mb-6">
-                            <div className="card-body">
-                              <h5 className="text-lg font-bold">
+                          <Card className="mb-6">
+                            <CardContent className="pt-6">
+                              <h5 className="text-lg font-bold mb-4">
                                 Manual Ingredients
                               </h5>
                               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 {ingredients.manual.map((item, index) => (
-                                  <div key={index} className="card bg-base-200">
-                                    <div className="card-body p-4">
+                                  <Card key={index} className="bg-muted">
+                                    <CardContent className="p-4">
                                       <div className="flex justify-between items-center">
                                         <div>
                                           <p className="font-semibold">
                                             {item.ingredient.name}
                                           </p>
-                                          <p className="text-sm opacity-70">
+                                          <p className="text-sm text-muted-foreground">
                                             {item.amount}
                                             {item.ingredient.unit}
                                           </p>
                                         </div>
-                                        <div
-                                          className={`badge ${
-                                            item.ingredient.inBar
-                                              ? 'badge-success'
-                                              : 'badge-error'
-                                          }`}
+                                        <Badge
+                                          variant={item.ingredient.inBar ? 'default' : 'destructive'}
                                         >
                                           {item.ingredient.inBar
                                             ? 'In Bar'
                                             : 'Not In Bar'}
-                                        </div>
+                                        </Badge>
                                       </div>
-                                    </div>
-                                  </div>
+                                    </CardContent>
+                                  </Card>
                                 ))}
                               </div>
-                            </div>
-                          </div>
+                            </CardContent>
+                          </Card>
                         )}
 
                         {ingredients.notInBar.length > 0 && (
-                          <div className="alert alert-warning">
-                            <div>
-                              <h6 className="font-bold">Missing Ingredients</h6>
-                              <p>
+                          <Alert variant="destructive">
+                            <AlertDescription>
+                              <h6 className="font-bold mb-2">Missing Ingredients</h6>
+                              <p className="mb-2">
                                 The following ingredients are not available in
                                 the bar:
                               </p>
-                              <ul className="mt-2 list-disc list-inside">
+                              <ul className="mt-2 list-disc list-inside space-y-1">
                                 {ingredients.notInBar.map((item, index) => (
                                   <li key={index}>
                                     {item.ingredient.name} ({item.amount}
@@ -388,8 +373,8 @@ const Order = () => {
                                   </li>
                                 ))}
                               </ul>
-                            </div>
-                          </div>
+                            </AlertDescription>
+                          </Alert>
                         )}
                       </div>
                     );
@@ -400,7 +385,7 @@ const Order = () => {
           )
         )}
       </div>
-    </>
+    </div>
   );
 };
 

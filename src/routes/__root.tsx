@@ -3,7 +3,6 @@ import { useEffect, useState } from 'react';
 import useAuthStore from '../store/authStore';
 import useUIModeStore from '../store/uiModeStore';
 import useThemeStore from '../store/themeStore';
-import { themeChange } from 'theme-change';
 import { useTranslation } from 'react-i18next';
 import { StatusBar, Style } from '@capacitor/status-bar';
 import { EdgeToEdge } from '@capawesome/capacitor-android-edge-to-edge-support';
@@ -68,7 +67,6 @@ function RootComponent() {
   // Theme and language initialization
   useEffect(() => {
     // Theme initialization - theme store handles persistence
-    themeChange(false);
     applyStatusBarForTheme(theme);
 
     // Language initialization
@@ -78,9 +76,10 @@ function RootComponent() {
     // Theme observer to sync external changes
     const observer = new MutationObserver((mutations) => {
       mutations.forEach((mutation) => {
-        if (mutation.attributeName === 'data-theme') {
-          const newTheme = document.documentElement.getAttribute('data-theme');
-          if (newTheme && newTheme !== theme) {
+        if (mutation.attributeName === 'class') {
+          const isDark = document.documentElement.classList.contains('dark');
+          const newTheme = isDark ? 'dark' : 'light';
+          if (newTheme !== theme) {
             setTheme(newTheme);
             applyStatusBarForTheme(newTheme);
           }
@@ -90,7 +89,7 @@ function RootComponent() {
 
     observer.observe(document.documentElement, {
       attributes: true,
-      attributeFilter: ['data-theme'],
+      attributeFilter: ['class'],
     });
 
     return () => observer.disconnect();

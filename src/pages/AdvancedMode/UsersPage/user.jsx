@@ -2,6 +2,15 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from '@tanstack/react-router';
 import { UserPlus, Edit, Trash2, Shield, User as UserIcon } from 'lucide-react';
 import UserService from '../../../services/user.service';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardFooter } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 
 const UserPage = () => {
   const navigate = useNavigate();
@@ -55,20 +64,19 @@ const UserPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-base-100">
+    <div className="min-h-screen bg-background">
       {/* Header */}
-      <div className="sticky top-0 z-20 bg-base-100/95 backdrop-blur-md border-b border-base-200 shadow-sm">
+      <div className="sticky top-0 z-20 bg-background border-b shadow-sm">
         <div className="p-4 space-y-4">
           <div className="flex items-center justify-between">
             <h1 className="text-xl font-bold">User Management</h1>
-            <button
-              type="button"
+            <Button
               onClick={() => setIsModalOpen(true)}
-              className="btn btn-primary btn-sm"
+              size="sm"
             >
               <UserPlus size={16} className="mr-2" />
               Add User
-            </button>
+            </Button>
           </div>
         </div>
       </div>
@@ -77,102 +85,84 @@ const UserPage = () => {
       <div className="p-4 sm:p-6 lg:p-8">
         <div className="max-w-screen-2xl mx-auto">
           {error && (
-            <div className="alert alert-error mb-6">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="stroke-current shrink-0 h-6 w-6"
-                fill="none"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"
-                />
-              </svg>
-              <span>{error}</span>
-            </div>
+            <Alert variant="destructive" className="mb-6">
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
           )}
 
           {users.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-12 px-4">
-              <div className="text-base-content/40 mb-4">
+              <div className="text-muted-foreground mb-4">
                 <UserIcon size={64} />
               </div>
               <h3 className="text-lg font-semibold mb-2">No users found</h3>
-              <p className="text-base-content/60 text-center text-sm mb-4">
+              <p className="text-muted-foreground text-center text-sm mb-4">
                 Get started by creating your first user
               </p>
-              <button
-                type="button"
-                className="btn btn-primary"
+              <Button
                 onClick={() => setIsModalOpen(true)}
               >
                 <UserPlus size={16} className="mr-2" />
                 Add User
-              </button>
+              </Button>
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-5 lg:gap-6">
               {users.map((user) => (
-                <div
+                <Card
                   key={user.id}
-                  className="card bg-base-100 shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-1 border border-base-200"
+                  className="hover:shadow-lg transition-all duration-300 hover:-translate-y-1"
                 >
-                  <div className="card-body p-4">
+                  <CardContent className="p-4">
                     <div className="flex items-start justify-between mb-3">
                       <div className="flex items-center gap-3">
-                        <div className="avatar placeholder">
-                          <div className="bg-primary text-primary-content rounded-full w-12 h-12">
-                            <span className="text-lg font-bold">
-                              {user.username.charAt(0).toUpperCase()}
-                            </span>
-                          </div>
-                        </div>
+                        <Avatar>
+                          <AvatarFallback className="bg-primary text-primary-foreground">
+                            {user.username.charAt(0).toUpperCase()}
+                          </AvatarFallback>
+                        </Avatar>
                         <div>
-                          <h3 className="card-title text-base font-bold text-base-content/90 line-clamp-1">
+                          <h3 className="text-base font-bold line-clamp-1">
                             {user.username}
                           </h3>
                           <div className="flex items-center gap-1 mt-1">
                             {user.role === 'ADMIN' ? (
                               <>
-                                <Shield size={14} className="text-error" />
-                                <span className="badge badge-error badge-sm">
+                                <Shield size={14} className="text-destructive" />
+                                <Badge variant="destructive" className="text-xs">
                                   Admin
-                                </span>
+                                </Badge>
                               </>
                             ) : (
                               <>
-                                <UserIcon size={14} className="text-primary" />
-                                <span className="badge badge-primary badge-sm">
+                                <UserIcon size={14} />
+                                <Badge className="text-xs">
                                   User
-                                </span>
+                                </Badge>
                               </>
                             )}
                           </div>
                         </div>
                       </div>
                     </div>
-
-                    <div className="card-actions justify-end mt-4 pt-4 border-t border-base-200">
-                      <button
-                        type="button"
-                        className="btn btn-ghost btn-sm"
-                        onClick={() => {}}
-                      >
-                        <Edit size={16} />
-                      </button>
-                      <button
-                        type="button"
-                        className="btn btn-ghost btn-sm text-error"
-                        onClick={() => {}}
-                      >
-                        <Trash2 size={16} />
-                      </button>
-                    </div>
-                  </div>
-                </div>
+                  </CardContent>
+                  <CardFooter className="flex justify-end gap-2 pt-4 border-t">
+                    <Button
+                      variant="ghost"
+                      size="icon-sm"
+                      onClick={() => {}}
+                    >
+                      <Edit size={16} />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon-sm"
+                      onClick={() => {}}
+                    >
+                      <Trash2 size={16} className="text-destructive" />
+                    </Button>
+                  </CardFooter>
+                </Card>
               ))}
             </div>
           )}
@@ -180,104 +170,69 @@ const UserPage = () => {
       </div>
 
       {/* Create User Modal */}
-      <dialog
-        id="create_user_modal"
-        className={`modal ${isModalOpen ? 'modal-open' : ''}`}
-      >
-        <div className="modal-box w-11/12 max-w-xl p-6">
-          <form method="dialog">
-            <button
-              className="btn btn-sm btn-circle btn-ghost absolute right-4 top-4"
-              onClick={() => setIsModalOpen(false)}
-            >
-              ✕
-            </button>
-          </form>
-
-          <h3 className="font-bold text-lg mb-6">Create New User</h3>
+      <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+        <DialogContent className="max-w-xl">
+          <DialogHeader>
+            <DialogTitle>Create New User</DialogTitle>
+          </DialogHeader>
 
           {error && (
-            <div className="alert alert-error mb-6">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="stroke-current shrink-0 h-6 w-6"
-                fill="none"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"
-                />
-              </svg>
-              <span>{error}</span>
-            </div>
+            <Alert variant="destructive" className="mb-4">
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
           )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="form-control">
-              <label className="label">
-                <span className="label-text font-medium">Username</span>
-              </label>
-              <input
-                type="text"
+            <div className="space-y-2">
+              <Label htmlFor="username">Username</Label>
+              <Input
+                id="username"
                 name="username"
                 value={formData.username}
                 onChange={handleChange}
-                className="input input-bordered"
                 required
               />
             </div>
 
-            <div className="form-control">
-              <label className="label">
-                <span className="label-text font-medium">Password</span>
-              </label>
-              <input
+            <div className="space-y-2">
+              <Label htmlFor="password">Password</Label>
+              <Input
+                id="password"
                 type="password"
                 name="password"
                 value={formData.password}
                 onChange={handleChange}
-                className="input input-bordered"
                 required
               />
             </div>
 
-            <div className="form-control">
-              <label className="label">
-                <span className="label-text font-medium">Role</span>
-              </label>
-              <select
-                name="role"
+            <div className="space-y-2">
+              <Label htmlFor="role">Role</Label>
+              <Select
                 value={formData.role}
-                onChange={handleChange}
-                className="select select-bordered"
-                required
+                onValueChange={(value) => setFormData(prev => ({ ...prev, role: value }))}
               >
-                <option value="USER">User</option>
-                <option value="ADMIN">Admin</option>
-              </select>
+                <SelectTrigger id="role">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="USER">User</SelectItem>
+                  <SelectItem value="ADMIN">Admin</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
 
-            <div className="modal-action">
-              <button type="submit" className="btn btn-primary">
-                Create User
-              </button>
-              <button
-                type="button"
-                className="btn"
-                onClick={() => setIsModalOpen(false)}
-              >
+            <DialogFooter>
+              <Button type="button" variant="outline" onClick={() => setIsModalOpen(false)}>
                 Cancel
-              </button>
-            </div>
+              </Button>
+              <Button type="submit">
+                Create User
+              </Button>
+            </DialogFooter>
           </form>
-        </div>
-        <form method="dialog" className="modal-backdrop">
-          <button onClick={() => setIsModalOpen(false)}>close</button>
-        </form>
-      </dialog>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

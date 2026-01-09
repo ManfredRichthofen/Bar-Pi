@@ -1,27 +1,51 @@
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
+import { persist, createJSONStorage } from 'zustand/middleware';
 
 interface ThemeState {
   theme: string;
   setTheme: (theme: string) => void;
 }
 
+// Get initial theme from localStorage immediately to prevent flash
+const getInitialTheme = () => {
+  if (typeof window === 'undefined') return 'light';
+  
+  try {
+    const stored = localStorage.getItem('theme-storage');
+    if (stored) {
+      const parsed = JSON.parse(stored);
+      const theme = parsed.state?.theme || 'light';
+      // Apply immediately before React renders
+      if (theme === 'dark') {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+      return theme;
+    }
+  } catch (error) {
+    console.error('Failed to load theme from storage:', error);
+  }
+  
+  return 'light';
+};
+
 const useThemeStore = create<ThemeState>()(
   persist(
     (set) => ({
-      theme: 'light',
+      theme: getInitialTheme(),
       setTheme: (theme: string) => {
-        document.documentElement.setAttribute('data-theme', theme);
+        if (theme === 'dark') {
+          document.documentElement.classList.add('dark');
+        } else {
+          document.documentElement.classList.remove('dark');
+        }
         set({ theme });
       },
     }),
     {
       name: 'theme-storage',
-      onRehydrateStorage: () => (state) => {
-        if (state?.theme) {
-          document.documentElement.setAttribute('data-theme', state.theme);
-        }
-      },
+      storage: createJSONStorage(() => localStorage),
     }
   )
 );

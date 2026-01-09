@@ -1,11 +1,13 @@
 import React, { useEffect } from 'react';
 import { useWindowVirtualizer } from '@tanstack/react-virtual';
 import { useInfiniteQuery } from '@tanstack/react-query';
-import { AlertCircle, Search } from 'lucide-react';
+import { AlertCircle, Search, Loader2 } from 'lucide-react';
 import debounce from 'lodash/debounce';
 
 import RecipeService from '@/services/recipe.service.js';
 import DrinkCard from './DrinkCard.jsx';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Card, CardContent } from '@/components/ui/card';
 
 function VirtualDrinksGrid({ token, searchTerm, collapsed = false }) {
   const listRef = React.useRef(null);
@@ -183,23 +185,20 @@ function VirtualDrinksGrid({ token, searchTerm, collapsed = false }) {
             className={`grid ${getGridColsClass()} gap-4 w-full max-w-screen-2xl mx-auto`}
           >
             {[...Array(12)].map((_, index) => (
-              <div
-                key={`skeleton-${Date.now()}-${index}`}
-                className="card bg-base-100 shadow-sm animate-pulse"
-              >
-                <div className="card-body p-4">
-                  <div className="h-4 bg-base-300 rounded mb-2"></div>
-                  <div className="h-3 bg-base-300 rounded mb-1"></div>
-                  <div className="h-3 bg-base-300 rounded w-2/3"></div>
-                </div>
-              </div>
+              <Card key={`skeleton-${Date.now()}-${index}`} className="animate-pulse">
+                <CardContent className="p-4">
+                  <div className="h-4 bg-muted rounded mb-2"></div>
+                  <div className="h-3 bg-muted rounded mb-1"></div>
+                  <div className="h-3 bg-muted rounded w-2/3"></div>
+                </CardContent>
+              </Card>
             ))}
           </div>
         </div>
         <div className="flex items-center justify-center py-8">
           <div className="flex items-center gap-3">
-            <span className="loading loading-spinner loading-md"></span>
-            <span className="text-base text-base-content/60">
+            <Loader2 className="h-5 w-5 animate-spin" />
+            <span className="text-base text-muted-foreground">
               Loading drinks...
             </span>
           </div>
@@ -212,10 +211,10 @@ function VirtualDrinksGrid({ token, searchTerm, collapsed = false }) {
     return (
       <div className="px-4 py-2">
         <div className="flex justify-center">
-          <div className="alert alert-error max-w-2xl">
-            <AlertCircle className="w-5 h-5" />
-            <span>Error: {error.message}</span>
-          </div>
+          <Alert variant="destructive" className="max-w-2xl">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>Error: {error.message}</AlertDescription>
+          </Alert>
         </div>
       </div>
     );
@@ -287,34 +286,31 @@ function VirtualDrinksGrid({ token, searchTerm, collapsed = false }) {
             className={`grid ${getGridColsClass()} gap-4 sm:gap-5 lg:gap-6 w-full max-w-screen-2xl mx-auto`}
           >
             {[...Array(4)].map((_, index) => (
-              <div
-                key={`skeleton-${Date.now()}-${index}`}
-                className="card bg-base-100 shadow-sm animate-pulse"
-              >
-                <div className="card-body p-4">
-                  <div className="h-4 bg-base-300 rounded mb-2"></div>
-                  <div className="h-3 bg-base-300 rounded mb-1"></div>
-                  <div className="h-3 bg-base-300 rounded w-2/3"></div>
-                </div>
-              </div>
+              <Card key={`skeleton-${Date.now()}-${index}`} className="animate-pulse">
+                <CardContent className="p-4">
+                  <div className="h-4 bg-muted rounded mb-2"></div>
+                  <div className="h-3 bg-muted rounded mb-1"></div>
+                  <div className="h-3 bg-muted rounded w-2/3"></div>
+                </CardContent>
+              </Card>
             ))}
           </div>
         </div>
       )}
       {!hasNextPage && !isFetching && allRecipes.length > 0 && (
         <div className="flex items-center justify-center py-8 px-4">
-          <p className="text-center text-base-content/60 text-sm">
+          <p className="text-center text-muted-foreground text-sm">
             No more drinks to load
           </p>
         </div>
       )}
       {allRecipes.length === 0 && !isFetching && (
         <div className="flex flex-col items-center justify-center py-12 px-4">
-          <div className="text-base-content/40 mb-4">
+          <div className="text-muted-foreground mb-4">
             <Search className="w-16 h-16" />
           </div>
           <h3 className="text-lg font-semibold mb-2">No drinks found</h3>
-          <p className="text-base-content/60 text-center text-sm">
+          <p className="text-muted-foreground text-center text-sm">
             Try adjusting your search
           </p>
         </div>

@@ -1,5 +1,3 @@
-import { useEffect } from 'react';
-import { themeChange } from 'theme-change';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from '@tanstack/react-router';
 import { ArrowLeft } from 'lucide-react';
@@ -15,45 +13,6 @@ const SimpleSettings = () => {
   const navigate = useNavigate();
   const logoutUser = useAuthStore((state) => state.logoutUser);
   const setAdvancedMode = useUIModeStore((state) => state.setAdvancedMode);
-
-  useEffect(() => {
-    themeChange(false);
-  }, []);
-
-  const themes = [
-    'light',
-    'dark',
-    'cupcake',
-    'bumblebee',
-    'emerald',
-    'corporate',
-    'synthwave',
-    'retro',
-    'cyberpunk',
-    'valentine',
-    'halloween',
-    'garden',
-    'forest',
-    'aqua',
-    'lofi',
-    'pastel',
-    'fantasy',
-    'wireframe',
-    'black',
-    'luxury',
-    'dracula',
-    'cmyk',
-    'autumn',
-    'business',
-    'acid',
-    'lemonade',
-    'night',
-    'coffee',
-    'winter',
-    'dim',
-    'nord',
-    'sunset',
-  ];
 
   const languages = [
     { code: 'en-US', name: 'English' },
@@ -115,7 +74,7 @@ const SimpleSettings = () => {
           />
 
           {/* Theme Selector Card */}
-          <ThemeSelector themes={themes} />
+          <ThemeSelector />
         </div>
       </div>
     </div>

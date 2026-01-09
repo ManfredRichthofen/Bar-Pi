@@ -28,7 +28,7 @@ const Layout: React.FC<MainLayoutProps> = ({ children }) => {
   });
 
   return (
-    <div className="min-h-screen bg-base-200">
+    <div className="min-h-screen bg-background">
       <HeaderBar
         collapsed={collapsed}
         onToggle={() => setCollapsed(!collapsed)}
