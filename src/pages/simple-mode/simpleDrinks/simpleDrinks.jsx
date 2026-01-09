@@ -215,7 +215,7 @@ function SimpleDrinks() {
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <div className="sticky top-0 z-20 bg-background/95 backdrop-blur-md border-b border-border shadow-sm">
+      <div className="sticky top-0 z-20 bg-background border-b border-border shadow-sm">
         <div className="p-4 space-y-4">
           <div className="flex items-center justify-between">
             <h1 className="text-xl font-bold">Available Drinks</h1>
