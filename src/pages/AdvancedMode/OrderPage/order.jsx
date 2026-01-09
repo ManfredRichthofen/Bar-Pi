@@ -29,7 +29,6 @@ const Order = () => {
   });
   const [selectedGlass, setSelectedGlass] = useState(null);
 
-
   useEffect(() => {
     if (recipe) {
       if (recipe.defaultGlass) {
@@ -246,7 +245,7 @@ const Order = () => {
         {checking ? (
           <Card className="mb-6">
             <CardContent className="flex items-center justify-center py-12">
-              <span className="loading loading-spinner loading-lg"></span>
+              <Loader2 className="h-8 w-8 animate-spin" />
             </CardContent>
           </Card>
         ) : (
@@ -257,7 +256,11 @@ const Order = () => {
                   <h4 className="text-xl font-bold mb-4">
                     Feasibility Check Result
                   </h4>
-                  <Alert variant={feasibilityResult.feasible ? 'default' : 'destructive'}>
+                  <Alert
+                    variant={
+                      feasibilityResult.feasible ? 'default' : 'destructive'
+                    }
+                  >
                     <AlertDescription>
                       {feasibilityResult.feasible ? (
                         <div className="space-y-1">
@@ -342,7 +345,11 @@ const Order = () => {
                                           </p>
                                         </div>
                                         <Badge
-                                          variant={item.ingredient.inBar ? 'default' : 'destructive'}
+                                          variant={
+                                            item.ingredient.inBar
+                                              ? 'default'
+                                              : 'destructive'
+                                          }
                                         >
                                           {item.ingredient.inBar
                                             ? 'In Bar'
@@ -360,7 +367,9 @@ const Order = () => {
                         {ingredients.notInBar.length > 0 && (
                           <Alert variant="destructive">
                             <AlertDescription>
-                              <h6 className="font-bold mb-2">Missing Ingredients</h6>
+                              <h6 className="font-bold mb-2">
+                                Missing Ingredients
+                              </h6>
                               <p className="mb-2">
                                 The following ingredients are not available in
                                 the bar:

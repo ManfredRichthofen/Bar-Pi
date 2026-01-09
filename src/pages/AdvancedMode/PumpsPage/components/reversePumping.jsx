@@ -10,7 +10,13 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Progress } from '@/components/ui/progress';
@@ -234,15 +240,30 @@ const ReversePumping = () => {
                           )}
                         </Label>
                         <Select
-                          value={watch('settings.directorPin.boardId')?.toString() || ''}
-                          onValueChange={(value) => setValue('settings.directorPin.boardId', value ? parseInt(value) : null)}
+                          value={
+                            watch('settings.directorPin.boardId')?.toString() ||
+                            ''
+                          }
+                          onValueChange={(value) =>
+                            setValue(
+                              'settings.directorPin.boardId',
+                              value ? parseInt(value) : null,
+                            )
+                          }
                         >
                           <SelectTrigger id="gpioBoard">
-                            <SelectValue placeholder={t('common.select_board', { defaultValue: 'Select board' })} />
+                            <SelectValue
+                              placeholder={t('common.select_board', {
+                                defaultValue: 'Select board',
+                              })}
+                            />
                           </SelectTrigger>
                           <SelectContent>
                             {boards.map((board) => (
-                              <SelectItem key={board.id} value={board.id.toString()}>
+                              <SelectItem
+                                key={board.id}
+                                value={board.id.toString()}
+                              >
                                 {board.name}
                               </SelectItem>
                             ))}
@@ -258,20 +279,39 @@ const ReversePumping = () => {
                         </Label>
                         <div className="flex items-center gap-2">
                           <Select
-                            value={watch('settings.directorPin.pinId')?.toString() || ''}
-                            onValueChange={(value) => setValue('settings.directorPin.pinId', value || null)}
+                            value={
+                              watch('settings.directorPin.pinId')?.toString() ||
+                              ''
+                            }
+                            onValueChange={(value) =>
+                              setValue(
+                                'settings.directorPin.pinId',
+                                value || null,
+                              )
+                            }
                             disabled={!selectedDirectorBoardId}
                           >
                             <SelectTrigger id="gpioPin">
-                              <SelectValue placeholder={t('common.select_pin', { defaultValue: 'Select pin' })} />
+                              <SelectValue
+                                placeholder={t('common.select_pin', {
+                                  defaultValue: 'Select pin',
+                                })}
+                              />
                             </SelectTrigger>
                             <SelectContent>
                               {directorPins.map((pin) => (
                                 <SelectItem
                                   key={pin.id ?? pin.pinId ?? pin.name}
-                                  value={(pin.id ?? pin.pinId ?? pin.name).toString()}
+                                  value={(
+                                    pin.id ??
+                                    pin.pinId ??
+                                    pin.name
+                                  ).toString()}
                                 >
-                                  {(pin.pinName ?? pin.name ?? String(pin.id ?? pin.pinId)) + (pin.inUse ? ' (In use)' : '')}
+                                  {(pin.pinName ??
+                                    pin.name ??
+                                    String(pin.id ?? pin.pinId)) +
+                                    (pin.inUse ? ' (In use)' : '')}
                                 </SelectItem>
                               ))}
                             </SelectContent>
@@ -281,7 +321,9 @@ const ReversePumping = () => {
                             variant="ghost"
                             size="icon"
                             disabled={!selectedDirectorBoardId || saving}
-                            onClick={() => setValue('settings.directorPin.pinId', null)}
+                            onClick={() =>
+                              setValue('settings.directorPin.pinId', null)
+                            }
                             title={t('common.clear', { defaultValue: 'Clear' })}
                           >
                             <X className="h-4 w-4" />
@@ -313,8 +355,16 @@ const ReversePumping = () => {
                           )}
                         </Label>
                         <Select
-                          value={watch('settings.forwardStateHigh')?.toString() || 'false'}
-                          onValueChange={(value) => setValue('settings.forwardStateHigh', value === 'true')}
+                          value={
+                            watch('settings.forwardStateHigh')?.toString() ||
+                            'false'
+                          }
+                          onValueChange={(value) =>
+                            setValue(
+                              'settings.forwardStateHigh',
+                              value === 'true',
+                            )
+                          }
                         >
                           <SelectTrigger id="forwardState">
                             <SelectValue />
@@ -363,7 +413,9 @@ const ReversePumping = () => {
                             })}
                             className={`flex-1 ${errors.settings?.overshoot ? 'border-destructive' : ''}`}
                           />
-                          <span className="text-sm text-muted-foreground">%</span>
+                          <span className="text-sm text-muted-foreground">
+                            %
+                          </span>
                         </div>
                         {errors.settings?.overshoot && (
                           <p className="text-sm text-destructive">
@@ -381,15 +433,26 @@ const ReversePumping = () => {
                           )}
                         </Label>
                         <Select
-                          value={watch('settings.autoPumpBackTimer')?.toString() || '0'}
-                          onValueChange={(value) => setValue('settings.autoPumpBackTimer', parseInt(value))}
+                          value={
+                            watch('settings.autoPumpBackTimer')?.toString() ||
+                            '0'
+                          }
+                          onValueChange={(value) =>
+                            setValue(
+                              'settings.autoPumpBackTimer',
+                              parseInt(value),
+                            )
+                          }
                         >
                           <SelectTrigger id="autoPumpBack">
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
                             {timerOptions.map((opt) => (
-                              <SelectItem key={opt.value} value={opt.value.toString()}>
+                              <SelectItem
+                                key={opt.value}
+                                value={opt.value.toString()}
+                              >
                                 {opt.label}
                               </SelectItem>
                             ))}
@@ -403,10 +466,7 @@ const ReversePumping = () => {
 
               {/* Actions */}
               <div className="flex justify-end">
-                <Button
-                  type="submit"
-                  disabled={saving}
-                >
+                <Button type="submit" disabled={saving}>
                   {saving ? (
                     <Loader2 className="h-4 w-4 animate-spin mr-2" />
                   ) : (

@@ -9,7 +9,7 @@ interface ThemeState {
 // Get initial theme from localStorage immediately to prevent flash
 const getInitialTheme = () => {
   if (typeof window === 'undefined') return 'light';
-  
+
   try {
     const stored = localStorage.getItem('theme-storage');
     if (stored) {
@@ -26,7 +26,7 @@ const getInitialTheme = () => {
   } catch (error) {
     console.error('Failed to load theme from storage:', error);
   }
-  
+
   return 'light';
 };
 
@@ -46,8 +46,8 @@ const useThemeStore = create<ThemeState>()(
     {
       name: 'theme-storage',
       storage: createJSONStorage(() => localStorage),
-    }
-  )
+    },
+  ),
 );
 
 export default useThemeStore;

@@ -1,17 +1,23 @@
 import React from 'react';
 import { X, AlertCircle } from 'lucide-react';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Button } from '@/components/ui/button';
 
 const ErrorMessage = React.memo(({ error, onDismiss }) => (
-  <div className="alert alert-error mb-3 text-sm">
+  <Alert variant="destructive" className="mb-3">
     <AlertCircle className="w-4 h-4" />
-    <span>{error}</span>
-    <button
-      className="btn btn-ghost btn-sm p-0 hover:bg-error/10"
-      onClick={onDismiss}
-    >
-      <X className="w-4 h-4" />
-    </button>
-  </div>
+    <AlertDescription className="flex items-center justify-between">
+      <span className="text-sm">{error}</span>
+      <Button
+        variant="ghost"
+        size="sm"
+        className="h-auto p-0 hover:bg-destructive/10"
+        onClick={onDismiss}
+      >
+        <X className="w-4 h-4" />
+      </Button>
+    </AlertDescription>
+  </Alert>
 ));
 
 export default ErrorMessage;

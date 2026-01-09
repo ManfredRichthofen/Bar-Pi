@@ -5,10 +5,22 @@ import UserService from '../../../services/user.service';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 
@@ -70,10 +82,7 @@ const UserPage = () => {
         <div className="p-4 space-y-4">
           <div className="flex items-center justify-between">
             <h1 className="text-xl font-bold">User Management</h1>
-            <Button
-              onClick={() => setIsModalOpen(true)}
-              size="sm"
-            >
+            <Button onClick={() => setIsModalOpen(true)} size="sm">
               <UserPlus size={16} className="mr-2" />
               Add User
             </Button>
@@ -99,9 +108,7 @@ const UserPage = () => {
               <p className="text-muted-foreground text-center text-sm mb-4">
                 Get started by creating your first user
               </p>
-              <Button
-                onClick={() => setIsModalOpen(true)}
-              >
+              <Button onClick={() => setIsModalOpen(true)}>
                 <UserPlus size={16} className="mr-2" />
                 Add User
               </Button>
@@ -128,17 +135,21 @@ const UserPage = () => {
                           <div className="flex items-center gap-1 mt-1">
                             {user.role === 'ADMIN' ? (
                               <>
-                                <Shield size={14} className="text-destructive" />
-                                <Badge variant="destructive" className="text-xs">
+                                <Shield
+                                  size={14}
+                                  className="text-destructive"
+                                />
+                                <Badge
+                                  variant="destructive"
+                                  className="text-xs"
+                                >
                                   Admin
                                 </Badge>
                               </>
                             ) : (
                               <>
                                 <UserIcon size={14} />
-                                <Badge className="text-xs">
-                                  User
-                                </Badge>
+                                <Badge className="text-xs">User</Badge>
                               </>
                             )}
                           </div>
@@ -147,18 +158,10 @@ const UserPage = () => {
                     </div>
                   </CardContent>
                   <CardFooter className="flex justify-end gap-2 pt-4 border-t">
-                    <Button
-                      variant="ghost"
-                      size="icon-sm"
-                      onClick={() => {}}
-                    >
+                    <Button variant="ghost" size="icon-sm" onClick={() => {}}>
                       <Edit size={16} />
                     </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon-sm"
-                      onClick={() => {}}
-                    >
+                    <Button variant="ghost" size="icon-sm" onClick={() => {}}>
                       <Trash2 size={16} className="text-destructive" />
                     </Button>
                   </CardFooter>
@@ -210,7 +213,9 @@ const UserPage = () => {
               <Label htmlFor="role">Role</Label>
               <Select
                 value={formData.role}
-                onValueChange={(value) => setFormData(prev => ({ ...prev, role: value }))}
+                onValueChange={(value) =>
+                  setFormData((prev) => ({ ...prev, role: value }))
+                }
               >
                 <SelectTrigger id="role">
                   <SelectValue />
@@ -223,12 +228,14 @@ const UserPage = () => {
             </div>
 
             <DialogFooter>
-              <Button type="button" variant="outline" onClick={() => setIsModalOpen(false)}>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setIsModalOpen(false)}
+              >
                 Cancel
               </Button>
-              <Button type="submit">
-                Create User
-              </Button>
+              <Button type="submit">Create User</Button>
             </DialogFooter>
           </form>
         </DialogContent>

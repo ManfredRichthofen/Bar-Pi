@@ -116,7 +116,10 @@ const Favorites = ({ sidebarCollapsed = false }) => {
                       {recipe.name}
                     </h3>
                     {recipe.alcoholic && (
-                      <Badge variant="destructive" className="whitespace-nowrap shrink-0 text-xs">
+                      <Badge
+                        variant="destructive"
+                        className="whitespace-nowrap shrink-0 text-xs"
+                      >
                         21+
                       </Badge>
                     )}
@@ -150,7 +153,10 @@ const Favorites = ({ sidebarCollapsed = false }) => {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleClearAll} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+            <AlertDialogAction
+              onClick={handleClearAll}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
               Clear All
             </AlertDialogAction>
           </AlertDialogFooter>

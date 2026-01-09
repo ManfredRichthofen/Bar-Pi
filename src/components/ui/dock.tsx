@@ -1,8 +1,8 @@
-import React, { PropsWithChildren, useRef } from 'react';
+import React, { type PropsWithChildren, useRef } from 'react';
 import { cva, type VariantProps } from 'class-variance-authority';
 import {
   motion,
-  MotionValue,
+  type MotionValue,
   useMotionValue,
   useSpring,
   useTransform,

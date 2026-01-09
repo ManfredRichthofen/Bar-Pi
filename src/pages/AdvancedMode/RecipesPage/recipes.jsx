@@ -1,6 +1,13 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { Navigate, useNavigate } from '@tanstack/react-router';
-import { PlusCircle, AlertCircle, Edit, Trash2, Heart, Loader2 } from 'lucide-react';
+import {
+  PlusCircle,
+  AlertCircle,
+  Edit,
+  Trash2,
+  Heart,
+  Loader2,
+} from 'lucide-react';
 import useAuthStore from '../../../store/authStore';
 import RecipeService from '../../../services/recipe.service';
 import useFavoritesStore from '../../../store/favoritesStore';
@@ -51,7 +58,10 @@ const Recipes = ({ sidebarCollapsed = false }) => {
 
   const handleEdit = useCallback(
     (recipe) => {
-      navigate({ to: `/recipes/${recipe.id}/edit` });
+      navigate({
+        to: '/recipes/$recipeId/edit',
+        params: { recipeId: recipe.id },
+      });
     },
     [navigate],
   );
@@ -126,13 +136,14 @@ const Recipes = ({ sidebarCollapsed = false }) => {
           <div className="space-y-2">
             {recipes.map((recipe) => {
               const isFavorite = favoriteIds.has(recipe.id);
-              const ingredientCount = recipe.productionSteps?.reduce(
-                (count, step) =>
-                  step.type === 'addIngredients'
-                    ? count + (step.stepIngredients?.length || 0)
-                    : count,
-                0,
-              ) || 0;
+              const ingredientCount =
+                recipe.productionSteps?.reduce(
+                  (count, step) =>
+                    step.type === 'addIngredients'
+                      ? count + (step.stepIngredients?.length || 0)
+                      : count,
+                  0,
+                ) || 0;
 
               return (
                 <div
@@ -156,7 +167,8 @@ const Recipes = ({ sidebarCollapsed = false }) => {
                     <div className="flex items-center gap-2 mt-2">
                       {ingredientCount > 0 && (
                         <Badge variant="secondary" className="text-xs">
-                          {ingredientCount} ingredient{ingredientCount !== 1 ? 's' : ''}
+                          {ingredientCount} ingredient
+                          {ingredientCount !== 1 ? 's' : ''}
                         </Badge>
                       )}
                       {recipe.defaultGlass && (

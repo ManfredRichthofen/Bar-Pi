@@ -43,7 +43,7 @@ const Drinks = ({ sidebarCollapsed = false }) => {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="sticky top-0 z-20 bg-background border-b shadow-sm">
+      <div className="sticky top-0 z-20 bg-background border-b shadow-sm pt-2">
         <div className="container mx-auto px-4 py-4 space-y-4">
           <div className="flex items-center justify-between">
             <h1 className="text-2xl font-bold">Available Drinks</h1>

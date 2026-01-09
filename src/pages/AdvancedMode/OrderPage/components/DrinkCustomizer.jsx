@@ -1,5 +1,23 @@
 import React, { useState } from 'react';
-import { PlusCircle } from 'lucide-react';
+import { PlusCircle, AlertTriangle } from 'lucide-react';
+import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Button } from '@/components/ui/button';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from '@/components/ui/collapsible';
+import { Slider } from '@/components/ui/slider';
 
 const DrinkCustomizer = ({
   disableBoosting = false,
@@ -52,63 +70,61 @@ const DrinkCustomizer = ({
     setAddingIngredient(false);
   };
 
+  const [isOpen, setIsOpen] = useState(false);
+
   return (
-    <div className="card bg-base-100 shadow-xl mb-6">
-      <div className="card-body">
-        <div className="collapse collapse-arrow">
-          <input type="checkbox" className="peer" />
-          <div className="collapse-title text-xl font-medium peer-checked:bg-base-200">
+    <Card className="mb-6">
+      <CardContent className="pt-6">
+        <Collapsible open={isOpen} onOpenChange={setIsOpen}>
+          <CollapsibleTrigger className="flex items-center justify-between w-full text-xl font-medium py-2">
             Customize Drink
-          </div>
-          <div className="collapse-content peer-checked:bg-base-200">
+            <span
+              className={`transform transition-transform ${isOpen ? 'rotate-180' : ''}`}
+            >
+              ▼
+            </span>
+          </CollapsibleTrigger>
+          <CollapsibleContent className="pt-4">
             <div className="mb-6">
               <h3 className="text-lg font-bold mb-2">
                 Alcohol Content Adjustment
               </h3>
               {disableBoosting ? (
-                <div className="alert alert-warning mb-2">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="stroke-current shrink-0 h-6 w-6"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
-                    />
-                  </svg>
-                  <span>This drink's strength cannot be adjusted</span>
-                </div>
+                <Alert className="mb-2">
+                  <AlertTriangle className="h-4 w-4" />
+                  <AlertDescription>
+                    This drink's strength cannot be adjusted
+                  </AlertDescription>
+                </Alert>
               ) : (
-                <p className="text-base-content/70 mb-2">
+                <p className="text-muted-foreground mb-2">
                   Adjust the strength of your drink by modifying the alcohol
                   content
                 </p>
               )}
               <div className="flex items-center gap-4">
-                <input
-                  type="range"
+                <Slider
                   min={0}
                   max={200}
-                  value={customizations.boost}
-                  onChange={handleBoostChange}
                   step={10}
-                  className={`range flex-1 ${disableBoosting ? 'opacity-50' : ''}`}
+                  value={[customizations.boost]}
+                  onValueChange={([value]) =>
+                    handleBoostChange({ target: { value } })
+                  }
                   disabled={disableBoosting}
+                  className={`flex-1 ${disableBoosting ? 'opacity-50' : ''}`}
                 />
-                <div
-                  className={`badge badge-lg ${disableBoosting ? 'opacity-50' : ''}`}
+                <Badge
+                  variant="secondary"
+                  className={`min-w-20 justify-center ${disableBoosting ? 'opacity-50' : ''}`}
                 >
                   {customizations.boost === 100
                     ? 'Normal'
                     : `${customizations.boost > 100 ? '+' : ''}${customizations.boost - 100}%`}
-                </div>
+                </Badge>
               </div>
               <div
-                className={`w-full flex justify-between text-xs px-2 mt-1 text-base-content/70 ${disableBoosting ? 'opacity-50' : ''}`}
+                className={`w-full flex justify-between text-xs px-2 mt-1 text-muted-foreground ${disableBoosting ? 'opacity-50' : ''}`}
               >
                 <span>No Alcohol</span>
                 <span>Normal</span>
@@ -118,18 +134,18 @@ const DrinkCustomizer = ({
 
             <div>
               <h3 className="text-lg font-bold mb-2">Additional Ingredients</h3>
-              <p className="text-base-content/70 mb-4">
+              <p className="text-muted-foreground mb-4">
                 Add extra ingredients to customize your drink
               </p>
 
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
                 {customizations.additionalIngredients.map(
                   ({ ingredient, amount }) => (
-                    <div key={ingredient.id} className="card bg-base-200">
-                      <div className="card-body p-4">
+                    <Card key={ingredient.id}>
+                      <CardContent className="p-4">
                         <h4 className="font-bold">{ingredient.name}</h4>
-                        <div className="mt-2">
-                          <input
+                        <div className="flex items-center gap-2 mt-2">
+                          <Input
                             type="number"
                             min={0}
                             max={100}
@@ -140,80 +156,86 @@ const DrinkCustomizer = ({
                                 parseFloat(e.target.value),
                               )
                             }
-                            className="input input-bordered w-full"
+                            className="flex-1"
                           />
-                          <span className="ml-2">ml</span>
+                          <span className="text-sm text-muted-foreground">
+                            ml
+                          </span>
                         </div>
-                      </div>
-                    </div>
+                      </CardContent>
+                    </Card>
                   ),
                 )}
 
                 {addingIngredient ? (
-                  <div className="card bg-base-200">
-                    <div className="card-body p-4">
-                      <h4 className="font-bold">Add New Ingredient</h4>
-                      <select
-                        className="select select-bordered w-full"
+                  <Card>
+                    <CardContent className="p-4">
+                      <h4 className="font-bold mb-2">Add New Ingredient</h4>
+                      <Select
                         value={selectedIngredient?.id || ''}
-                        onChange={(e) => {
+                        onValueChange={(value) => {
                           const ingredient = availableIngredients.find(
-                            (ing) => ing.id === e.target.value,
+                            (ing) => ing.id === value,
                           );
                           setSelectedIngredient(ingredient);
                         }}
                       >
-                        <option value="">Select ingredient</option>
-                        {availableIngredients
-                          .filter(
-                            (ing) =>
-                              !customizations.additionalIngredients.some(
-                                (added) => added.ingredient.id === ing.id,
-                              ),
-                          )
-                          .map((ing) => (
-                            <option key={ing.id} value={ing.id}>
-                              {ing.name}
-                            </option>
-                          ))}
-                      </select>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select ingredient" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {availableIngredients
+                            .filter(
+                              (ing) =>
+                                !customizations.additionalIngredients.some(
+                                  (added) => added.ingredient.id === ing.id,
+                                ),
+                            )
+                            .map((ing) => (
+                              <SelectItem key={ing.id} value={ing.id}>
+                                {ing.name}
+                              </SelectItem>
+                            ))}
+                        </SelectContent>
+                      </Select>
                       <div className="flex gap-2 mt-2">
-                        <button
-                          className="btn btn-primary btn-sm"
+                        <Button
+                          size="sm"
                           onClick={handleAddIngredient}
                           disabled={!selectedIngredient}
                         >
                           Add
-                        </button>
-                        <button
-                          className="btn btn-ghost btn-sm"
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
                           onClick={() => {
                             setAddingIngredient(false);
                             setSelectedIngredient(null);
                           }}
                         >
                           Cancel
-                        </button>
+                        </Button>
                       </div>
-                    </div>
-                  </div>
+                    </CardContent>
+                  </Card>
                 ) : (
-                  <div
-                    className="card bg-base-200 cursor-pointer hover:bg-base-300"
+                  <Card
+                    className="cursor-pointer hover:bg-accent transition-colors"
                     onClick={() => setAddingIngredient(true)}
                   >
-                    <div className="card-body items-center text-center">
+                    <CardContent className="flex flex-col items-center justify-center text-center p-4 min-h-32">
                       <PlusCircle className="mb-2" size={24} />
                       <span>Add Ingredient</span>
-                    </div>
-                  </div>
+                    </CardContent>
+                  </Card>
                 )}
               </div>
             </div>
-          </div>
-        </div>
-      </div>
-    </div>
+          </CollapsibleContent>
+        </Collapsible>
+      </CardContent>
+    </Card>
   );
 };
 

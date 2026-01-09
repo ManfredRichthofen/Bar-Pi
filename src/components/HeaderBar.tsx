@@ -105,21 +105,27 @@ const HeaderBar: React.FC<HeaderBarProps> = ({ collapsed, onToggle }) => {
 
         <div className="flex items-center gap-2">
           <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="flex items-center gap-2 px-2 sm:px-3">
-                <div className="w-8 h-8 flex items-center justify-center">
-                  <User size={20} />
-                </div>
-                <div className="hidden sm:block text-left">
-                  <p className="text-sm font-semibold m-0">
-                    {loading ? 'Loading...' : userData?.username || 'Guest'}
-                  </p>
-                  <p className="text-xs text-muted-foreground m-0">
-                    {loading ? '' : userData?.role || 'Unknown Role'}
-                  </p>
-                </div>
-              </Button>
-            </DropdownMenuTrigger>
+            <DropdownMenuTrigger
+              render={(props) => (
+                <Button
+                  {...props}
+                  variant="ghost"
+                  className="flex items-center gap-2 px-2 sm:px-3"
+                >
+                  <div className="w-8 h-8 flex items-center justify-center">
+                    <User size={20} />
+                  </div>
+                  <div className="hidden sm:block text-left">
+                    <p className="text-sm font-semibold m-0">
+                      {loading ? 'Loading...' : userData?.username || 'Guest'}
+                    </p>
+                    <p className="text-xs text-muted-foreground m-0">
+                      {loading ? '' : userData?.role || 'Unknown Role'}
+                    </p>
+                  </div>
+                </Button>
+              )}
+            />
             <DropdownMenuContent align="end" className="w-52">
               <DropdownMenuItem onClick={() => navigate({ to: '/settings' })}>
                 <Settings className="mr-2 h-4 w-4" />
@@ -130,7 +136,10 @@ const HeaderBar: React.FC<HeaderBarProps> = ({ collapsed, onToggle }) => {
                 <span>Simple Mode</span>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={handleLogout} className="text-destructive">
+              <DropdownMenuItem
+                onClick={handleLogout}
+                className="text-destructive"
+              >
                 <LogOut className="mr-2 h-4 w-4" />
                 <span>Logout</span>
               </DropdownMenuItem>

@@ -83,7 +83,11 @@ const Login = () => {
           {/* Logo */}
           <div className="mb-6">
             <div className="w-16 h-16 rounded-full overflow-hidden">
-              <img src={logoFull} alt="Logo" className="w-full h-full object-cover" />
+              <img
+                src={logoFull}
+                alt="Logo"
+                className="w-full h-full object-cover"
+              />
             </div>
           </div>
 
@@ -98,9 +102,7 @@ const Login = () => {
           {/* Error Alert */}
           {error && (
             <Alert variant="destructive" className="w-full mt-6">
-              <AlertDescription className="text-sm">
-                {error}
-              </AlertDescription>
+              <AlertDescription className="text-sm">{error}</AlertDescription>
             </Alert>
           )}
 
@@ -144,10 +146,7 @@ const Login = () => {
           {/* Remember Me & Forgot Password */}
           <div className="w-full flex items-center justify-between mt-8">
             <div className="flex items-center gap-2">
-              <Checkbox
-                id="remember-checkbox"
-                name="remember"
-              />
+              <Checkbox id="remember-checkbox" name="remember" />
               <Label
                 htmlFor="remember-checkbox"
                 className="text-sm cursor-pointer font-normal"
@@ -155,7 +154,10 @@ const Login = () => {
                 {t('login.remember_me')}
               </Label>
             </div>
-            <a className="text-sm hover:underline text-muted-foreground" href="/forgot-password">
+            <a
+              className="text-sm hover:underline text-muted-foreground"
+              href="/forgot-password"
+            >
               {t('login.forgot_password')}
             </a>
           </div>

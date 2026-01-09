@@ -60,29 +60,35 @@ const RecipeEditPage = () => {
       setGlasses(glassesData);
 
       if (recipeId) {
-        const fullRecipe = await RecipeService.getRecipe(recipeId, false, token);
-        
-        const productionSteps = fullRecipe.productionSteps?.map((step) => {
-          if (step.type === 'addIngredients') {
-            return {
-              ...step,
-              stepIngredients: step.stepIngredients?.map((si) => {
-                const ingredient = si.ingredient || {};
-                return {
-                  ingredient: {
-                    id: ingredient.id,
-                    name: ingredient.name,
-                    ...ingredient,
-                  },
-                  amount: si.amount || 0,
-                  scale: si.scale || 'ml',
-                  boostable: si.boostable || false,
-                };
-              }) || [],
-            };
-          }
-          return { ...step };
-        }) || [];
+        const fullRecipe = await RecipeService.getRecipe(
+          recipeId,
+          false,
+          token,
+        );
+
+        const productionSteps =
+          fullRecipe.productionSteps?.map((step) => {
+            if (step.type === 'addIngredients') {
+              return {
+                ...step,
+                stepIngredients:
+                  step.stepIngredients?.map((si) => {
+                    const ingredient = si.ingredient || {};
+                    return {
+                      ingredient: {
+                        id: ingredient.id,
+                        name: ingredient.name,
+                        ...ingredient,
+                      },
+                      amount: si.amount || 0,
+                      scale: si.scale || 'ml',
+                      boostable: si.boostable || false,
+                    };
+                  }) || [],
+              };
+            }
+            return { ...step };
+          }) || [];
 
         setFormData({
           name: fullRecipe.name || '',
@@ -183,19 +189,22 @@ const RecipeEditPage = () => {
     }));
   }, []);
 
-  const addIngredientToStep = useCallback((stepIndex) => {
-    const step = formData.productionSteps[stepIndex];
-    if (step.type === 'addIngredients') {
-      const updatedStep = {
-        ...step,
-        stepIngredients: [
-          ...step.stepIngredients,
-          { ingredient: null, amount: 30, scale: 'ml', boostable: false },
-        ],
-      };
-      updateProductionStep(stepIndex, updatedStep);
-    }
-  }, [formData.productionSteps, updateProductionStep]);
+  const addIngredientToStep = useCallback(
+    (stepIndex) => {
+      const step = formData.productionSteps[stepIndex];
+      if (step.type === 'addIngredients') {
+        const updatedStep = {
+          ...step,
+          stepIngredients: [
+            ...step.stepIngredients,
+            { ingredient: null, amount: 30, scale: 'ml', boostable: false },
+          ],
+        };
+        updateProductionStep(stepIndex, updatedStep);
+      }
+    },
+    [formData.productionSteps, updateProductionStep],
+  );
 
   const removeIngredientFromStep = useCallback(
     (stepIndex, ingredientIndex) => {
@@ -380,7 +389,10 @@ const RecipeEditPage = () => {
               ) : (
                 <label className="flex flex-col items-center justify-center w-40 h-40 border-2 border-dashed rounded-lg cursor-pointer hover:bg-accent hover:border-primary transition-all">
                   <div className="flex flex-col items-center justify-center p-4">
-                    <ImageIcon size={32} className="mb-2 text-muted-foreground" />
+                    <ImageIcon
+                      size={32}
+                      className="mb-2 text-muted-foreground"
+                    />
                     <p className="text-xs text-center text-muted-foreground">
                       <span className="font-semibold">Click to upload</span>
                       <br />
@@ -420,7 +432,8 @@ const RecipeEditPage = () => {
               <div>
                 <h3 className="font-semibold text-lg">Production Steps</h3>
                 <p className="text-sm text-muted-foreground mt-1">
-                  Build the drink using ingredient steps and written instructions
+                  Build the drink using ingredient steps and written
+                  instructions
                 </p>
               </div>
               <div className="flex gap-2">
@@ -467,7 +480,10 @@ const RecipeEditPage = () => {
                     {step.type === 'addIngredients' ? (
                       <div className="space-y-2">
                         {step.stepIngredients.map((ing, ingIndex) => (
-                          <div key={ingIndex} className="flex gap-2 items-center">
+                          <div
+                            key={ingIndex}
+                            className="flex gap-2 items-center"
+                          >
                             <Select
                               value={ing.ingredient?.id?.toString() || ''}
                               onValueChange={(value) => {

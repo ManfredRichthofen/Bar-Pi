@@ -27,7 +27,13 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { toast } from 'sonner';
@@ -278,7 +284,7 @@ const EditPumpPage = () => {
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <div className="sticky top-0 z-10 bg-background border-b shadow-sm">
+      <div className="sticky top-0 z-10 bg-background border-b shadow-sm pt-2">
         <div className="px-4 sm:px-6 py-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div className="flex items-center gap-3">
             <Button
@@ -321,12 +327,7 @@ const EditPumpPage = () => {
               )}
               <span className="hidden sm:inline ml-2">Delete</span>
             </Button>
-            <Button
-              type="submit"
-              form="pump-form"
-              size="sm"
-              disabled={saving}
-            >
+            <Button type="submit" form="pump-form" size="sm" disabled={saving}>
               {saving ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
               ) : (
@@ -404,7 +405,12 @@ const EditPumpPage = () => {
                   <Label htmlFor="ingredient">Current Ingredient</Label>
                   <Select
                     value={watch('currentIngredientId')?.toString() || ''}
-                    onValueChange={(value) => setValue('currentIngredientId', value ? parseInt(value) : null)}
+                    onValueChange={(value) =>
+                      setValue(
+                        'currentIngredientId',
+                        value ? parseInt(value) : null,
+                      )
+                    }
                   >
                     <SelectTrigger id="ingredient">
                       <SelectValue placeholder="No ingredient assigned" />
@@ -412,7 +418,10 @@ const EditPumpPage = () => {
                     <SelectContent>
                       <SelectItem value="">No ingredient assigned</SelectItem>
                       {ingredients.map((ingredient) => (
-                        <SelectItem key={ingredient.id} value={ingredient.id.toString()}>
+                        <SelectItem
+                          key={ingredient.id}
+                          value={ingredient.id.toString()}
+                        >
                           {ingredient.name}
                         </SelectItem>
                       ))}
@@ -431,21 +440,25 @@ const EditPumpPage = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-
                 {/* DC Pump / Valve Pin */}
                 {(pumpType === 'dc' || pumpType === 'valve') && (
                   <div className="space-y-2">
                     <Label htmlFor="controlPin">Control Pin</Label>
                     <Select
                       value={watch('pin.boardId')?.toString() || ''}
-                      onValueChange={(value) => setValue('pin.boardId', value ? parseInt(value) : null)}
+                      onValueChange={(value) =>
+                        setValue('pin.boardId', value ? parseInt(value) : null)
+                      }
                     >
                       <SelectTrigger id="controlPin">
                         <SelectValue placeholder="Select board" />
                       </SelectTrigger>
                       <SelectContent>
                         {boards.map((board) => (
-                          <SelectItem key={board.id} value={board.id.toString()}>
+                          <SelectItem
+                            key={board.id}
+                            value={board.id.toString()}
+                          >
                             {board.name}
                           </SelectItem>
                         ))}
@@ -461,14 +474,22 @@ const EditPumpPage = () => {
                       <Label htmlFor="enablePin">Enable Pin</Label>
                       <Select
                         value={watch('enablePin.boardId')?.toString() || ''}
-                        onValueChange={(value) => setValue('enablePin.boardId', value ? parseInt(value) : null)}
+                        onValueChange={(value) =>
+                          setValue(
+                            'enablePin.boardId',
+                            value ? parseInt(value) : null,
+                          )
+                        }
                       >
                         <SelectTrigger id="enablePin">
                           <SelectValue placeholder="Select board" />
                         </SelectTrigger>
                         <SelectContent>
                           {boards.map((board) => (
-                            <SelectItem key={board.id} value={board.id.toString()}>
+                            <SelectItem
+                              key={board.id}
+                              value={board.id.toString()}
+                            >
                               {board.name}
                             </SelectItem>
                           ))}
@@ -480,14 +501,22 @@ const EditPumpPage = () => {
                       <Label htmlFor="stepPin">Step Pin</Label>
                       <Select
                         value={watch('stepPin.boardId')?.toString() || ''}
-                        onValueChange={(value) => setValue('stepPin.boardId', value ? parseInt(value) : null)}
+                        onValueChange={(value) =>
+                          setValue(
+                            'stepPin.boardId',
+                            value ? parseInt(value) : null,
+                          )
+                        }
                       >
                         <SelectTrigger id="stepPin">
                           <SelectValue placeholder="Select board" />
                         </SelectTrigger>
                         <SelectContent>
                           {boards.map((board) => (
-                            <SelectItem key={board.id} value={board.id.toString()}>
+                            <SelectItem
+                              key={board.id}
+                              value={board.id.toString()}
+                            >
                               {board.name}
                             </SelectItem>
                           ))}
@@ -502,7 +531,9 @@ const EditPumpPage = () => {
                   <Switch
                     id="powerState"
                     checked={watch('isPowerStateHigh')}
-                    onCheckedChange={(checked) => setValue('isPowerStateHigh', checked)}
+                    onCheckedChange={(checked) =>
+                      setValue('isPowerStateHigh', checked)
+                    }
                   />
                 </div>
               </CardContent>
@@ -548,7 +579,9 @@ const EditPumpPage = () => {
                         {...register('acceleration', {
                           min: { value: 1, message: 'Must be at least 1' },
                         })}
-                        className={errors.acceleration ? 'border-destructive' : ''}
+                        className={
+                          errors.acceleration ? 'border-destructive' : ''
+                        }
                       />
                       {errors.acceleration && (
                         <p className="text-sm text-destructive">
@@ -566,7 +599,9 @@ const EditPumpPage = () => {
                         {...register('maxStepsPerSecond', {
                           min: { value: 1, message: 'Must be at least 1' },
                         })}
-                        className={errors.maxStepsPerSecond ? 'border-destructive' : ''}
+                        className={
+                          errors.maxStepsPerSecond ? 'border-destructive' : ''
+                        }
                       />
                       {errors.maxStepsPerSecond && (
                         <p className="text-sm text-destructive">
@@ -584,7 +619,9 @@ const EditPumpPage = () => {
                         {...register('stepsPerCl', {
                           min: { value: 1, message: 'Must be at least 1' },
                         })}
-                        className={errors.stepsPerCl ? 'border-destructive' : ''}
+                        className={
+                          errors.stepsPerCl ? 'border-destructive' : ''
+                        }
                       />
                       {errors.stepsPerCl && (
                         <p className="text-sm text-destructive">
@@ -616,7 +653,9 @@ const EditPumpPage = () => {
                       min: { value: 0, message: 'Must be at least 0' },
                       required: 'Tube capacity is required',
                     })}
-                    className={errors.tubeCapacityInMl ? 'border-destructive' : ''}
+                    className={
+                      errors.tubeCapacityInMl ? 'border-destructive' : ''
+                    }
                   />
                   {errors.tubeCapacityInMl && (
                     <p className="text-sm text-destructive">
@@ -634,7 +673,9 @@ const EditPumpPage = () => {
                     {...register('fillingLevelInMl', {
                       min: { value: 0, message: 'Must be at least 0' },
                     })}
-                    className={errors.fillingLevelInMl ? 'border-destructive' : ''}
+                    className={
+                      errors.fillingLevelInMl ? 'border-destructive' : ''
+                    }
                   />
                   {errors.fillingLevelInMl && (
                     <p className="text-sm text-destructive">
@@ -648,7 +689,9 @@ const EditPumpPage = () => {
                   <Switch
                     id="pumpedUp"
                     checked={watch('isPumpedUp')}
-                    onCheckedChange={(checked) => setValue('isPumpedUp', checked)}
+                    onCheckedChange={(checked) =>
+                      setValue('isPumpedUp', checked)
+                    }
                   />
                 </div>
               </CardContent>

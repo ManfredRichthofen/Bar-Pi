@@ -18,9 +18,9 @@ function VirtualDrinksGrid({ token, searchTerm, collapsed = false }) {
   React.useLayoutEffect(() => {
     // Calculate offset based on sidebar state
     const headerHeight = 64; // HeaderBar height (h-16)
-    const layoutPadding = 96; // Layout pt-24
+    const stickyHeaderHeight = 140; // Drinks page sticky header with search
 
-    parentOffsetRef.current = headerHeight + layoutPadding;
+    parentOffsetRef.current = headerHeight + stickyHeaderHeight;
   }, [collapsed]);
 
   // Responsive grid columns and dynamic row height - mobile-first
@@ -84,6 +84,7 @@ function VirtualDrinksGrid({ token, searchTerm, collapsed = false }) {
         null, // inCategoryId
         null, // orderBy
         token, // token
+        false, // includeImage - load images lazily instead
       );
 
       return {
@@ -185,7 +186,10 @@ function VirtualDrinksGrid({ token, searchTerm, collapsed = false }) {
             className={`grid ${getGridColsClass()} gap-4 w-full max-w-screen-2xl mx-auto`}
           >
             {[...Array(12)].map((_, index) => (
-              <Card key={`skeleton-${Date.now()}-${index}`} className="animate-pulse">
+              <Card
+                key={`skeleton-${Date.now()}-${index}`}
+                className="animate-pulse"
+              >
                 <CardContent className="p-4">
                   <div className="h-4 bg-muted rounded mb-2"></div>
                   <div className="h-3 bg-muted rounded mb-1"></div>
@@ -250,10 +254,10 @@ function VirtualDrinksGrid({ token, searchTerm, collapsed = false }) {
                 key={virtualRow.key}
                 data-index={virtualRow.index}
                 ref={virtualizer.measureElement}
-                className="px-4 sm:px-6 lg:px-8 py-2"
+                className="px-4 sm:px-6 lg:px-8"
               >
                 <div
-                  className={`grid ${getGridColsClass()} gap-4 sm:gap-5 lg:gap-6 w-full max-w-screen-2xl mx-auto`}
+                  className={`grid ${getGridColsClass()} gap-4 w-full max-w-screen-2xl mx-auto py-3`}
                 >
                   {rowRecipes.map((recipe) => (
                     <div
@@ -286,7 +290,10 @@ function VirtualDrinksGrid({ token, searchTerm, collapsed = false }) {
             className={`grid ${getGridColsClass()} gap-4 sm:gap-5 lg:gap-6 w-full max-w-screen-2xl mx-auto`}
           >
             {[...Array(4)].map((_, index) => (
-              <Card key={`skeleton-${Date.now()}-${index}`} className="animate-pulse">
+              <Card
+                key={`skeleton-${Date.now()}-${index}`}
+                className="animate-pulse"
+              >
                 <CardContent className="p-4">
                   <div className="h-4 bg-muted rounded mb-2"></div>
                   <div className="h-3 bg-muted rounded mb-1"></div>

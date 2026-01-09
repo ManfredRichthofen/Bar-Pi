@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import type React from 'react';
+import { useState, useEffect } from 'react';
 import useAuthStore from '../../../store/authStore';
 import { usePumpStore } from '../../../store/pumpStore';
 import PumpService from '../../../services/pump.service';
@@ -53,7 +54,7 @@ export const PumpsPage: React.FC = () => {
         </div>
       )}
 
-      <div className="sticky top-0 z-20 bg-background border-b shadow-sm">
+      <div className="sticky top-0 z-20 bg-background border-b shadow-sm pt-2">
         <div className="container mx-auto px-4 py-4">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <h1 className="text-2xl font-bold">Pump Management</h1>

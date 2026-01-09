@@ -1,6 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { GlassWater } from 'lucide-react';
+import { GlassWater, Loader2 } from 'lucide-react';
 import glassService from '../../../../services/glass.service';
+import { Label } from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Input } from '@/components/ui/input';
 
 const GlassSelector = ({
   selectedGlass,
@@ -44,64 +53,64 @@ const GlassSelector = ({
     return (
       <div className="flex items-center gap-2">
         <GlassWater size={16} />
-        <span className="loading loading-spinner loading-sm"></span>
+        <Loader2 className="h-4 w-4 animate-spin" />
       </div>
     );
   }
 
   return (
-    <div className="form-control w-full">
-      <label className="label">
-        <span className="label-text flex items-center gap-2">
-          <GlassWater size={16} />
-          Glass Size
-        </span>
-      </label>
+    <div className="w-full space-y-2">
+      <Label className="flex items-center gap-2">
+        <GlassWater size={16} />
+        Glass Size
+      </Label>
 
       <div className="flex gap-2">
-        <select
-          className="select select-bordered"
+        <Select
           value={selectedGlass?.id || 'custom'}
-          onChange={(e) => {
-            if (e.target.value === 'custom') {
+          onValueChange={(value) => {
+            if (value === 'custom') {
               onGlassChange(null);
             } else {
-              const glass = glasses.find((g) => g.id === e.target.value);
+              const glass = glasses.find((g) => g.id === value);
               onGlassChange(glass);
               onCustomAmountChange(glass.sizeInMl);
             }
           }}
         >
-          <option value="custom">Custom Amount</option>
-          {glasses.map((glass) => (
-            <option key={glass.id} value={glass.id}>
-              {glass.name} {defaultGlass?.id === glass.id ? '(Default)' : ''} -{' '}
-              {glass.sizeInMl}ml
-            </option>
-          ))}
-        </select>
+          <SelectTrigger className="flex-1">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="custom">Custom Amount</SelectItem>
+            {glasses.map((glass) => (
+              <SelectItem key={glass.id} value={glass.id}>
+                {glass.name} {defaultGlass?.id === glass.id ? '(Default)' : ''}{' '}
+                - {glass.sizeInMl}ml
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
 
         {!selectedGlass && (
-          <div className="join">
-            <input
+          <div className="flex items-center gap-2">
+            <Input
               type="number"
               min={10}
               max={5000}
               value={customAmount}
               onChange={(e) => onCustomAmountChange(parseFloat(e.target.value))}
-              className="input input-bordered join-item w-24"
+              className="w-24"
             />
-            <span className="join-item btn btn-disabled">ml</span>
+            <span className="text-sm text-muted-foreground">ml</span>
           </div>
         )}
       </div>
 
-      {selectedGlass && (
-        <label className="label">
-          <span className="label-text-alt text-base-content/70">
-            {selectedGlass.description}
-          </span>
-        </label>
+      {selectedGlass && selectedGlass.description && (
+        <p className="text-sm text-muted-foreground">
+          {selectedGlass.description}
+        </p>
       )}
     </div>
   );

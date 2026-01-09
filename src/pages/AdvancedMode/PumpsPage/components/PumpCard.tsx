@@ -1,6 +1,8 @@
-import React, { useEffect, useState, useCallback, useMemo } from 'react';
+import type React from 'react';
+import { useEffect, useState, useCallback, useMemo } from 'react';
 import { useNavigate } from '@tanstack/react-router';
 import { useTranslation } from 'react-i18next';
+import { motion } from 'motion/react';
 import {
   Pencil,
   PlayCircle,
@@ -291,49 +293,64 @@ export const PumpCard: React.FC<PumpCardProps> = ({ pump }) => {
   );
 
   return (
-    <Card className="h-full flex flex-col hover:shadow-lg transition-all duration-200">
-      <CardHeader className="bg-muted/30 border-b">
-        <div className="flex items-start justify-between gap-3">
-          <div className="flex-1 min-w-0">
-            <CardTitle className="text-lg truncate">{displayName}</CardTitle>
-            <div className="flex items-center gap-1.5 mt-1.5 text-sm text-muted-foreground">
-              {pumpTypeInfo.PumpTypeIcon}
-              <span>{pumpTypeInfo.printPumpType}</span>
-            </div>
-            {lastUpdate && (
-              <div className="text-xs text-muted-foreground/60 mt-1">
-                Updated {lastUpdate.toLocaleTimeString()}
+    <motion.div
+      whileHover={{ y: -4, scale: 1.02 }}
+      whileTap={{ scale: 0.98 }}
+      transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+      className="h-full"
+    >
+      <Card className="group h-full flex flex-col overflow-hidden border-border/50 hover:border-border hover:shadow-xl transition-all duration-300 p-0">
+        <CardHeader className="bg-gradient-to-br from-muted/50 to-accent/20 border-b relative p-4">
+          <div className="flex items-start justify-between gap-4">
+            <div className="flex-1 min-w-0">
+              <CardTitle className="text-lg sm:text-xl font-bold truncate mb-2">{displayName}</CardTitle>
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                {pumpTypeInfo.PumpTypeIcon}
+                <span className="font-medium">{pumpTypeInfo.printPumpType}</span>
               </div>
-            )}
-          </div>
-          <div className="flex flex-col items-end gap-2 flex-shrink-0">
-            <Button
-              onClick={() => navigate({ to: `/pumps/${pump.id}/edit` })}
-              variant="ghost"
-              size="icon-sm"
-              title={t('common.edit')}
-              className="-mr-2 -mt-1"
-            >
-              <Pencil className="h-4 w-4" />
-            </Button>
-            <div className="flex flex-col gap-1.5">
-              <Badge variant={stateInfo.pumpedUpState.variant}>
-                {stateInfo.pumpedUpState.label}
-              </Badge>
-              <Badge variant={stateInfo.pumpState.variant}>
-                {stateInfo.pumpState.label}
-              </Badge>
+              {lastUpdate && (
+                <div className="text-xs text-muted-foreground/60 mt-1.5">
+                  Updated {lastUpdate.toLocaleTimeString()}
+                </div>
+              )}
+            </div>
+            <div className="flex flex-col items-end gap-2 flex-shrink-0">
+              <Button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  navigate({ to: `/pumps/${pump.id}/edit` });
+                }}
+                variant="ghost"
+                size="icon-sm"
+                title={t('common.edit')}
+                className="hover:bg-background/80 backdrop-blur-sm transition-all"
+              >
+                <Pencil className="h-4 w-4" />
+              </Button>
+              <div className="flex flex-col gap-1.5">
+                <Badge 
+                  variant={stateInfo.pumpedUpState.variant}
+                  className="shadow-sm backdrop-blur-sm text-xs"
+                >
+                  {stateInfo.pumpedUpState.label}
+                </Badge>
+                <Badge 
+                  variant={stateInfo.pumpState.variant}
+                  className="shadow-sm backdrop-blur-sm text-xs"
+                >
+                  {stateInfo.pumpState.label}
+                </Badge>
+              </div>
             </div>
           </div>
-        </div>
-      </CardHeader>
+        </CardHeader>
 
-      <div className="flex-shrink-0">
+      <div className="flex-shrink-0 relative">
         {pumpJobState.runningState ? (
           <div className="relative w-full">
             <Progress value={30}>
               <ProgressTrack>
-                <ProgressIndicator />
+                <ProgressIndicator className="bg-gradient-to-r from-primary to-primary/80" />
               </ProgressTrack>
             </Progress>
             <div
@@ -354,26 +371,26 @@ export const PumpCard: React.FC<PumpCardProps> = ({ pump }) => {
         ) : (
           <Progress value={progressBar.value * 100}>
             <ProgressTrack>
-              <ProgressIndicator />
+              <ProgressIndicator className="transition-all duration-300" />
             </ProgressTrack>
           </Progress>
         )}
       </div>
 
-      <CardContent className="flex-1 flex flex-col gap-3">
-        <div className="space-y-2 text-sm">
-          <div className="flex items-center justify-between">
-            <span className="text-muted-foreground">
+      <CardContent className="flex-1 flex flex-col gap-4 p-4">
+        <div className="space-y-3 text-sm">
+          <div className="flex items-center justify-between p-3 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors">
+            <span className="text-muted-foreground font-medium">
               {t('pump_card.ingredient')}
             </span>
-            <span className="font-medium truncate ml-2">{printIngredient}</span>
+            <span className="font-semibold truncate ml-2 text-foreground">{printIngredient}</span>
           </div>
-          <div className="flex items-center justify-between">
-            <span className="text-muted-foreground">
+          <div className="flex items-center justify-between p-3 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors">
+            <span className="text-muted-foreground font-medium">
               {t('pump_card.filling_level')}
             </span>
             <span
-              className={`font-medium ${displayAttributes.fillingLevel.className}`}
+              className={`font-semibold ${displayAttributes.fillingLevel.className}`}
             >
               {displayAttributes.fillingLevel.label}
             </span>
@@ -381,45 +398,58 @@ export const PumpCard: React.FC<PumpCardProps> = ({ pump }) => {
         </div>
       </CardContent>
 
-      <CardFooter className="mt-auto border-t pt-4">
+      <CardFooter className="mt-auto border-t p-4 bg-muted/20">
         <div className="flex gap-2 ml-auto">
           {pump.canControlDirection && (
             <>
               <Button
-                onClick={() => onClickPumpUp(true)}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onClickPumpUp(true);
+                }}
                 disabled={!!pumpJobState.runningState || pumpDownBtnLoading}
                 variant="outline"
                 size="sm"
                 title={t('pump_card.pump_down')}
+                className="hover:bg-background transition-all"
               >
-                <CornerUpLeft />
+                <CornerUpLeft className="h-4 w-4" />
               </Button>
               <Button
-                onClick={() => onClickPumpUp(false)}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onClickPumpUp(false);
+                }}
                 disabled={!!pumpJobState.runningState || pumpUpBtnLoading}
                 variant="outline"
                 size="sm"
                 title={t('pump_card.pump_up')}
+                className="hover:bg-background transition-all"
               >
-                <CornerUpRight />
+                <CornerUpRight className="h-4 w-4" />
               </Button>
             </>
           )}
           <Button
-            onClick={onClickTurnOnOrOffPump}
+            onClick={(e) => {
+              e.stopPropagation();
+              onClickTurnOnOrOffPump();
+            }}
             disabled={runningBtnLoading}
-            variant="default"
+            variant={pumpJobState.runningState ? "destructive" : "default"}
             size="sm"
             title={
               pumpJobState.runningState
                 ? t('pump_card.stop')
                 : t('pump_card.start')
             }
+            className="shadow-sm"
           >
-            {pumpJobState.runningState ? <StopCircle /> : <PlayCircle />}
+            {pumpJobState.runningState ? <StopCircle className="h-4 w-4" /> : <PlayCircle className="h-4 w-4" />}
           </Button>
         </div>
       </CardFooter>
     </Card>
+    </motion.div>
   );
 };

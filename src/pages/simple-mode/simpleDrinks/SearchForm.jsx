@@ -1,5 +1,5 @@
 import React from 'react';
-import { Search } from 'lucide-react';
+import { Search, Loader2 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 
@@ -20,7 +20,7 @@ const SearchForm = React.memo(({ onSubmit, onInput, loading, value }) => (
         className="absolute right-2 top-1/2 -translate-y-1/2"
       >
         {loading ? (
-          <span className="loading loading-spinner loading-sm"></span>
+          <Loader2 className="w-5 h-5 animate-spin" />
         ) : (
           <Search className="w-5 h-5" />
         )}

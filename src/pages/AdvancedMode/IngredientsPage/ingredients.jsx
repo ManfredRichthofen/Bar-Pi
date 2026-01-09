@@ -209,9 +209,7 @@ const Ingredients = () => {
       key: 'group',
       render: (parentGroupId) => {
         const parentGroup = ingredients.find((ing) => ing.id === parentGroupId);
-        return parentGroup ? (
-          <div className="badge badge-primary">{parentGroup.name}</div>
-        ) : null;
+        return parentGroup ? <Badge>{parentGroup.name}</Badge> : null;
       },
     },
     {
@@ -324,7 +322,9 @@ const Ingredients = () => {
                 >
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-2">
-                      <h3 className="font-semibold text-base">{ingredient.name}</h3>
+                      <h3 className="font-semibold text-base">
+                        {ingredient.name}
+                      </h3>
                       {ingredient.inBar && (
                         <Badge variant="default" className="text-xs">
                           In Bar
@@ -333,10 +333,16 @@ const Ingredients = () => {
                     </div>
                     <div className="flex flex-wrap items-center gap-2">
                       <Badge
-                        variant={ingredient.type === 'automated' ? 'default' : 'secondary'}
+                        variant={
+                          ingredient.type === 'automated'
+                            ? 'default'
+                            : 'secondary'
+                        }
                         className="text-xs"
                       >
-                        {ingredient.type === 'automated' ? 'Automated' : 'Manual'}
+                        {ingredient.type === 'automated'
+                          ? 'Automated'
+                          : 'Manual'}
                       </Badge>
                       {parentGroup && (
                         <Badge variant="outline" className="text-xs">
@@ -413,7 +419,9 @@ const Ingredients = () => {
                   </Label>
                   <Select
                     value={watch('parentGroupId')?.toString() || ''}
-                    onValueChange={(value) => setValue('parentGroupId', value ? parseInt(value) : null)}
+                    onValueChange={(value) =>
+                      setValue('parentGroupId', value ? parseInt(value) : null)
+                    }
                   >
                     <SelectTrigger id="parentGroup">
                       <SelectValue placeholder="Select a group (optional)" />
@@ -423,7 +431,10 @@ const Ingredients = () => {
                       {ingredients
                         .filter((ing) => ing.type === 'group')
                         .map((group) => (
-                          <SelectItem key={group.id} value={group.id.toString()}>
+                          <SelectItem
+                            key={group.id}
+                            value={group.id.toString()}
+                          >
                             {group.name}
                           </SelectItem>
                         ))}
@@ -462,7 +473,10 @@ const Ingredients = () => {
                 ) : (
                   <label className="flex flex-col items-center justify-center w-40 h-40 border-2 border-dashed rounded-lg cursor-pointer hover:bg-accent hover:border-primary transition-all flex-shrink-0">
                     <div className="flex flex-col items-center justify-center p-4">
-                      <ImageIcon size={32} className="mb-2 text-muted-foreground" />
+                      <ImageIcon
+                        size={32}
+                        className="mb-2 text-muted-foreground"
+                      />
                       <p className="text-xs text-center text-muted-foreground">
                         <span className="font-semibold">Click to upload</span>
                         <br />
@@ -492,9 +506,14 @@ const Ingredients = () => {
                     <Checkbox
                       id="removeImage"
                       checked={watch('removeImage')}
-                      onCheckedChange={(checked) => setValue('removeImage', checked)}
+                      onCheckedChange={(checked) =>
+                        setValue('removeImage', checked)
+                      }
                     />
-                    <Label htmlFor="removeImage" className="text-sm font-normal cursor-pointer">
+                    <Label
+                      htmlFor="removeImage"
+                      className="text-sm font-normal cursor-pointer"
+                    >
                       Remove existing image
                     </Label>
                   </div>
@@ -507,7 +526,11 @@ const Ingredients = () => {
               <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
                 Ingredient Type
               </h3>
-              <Tabs value={watch('type')} onValueChange={(value) => setValue('type', value)} className="w-full">
+              <Tabs
+                value={watch('type')}
+                onValueChange={(value) => setValue('type', value)}
+                className="w-full"
+              >
                 <TabsList className="grid w-full grid-cols-2">
                   <TabsTrigger value="manual" className="gap-2">
                     <span>Manual</span>
@@ -532,8 +555,12 @@ const Ingredients = () => {
               {watch('type') === 'manual' ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="alcoholContent" className="text-sm font-medium">
-                      Alcohol Content (%) <span className="text-destructive">*</span>
+                    <Label
+                      htmlFor="alcoholContent"
+                      className="text-sm font-medium"
+                    >
+                      Alcohol Content (%){' '}
+                      <span className="text-destructive">*</span>
                     </Label>
                     <Input
                       id="alcoholContent"
@@ -575,8 +602,12 @@ const Ingredients = () => {
                 <div className="space-y-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label htmlFor="alcoholContentAuto" className="text-sm font-medium">
-                        Alcohol Content (%) <span className="text-destructive">*</span>
+                      <Label
+                        htmlFor="alcoholContentAuto"
+                        className="text-sm font-medium"
+                      >
+                        Alcohol Content (%){' '}
+                        <span className="text-destructive">*</span>
                       </Label>
                       <Input
                         id="alcoholContentAuto"
@@ -594,8 +625,12 @@ const Ingredients = () => {
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="bottleSize" className="text-sm font-medium">
-                        Bottle Size (ml) <span className="text-destructive">*</span>
+                      <Label
+                        htmlFor="bottleSize"
+                        className="text-sm font-medium"
+                      >
+                        Bottle Size (ml){' '}
+                        <span className="text-destructive">*</span>
                       </Label>
                       <Input
                         id="bottleSize"
@@ -612,8 +647,12 @@ const Ingredients = () => {
                     </div>
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="pumpTimeMultiplier" className="text-sm font-medium">
-                      Pump Time Multiplier <span className="text-destructive">*</span>
+                    <Label
+                      htmlFor="pumpTimeMultiplier"
+                      className="text-sm font-medium"
+                    >
+                      Pump Time Multiplier{' '}
+                      <span className="text-destructive">*</span>
                     </Label>
                     <Input
                       id="pumpTimeMultiplier"

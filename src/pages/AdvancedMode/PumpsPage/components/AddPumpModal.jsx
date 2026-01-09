@@ -24,10 +24,22 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from '@/components/ui/dialog';
 import { toast } from 'sonner';
 
 // Stepper Motor Icon Component
@@ -298,7 +310,12 @@ const AddPumpModal = ({ show, onClose, pumpType = null }) => {
                     <Label htmlFor="ingredient">Current Ingredient</Label>
                     <Select
                       value={watch('currentIngredientId')?.toString() || ''}
-                      onValueChange={(value) => setValue('currentIngredientId', value ? parseInt(value) : null)}
+                      onValueChange={(value) =>
+                        setValue(
+                          'currentIngredientId',
+                          value ? parseInt(value) : null,
+                        )
+                      }
                     >
                       <SelectTrigger id="ingredient">
                         <SelectValue placeholder="No ingredient assigned" />
@@ -306,7 +323,10 @@ const AddPumpModal = ({ show, onClose, pumpType = null }) => {
                       <SelectContent>
                         <SelectItem value="">No ingredient assigned</SelectItem>
                         {ingredients.map((ingredient) => (
-                          <SelectItem key={ingredient.id} value={ingredient.id.toString()}>
+                          <SelectItem
+                            key={ingredient.id}
+                            value={ingredient.id.toString()}
+                          >
                             {ingredient.name}
                           </SelectItem>
                         ))}
@@ -331,14 +351,22 @@ const AddPumpModal = ({ show, onClose, pumpType = null }) => {
                       <Label htmlFor="controlPin">Control Pin</Label>
                       <Select
                         value={watch('pin.boardId')?.toString() || ''}
-                        onValueChange={(value) => setValue('pin.boardId', value ? parseInt(value) : null)}
+                        onValueChange={(value) =>
+                          setValue(
+                            'pin.boardId',
+                            value ? parseInt(value) : null,
+                          )
+                        }
                       >
                         <SelectTrigger id="controlPin">
                           <SelectValue placeholder="Select board" />
                         </SelectTrigger>
                         <SelectContent>
                           {boards.map((board) => (
-                            <SelectItem key={board.id} value={board.id.toString()}>
+                            <SelectItem
+                              key={board.id}
+                              value={board.id.toString()}
+                            >
                               {board.name}
                             </SelectItem>
                           ))}
@@ -354,14 +382,22 @@ const AddPumpModal = ({ show, onClose, pumpType = null }) => {
                         <Label htmlFor="enablePin">Enable Pin</Label>
                         <Select
                           value={watch('enablePin.boardId')?.toString() || ''}
-                          onValueChange={(value) => setValue('enablePin.boardId', value ? parseInt(value) : null)}
+                          onValueChange={(value) =>
+                            setValue(
+                              'enablePin.boardId',
+                              value ? parseInt(value) : null,
+                            )
+                          }
                         >
                           <SelectTrigger id="enablePin">
                             <SelectValue placeholder="Select board" />
                           </SelectTrigger>
                           <SelectContent>
                             {boards.map((board) => (
-                              <SelectItem key={board.id} value={board.id.toString()}>
+                              <SelectItem
+                                key={board.id}
+                                value={board.id.toString()}
+                              >
                                 {board.name}
                               </SelectItem>
                             ))}
@@ -373,14 +409,22 @@ const AddPumpModal = ({ show, onClose, pumpType = null }) => {
                         <Label htmlFor="stepPin">Step Pin</Label>
                         <Select
                           value={watch('stepPin.boardId')?.toString() || ''}
-                          onValueChange={(value) => setValue('stepPin.boardId', value ? parseInt(value) : null)}
+                          onValueChange={(value) =>
+                            setValue(
+                              'stepPin.boardId',
+                              value ? parseInt(value) : null,
+                            )
+                          }
                         >
                           <SelectTrigger id="stepPin">
                             <SelectValue placeholder="Select board" />
                           </SelectTrigger>
                           <SelectContent>
                             {boards.map((board) => (
-                              <SelectItem key={board.id} value={board.id.toString()}>
+                              <SelectItem
+                                key={board.id}
+                                value={board.id.toString()}
+                              >
                                 {board.name}
                               </SelectItem>
                             ))}
@@ -395,7 +439,9 @@ const AddPumpModal = ({ show, onClose, pumpType = null }) => {
                     <Switch
                       id="powerState"
                       checked={watch('isPowerStateHigh')}
-                      onCheckedChange={(checked) => setValue('isPowerStateHigh', checked)}
+                      onCheckedChange={(checked) =>
+                        setValue('isPowerStateHigh', checked)
+                      }
                     />
                   </div>
                 </CardContent>
@@ -420,7 +466,9 @@ const AddPumpModal = ({ show, onClose, pumpType = null }) => {
                         min: { value: 1, message: 'Must be at least 1ms' },
                         required: 'Time per CL is required',
                       })}
-                      className={errors.timePerClInMs ? 'border-destructive' : ''}
+                      className={
+                        errors.timePerClInMs ? 'border-destructive' : ''
+                      }
                     />
                     {errors.timePerClInMs && (
                       <p className="text-sm text-destructive">
@@ -441,7 +489,9 @@ const AddPumpModal = ({ show, onClose, pumpType = null }) => {
                           {...register('acceleration', {
                             min: { value: 1, message: 'Must be at least 1' },
                           })}
-                          className={errors.acceleration ? 'border-destructive' : ''}
+                          className={
+                            errors.acceleration ? 'border-destructive' : ''
+                          }
                         />
                         {errors.acceleration && (
                           <p className="text-sm text-destructive">
@@ -459,7 +509,9 @@ const AddPumpModal = ({ show, onClose, pumpType = null }) => {
                           {...register('maxStepsPerSecond', {
                             min: { value: 1, message: 'Must be at least 1' },
                           })}
-                          className={errors.maxStepsPerSecond ? 'border-destructive' : ''}
+                          className={
+                            errors.maxStepsPerSecond ? 'border-destructive' : ''
+                          }
                         />
                         {errors.maxStepsPerSecond && (
                           <p className="text-sm text-destructive">
@@ -477,7 +529,9 @@ const AddPumpModal = ({ show, onClose, pumpType = null }) => {
                           {...register('stepsPerCl', {
                             min: { value: 1, message: 'Must be at least 1' },
                           })}
-                          className={errors.stepsPerCl ? 'border-destructive' : ''}
+                          className={
+                            errors.stepsPerCl ? 'border-destructive' : ''
+                          }
                         />
                         {errors.stepsPerCl && (
                           <p className="text-sm text-destructive">
@@ -509,7 +563,9 @@ const AddPumpModal = ({ show, onClose, pumpType = null }) => {
                         min: { value: 0, message: 'Must be at least 0' },
                         required: 'Tube capacity is required',
                       })}
-                      className={errors.tubeCapacityInMl ? 'border-destructive' : ''}
+                      className={
+                        errors.tubeCapacityInMl ? 'border-destructive' : ''
+                      }
                     />
                     {errors.tubeCapacityInMl && (
                       <p className="text-sm text-destructive">
@@ -527,7 +583,9 @@ const AddPumpModal = ({ show, onClose, pumpType = null }) => {
                       {...register('fillingLevelInMl', {
                         min: { value: 0, message: 'Must be at least 0' },
                       })}
-                      className={errors.fillingLevelInMl ? 'border-destructive' : ''}
+                      className={
+                        errors.fillingLevelInMl ? 'border-destructive' : ''
+                      }
                     />
                     {errors.fillingLevelInMl && (
                       <p className="text-sm text-destructive">
@@ -541,7 +599,9 @@ const AddPumpModal = ({ show, onClose, pumpType = null }) => {
                     <Switch
                       id="pumpedUp"
                       checked={watch('isPumpedUp')}
-                      onCheckedChange={(checked) => setValue('isPumpedUp', checked)}
+                      onCheckedChange={(checked) =>
+                        setValue('isPumpedUp', checked)
+                      }
                     />
                   </div>
                 </CardContent>
@@ -557,10 +617,7 @@ const AddPumpModal = ({ show, onClose, pumpType = null }) => {
               >
                 Cancel
               </Button>
-              <Button
-                type="submit"
-                disabled={saving}
-              >
+              <Button type="submit" disabled={saving}>
                 {saving ? (
                   <Loader2 className="h-4 w-4 animate-spin mr-2" />
                 ) : (
