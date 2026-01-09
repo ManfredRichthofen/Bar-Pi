@@ -17,7 +17,7 @@ import { toast } from 'sonner';
 
 const Recipes = ({ sidebarCollapsed = false }) => {
   const token = useAuthStore((state) => state.token);
-  const navigate = useNavigate();
+  const navigate = useNavigate({ from: '/recipes' });
   const favorites = useFavoritesStore((state) => state.favorites);
   const { toggleFavorite } = useFavoritesStore();
   const [recipes, setRecipes] = useState([]);

@@ -21,7 +21,7 @@ import { toast } from 'sonner';
 import { Loader2 } from 'lucide-react';
 
 const RecipeEditPage = () => {
-  const navigate = useNavigate();
+  const navigate = useNavigate({ from: '/recipes/$recipeId/edit' });
   const params = useParams({ strict: false });
   const recipeId = params?.recipeId;
   const token = useAuthStore((state) => state.token);

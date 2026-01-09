@@ -1,4 +1,4 @@
-import { useNavigate, useLocation } from '@tanstack/react-router';
+import { useLocation, useNavigate, Navigate } from '@tanstack/react-router';
 import { Beaker, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -28,23 +28,14 @@ interface Recipe {
 }
 
 const SimpleDrinkDetail = () => {
-  const navigate = useNavigate();
   const location = useLocation();
+  const navigate = useNavigate({ from: '/simple/drinks/$drinkId' });
   const recipe = (location.state as any)?.recipe as Recipe | undefined;
 
   // Redirect if no recipe data
   if (!recipe) {
-    navigate({ to: '/simple/drinks' });
-    return null;
+    return <Navigate to="/simple/drinks" />;
   }
-
-  const handleMakeDrink = () => {
-    navigate({ to: '/simple/order', state: { recipe } as any });
-  };
-
-  const handleBack = () => {
-    navigate({ to: '/simple/drinks' });
-  };
 
   return (
     <div className="min-h-screen bg-base-100 flex flex-col pb-20 sm:pb-0">
@@ -53,10 +44,10 @@ const SimpleDrinkDetail = () => {
         <div className="px-3 sm:px-4 py-3 sm:py-4 flex items-center justify-between">
           <Button
             type="button"
-            onClick={handleBack}
             variant="ghost"
             size="icon"
             className="rounded-xl transition-all duration-200"
+            onClick={() => navigate({ to: '/simple/drinks' })}
           >
             <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5" />
           </Button>
@@ -80,9 +71,9 @@ const SimpleDrinkDetail = () => {
           {/* Make Drink Button - Below Image */}
           <Button
             type="button"
-            onClick={handleMakeDrink}
             size="lg"
             className="w-full h-12 sm:h-14 gap-2 sm:gap-3 text-sm sm:text-base font-semibold shadow-lg hover:shadow-xl transition-all duration-200 active:scale-95"
+            onClick={() => navigate({ to: '/simple/order', state: { recipe } })}
           >
             <Beaker className="w-4 h-4 sm:w-5 sm:h-5" />
             Make Drink

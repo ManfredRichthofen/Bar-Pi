@@ -10,7 +10,7 @@ import GeneralSettings from './components/GeneralSettings';
 
 const SimpleSettings = () => {
   const { t, i18n } = useTranslation();
-  const navigate = useNavigate();
+  const navigate = useNavigate({ from: '/simple/settings' });
   const logoutUser = useAuthStore((state) => state.logoutUser);
   const setAdvancedMode = useUIModeStore((state) => state.setAdvancedMode);
 
@@ -27,9 +27,7 @@ const SimpleSettings = () => {
 
   const handleAdvancedModeSwitch = () => {
     setAdvancedMode(true);
-    setTimeout(() => {
-      navigate({ to: '/drinks', replace: true });
-    }, 0);
+    navigate({ to: '/drinks' });
   };
 
   const handleLogout = () => {
@@ -44,10 +42,10 @@ const SimpleSettings = () => {
         <div className="px-3 sm:px-4 py-3 sm:py-4 flex items-center justify-between">
           <Button
             type="button"
-            onClick={() => navigate({ to: '/simple/drinks' })}
             variant="ghost"
             size="icon"
             className="rounded-xl transition-all duration-200 shadow-sm"
+            onClick={() => navigate({ to: '/simple/drinks' })}
           >
             <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5" />
           </Button>

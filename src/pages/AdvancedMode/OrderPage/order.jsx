@@ -21,7 +21,7 @@ const Order = () => {
   const [amountToProduce, setAmountToProduce] = useState(null);
   const token = useAuthStore((state) => state.token);
   const location = useLocation();
-  const navigate = useNavigate();
+  const navigate = useNavigate({ from: '/order' });
   const recipe = location.state?.recipe;
   const [customizations, setCustomizations] = useState({
     boost: 100,

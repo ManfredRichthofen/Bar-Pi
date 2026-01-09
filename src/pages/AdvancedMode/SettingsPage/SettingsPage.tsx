@@ -28,7 +28,7 @@ import { Separator } from '@/components/ui/separator';
 
 export const SettingsPage: React.FC = () => {
   const { t, i18n } = useTranslation();
-  const navigate = useNavigate();
+  const navigate = useNavigate({ from: '/settings' });
   const logoutUser = useAuthStore((state) => state.logoutUser);
   const setAdvancedMode = useUIModeStore((state) => state.setAdvancedMode);
   const { theme, setTheme } = useThemeStore();

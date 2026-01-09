@@ -17,7 +17,7 @@ import { useLazyImage } from '@/hooks/useLazyImage';
 
 const DrinkCard = ({ recipe }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const navigate = useNavigate();
+  const navigate = useNavigate({ from: '/drinks' });
   const { toggleFavorite, isFavorite } = useFavoritesStore();
   const favorited = isFavorite(recipe.id);
   

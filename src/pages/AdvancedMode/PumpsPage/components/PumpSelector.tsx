@@ -43,7 +43,7 @@ export const PumpSelector: React.FC<PumpSelectorProps> = ({
   show,
   onClose,
 }) => {
-  const navigate = useNavigate();
+  const navigate = useNavigate({ from: '/pumps' });
   const token = useAuthStore((state) => state.token);
   const { t } = useTranslation();
   const [stepperLoading, setStepperLoading] = useState(false);

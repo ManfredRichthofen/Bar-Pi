@@ -16,7 +16,7 @@ import { Label } from '@/components/ui/label';
 
 const Login = () => {
   const { t } = useTranslation();
-  const navigate = useNavigate();
+  const navigate = useNavigate({ from: '/login' });
   const location = useLocation();
   const { loginUser, loading, error } = useAuthStore();
   const { apiBaseUrl, setApiBaseUrl } = useConfigStore();

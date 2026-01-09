@@ -56,7 +56,7 @@ interface PumpCardProps {
 
 export const PumpCard: React.FC<PumpCardProps> = ({ pump }) => {
   const { t } = useTranslation();
-  const navigate = useNavigate();
+  const navigate = useNavigate({ from: '/pumps' });
   const token = useAuthStore((state) => state.token);
 
   const [pumpDownBtnLoading, setPumpDownBtnLoading] = useState(false);

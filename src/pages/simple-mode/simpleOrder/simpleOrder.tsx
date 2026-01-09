@@ -1,10 +1,9 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { BeakerIcon, ArrowLeft, Info } from 'lucide-react';
 import { Navigate, useLocation, useNavigate } from '@tanstack/react-router';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
-import { Confetti, type ConfettiRef } from '@/components/ui/confetti';
 import { Spinner } from '@/components/ui/spinner';
 import { BentoGrid } from '@/components/ui/bento-grid';
 import useAuthStore from '../../../store/authStore';
@@ -43,13 +42,12 @@ const SimpleOrder = () => {
   const [amountToProduce, setAmountToProduce] = useState<number | null>(null);
   const token = useAuthStore((state) => state.token);
   const location = useLocation();
-  const navigate = useNavigate();
+  const navigate = useNavigate({ from: '/simple/order' });
   const recipe = (location.state as any)?.recipe as Recipe | undefined;
   const [selectedGlass, setSelectedGlass] = useState<Glass | null>(null);
   const [boost, setBoost] = useState(100);
   const [ingredients, setIngredients] = useState<Ingredient[]>([]);
   const [additionalIngredients, setAdditionalIngredients] = useState<any[]>([]);
-  const confettiRef = useRef<ConfettiRef>(null);
 
   const showToast = (message: string, type = 'info') => {
     const toast = document.getElementById('toast-container');
@@ -134,17 +132,10 @@ const SimpleOrder = () => {
       await cocktailService.order(recipeId, orderConfig, false, token);
       showToast('Drink ordered successfully', 'success');
 
-      // Trigger confetti celebration
-      confettiRef.current?.fire({
-        particleCount: 100,
-        spread: 70,
-        origin: { y: 0.6 },
-      });
-
-      // Navigate after a short delay to show confetti
-      setTimeout(() => {
-        navigate({ to: '/simple/order-status' });
-      }, 1000);
+      // Navigate to order status using window.location.assign
+      // TanStack Router has a known bug causing infinite loops with navigate()
+      // See: https://github.com/TanStack/router/issues/2142
+      window.location.assign('/simple/order-status');
     } catch (error: any) {
       if (error.response?.data?.message) {
         console.error('Order failed:', error.response.data);
@@ -167,11 +158,11 @@ const SimpleOrder = () => {
     }
   };
 
-  const handleMakeDrink = () => {
+  const handleMakeDrink = useCallback(() => {
     if (!recipe) return;
     const orderConfig = getOrderConfig();
     orderDrink(recipe.id, orderConfig);
-  };
+  }, [recipe, amountToProduce, boost, additionalIngredients, token]);
 
   if (!token) return <Navigate to="/login" />;
   if (!recipe) return <Navigate to="/drinks" />;
@@ -191,13 +182,6 @@ const SimpleOrder = () => {
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      {/* Confetti Canvas */}
-      <Confetti
-        ref={confettiRef}
-        className="fixed inset-0 pointer-events-none z-50"
-        manualstart
-      />
-
       {/* Toast Container */}
       <div
         id="toast-container"
@@ -205,14 +189,14 @@ const SimpleOrder = () => {
       />
 
       {/* Header */}
-      <div className="sticky top-0 z-20 bg-background/95 backdrop-blur-md border-b border-border shadow-sm">
+      <div className="sticky top-0 z-20 bg-background/95 backdrop-blur-md border-b border-border shadow-sm pt-2">
         <div className="px-3 sm:px-4 py-3 sm:py-4 flex items-center justify-between">
           <Button
             type="button"
-            onClick={() => navigate({ to: '/simple/drinks' })}
             variant="ghost"
             size="icon"
             className="rounded-xl transition-all duration-200"
+            onClick={() => navigate({ to: '/simple/drinks' })}
           >
             <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5" />
           </Button>
@@ -266,8 +250,8 @@ const SimpleOrder = () => {
             )}
 
             {/* Make Drink Button - Prominent action card */}
-            <Card className="bg-gradient-to-br from-primary/10 to-primary/5 border-primary/20">
-              <CardContent className="p-4 sm:p-6 h-full flex flex-col justify-center">
+            <Card className="bg-gradient-to-br from-primary/10 to-primary/5 border-primary/20 hover:shadow-lg transition-shadow">
+              <CardContent className="p-4 sm:p-6 h-full flex flex-col justify-center gap-3">
                 <Button
                   type="button"
                   size="lg"
@@ -292,7 +276,7 @@ const SimpleOrder = () => {
             </Card>
 
             {/* Glass Selector Card */}
-            <Card className="md:col-span-2 lg:col-span-1">
+            <Card className="md:col-span-2 lg:col-span-1 hover:shadow-md transition-shadow">
               <CardContent className="p-4 sm:p-6">
                 <GlassSelector
                   selectedGlass={selectedGlass}
@@ -309,7 +293,7 @@ const SimpleOrder = () => {
             </Card>
 
             {/* Recipe Ingredients Card */}
-            <Card className="md:col-span-1">
+            <Card className="md:col-span-1 hover:shadow-md transition-shadow">
               <CardContent className="p-4 sm:p-6">
                 <div className="flex items-center gap-2 mb-4">
                   <BeakerIcon className="w-5 h-5 text-primary" />
@@ -338,7 +322,7 @@ const SimpleOrder = () => {
 
             {/* Required Ingredients Card */}
             {feasibilityResult?.requiredIngredients && (
-              <Card className="md:col-span-1">
+              <Card className="md:col-span-1 hover:shadow-md transition-shadow">
                 <CardContent className="p-4 sm:p-6">
                   <div className="flex items-center gap-2 mb-4">
                     <Info className="w-5 h-5 text-primary" />

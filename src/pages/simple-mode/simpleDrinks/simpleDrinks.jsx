@@ -23,7 +23,7 @@ function SimpleDrinks() {
   const [fabricableRecipes, setFabricableRecipes] = useState(new Set());
 
   const filterPanelRef = useRef(null);
-  const navigate = useNavigate();
+  const navigate = useNavigate({ from: '/simple/drinks' });
   const token = useAuthStore((state) => state.token);
   const [showScrollTop, setShowScrollTop] = useState(false);
 

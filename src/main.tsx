@@ -10,6 +10,12 @@ import './i18n';
 // Import the generated route tree
 import { routeTree } from './routeTree.gen';
 
+// Save current route before page unload
+window.addEventListener('beforeunload', () => {
+  const currentPath = window.location.pathname + window.location.search;
+  localStorage.setItem('lastRoute', currentPath);
+});
+
 // Create a new router instance
 const router = createRouter({ routeTree });
 
@@ -27,6 +33,16 @@ const queryClient = new QueryClient({
 declare module '@tanstack/react-router' {
   interface Register {
     router: typeof router;
+  }
+}
+
+// Restore last route on page load
+const lastRoute = localStorage.getItem('lastRoute');
+if (lastRoute && lastRoute !== window.location.pathname + window.location.search) {
+  // Only restore if we're at root or a different path
+  const currentPath = window.location.pathname;
+  if (currentPath === '/' || currentPath === '') {
+    window.history.replaceState({}, '', lastRoute);
   }
 }
 

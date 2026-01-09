@@ -25,7 +25,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 
 const UserPage = () => {
-  const navigate = useNavigate();
+  const navigate = useNavigate({ from: '/users' });
   const [users, setUsers] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [formData, setFormData] = useState({

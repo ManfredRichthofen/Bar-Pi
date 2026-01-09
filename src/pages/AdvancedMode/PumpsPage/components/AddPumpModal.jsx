@@ -63,7 +63,7 @@ const StepperMotorIcon = ({ width = 24, height = 24, className = '' }) => (
 );
 
 const AddPumpModal = ({ show, onClose, pumpType = null }) => {
-  const navigate = useNavigate();
+  const navigate = useNavigate({ from: '/pumps' });
   const { t } = useTranslation();
   const token = useAuthStore((state) => state.token);
   const { addPump } = usePumpStore();

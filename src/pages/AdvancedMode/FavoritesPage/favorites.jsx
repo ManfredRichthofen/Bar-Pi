@@ -19,7 +19,7 @@ import {
 
 const Favorites = ({ sidebarCollapsed = false }) => {
   const token = useAuthStore((state) => state.token);
-  const navigate = useNavigate();
+  const navigate = useNavigate({ from: '/favorites' });
   const { favorites, removeFavorite, clearFavorites } = useFavoritesStore();
   const [showClearConfirm, setShowClearConfirm] = useState(false);
 

@@ -13,7 +13,7 @@ import { Collapsible } from '@/components/ui/collapsible';
 
 export const PumpStatus: React.FC = () => {
   const { t } = useTranslation();
-  const navigate = useNavigate();
+  const navigate = useNavigate({ from: '/pumps' });
   const token = useAuthStore((state) => state.token);
   const pumps = usePumpStore((state) => state.pumps);
 

@@ -24,7 +24,7 @@ import { toast } from 'sonner';
 
 const ReversePumping = () => {
   const { t } = useTranslation();
-  const navigate = useNavigate();
+  const navigate = useNavigate({ from: '/reversepumpsettings' });
   const token = useAuthStore((state) => state.token);
 
   const {
