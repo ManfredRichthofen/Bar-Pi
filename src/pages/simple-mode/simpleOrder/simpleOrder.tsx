@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { BeakerIcon, ArrowLeft, Info } from 'lucide-react';
-import { Navigate, useLocation, useNavigate } from '@tanstack/react-router';
+import { useLocation, useNavigate } from '@tanstack/react-router';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
@@ -164,8 +164,16 @@ const SimpleOrder = () => {
     orderDrink(recipe.id, orderConfig);
   }, [recipe, amountToProduce, boost, additionalIngredients, token]);
 
-  if (!token) return <Navigate to="/login" />;
-  if (!recipe) return <Navigate to="/drinks" />;
+  // Handle redirects in useEffect to prevent infinite loops
+  useEffect(() => {
+    if (!token) {
+      navigate({ to: '/login' });
+    } else if (!recipe) {
+      navigate({ to: '/drinks' });
+    }
+  }, [token, recipe, navigate]);
+
+  if (!token || !recipe) return null;
 
   const canOrderDrink =
     feasibilityResult?.feasible &&

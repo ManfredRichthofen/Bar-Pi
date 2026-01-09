@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { BeakerIcon, XCircle, PlayCircle } from 'lucide-react';
-import { Navigate, useLocation, useNavigate } from '@tanstack/react-router';
+import { useLocation, useNavigate } from '@tanstack/react-router';
 import useAuthStore from '../../../store/authStore';
 import cocktailService from '../../../services/cocktail.service';
 import DrinkCustomizer from './components/DrinkCustomizer';
@@ -140,8 +140,16 @@ const Order = () => {
     setAmountToProduce(value);
   };
 
-  if (!token) return <Navigate to="/login" />;
-  if (!recipe) return <Navigate to="/drinks" />;
+  // Handle redirects in useEffect to prevent infinite loops
+  useEffect(() => {
+    if (!token) {
+      navigate({ to: '/login' });
+    } else if (!recipe) {
+      navigate({ to: '/drinks' });
+    }
+  }, [token, recipe, navigate]);
+
+  if (!token || !recipe) return null;
 
   const canOrderDrink =
     feasibilityResult?.feasible &&
