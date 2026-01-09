@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { Spinner } from '@/components/ui/spinner';
 import { BentoGrid } from '@/components/ui/bento-grid';
+import { toast } from 'sonner';
 import useAuthStore from '../../../store/authStore';
 import cocktailService from '../../../services/cocktail.service';
 import GlassSelector from './components/GlassSelector';
@@ -40,25 +41,15 @@ const SimpleOrder = () => {
   const [checking, setChecking] = useState(false);
   const [feasibilityResult, setFeasibilityResult] = useState<any>(null);
   const [amountToProduce, setAmountToProduce] = useState<number | null>(null);
+  const [hasOrdered, setHasOrdered] = useState(false);
   const token = useAuthStore((state) => state.token);
   const location = useLocation();
-  const navigate = useNavigate({ from: '/simple/order' });
+  const navigate = useNavigate();
   const recipe = (location.state as any)?.recipe as Recipe | undefined;
   const [selectedGlass, setSelectedGlass] = useState<Glass | null>(null);
   const [boost, setBoost] = useState(100);
   const [ingredients, setIngredients] = useState<Ingredient[]>([]);
   const [additionalIngredients, setAdditionalIngredients] = useState<any[]>([]);
-
-  const showToast = (message: string, type = 'info') => {
-    const toast = document.getElementById('toast-container');
-    if (toast) {
-      const alert = document.createElement('div');
-      alert.className = `alert ${type === 'error' ? 'alert-error' : type === 'success' ? 'alert-success' : 'alert-info'} whitespace-normal break-words`;
-      alert.innerHTML = `<span class="text-sm">${message}</span>`;
-      toast.appendChild(alert);
-      setTimeout(() => alert.remove(), 3000);
-    }
-  };
 
   useEffect(() => {
     if (recipe) {
@@ -103,7 +94,7 @@ const SimpleOrder = () => {
       return result;
     } catch (error: any) {
       console.error('Feasibility check failed:', error.response?.data || error);
-      showToast('Failed to check drink feasibility', 'error');
+      toast.error('Failed to check drink feasibility');
       return false;
     } finally {
       setChecking(false);
@@ -120,38 +111,37 @@ const SimpleOrder = () => {
     try {
       const isFeasible = await checkFeasibility(recipeId, orderConfig);
       if (!isFeasible?.feasible) {
-        showToast('This drink cannot be made at the moment', 'error');
+        toast.error('This drink cannot be made at the moment');
         return;
       }
 
       if (!areAllIngredientsAvailable(isFeasible.requiredIngredients)) {
-        showToast('Some ingredients are missing or insufficient', 'error');
+        toast.error('Some ingredients are missing or insufficient');
         return;
       }
 
       await cocktailService.order(recipeId, orderConfig, false, token);
-      showToast('Drink ordered successfully', 'success');
+      toast.success('Drink ordered successfully');
 
-      // Navigate to order status using window.location.assign
-      // TanStack Router has a known bug causing infinite loops with navigate()
-      // See: https://github.com/TanStack/router/issues/2142
-      window.location.assign('/simple/order-status');
+      // Set flag to prevent redirect
+      setHasOrdered(true);
+
+      // Navigate to order status page
+      navigate({ to: '/simple/order-status' });
     } catch (error: any) {
       if (error.response?.data?.message) {
         console.error('Order failed:', error.response.data);
         if (
           error.response.data.message.includes('pumps are currently occupied')
         ) {
-          showToast(
-            'Some pumps are currently occupied - please wait for the current drink to finish',
-            'error',
+          toast.error(
+            'Some pumps are currently occupied - please wait for the current drink to finish'
           );
         } else {
-          showToast(error.response.data.message, 'error');
+          toast.error(error.response.data.message);
         }
       } else {
-        console.error('Order failed:', error);
-        showToast('Failed to order drink', 'error');
+        toast.error('Failed to order drink');
       }
     } finally {
       setLoading(false);
@@ -166,12 +156,14 @@ const SimpleOrder = () => {
 
   // Handle redirects in useEffect to prevent infinite loops
   useEffect(() => {
+    if (hasOrdered) return; // Don't redirect after successful order
+    
     if (!token) {
       navigate({ to: '/login' });
     } else if (!recipe) {
       navigate({ to: '/drinks' });
     }
-  }, [token, recipe, navigate]);
+  }, [token, recipe, navigate, hasOrdered]);
 
   if (!token || !recipe) return null;
 
@@ -190,12 +182,6 @@ const SimpleOrder = () => {
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      {/* Toast Container */}
-      <div
-        id="toast-container"
-        className="toast toast-end z-50 w-[min(400px,90vw)] p-4"
-      />
-
       {/* Header */}
       <div className="sticky top-0 z-20 bg-background/95 backdrop-blur-md border-b border-border shadow-sm pt-2">
         <div className="px-3 sm:px-4 py-3 sm:py-4 flex items-center justify-between">

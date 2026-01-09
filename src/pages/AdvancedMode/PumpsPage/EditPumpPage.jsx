@@ -148,14 +148,6 @@ const EditPumpPage = () => {
     loadPumpData();
   }, [pumpId, token, setValue]);
 
-  // Show toast notification
-  const showToast = (message, type = 'success') => {
-    if (type === 'success') {
-      toast.success(message);
-    } else {
-      toast.error(message);
-    }
-  };
 
   // Handle form submission
   const onSubmit = async (data) => {
@@ -178,7 +170,7 @@ const EditPumpPage = () => {
       updatePump(pumpId, updatedPump);
 
       setSuccess('Pump updated successfully');
-      showToast('Pump updated successfully', 'success');
+      toast.success('Pump updated successfully');
 
       // Navigate back after a short delay
       setTimeout(() => {
@@ -187,7 +179,7 @@ const EditPumpPage = () => {
     } catch (err) {
       console.error('Error updating pump:', err);
       setError('Failed to update pump');
-      showToast('Failed to update pump', 'error');
+      toast.error('Failed to update pump');
     } finally {
       setSaving(false);
     }
@@ -214,14 +206,14 @@ const EditPumpPage = () => {
       // Update local store
       removePump(pumpId);
 
-      showToast('Pump deleted successfully', 'success');
+      toast.success('Pump deleted successfully');
 
       // Navigate back
       navigate({ to: '/pumps' });
     } catch (err) {
       console.error('Error deleting pump:', err);
       setError('Failed to delete pump');
-      showToast('Failed to delete pump', 'error');
+      toast.error('Failed to delete pump');
     } finally {
       setDeleting(false);
     }

@@ -149,13 +149,6 @@ const ReversePumping = () => {
       .finally(() => setLoading(false));
   }, [token, setValue]);
 
-  const showToast = (message, type = 'success') => {
-    if (type === 'success') {
-      toast.success(message);
-    } else {
-      toast.error(message);
-    }
-  };
 
   const onSubmit = (formData) => {
     if (!token) return;
@@ -165,13 +158,13 @@ const ReversePumping = () => {
     PumpSettingsService.setReversePumpSettings(formData, token)
       .then(() => {
         setSuccess('Settings updated successfully');
-        showToast('Settings updated successfully', 'success');
+        toast.success('Settings updated successfully');
         setTimeout(() => navigate({ to: '/pumps' }), 1000);
       })
       .catch((err) => {
         console.error('Failed to save reverse pump settings:', err);
         setError('Failed to save settings');
-        showToast('Failed to save settings', 'error');
+        toast.error('Failed to save settings');
       })
       .finally(() => setSaving(false));
   };

@@ -13,7 +13,7 @@ const SimpleOrderStatus = () => {
   const [confirming, setConfirming] = useState(false);
   const [canceling, setCanceling] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const navigate = useNavigate({ from: '/simple/order-status' });
+  const navigate = useNavigate();
 
   const progress = useCocktailProgressStore((state) => state.progress);
   const token = useAuthStore((state) => state.token);
@@ -30,7 +30,7 @@ const SimpleOrderStatus = () => {
 
     const timer = setTimeout(() => {
       setIsLoading(false);
-    }, 3000);
+    }, 10000); // Wait 10 seconds for WebSocket to receive progress
 
     return () => clearTimeout(timer);
   }, [progress]);
