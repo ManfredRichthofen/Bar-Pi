@@ -29,7 +29,7 @@ interface Recipe {
 
 const SimpleDrinkDetail = () => {
   const location = useLocation();
-  const navigate = useNavigate({ from: '/simple/drinks/$drinkId' });
+  const navigate = useNavigate({ from: '/simple/drink/$id' });
   const recipe = (location.state as any)?.recipe as Recipe | undefined;
 
   // Redirect if no recipe data
@@ -73,7 +73,7 @@ const SimpleDrinkDetail = () => {
             type="button"
             size="lg"
             className="w-full h-12 sm:h-14 gap-2 sm:gap-3 text-sm sm:text-base font-semibold shadow-lg hover:shadow-xl transition-all duration-200 active:scale-95"
-            onClick={() => navigate({ to: '/simple/order', state: { recipe } })}
+            onClick={() => navigate({ to: '/simple/order' } as any)}
           >
             <Beaker className="w-4 h-4 sm:w-5 sm:h-5" />
             Make Drink
