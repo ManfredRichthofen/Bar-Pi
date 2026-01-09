@@ -15,6 +15,7 @@ import {
   Timer,
   Package,
   TestTube,
+  Loader2,
 } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import useAuthStore from '../../../store/authStore';
@@ -22,6 +23,20 @@ import { usePumpStore } from '../../../store/pumpStore';
 import PumpService from '../../../services/pump.service';
 import IngredientService from '../../../services/ingredient.service';
 import GpioService from '../../../services/gpio.service';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Switch } from '@/components/ui/switch';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { toast } from 'sonner';
 
 // Stepper Motor Icon Component
 const StepperMotorIcon = ({ width = 24, height = 24, className = '' }) => (
@@ -135,47 +150,11 @@ const EditPumpPage = () => {
 
   // Show toast notification
   const showToast = (message, type = 'success') => {
-    const toastContainer = document.createElement('div');
-    toastContainer.className = 'toast toast-top toast-end z-50';
-
-    const alert = document.createElement('div');
-    alert.className = `alert ${type === 'success' ? 'alert-success' : 'alert-error'}`;
-
-    const content = document.createElement('div');
-    content.className = 'flex items-center gap-2';
-
-    const icon = document.createElement('span');
     if (type === 'success') {
-      icon.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-				<path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
-			</svg>`;
+      toast.success(message);
     } else {
-      icon.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-				<path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
-			</svg>`;
+      toast.error(message);
     }
-
-    const text = document.createElement('span');
-    text.textContent = message;
-
-    content.appendChild(icon);
-    content.appendChild(text);
-    alert.appendChild(content);
-    toastContainer.appendChild(alert);
-    document.body.appendChild(toastContainer);
-
-    setTimeout(() => {
-      toastContainer.style.opacity = '1';
-      toastContainer.style.transform = 'translateY(0)';
-    }, 100);
-
-    setTimeout(() => {
-      toastContainer.style.opacity = '0';
-      toastContainer.style.transform = 'translateY(-1rem)';
-      setTimeout(() => {
-        document.body.removeChild(toastContainer);
-      }, 300);
-    }, 3000);
   };
 
   // Handle form submission
@@ -278,51 +257,49 @@ const EditPumpPage = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-base-100 flex items-center justify-center">
-        <div className="loading loading-spinner loading-lg text-primary"></div>
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin" />
       </div>
     );
   }
 
   if (!pump) {
     return (
-      <div className="min-h-screen bg-base-100 flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
-          <AlertCircle className="h-12 w-12 text-error mx-auto mb-4" />
+          <AlertCircle className="h-12 w-12 text-destructive mx-auto mb-4" />
           <h2 className="text-xl font-semibold mb-2">Pump Not Found</h2>
-          <p className="text-base-content/70 mb-4">
+          <p className="text-muted-foreground mb-4">
             The pump you're looking for doesn't exist.
           </p>
-          <button
-            className="btn btn-primary"
-            onClick={() => navigate({ to: '/pumps' })}
-          >
+          <Button onClick={() => navigate({ to: '/pumps' })}>
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back to Pumps
-          </button>
+          </Button>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-base-100">
+    <div className="min-h-screen bg-background">
       {/* Header */}
-      <div className="sticky top-0 z-10 bg-base-100/95 backdrop-blur-md border-b border-base-200 shadow-sm">
+      <div className="sticky top-0 z-10 bg-background border-b shadow-sm pt-2">
         <div className="px-4 sm:px-6 py-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div className="flex items-center gap-3">
-            <button
+            <Button
               onClick={() => navigate({ to: '/pumps' })}
-              className="btn btn-ghost btn-sm"
+              variant="ghost"
+              size="sm"
               title="Back to Pumps"
             >
               <ArrowLeft className="h-4 w-4" />
-            </button>
+            </Button>
             <div>
-              <h1 className="text-xl sm:text-2xl font-bold text-base-content break-words">
+              <h1 className="text-xl sm:text-2xl font-bold break-words">
                 Edit Pump
               </h1>
-              <p className="text-sm text-base-content/70 flex items-center gap-2">
+              <p className="text-sm text-muted-foreground flex items-center gap-2">
                 {getPumpTypeIcon(pump.type)}
                 {getPumpTypeName(pump.type)}
                 {pump.name && (
@@ -336,49 +313,45 @@ const EditPumpPage = () => {
           </div>
 
           <div className="flex gap-2 flex-shrink-0">
-            <button
+            <Button
               type="button"
-              className="btn btn-error btn-sm"
+              variant="destructive"
+              size="sm"
               onClick={handleDelete}
               disabled={deleting}
             >
               {deleting ? (
-                <div className="loading loading-spinner loading-xs"></div>
+                <Loader2 className="h-4 w-4 animate-spin" />
               ) : (
                 <Trash2 className="h-4 w-4" />
               )}
               <span className="hidden sm:inline ml-2">Delete</span>
-            </button>
-            <button
-              type="submit"
-              form="pump-form"
-              className="btn btn-primary btn-sm"
-              disabled={saving}
-            >
+            </Button>
+            <Button type="submit" form="pump-form" size="sm" disabled={saving}>
               {saving ? (
-                <div className="loading loading-spinner loading-xs"></div>
+                <Loader2 className="h-4 w-4 animate-spin" />
               ) : (
                 <Save className="h-4 w-4" />
               )}
               <span className="hidden sm:inline ml-2">Save</span>
-            </button>
+            </Button>
           </div>
         </div>
       </div>
 
       {/* Success/Error Messages */}
       {success && (
-        <div className="alert alert-success mx-4 mt-4 shadow-lg">
-          <CheckCircle className="h-6 w-6 shrink-0" />
-          <span className="font-medium break-words">{success}</span>
-        </div>
+        <Alert className="mx-4 mt-4">
+          <CheckCircle className="h-4 w-4" />
+          <AlertDescription>{success}</AlertDescription>
+        </Alert>
       )}
 
       {error && (
-        <div className="alert alert-error mx-4 mt-4 shadow-lg">
-          <AlertCircle className="h-6 w-6 shrink-0" />
-          <span className="font-medium break-words">{error}</span>
-        </div>
+        <Alert variant="destructive" className="mx-4 mt-4">
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
       )}
 
       {/* Main Content */}
@@ -390,344 +363,358 @@ const EditPumpPage = () => {
         >
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Basic Information */}
-            <div className="card bg-base-200 shadow-lg">
-              <div className="card-body">
-                <h2 className="card-title text-lg mb-4">Basic Information</h2>
-
-                <div className="form-control">
-                  <label className="label">
-                    <span className="label-text font-medium">Pump Name</span>
-                  </label>
-                  <input
+            <Card>
+              <CardHeader>
+                <CardTitle>Basic Information</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="name">Pump Name</Label>
+                  <Input
+                    id="name"
                     type="text"
-                    className={`input input-bordered w-full ${errors.name ? 'input-error' : ''}`}
                     placeholder="Enter pump name"
                     {...register('name', { required: 'Pump name is required' })}
+                    className={errors.name ? 'border-destructive' : ''}
                   />
                   {errors.name && (
-                    <label className="label">
-                      <span className="label-text-alt text-error">
-                        {errors.name.message}
-                      </span>
-                    </label>
+                    <p className="text-sm text-destructive">
+                      {errors.name.message}
+                    </p>
                   )}
                 </div>
 
-                <div className="form-control">
-                  <label className="label">
-                    <span className="label-text font-medium">Pump Type</span>
-                  </label>
-                  <select
-                    className="select select-bordered w-full"
-                    {...register('type')}
+                <div className="space-y-2">
+                  <Label htmlFor="type">Pump Type</Label>
+                  <Select
+                    value={watch('type')}
+                    onValueChange={(value) => setValue('type', value)}
                   >
-                    <option value="dc">DC Pump</option>
-                    <option value="stepper">Stepper Motor</option>
-                    <option value="valve">Control Valve</option>
-                  </select>
+                    <SelectTrigger id="type">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="dc">DC Pump</SelectItem>
+                      <SelectItem value="stepper">Stepper Motor</SelectItem>
+                      <SelectItem value="valve">Control Valve</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
 
-                <div className="form-control">
-                  <label className="label">
-                    <span className="label-text font-medium">
-                      Current Ingredient
-                    </span>
-                  </label>
-                  <select
-                    className="select select-bordered w-full"
-                    {...register('currentIngredientId')}
+                <div className="space-y-2">
+                  <Label htmlFor="ingredient">Current Ingredient</Label>
+                  <Select
+                    value={watch('currentIngredientId')?.toString() || ''}
+                    onValueChange={(value) =>
+                      setValue(
+                        'currentIngredientId',
+                        value ? parseInt(value) : null,
+                      )
+                    }
                   >
-                    <option value="">No ingredient assigned</option>
-                    {ingredients.map((ingredient) => (
-                      <option key={ingredient.id} value={ingredient.id}>
-                        {ingredient.name}
-                      </option>
-                    ))}
-                  </select>
+                    <SelectTrigger id="ingredient">
+                      <SelectValue placeholder="No ingredient assigned" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="">No ingredient assigned</SelectItem>
+                      {ingredients.map((ingredient) => (
+                        <SelectItem
+                          key={ingredient.id}
+                          value={ingredient.id.toString()}
+                        >
+                          {ingredient.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
-              </div>
-            </div>
+              </CardContent>
+            </Card>
 
             {/* Hardware Configuration */}
-            <div className="card bg-base-200 shadow-lg">
-              <div className="card-body">
-                <h2 className="card-title text-lg mb-4 flex items-center gap-2">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
                   <Zap className="h-5 w-5" />
                   Hardware Configuration
-                </h2>
-
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
                 {/* DC Pump / Valve Pin */}
                 {(pumpType === 'dc' || pumpType === 'valve') && (
-                  <div className="form-control">
-                    <label className="label">
-                      <span className="label-text font-medium">
-                        Control Pin
-                      </span>
-                    </label>
-                    <select
-                      className="select select-bordered w-full"
-                      {...register('pin.boardId')}
+                  <div className="space-y-2">
+                    <Label htmlFor="controlPin">Control Pin</Label>
+                    <Select
+                      value={watch('pin.boardId')?.toString() || ''}
+                      onValueChange={(value) =>
+                        setValue('pin.boardId', value ? parseInt(value) : null)
+                      }
                     >
-                      <option value="">Select board</option>
-                      {boards.map((board) => (
-                        <option key={board.id} value={board.id}>
-                          {board.name}
-                        </option>
-                      ))}
-                    </select>
+                      <SelectTrigger id="controlPin">
+                        <SelectValue placeholder="Select board" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {boards.map((board) => (
+                          <SelectItem
+                            key={board.id}
+                            value={board.id.toString()}
+                          >
+                            {board.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
                 )}
 
                 {/* Stepper Motor Pins */}
                 {pumpType === 'stepper' && (
                   <>
-                    <div className="form-control">
-                      <label className="label">
-                        <span className="label-text font-medium">
-                          Enable Pin
-                        </span>
-                      </label>
-                      <select
-                        className="select select-bordered w-full"
-                        {...register('enablePin.boardId')}
+                    <div className="space-y-2">
+                      <Label htmlFor="enablePin">Enable Pin</Label>
+                      <Select
+                        value={watch('enablePin.boardId')?.toString() || ''}
+                        onValueChange={(value) =>
+                          setValue(
+                            'enablePin.boardId',
+                            value ? parseInt(value) : null,
+                          )
+                        }
                       >
-                        <option value="">Select board</option>
-                        {boards.map((board) => (
-                          <option key={board.id} value={board.id}>
-                            {board.name}
-                          </option>
-                        ))}
-                      </select>
+                        <SelectTrigger id="enablePin">
+                          <SelectValue placeholder="Select board" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {boards.map((board) => (
+                            <SelectItem
+                              key={board.id}
+                              value={board.id.toString()}
+                            >
+                              {board.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                     </div>
 
-                    <div className="form-control">
-                      <label className="label">
-                        <span className="label-text font-medium">Step Pin</span>
-                      </label>
-                      <select
-                        className="select select-bordered w-full"
-                        {...register('stepPin.boardId')}
+                    <div className="space-y-2">
+                      <Label htmlFor="stepPin">Step Pin</Label>
+                      <Select
+                        value={watch('stepPin.boardId')?.toString() || ''}
+                        onValueChange={(value) =>
+                          setValue(
+                            'stepPin.boardId',
+                            value ? parseInt(value) : null,
+                          )
+                        }
                       >
-                        <option value="">Select board</option>
-                        {boards.map((board) => (
-                          <option key={board.id} value={board.id}>
-                            {board.name}
-                          </option>
-                        ))}
-                      </select>
+                        <SelectTrigger id="stepPin">
+                          <SelectValue placeholder="Select board" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {boards.map((board) => (
+                            <SelectItem
+                              key={board.id}
+                              value={board.id.toString()}
+                            >
+                              {board.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                     </div>
                   </>
                 )}
 
-                <div className="form-control">
-                  <label className="label cursor-pointer">
-                    <span className="label-text font-medium">
-                      Power State High
-                    </span>
-                    <input
-                      type="checkbox"
-                      className="toggle toggle-primary"
-                      {...register('isPowerStateHigh')}
-                    />
-                  </label>
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="powerState">Power State High</Label>
+                  <Switch
+                    id="powerState"
+                    checked={watch('isPowerStateHigh')}
+                    onCheckedChange={(checked) =>
+                      setValue('isPowerStateHigh', checked)
+                    }
+                  />
                 </div>
-              </div>
-            </div>
+              </CardContent>
+            </Card>
 
             {/* Timing Configuration */}
-            <div className="card bg-base-200 shadow-lg">
-              <div className="card-body">
-                <h2 className="card-title text-lg mb-4 flex items-center gap-2">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
                   <Timer className="h-5 w-5" />
                   Timing Configuration
-                </h2>
-
-                <div className="form-control">
-                  <label className="label">
-                    <span className="label-text font-medium">
-                      Time per CL (ms)
-                    </span>
-                  </label>
-                  <input
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="timePerCl">Time per CL (ms)</Label>
+                  <Input
+                    id="timePerCl"
                     type="number"
-                    className="input input-bordered w-full"
                     placeholder="1000"
                     {...register('timePerClInMs', {
                       min: { value: 1, message: 'Must be at least 1ms' },
                       required: 'Time per CL is required',
                     })}
+                    className={errors.timePerClInMs ? 'border-destructive' : ''}
                   />
                   {errors.timePerClInMs && (
-                    <label className="label">
-                      <span className="label-text-alt text-error">
-                        {errors.timePerClInMs.message}
-                      </span>
-                    </label>
+                    <p className="text-sm text-destructive">
+                      {errors.timePerClInMs.message}
+                    </p>
                   )}
                 </div>
 
                 {/* Stepper-specific timing */}
                 {pumpType === 'stepper' && (
                   <>
-                    <div className="form-control">
-                      <label className="label">
-                        <span className="label-text font-medium">
-                          Acceleration
-                        </span>
-                      </label>
-                      <input
+                    <div className="space-y-2">
+                      <Label htmlFor="acceleration">Acceleration</Label>
+                      <Input
+                        id="acceleration"
                         type="number"
-                        className="input input-bordered w-full"
                         placeholder="1000"
                         {...register('acceleration', {
                           min: { value: 1, message: 'Must be at least 1' },
                         })}
+                        className={
+                          errors.acceleration ? 'border-destructive' : ''
+                        }
                       />
                       {errors.acceleration && (
-                        <label className="label">
-                          <span className="label-text-alt text-error">
-                            {errors.acceleration.message}
-                          </span>
-                        </label>
+                        <p className="text-sm text-destructive">
+                          {errors.acceleration.message}
+                        </p>
                       )}
                     </div>
 
-                    <div className="form-control">
-                      <label className="label">
-                        <span className="label-text font-medium">
-                          Max Steps per Second
-                        </span>
-                      </label>
-                      <input
+                    <div className="space-y-2">
+                      <Label htmlFor="maxSteps">Max Steps per Second</Label>
+                      <Input
+                        id="maxSteps"
                         type="number"
-                        className="input input-bordered w-full"
                         placeholder="2000"
                         {...register('maxStepsPerSecond', {
                           min: { value: 1, message: 'Must be at least 1' },
                         })}
+                        className={
+                          errors.maxStepsPerSecond ? 'border-destructive' : ''
+                        }
                       />
                       {errors.maxStepsPerSecond && (
-                        <label className="label">
-                          <span className="label-text-alt text-error">
-                            {errors.maxStepsPerSecond.message}
-                          </span>
-                        </label>
+                        <p className="text-sm text-destructive">
+                          {errors.maxStepsPerSecond.message}
+                        </p>
                       )}
                     </div>
 
-                    <div className="form-control">
-                      <label className="label">
-                        <span className="label-text font-medium">
-                          Steps per CL
-                        </span>
-                      </label>
-                      <input
+                    <div className="space-y-2">
+                      <Label htmlFor="stepsPerCl">Steps per CL</Label>
+                      <Input
+                        id="stepsPerCl"
                         type="number"
-                        className="input input-bordered w-full"
                         placeholder="100"
                         {...register('stepsPerCl', {
                           min: { value: 1, message: 'Must be at least 1' },
                         })}
+                        className={
+                          errors.stepsPerCl ? 'border-destructive' : ''
+                        }
                       />
                       {errors.stepsPerCl && (
-                        <label className="label">
-                          <span className="label-text-alt text-error">
-                            {errors.stepsPerCl.message}
-                          </span>
-                        </label>
+                        <p className="text-sm text-destructive">
+                          {errors.stepsPerCl.message}
+                        </p>
                       )}
                     </div>
                   </>
                 )}
-              </div>
-            </div>
+              </CardContent>
+            </Card>
 
             {/* Capacity Configuration */}
-            <div className="card bg-base-200 shadow-lg">
-              <div className="card-body">
-                <h2 className="card-title text-lg mb-4 flex items-center gap-2">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
                   <Package className="h-5 w-5" />
                   Capacity Configuration
-                </h2>
-
-                <div className="form-control">
-                  <label className="label">
-                    <span className="label-text font-medium">
-                      Tube Capacity (ml)
-                    </span>
-                  </label>
-                  <input
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="tubeCapacity">Tube Capacity (ml)</Label>
+                  <Input
+                    id="tubeCapacity"
                     type="number"
-                    className="input input-bordered w-full"
                     placeholder="100"
                     {...register('tubeCapacityInMl', {
                       min: { value: 0, message: 'Must be at least 0' },
                       required: 'Tube capacity is required',
                     })}
+                    className={
+                      errors.tubeCapacityInMl ? 'border-destructive' : ''
+                    }
                   />
                   {errors.tubeCapacityInMl && (
-                    <label className="label">
-                      <span className="label-text-alt text-error">
-                        {errors.tubeCapacityInMl.message}
-                      </span>
-                    </label>
+                    <p className="text-sm text-destructive">
+                      {errors.tubeCapacityInMl.message}
+                    </p>
                   )}
                 </div>
 
-                <div className="form-control">
-                  <label className="label">
-                    <span className="label-text font-medium">
-                      Filling Level (ml)
-                    </span>
-                  </label>
-                  <input
+                <div className="space-y-2">
+                  <Label htmlFor="fillingLevel">Filling Level (ml)</Label>
+                  <Input
+                    id="fillingLevel"
                     type="number"
-                    className="input input-bordered w-full"
                     placeholder="0"
                     {...register('fillingLevelInMl', {
                       min: { value: 0, message: 'Must be at least 0' },
                     })}
+                    className={
+                      errors.fillingLevelInMl ? 'border-destructive' : ''
+                    }
                   />
                   {errors.fillingLevelInMl && (
-                    <label className="label">
-                      <span className="label-text-alt text-error">
-                        {errors.fillingLevelInMl.message}
-                      </span>
-                    </label>
+                    <p className="text-sm text-destructive">
+                      {errors.fillingLevelInMl.message}
+                    </p>
                   )}
                 </div>
 
-                <div className="form-control">
-                  <label className="label cursor-pointer">
-                    <span className="label-text font-medium">Pumped Up</span>
-                    <input
-                      type="checkbox"
-                      className="toggle toggle-primary"
-                      {...register('isPumpedUp')}
-                    />
-                  </label>
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="pumpedUp">Pumped Up</Label>
+                  <Switch
+                    id="pumpedUp"
+                    checked={watch('isPumpedUp')}
+                    onCheckedChange={(checked) =>
+                      setValue('isPumpedUp', checked)
+                    }
+                  />
                 </div>
-              </div>
-            </div>
+              </CardContent>
+            </Card>
           </div>
 
           {/* Action Buttons */}
-          <div className="flex justify-end gap-4 pt-6 border-t border-base-300">
-            <button
+          <div className="flex justify-end gap-4 pt-6 border-t">
+            <Button
               type="button"
-              className="btn btn-ghost"
+              variant="outline"
               onClick={() => navigate({ to: '/pumps' })}
             >
               Cancel
-            </button>
-            <button type="submit" className="btn btn-primary" disabled={saving}>
+            </Button>
+            <Button type="submit" disabled={saving}>
               {saving ? (
-                <div className="loading loading-spinner loading-sm"></div>
+                <Loader2 className="h-4 w-4 animate-spin mr-2" />
               ) : (
-                <Save className="h-4 w-4" />
+                <Save className="h-4 w-4 mr-2" />
               )}
-              <span className="ml-2">Save Changes</span>
-            </button>
+              Save Changes
+            </Button>
           </div>
         </form>
       </div>

@@ -49,6 +49,7 @@ class RecipeService {
     inCategoryId,
     orderBy,
     token,
+    includeImage = false,
   ) {
     validateApiUrl(); // Add validation check
 
@@ -62,7 +63,7 @@ class RecipeService {
       searchName,
       inCategory,
       orderBy,
-      includeImage: true,
+      includeImage,
     };
     params = JsUtils.cleanObject(params);
 
@@ -80,7 +81,7 @@ class RecipeService {
         if (response.data.content && response.data.content.length > 0) {
           const processedContent = await Promise.all(
             response.data.content.map(async (recipe) => {
-              if (recipe.hasImage) {
+              if (includeImage && recipe.hasImage) {
                 try {
                   const imageResponse = await axios.get(
                     `${API_PATH}${recipe.id}/image`,

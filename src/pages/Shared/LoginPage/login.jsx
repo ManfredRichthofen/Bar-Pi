@@ -8,7 +8,11 @@ import backgroundS from '../../../assets/login/background_s.jpg';
 import backgroundM from '../../../assets/login/background_m.jpg';
 import backgroundL from '../../../assets/login/background_l.jpg';
 import backgroundXL from '../../../assets/login/background_xl.jpg';
-import { User, KeyRound, Globe, XCircle, Settings } from 'lucide-react';
+import { User, KeyRound, Globe, Settings, Loader2 } from 'lucide-react';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Button } from '@/components/ui/button';
+import { Label } from '@/components/ui/label';
 
 const Login = () => {
   const { t } = useTranslation();
@@ -62,7 +66,7 @@ const Login = () => {
       />
 
       {/* Right Side - Login Form */}
-      <div className="w-full flex flex-col items-center justify-center bg-base-100 p-6">
+      <div className="w-full flex flex-col items-center justify-center bg-background p-6">
         <form
           name="login"
           onSubmit={(e) => {
@@ -77,45 +81,48 @@ const Login = () => {
           className="md:w-96 w-80 flex flex-col items-center justify-center"
         >
           {/* Logo */}
-          <div className="avatar mb-6">
-            <div className="w-16 rounded-full">
-              <img src={logoFull} alt="Logo" />
+          <div className="mb-6">
+            <div className="w-16 h-16 rounded-full overflow-hidden">
+              <img
+                src={logoFull}
+                alt="Logo"
+                className="w-full h-full object-cover"
+              />
             </div>
           </div>
 
           {/* Header */}
-          <h2 className="text-4xl text-base-content font-medium">
+          <h2 className="text-4xl font-medium">
             {t('login.headline_short') || 'Sign in'}
           </h2>
-          <p className="text-sm text-base-content/60 mt-3">
+          <p className="text-sm text-muted-foreground mt-3">
             {t('login.subtitle')}
           </p>
 
           {/* Error Alert */}
           {error && (
-            <div role="alert" className="alert alert-error w-full mt-6 text-sm">
-              <XCircle className="w-4 h-4 shrink-0" />
-              <span>{error}</span>
-            </div>
+            <Alert variant="destructive" className="w-full mt-6">
+              <AlertDescription className="text-sm">{error}</AlertDescription>
+            </Alert>
           )}
 
           {/* Divider */}
           <div className="flex items-center gap-4 w-full my-8">
-            <div className="w-full h-px bg-base-300"></div>
-            <p className="text-nowrap text-sm text-base-content/60">
+            <div className="w-full h-px bg-border"></div>
+            <p className="text-nowrap text-sm text-muted-foreground">
               {t('login.divider_text') || 'sign in with email'}
             </p>
-            <div className="w-full h-px bg-base-300"></div>
+            <div className="w-full h-px bg-border"></div>
           </div>
 
           {/* Username Input */}
-          <div className="flex items-center w-full bg-transparent border border-base-300 h-12 rounded-full overflow-hidden pl-6 gap-3 focus-within:border-primary transition-colors">
-            <User className="w-4 h-4 opacity-60" />
+          <div className="flex items-center w-full bg-transparent border h-12 rounded-full overflow-hidden pl-6 gap-3 focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2 transition-all">
+            <User className="w-4 h-4 text-muted-foreground" />
             <input
               type="text"
               name="username"
               placeholder={t('login.username_field_label')}
-              className="bg-transparent text-base-content placeholder:text-base-content/50 outline-none text-sm w-full h-full pr-6"
+              className="bg-transparent placeholder:text-muted-foreground outline-none text-sm w-full h-full pr-6"
               required
               autoComplete="username"
               autoCapitalize="none"
@@ -124,35 +131,33 @@ const Login = () => {
           </div>
 
           {/* Password Input */}
-          <div className="flex items-center mt-6 w-full bg-transparent border border-base-300 h-12 rounded-full overflow-hidden pl-6 gap-3 focus-within:border-primary transition-colors">
-            <KeyRound className="w-4 h-4 opacity-60" />
+          <div className="flex items-center mt-6 w-full bg-transparent border h-12 rounded-full overflow-hidden pl-6 gap-3 focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2 transition-all">
+            <KeyRound className="w-4 h-4 text-muted-foreground" />
             <input
               type="password"
               name="password"
               placeholder={t('login.password_field_label')}
-              className="bg-transparent text-base-content placeholder:text-base-content/50 outline-none text-sm w-full h-full pr-6"
+              className="bg-transparent placeholder:text-muted-foreground outline-none text-sm w-full h-full pr-6"
               required
               autoComplete="current-password"
             />
           </div>
 
           {/* Remember Me & Forgot Password */}
-          <div className="w-full flex items-center justify-between mt-8 text-base-content/70">
+          <div className="w-full flex items-center justify-between mt-8">
             <div className="flex items-center gap-2">
-              <input
-                className="checkbox checkbox-sm"
-                type="checkbox"
-                name="remember"
-                id="remember-checkbox"
-              />
-              <label
-                className="text-sm cursor-pointer"
+              <Checkbox id="remember-checkbox" name="remember" />
+              <Label
                 htmlFor="remember-checkbox"
+                className="text-sm cursor-pointer font-normal"
               >
                 {t('login.remember_me')}
-              </label>
+              </Label>
             </div>
-            <a className="text-sm hover:underline" href="/forgot-password">
+            <a
+              className="text-sm hover:underline text-muted-foreground"
+              href="/forgot-password"
+            >
               {t('login.forgot_password')}
             </a>
           </div>
@@ -160,8 +165,8 @@ const Login = () => {
           {/* Advanced Settings */}
           {showAdvanced && (
             <div className="w-full mt-6">
-              <div className="flex items-center w-full bg-transparent border border-base-300 h-12 rounded-full overflow-hidden pl-6 gap-3 focus-within:border-primary transition-colors">
-                <Globe className="w-4 h-4 opacity-60" />
+              <div className="flex items-center w-full bg-transparent border h-12 rounded-full overflow-hidden pl-6 gap-3 focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2 transition-all">
+                <Globe className="w-4 h-4 text-muted-foreground" />
                 <input
                   type="url"
                   name="apiBaseUrl"
@@ -173,47 +178,49 @@ const Login = () => {
                     }
                   }}
                   placeholder={`${t('login.api_url')} (${t('common.optional') || 'optional'})`}
-                  className="bg-transparent text-base-content placeholder:text-base-content/50 outline-none text-sm w-full h-full pr-6"
+                  className="bg-transparent placeholder:text-muted-foreground outline-none text-sm w-full h-full pr-6"
                   autoComplete="url"
                   inputMode="url"
                 />
               </div>
-              <p className="text-xs text-base-content/50 mt-2 px-6">
+              <p className="text-xs text-muted-foreground mt-2 px-6">
                 {t('login.api_url_help')}
               </p>
             </div>
           )}
 
-          <button
+          <Button
             type="button"
+            variant="ghost"
+            size="sm"
             onClick={() => setShowAdvanced(!showAdvanced)}
-            className="text-sm text-base-content/60 hover:text-base-content mt-4 flex items-center gap-1"
+            className="mt-4"
           >
-            <Settings className="w-3 h-3" />
+            <Settings className="w-3 h-3 mr-1" />
             {showAdvanced
               ? t('common.hide') || 'Hide'
               : t('common.show') || 'Show'}{' '}
             {t('login.advanced_settings')}
-          </button>
+          </Button>
 
           {/* Sign In Button */}
-          <button
+          <Button
             type="submit"
-            className="mt-8 w-full h-11 rounded-full text-white bg-primary hover:opacity-90 transition-opacity disabled:opacity-50 flex items-center justify-center gap-2"
+            className="mt-8 w-full h-11 rounded-full"
             disabled={loading}
           >
             {loading ? (
               <>
-                <span className="loading loading-spinner loading-sm"></span>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 {t('login.logging_in')}
               </>
             ) : (
               t('login.btn_label_short') || t('login.btn_label')
             )}
-          </button>
+          </Button>
 
           {/* Sign Up Link */}
-          <p className="text-base-content/60 text-sm mt-4">
+          <p className="text-muted-foreground text-sm mt-4">
             {t('login.no_account')}{' '}
             <a className="text-primary hover:underline" href="/register">
               {t('login.create_account_short') || t('login.create_account')}

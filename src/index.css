@@ -111,50 +111,7 @@
   --shadow-2xl: var(--shadow-2xl);
 }
 
-@plugin "daisyui" {
-  themes:
-    light --default,
-    dark --prefersdark,
-    "cupcake",
-    "bumblebee",
-    "emerald",
-    "corporate",
-    "synthwave",
-    "retro",
-    "cyberpunk",
-    "valentine",
-    "halloween",
-    "garden",
-    "forest",
-    "aqua",
-    "lofi",
-    "pastel",
-    "fantasy",
-    "wireframe",
-    "black",
-    "luxury",
-    "dracula",
-    "cmyk",
-    "autumn",
-    "business",
-    "acid",
-    "lemonade",
-    "night",
-    "coffee",
-    "winter",
-    "dim",
-    "nord",
-    "sunset";
-  root: ":root";
-}
-
 @plugin "tailwindcss-animate";
-
-[data-theme="dark"] {
-  .card {
-    background-color: oklch(25.33% 0.016 252.42);
-  }
-}
 
 @layer utilities {
   .scrollbar-thin {
@@ -170,12 +127,12 @@
   }
 
   .scrollbar-thin::-webkit-scrollbar-thumb {
-    background-color: hsl(var(--b3));
+    background-color: hsl(var(--muted-foreground) / 0.3);
     border-radius: 3px;
   }
 
   .scrollbar-thin::-webkit-scrollbar-thumb:hover {
-    background-color: hsl(var(--b3) / 0.8);
+    background-color: hsl(var(--muted-foreground) / 0.5);
   }
 
   /* Line clamp utilities for text truncation */

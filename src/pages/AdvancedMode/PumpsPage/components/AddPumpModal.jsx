@@ -12,6 +12,7 @@ import {
   Zap,
   Timer,
   Package,
+  Loader2,
 } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import useAuthStore from '../../../../store/authStore';
@@ -19,6 +20,27 @@ import { usePumpStore } from '../../../../store/pumpStore';
 import PumpService from '../../../../services/pump.service';
 import IngredientService from '../../../../services/ingredient.service';
 import GpioService from '../../../../services/gpio.service';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Switch } from '@/components/ui/switch';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from '@/components/ui/dialog';
+import { toast } from 'sonner';
 
 // Stepper Motor Icon Component
 const StepperMotorIcon = ({ width = 24, height = 24, className = '' }) => (
@@ -119,47 +141,11 @@ const AddPumpModal = ({ show, onClose, pumpType = null }) => {
 
   // Show toast notification
   const showToast = (message, type = 'success') => {
-    const toastContainer = document.createElement('div');
-    toastContainer.className = 'toast toast-top toast-end z-50';
-
-    const alert = document.createElement('div');
-    alert.className = `alert ${type === 'success' ? 'alert-success' : 'alert-error'}`;
-
-    const content = document.createElement('div');
-    content.className = 'flex items-center gap-2';
-
-    const icon = document.createElement('span');
     if (type === 'success') {
-      icon.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-				<path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
-			</svg>`;
+      toast.success(message);
     } else {
-      icon.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-				<path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
-			</svg>`;
+      toast.error(message);
     }
-
-    const text = document.createElement('span');
-    text.textContent = message;
-
-    content.appendChild(icon);
-    content.appendChild(text);
-    alert.appendChild(content);
-    toastContainer.appendChild(alert);
-    document.body.appendChild(toastContainer);
-
-    setTimeout(() => {
-      toastContainer.style.opacity = '1';
-      toastContainer.style.transform = 'translateY(0)';
-    }, 100);
-
-    setTimeout(() => {
-      toastContainer.style.opacity = '0';
-      toastContainer.style.transform = 'translateY(-1rem)';
-      setTimeout(() => {
-        document.body.removeChild(toastContainer);
-      }, 300);
-    }, 3000);
   };
 
   // Handle form submission
@@ -237,47 +223,39 @@ const AddPumpModal = ({ show, onClose, pumpType = null }) => {
   if (!show) return null;
 
   return (
-    <dialog open className="modal modal-open">
-      <div className="modal-box w-full max-w-4xl mx-4 sm:mx-auto max-h-[90vh] overflow-y-auto">
-        {/* Header */}
-        <div className="flex justify-between items-center mb-6">
+    <Dialog open={show} onOpenChange={(open) => !open && handleClose()}>
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
           <div className="flex items-center gap-3">
             {getPumpTypeIcon(pumpTypeValue)}
             <div>
-              <h3 className="text-lg sm:text-xl font-semibold">Add New Pump</h3>
-              <p className="text-sm text-base-content/70">
+              <DialogTitle>Add New Pump</DialogTitle>
+              <p className="text-sm text-muted-foreground">
                 {getPumpTypeName(pumpTypeValue)}
               </p>
             </div>
           </div>
-          <button
-            onClick={handleClose}
-            className="btn btn-ghost btn-sm btn-circle"
-            disabled={saving}
-          >
-            <X className="h-4 w-4" />
-          </button>
-        </div>
+        </DialogHeader>
 
         {/* Success/Error Messages */}
         {success && (
-          <div className="alert alert-success mb-4">
-            <CheckCircle className="h-5 w-5 shrink-0" />
-            <span className="font-medium break-words">{success}</span>
-          </div>
+          <Alert className="mb-4">
+            <CheckCircle className="h-4 w-4" />
+            <AlertDescription>{success}</AlertDescription>
+          </Alert>
         )}
 
         {error && (
-          <div className="alert alert-error mb-4">
-            <AlertCircle className="h-5 w-5 shrink-0" />
-            <span className="font-medium break-words">{error}</span>
-          </div>
+          <Alert variant="destructive" className="mb-4">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
         )}
 
         {/* Loading State */}
         {loading && (
           <div className="flex justify-center items-center py-8">
-            <div className="loading loading-spinner loading-lg text-primary"></div>
+            <Loader2 className="h-8 w-8 animate-spin" />
           </div>
         )}
 
@@ -286,365 +264,372 @@ const AddPumpModal = ({ show, onClose, pumpType = null }) => {
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {/* Basic Information */}
-              <div className="card bg-base-200 shadow-lg">
-                <div className="card-body">
-                  <h4 className="card-title text-base mb-4">
-                    Basic Information
-                  </h4>
-
-                  <div className="form-control">
-                    <label className="label">
-                      <span className="label-text font-medium">Pump Name</span>
-                    </label>
-                    <input
+              <Card>
+                <CardHeader>
+                  <CardTitle>Basic Information</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="name">Pump Name</Label>
+                    <Input
+                      id="name"
                       type="text"
-                      className={`input input-bordered w-full ${errors.name ? 'input-error' : ''}`}
                       placeholder="Enter pump name"
                       {...register('name', {
                         required: 'Pump name is required',
                       })}
+                      className={errors.name ? 'border-destructive' : ''}
                     />
                     {errors.name && (
-                      <label className="label">
-                        <span className="label-text-alt text-error">
-                          {errors.name.message}
-                        </span>
-                      </label>
+                      <p className="text-sm text-destructive">
+                        {errors.name.message}
+                      </p>
                     )}
                   </div>
 
                   {!pumpType && (
-                    <div className="form-control">
-                      <label className="label">
-                        <span className="label-text font-medium">
-                          Pump Type
-                        </span>
-                      </label>
-                      <select
-                        className="select select-bordered w-full"
-                        {...register('type')}
+                    <div className="space-y-2">
+                      <Label htmlFor="type">Pump Type</Label>
+                      <Select
+                        value={watch('type')}
+                        onValueChange={(value) => setValue('type', value)}
                       >
-                        <option value="dc">DC Pump</option>
-                        <option value="stepper">Stepper Motor</option>
-                        <option value="valve">Control Valve</option>
-                      </select>
+                        <SelectTrigger id="type">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="dc">DC Pump</SelectItem>
+                          <SelectItem value="stepper">Stepper Motor</SelectItem>
+                          <SelectItem value="valve">Control Valve</SelectItem>
+                        </SelectContent>
+                      </Select>
                     </div>
                   )}
 
-                  <div className="form-control">
-                    <label className="label">
-                      <span className="label-text font-medium">
-                        Current Ingredient
-                      </span>
-                    </label>
-                    <select
-                      className="select select-bordered w-full"
-                      {...register('currentIngredientId')}
+                  <div className="space-y-2">
+                    <Label htmlFor="ingredient">Current Ingredient</Label>
+                    <Select
+                      value={watch('currentIngredientId')?.toString() || ''}
+                      onValueChange={(value) =>
+                        setValue(
+                          'currentIngredientId',
+                          value ? parseInt(value) : null,
+                        )
+                      }
                     >
-                      <option value="">No ingredient assigned</option>
-                      {ingredients.map((ingredient) => (
-                        <option key={ingredient.id} value={ingredient.id}>
-                          {ingredient.name}
-                        </option>
-                      ))}
-                    </select>
+                      <SelectTrigger id="ingredient">
+                        <SelectValue placeholder="No ingredient assigned" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="">No ingredient assigned</SelectItem>
+                        {ingredients.map((ingredient) => (
+                          <SelectItem
+                            key={ingredient.id}
+                            value={ingredient.id.toString()}
+                          >
+                            {ingredient.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
-                </div>
-              </div>
+                </CardContent>
+              </Card>
 
               {/* Hardware Configuration */}
-              <div className="card bg-base-200 shadow-lg">
-                <div className="card-body">
-                  <h4 className="card-title text-base mb-4 flex items-center gap-2">
-                    <Zap className="h-4 w-4" />
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Zap className="h-5 w-5" />
                     Hardware Configuration
-                  </h4>
-
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
                   {/* DC Pump / Valve Pin */}
                   {(pumpTypeValue === 'dc' || pumpTypeValue === 'valve') && (
-                    <div className="form-control">
-                      <label className="label">
-                        <span className="label-text font-medium">
-                          Control Pin
-                        </span>
-                      </label>
-                      <select
-                        className="select select-bordered w-full"
-                        {...register('pin.boardId')}
+                    <div className="space-y-2">
+                      <Label htmlFor="controlPin">Control Pin</Label>
+                      <Select
+                        value={watch('pin.boardId')?.toString() || ''}
+                        onValueChange={(value) =>
+                          setValue(
+                            'pin.boardId',
+                            value ? parseInt(value) : null,
+                          )
+                        }
                       >
-                        <option value="">Select board</option>
-                        {boards.map((board) => (
-                          <option key={board.id} value={board.id}>
-                            {board.name}
-                          </option>
-                        ))}
-                      </select>
+                        <SelectTrigger id="controlPin">
+                          <SelectValue placeholder="Select board" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {boards.map((board) => (
+                            <SelectItem
+                              key={board.id}
+                              value={board.id.toString()}
+                            >
+                              {board.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                     </div>
                   )}
 
                   {/* Stepper Motor Pins */}
                   {pumpTypeValue === 'stepper' && (
                     <>
-                      <div className="form-control">
-                        <label className="label">
-                          <span className="label-text font-medium">
-                            Enable Pin
-                          </span>
-                        </label>
-                        <select
-                          className="select select-bordered w-full"
-                          {...register('enablePin.boardId')}
+                      <div className="space-y-2">
+                        <Label htmlFor="enablePin">Enable Pin</Label>
+                        <Select
+                          value={watch('enablePin.boardId')?.toString() || ''}
+                          onValueChange={(value) =>
+                            setValue(
+                              'enablePin.boardId',
+                              value ? parseInt(value) : null,
+                            )
+                          }
                         >
-                          <option value="">Select board</option>
-                          {boards.map((board) => (
-                            <option key={board.id} value={board.id}>
-                              {board.name}
-                            </option>
-                          ))}
-                        </select>
+                          <SelectTrigger id="enablePin">
+                            <SelectValue placeholder="Select board" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {boards.map((board) => (
+                              <SelectItem
+                                key={board.id}
+                                value={board.id.toString()}
+                              >
+                                {board.name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
                       </div>
 
-                      <div className="form-control">
-                        <label className="label">
-                          <span className="label-text font-medium">
-                            Step Pin
-                          </span>
-                        </label>
-                        <select
-                          className="select select-bordered w-full"
-                          {...register('stepPin.boardId')}
+                      <div className="space-y-2">
+                        <Label htmlFor="stepPin">Step Pin</Label>
+                        <Select
+                          value={watch('stepPin.boardId')?.toString() || ''}
+                          onValueChange={(value) =>
+                            setValue(
+                              'stepPin.boardId',
+                              value ? parseInt(value) : null,
+                            )
+                          }
                         >
-                          <option value="">Select board</option>
-                          {boards.map((board) => (
-                            <option key={board.id} value={board.id}>
-                              {board.name}
-                            </option>
-                          ))}
-                        </select>
+                          <SelectTrigger id="stepPin">
+                            <SelectValue placeholder="Select board" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {boards.map((board) => (
+                              <SelectItem
+                                key={board.id}
+                                value={board.id.toString()}
+                              >
+                                {board.name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
                       </div>
                     </>
                   )}
 
-                  <div className="form-control">
-                    <label className="label cursor-pointer">
-                      <span className="label-text font-medium">
-                        Power State High
-                      </span>
-                      <input
-                        type="checkbox"
-                        className="toggle toggle-primary"
-                        {...register('isPowerStateHigh')}
-                      />
-                    </label>
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="powerState">Power State High</Label>
+                    <Switch
+                      id="powerState"
+                      checked={watch('isPowerStateHigh')}
+                      onCheckedChange={(checked) =>
+                        setValue('isPowerStateHigh', checked)
+                      }
+                    />
                   </div>
-                </div>
-              </div>
+                </CardContent>
+              </Card>
 
               {/* Timing Configuration */}
-              <div className="card bg-base-200 shadow-lg">
-                <div className="card-body">
-                  <h4 className="card-title text-base mb-4 flex items-center gap-2">
-                    <Timer className="h-4 w-4" />
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Timer className="h-5 w-5" />
                     Timing Configuration
-                  </h4>
-
-                  <div className="form-control">
-                    <label className="label">
-                      <span className="label-text font-medium">
-                        Time per CL (ms)
-                      </span>
-                    </label>
-                    <input
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="timePerCl">Time per CL (ms)</Label>
+                    <Input
+                      id="timePerCl"
                       type="number"
-                      className="input input-bordered w-full"
                       placeholder="1000"
                       {...register('timePerClInMs', {
                         min: { value: 1, message: 'Must be at least 1ms' },
                         required: 'Time per CL is required',
                       })}
+                      className={
+                        errors.timePerClInMs ? 'border-destructive' : ''
+                      }
                     />
                     {errors.timePerClInMs && (
-                      <label className="label">
-                        <span className="label-text-alt text-error">
-                          {errors.timePerClInMs.message}
-                        </span>
-                      </label>
+                      <p className="text-sm text-destructive">
+                        {errors.timePerClInMs.message}
+                      </p>
                     )}
                   </div>
 
                   {/* Stepper-specific timing */}
                   {pumpTypeValue === 'stepper' && (
                     <>
-                      <div className="form-control">
-                        <label className="label">
-                          <span className="label-text font-medium">
-                            Acceleration
-                          </span>
-                        </label>
-                        <input
+                      <div className="space-y-2">
+                        <Label htmlFor="acceleration">Acceleration</Label>
+                        <Input
+                          id="acceleration"
                           type="number"
-                          className="input input-bordered w-full"
                           placeholder="1000"
                           {...register('acceleration', {
                             min: { value: 1, message: 'Must be at least 1' },
                           })}
+                          className={
+                            errors.acceleration ? 'border-destructive' : ''
+                          }
                         />
                         {errors.acceleration && (
-                          <label className="label">
-                            <span className="label-text-alt text-error">
-                              {errors.acceleration.message}
-                            </span>
-                          </label>
+                          <p className="text-sm text-destructive">
+                            {errors.acceleration.message}
+                          </p>
                         )}
                       </div>
 
-                      <div className="form-control">
-                        <label className="label">
-                          <span className="label-text font-medium">
-                            Max Steps per Second
-                          </span>
-                        </label>
-                        <input
+                      <div className="space-y-2">
+                        <Label htmlFor="maxSteps">Max Steps per Second</Label>
+                        <Input
+                          id="maxSteps"
                           type="number"
-                          className="input input-bordered w-full"
                           placeholder="2000"
                           {...register('maxStepsPerSecond', {
                             min: { value: 1, message: 'Must be at least 1' },
                           })}
+                          className={
+                            errors.maxStepsPerSecond ? 'border-destructive' : ''
+                          }
                         />
                         {errors.maxStepsPerSecond && (
-                          <label className="label">
-                            <span className="label-text-alt text-error">
-                              {errors.maxStepsPerSecond.message}
-                            </span>
-                          </label>
+                          <p className="text-sm text-destructive">
+                            {errors.maxStepsPerSecond.message}
+                          </p>
                         )}
                       </div>
 
-                      <div className="form-control">
-                        <label className="label">
-                          <span className="label-text font-medium">
-                            Steps per CL
-                          </span>
-                        </label>
-                        <input
+                      <div className="space-y-2">
+                        <Label htmlFor="stepsPerCl">Steps per CL</Label>
+                        <Input
+                          id="stepsPerCl"
                           type="number"
-                          className="input input-bordered w-full"
                           placeholder="100"
                           {...register('stepsPerCl', {
                             min: { value: 1, message: 'Must be at least 1' },
                           })}
+                          className={
+                            errors.stepsPerCl ? 'border-destructive' : ''
+                          }
                         />
                         {errors.stepsPerCl && (
-                          <label className="label">
-                            <span className="label-text-alt text-error">
-                              {errors.stepsPerCl.message}
-                            </span>
-                          </label>
+                          <p className="text-sm text-destructive">
+                            {errors.stepsPerCl.message}
+                          </p>
                         )}
                       </div>
                     </>
                   )}
-                </div>
-              </div>
+                </CardContent>
+              </Card>
 
               {/* Capacity Configuration */}
-              <div className="card bg-base-200 shadow-lg">
-                <div className="card-body">
-                  <h4 className="card-title text-base mb-4 flex items-center gap-2">
-                    <Package className="h-4 w-4" />
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Package className="h-5 w-5" />
                     Capacity Configuration
-                  </h4>
-
-                  <div className="form-control">
-                    <label className="label">
-                      <span className="label-text font-medium">
-                        Tube Capacity (ml)
-                      </span>
-                    </label>
-                    <input
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="tubeCapacity">Tube Capacity (ml)</Label>
+                    <Input
+                      id="tubeCapacity"
                       type="number"
-                      className="input input-bordered w-full"
                       placeholder="100"
                       {...register('tubeCapacityInMl', {
                         min: { value: 0, message: 'Must be at least 0' },
                         required: 'Tube capacity is required',
                       })}
+                      className={
+                        errors.tubeCapacityInMl ? 'border-destructive' : ''
+                      }
                     />
                     {errors.tubeCapacityInMl && (
-                      <label className="label">
-                        <span className="label-text-alt text-error">
-                          {errors.tubeCapacityInMl.message}
-                        </span>
-                      </label>
+                      <p className="text-sm text-destructive">
+                        {errors.tubeCapacityInMl.message}
+                      </p>
                     )}
                   </div>
 
-                  <div className="form-control">
-                    <label className="label">
-                      <span className="label-text font-medium">
-                        Filling Level (ml)
-                      </span>
-                    </label>
-                    <input
+                  <div className="space-y-2">
+                    <Label htmlFor="fillingLevel">Filling Level (ml)</Label>
+                    <Input
+                      id="fillingLevel"
                       type="number"
-                      className="input input-bordered w-full"
                       placeholder="0"
                       {...register('fillingLevelInMl', {
                         min: { value: 0, message: 'Must be at least 0' },
                       })}
+                      className={
+                        errors.fillingLevelInMl ? 'border-destructive' : ''
+                      }
                     />
                     {errors.fillingLevelInMl && (
-                      <label className="label">
-                        <span className="label-text-alt text-error">
-                          {errors.fillingLevelInMl.message}
-                        </span>
-                      </label>
+                      <p className="text-sm text-destructive">
+                        {errors.fillingLevelInMl.message}
+                      </p>
                     )}
                   </div>
 
-                  <div className="form-control">
-                    <label className="label cursor-pointer">
-                      <span className="label-text font-medium">Pumped Up</span>
-                      <input
-                        type="checkbox"
-                        className="toggle toggle-primary"
-                        {...register('isPumpedUp')}
-                      />
-                    </label>
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="pumpedUp">Pumped Up</Label>
+                    <Switch
+                      id="pumpedUp"
+                      checked={watch('isPumpedUp')}
+                      onCheckedChange={(checked) =>
+                        setValue('isPumpedUp', checked)
+                      }
+                    />
                   </div>
-                </div>
-              </div>
+                </CardContent>
+              </Card>
             </div>
 
-            {/* Action Buttons */}
-            <div className="flex justify-end gap-4 pt-6 border-t border-base-300">
-              <button
+            <DialogFooter className="pt-6 border-t">
+              <Button
                 type="button"
-                className="btn btn-ghost"
+                variant="outline"
                 onClick={handleClose}
                 disabled={saving}
               >
                 Cancel
-              </button>
-              <button
-                type="submit"
-                className="btn btn-primary"
-                disabled={saving}
-              >
+              </Button>
+              <Button type="submit" disabled={saving}>
                 {saving ? (
-                  <div className="loading loading-spinner loading-sm"></div>
+                  <Loader2 className="h-4 w-4 animate-spin mr-2" />
                 ) : (
-                  <Save className="h-4 w-4" />
+                  <Save className="h-4 w-4 mr-2" />
                 )}
-                <span className="ml-2">Create Pump</span>
-              </button>
-            </div>
+                Create Pump
+              </Button>
+            </DialogFooter>
           </form>
         )}
-      </div>
-      <div className="modal-backdrop" onClick={handleClose}></div>
-    </dialog>
+      </DialogContent>
+    </Dialog>
   );
 };
 

@@ -1,13 +1,31 @@
 import React, { useState } from 'react';
-import { BeakerIcon, PencilIcon, Heart } from 'lucide-react';
+import { BeakerIcon, PencilIcon, Heart, Loader2, GlassWater } from 'lucide-react';
 import { useNavigate } from '@tanstack/react-router';
+import { motion } from 'motion/react';
 import useFavoritesStore from '@/store/favoritesStore';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { useLazyImage } from '@/hooks/useLazyImage';
 
 const DrinkCard = ({ recipe }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const navigate = useNavigate();
   const { toggleFavorite, isFavorite } = useFavoritesStore();
   const favorited = isFavorite(recipe.id);
+  
+  // Lazy load image
+  const { imageUrl, loading: imageLoading, error: imageError, elementRef } = useLazyImage(
+    recipe.id,
+    recipe.hasImage
+  );
 
   const showModal = () => setIsModalOpen(true);
   const handleCancel = () => setIsModalOpen(false);
@@ -27,207 +45,254 @@ const DrinkCard = ({ recipe }) => {
     console.log('Edit recipe:', recipe.id);
   };
 
+  const ingredientCount = recipe.ingredients?.length || 0;
+
   return (
     <>
-      <div
-        onClick={showModal}
-        className="card bg-base-100 shadow-md hover:shadow-lg hover:-translate-y-1 transition-all duration-200 h-full cursor-pointer"
+      <motion.div
+        whileHover={{ y: -4, scale: 1.02 }}
+        whileTap={{ scale: 0.98 }}
+        transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+        className="h-full"
       >
-        <figure className="relative aspect-[4/3] sm:aspect-[16/9]">
-          {recipe.image ? (
-            <img
-              src={recipe.image}
-              alt={recipe.name}
-              className="w-full h-full object-cover"
-            />
-          ) : (
-            <div className="w-full h-full bg-base-200 flex items-center justify-center">
-              <span className="text-base-content/60 text-sm">
-                No image available
-              </span>
-            </div>
-          )}
-          {/* Favorite button */}
-          <div className="absolute top-2 right-2">
-            <button
-              type="button"
-              onClick={handleToggleFavorite}
-              className={`btn btn-circle btn-sm ${
-                favorited
-                  ? 'bg-error/90 hover:bg-error border-none text-error-content'
-                  : 'bg-base-100/90 hover:bg-base-100 border-base-300'
-              }`}
+        <Card
+          onClick={showModal}
+          className="group cursor-pointer h-full overflow-hidden border-border/50 hover:border-border hover:shadow-xl transition-all duration-300 p-0"
+        >
+          <div className="flex flex-col h-full">
+            {/* Image Section with Gradient Overlay */}
+            <div 
+              ref={elementRef}
+              className="relative aspect-[4/3] overflow-hidden bg-gradient-to-br from-muted to-accent flex-shrink-0"
             >
-              <Heart size={16} fill={favorited ? 'currentColor' : 'none'} />
-            </button>
-          </div>
-        </figure>
-
-        <div className="card-body p-3 sm:p-4">
-          <div className="flex items-center justify-between gap-2 mb-1 sm:mb-2">
-            <h3
-              className="card-title text-sm sm:text-base truncate"
-              title={recipe.name}
-            >
-              {recipe.name}
-            </h3>
-            {recipe.alcoholic && (
-              <div className="badge badge-error text-xs whitespace-nowrap">
-                Alcoholic
-              </div>
-            )}
-          </div>
-
-          {recipe.description && (
-            <p
-              className="text-base-content/70 mb-2 sm:mb-3 line-clamp-2 text-xs sm:text-sm"
-              title={recipe.description}
-            >
-              {recipe.description}
-            </p>
-          )}
-
-          <div className="mt-auto">
-            <p className="font-semibold text-xs mb-1">Ingredients:</p>
-            <ul className="space-y-0.5 text-xs">
-              {recipe.ingredients.map((ingredient, index) => (
-                <li
-                  key={index}
-                  className="truncate"
-                  title={`${ingredient.name} - ${ingredient.amount} ${ingredient.unit}`}
-                >
-                  • {ingredient.name} - {ingredient.amount} {ingredient.unit}
-                </li>
-              ))}
-            </ul>
-          </div>
-        </div>
-      </div>
-
-      {isModalOpen && (
-        <dialog open className="modal modal-open">
-          <div className="modal-box max-w-3xl mx-4">
-            <div className="flex flex-col sm:flex-row gap-4">
-              {recipe.image && (
-                <div className="w-full sm:w-1/2">
+              {imageLoading ? (
+                <div className="w-full h-full flex items-center justify-center">
+                  <Loader2 className="h-8 w-8 animate-spin text-muted-foreground/40" />
+                </div>
+              ) : imageUrl ? (
+                <>
                   <img
-                    className="w-full rounded-lg object-cover aspect-[4/3]"
-                    src={recipe.image}
+                    src={imageUrl}
                     alt={recipe.name}
+                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                   />
+                  {/* Gradient overlay for better text readability */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/0 to-black/0" />
+                </>
+              ) : (
+                <div className="w-full h-full flex flex-col items-center justify-center gap-2">
+                  <GlassWater className="h-12 w-12 text-muted-foreground/30" />
+                  <span className="text-muted-foreground/60 text-sm font-medium">
+                    {imageError ? 'Failed to load' : 'No image'}
+                  </span>
+                </div>
+              )}
+              
+              {/* Favorite Button */}
+              <div className="absolute top-3 right-3 z-10">
+                <Button
+                  type="button"
+                  size="icon"
+                  variant={favorited ? 'default' : 'secondary'}
+                  className={`h-9 w-9 rounded-full shadow-lg backdrop-blur-sm transition-all ${
+                    favorited 
+                      ? 'bg-destructive/90 hover:bg-destructive' 
+                      : 'bg-background/80 hover:bg-background'
+                  }`}
+                  onClick={handleToggleFavorite}
+                >
+                  <Heart
+                    className={`h-4 w-4 transition-all ${
+                      favorited ? 'fill-current scale-110' : ''
+                    }`}
+                  />
+                </Button>
+              </div>
+
+              {/* Alcoholic Badge */}
+              {recipe.alcoholic && (
+                <div className="absolute top-3 left-3 z-10">
+                  <Badge 
+                    variant="destructive" 
+                    className="text-xs font-semibold shadow-lg backdrop-blur-sm bg-destructive/90"
+                  >
+                    21+
+                  </Badge>
                 </div>
               )}
 
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center justify-between gap-2 mb-3">
-                  <h3 className="font-bold text-lg sm:text-xl truncate">
-                    {recipe.name}
-                  </h3>
-                  {recipe.alcoholic && (
-                    <div className="badge badge-error text-xs whitespace-nowrap">
-                      Alcoholic
-                    </div>
+              {/* Ingredient Count Badge */}
+              <div className="absolute bottom-3 right-3 z-10">
+                <Badge 
+                  variant="secondary" 
+                  className="text-xs font-medium shadow-lg backdrop-blur-sm bg-background/80"
+                >
+                  {ingredientCount} ingredient{ingredientCount !== 1 ? 's' : ''}
+                </Badge>
+              </div>
+            </div>
+
+            {/* Content Section */}
+            <CardContent className="flex flex-col flex-1 p-4">
+              {/* Title */}
+              <h3 className="text-base sm:text-lg font-bold text-foreground leading-tight mb-2 line-clamp-2 min-h-[2.5rem]">
+                {recipe.name}
+              </h3>
+
+              {/* Description */}
+              {recipe.description && (
+                <p className="text-sm text-muted-foreground line-clamp-2 mb-3 flex-1">
+                  {recipe.description}
+                </p>
+              )}
+
+              {/* Ingredients Preview */}
+              <div className="mt-auto pt-3 border-t border-border/50">
+                <div className="flex items-center gap-2 text-xs text-muted-foreground mb-2">
+                  <GlassWater className="h-3.5 w-3.5" />
+                  <span className="font-semibold">Top Ingredients</span>
+                </div>
+                <div className="flex flex-wrap gap-1.5">
+                  {recipe.ingredients.slice(0, 3).map((ingredient, index) => (
+                    <Badge
+                      key={index}
+                      variant="outline"
+                      className="text-xs font-normal"
+                    >
+                      {ingredient.name}
+                    </Badge>
+                  ))}
+                  {ingredientCount > 3 && (
+                    <Badge variant="outline" className="text-xs font-normal">
+                      +{ingredientCount - 3} more
+                    </Badge>
                   )}
                 </div>
+              </div>
+            </CardContent>
+          </div>
+        </Card>
+      </motion.div>
+      <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+        <DialogContent className="max-w-3xl">
+          <DialogHeader>
+            <div className="flex items-center justify-between gap-2">
+              <DialogTitle className="text-lg sm:text-xl">
+                {recipe.name}
+              </DialogTitle>
+              {recipe.alcoholic && (
+                <Badge
+                  variant="destructive"
+                  className="text-xs whitespace-nowrap"
+                >
+                  Alcoholic
+                </Badge>
+              )}
+            </div>
+          </DialogHeader>
 
-                {recipe.description && (
-                  <div className="mb-4 sm:mb-6">
-                    <h4 className="font-bold text-base sm:text-lg mb-2">
-                      Description
-                    </h4>
-                    <p className="text-sm sm:text-base">{recipe.description}</p>
+          <div className="flex flex-col sm:flex-row gap-4">
+            {(imageUrl || imageLoading) && (
+              <div className="w-full sm:w-1/2">
+                {imageLoading ? (
+                  <div className="w-full aspect-[4/3] rounded-lg bg-muted flex items-center justify-center">
+                    <Loader2 className="h-8 w-8 animate-spin text-muted-foreground/40" />
                   </div>
+                ) : (
+                  <img
+                    className="w-full rounded-lg object-cover aspect-[4/3]"
+                    src={imageUrl}
+                    alt={recipe.name}
+                  />
                 )}
+              </div>
+            )}
 
-                <div className="mb-4 sm:mb-6">
-                  <h4 className="font-bold text-base sm:text-lg mb-2">
-                    Ingredients
-                  </h4>
-                  <ul className="space-y-2">
-                    {recipe.ingredients.map((ingredient, index) => (
-                      <li key={index} className="text-sm sm:text-base">
-                        • {ingredient.name} - {ingredient.amount}{' '}
-                        {ingredient.unit}
+            <div className="flex-1 min-w-0">
+              {recipe.description && (
+                <div className="mb-4">
+                  <h4 className="font-bold text-base mb-2">Description</h4>
+                  <p className="text-sm">{recipe.description}</p>
+                </div>
+              )}
+
+              <div className="mb-4">
+                <h4 className="font-bold text-base mb-2">Ingredients</h4>
+                <ul className="space-y-1">
+                  {recipe.ingredients.map((ingredient, index) => (
+                    <li key={index} className="text-sm">
+                      • {ingredient.name} - {ingredient.amount}{' '}
+                      {ingredient.unit}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              {recipe.productionSteps && recipe.productionSteps.length > 0 && (
+                <div>
+                  <h4 className="font-bold text-base mb-2">Instructions</h4>
+                  <ul className="space-y-1">
+                    {recipe.productionSteps.map((step, index) => (
+                      <li key={index} className="text-sm">
+                        {step.type === 'writtenInstruction' ? (
+                          <span>
+                            {index + 1}. {step.message}
+                          </span>
+                        ) : (
+                          step.type === 'addIngredients' && (
+                            <span>
+                              {index + 1}. Add:{' '}
+                              {step.stepIngredients
+                                .map(
+                                  (si) =>
+                                    `${si.ingredient.name} (${si.amount} ${si.scale})`,
+                                )
+                                .join(', ')}
+                            </span>
+                          )
+                        )}
                       </li>
                     ))}
                   </ul>
                 </div>
-
-                {recipe.productionSteps &&
-                  recipe.productionSteps.length > 0 && (
-                    <div>
-                      <h4 className="font-bold text-base sm:text-lg mb-2">
-                        Instructions
-                      </h4>
-                      <ul className="space-y-2">
-                        {recipe.productionSteps.map((step, index) => (
-                          <li key={index} className="text-sm sm:text-base">
-                            {step.type === 'writtenInstruction' ? (
-                              <span>
-                                {index + 1}. {step.message}
-                              </span>
-                            ) : (
-                              step.type === 'addIngredients' && (
-                                <span>
-                                  {index + 1}. Add:{' '}
-                                  {step.stepIngredients
-                                    .map(
-                                      (si) =>
-                                        `${si.ingredient.name} (${si.amount} ${si.scale})`,
-                                    )
-                                    .join(', ')}
-                                </span>
-                              )
-                            )}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-              </div>
-            </div>
-
-            <div className="modal-action mt-4 flex-wrap gap-2">
-              <button
-                type="button"
-                className="btn btn-primary gap-2 flex-1 sm:flex-none"
-                onClick={handleMakeDrink}
-              >
-                <BeakerIcon size={16} />
-                Make Drink
-              </button>
-              <button
-                type="button"
-                className={`btn gap-2 flex-1 sm:flex-none ${
-                  favorited ? 'btn-error' : 'btn-ghost'
-                }`}
-                onClick={handleToggleFavorite}
-              >
-                <Heart size={16} fill={favorited ? 'currentColor' : 'none'} />
-                {favorited ? 'Unfavorite' : 'Favorite'}
-              </button>
-              <button
-                type="button"
-                className="btn gap-2 flex-1 sm:flex-none"
-                onClick={handleEditRecipe}
-              >
-                <PencilIcon size={16} />
-                Edit Recipe
-              </button>
-              <button
-                type="button"
-                className="btn w-full sm:w-auto"
-                onClick={handleCancel}
-              >
-                Close
-              </button>
+              )}
             </div>
           </div>
-          <form method="dialog" className="modal-backdrop">
-            <button onClick={handleCancel}>close</button>
-          </form>
-        </dialog>
-      )}
+
+          <DialogFooter className="flex-col sm:flex-row gap-2">
+            <Button onClick={handleMakeDrink} className="flex-1 sm:flex-none">
+              <BeakerIcon className="mr-2 h-4 w-4" />
+              Make Drink
+            </Button>
+            <Button
+              variant={favorited ? 'destructive' : 'outline'}
+              onClick={handleToggleFavorite}
+              className="flex-1 sm:flex-none"
+            >
+              <Heart
+                className="mr-2 h-4 w-4"
+                fill={favorited ? 'currentColor' : 'none'}
+              />
+              {favorited ? 'Unfavorite' : 'Favorite'}
+            </Button>
+            <Button
+              variant="outline"
+              onClick={handleEditRecipe}
+              className="flex-1 sm:flex-none"
+            >
+              <PencilIcon className="mr-2 h-4 w-4" />
+              Edit Recipe
+            </Button>
+            <Button
+              variant="outline"
+              onClick={handleCancel}
+              className="w-full sm:w-auto"
+            >
+              Close
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </>
   );
 };

@@ -1,6 +1,17 @@
 import { useState, useEffect } from 'react';
-import { GlassWater } from 'lucide-react';
+import { GlassWater, Loader2 } from 'lucide-react';
 import glassService from '../../../../services/glass.service';
+import { Button } from '@/components/ui/button';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { Badge } from '@/components/ui/badge';
+import { Label } from '@/components/ui/label';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 interface Glass {
   id: string;
@@ -59,17 +70,15 @@ const GlassSelector = ({
 
   if (loading) {
     return (
-      <div className="form-control w-full">
-        <div className="label">
-          <span className="label-text flex items-center gap-2 font-medium">
-            <GlassWater size={16} />
-            Glass Size
-          </span>
-        </div>
-        <div className="flex items-center gap-3 p-4 bg-base-100 rounded-lg border border-base-300">
-          <GlassWater size={20} className="text-base-content/40" />
-          <span className="loading loading-spinner loading-sm"></span>
-          <span className="text-base-content/60 text-sm sm:text-base">
+      <div className="w-full space-y-2">
+        <Label className="flex items-center gap-2">
+          <GlassWater size={16} />
+          Glass Size
+        </Label>
+        <div className="flex items-center gap-3 p-4 bg-card rounded-lg border">
+          <GlassWater size={20} className="text-muted-foreground" />
+          <Loader2 className="h-4 w-4 animate-spin" />
+          <span className="text-muted-foreground text-sm sm:text-base">
             Loading glass...
           </span>
         </div>
@@ -87,12 +96,13 @@ const GlassSelector = ({
 
   return (
     <>
-      <div className="form-control w-full">
+      <div className="w-full">
         {/* Selected Glass Display - Click to open modal */}
-        <button
+        <Button
           type="button"
+          variant="outline"
           onClick={() => setIsModalOpen(true)}
-          className="btn btn-outline w-full h-auto min-h-12 sm:min-h-14 justify-start text-left p-3 sm:p-4 hover:bg-base-200"
+          className="w-full h-auto min-h-12 sm:min-h-14 justify-start text-left p-3 sm:p-4"
         >
           {selectedGlass ? (
             <div className="flex items-center justify-between w-full gap-3">
@@ -102,110 +112,99 @@ const GlassSelector = ({
                   <div className="font-semibold text-sm sm:text-base truncate">
                     {selectedGlass.name}
                   </div>
-                  <div className="text-xs sm:text-sm text-base-content/70">
+                  <div className="text-xs sm:text-sm text-muted-foreground">
                     {selectedGlass.sizeInMl}ml capacity
                   </div>
                 </div>
               </div>
-              <div className="badge badge-primary badge-sm sm:badge-md shrink-0">
-                {selectedGlass.sizeInMl}ml
-              </div>
+              <Badge className="shrink-0">{selectedGlass.sizeInMl}ml</Badge>
             </div>
           ) : (
-            <div className="flex items-center gap-2 text-base-content/60">
+            <div className="flex items-center gap-2 text-muted-foreground">
               <GlassWater size={18} />
               <span className="text-sm sm:text-base">Select a glass</span>
             </div>
           )}
-        </button>
+        </Button>
       </div>
 
       {/* Modal for glass selection */}
-      <dialog className={`modal ${isModalOpen ? 'modal-open' : ''}`}>
-        <div className="modal-box max-w-2xl">
-          <h3 className="font-bold text-lg mb-4 flex items-center gap-2">
-            <GlassWater size={20} />
-            Select Glass Size
-          </h3>
+      <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <GlassWater size={20} />
+              Select Glass Size
+            </DialogTitle>
+          </DialogHeader>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-96 overflow-y-auto">
+          <RadioGroup
+            value={selectedGlass?.id}
+            onValueChange={(value) => {
+              const glass = glasses.find((g) => g.id === value);
+              if (glass) handleGlassSelect(glass);
+            }}
+            className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-96 overflow-y-auto"
+          >
             {glasses.map((glass) => (
-              <button
+              <label
                 key={glass.id}
-                type="button"
-                onClick={() => handleGlassSelect(glass)}
                 className={`
-                  card cursor-pointer transition-all duration-200 text-left
+                  cursor-pointer transition-all duration-200 rounded-lg border p-4
                   ${
                     selectedGlass?.id === glass.id
-                      ? 'bg-primary text-primary-content shadow-lg ring-2 ring-primary'
-                      : 'bg-base-100 hover:bg-base-200 border border-base-300 hover:border-primary/50'
+                      ? 'bg-primary text-primary-foreground shadow-lg ring-2 ring-primary'
+                      : 'bg-card hover:bg-accent hover:border-primary/50'
                   }
                 `}
               >
-                <div className="card-body p-4">
-                  <div className="flex items-start gap-3">
-                    <input
-                      type="radio"
-                      name="glass-modal-selector"
-                      className="radio radio-sm mt-1"
-                      checked={selectedGlass?.id === glass.id}
-                      readOnly
-                    />
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center justify-between gap-2 mb-1">
-                        <h4 className="font-semibold text-base truncate">
-                          {glass.name}
-                        </h4>
-                        <div
-                          className={`
-                          badge badge-sm shrink-0
-                          ${selectedGlass?.id === glass.id ? 'badge-primary-content' : 'badge-primary'}
-                        `}
-                        >
-                          {glass.sizeInMl}ml
-                        </div>
-                      </div>
-                      {glass.description && (
-                        <p
-                          className={`
-                          text-sm mt-1
-                          ${selectedGlass?.id === glass.id ? 'opacity-90' : 'text-base-content/70'}
-                        `}
-                        >
-                          {glass.description}
-                        </p>
-                      )}
+                <div className="flex items-start gap-3">
+                  <RadioGroupItem value={glass.id} className="mt-1" />
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between gap-2 mb-1">
+                      <h4 className="font-semibold text-base truncate">
+                        {glass.name}
+                      </h4>
+                      <Badge
+                        variant={
+                          selectedGlass?.id === glass.id
+                            ? 'secondary'
+                            : 'default'
+                        }
+                        className="shrink-0"
+                      >
+                        {glass.sizeInMl}ml
+                      </Badge>
                     </div>
+                    {glass.description && (
+                      <p className="text-sm mt-1 opacity-90">
+                        {glass.description}
+                      </p>
+                    )}
                   </div>
                 </div>
-              </button>
+              </label>
             ))}
-          </div>
+          </RadioGroup>
 
           {glasses.length === 0 && (
-            <div className="alert alert-warning">
-              <GlassWater className="w-5 h-5" />
-              <span>No glasses available</span>
-            </div>
+            <Alert>
+              <GlassWater className="w-4 h-4" />
+              <AlertDescription>No glasses available</AlertDescription>
+            </Alert>
           )}
 
-          <div className="modal-action">
-            <button
+          <div className="flex justify-end">
+            <Button
               type="button"
+              variant="outline"
               onClick={() => setIsModalOpen(false)}
-              className="btn btn-ghost"
             >
               Close
-            </button>
+            </Button>
           </div>
-        </div>
-        <form method="dialog" className="modal-backdrop">
-          <button type="button" onClick={() => setIsModalOpen(false)}>
-            close
-          </button>
-        </form>
-      </dialog>
+        </DialogContent>
+      </Dialog>
     </>
   );
 };

@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from '@tanstack/react-router';
 import {
@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import useAuthStore from '../../../store/authStore';
 import useUIModeStore from '../../../store/uiModeStore';
+import useThemeStore from '../../../store/themeStore';
 import UpdateChecker from '../../../components/UpdateChecker';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -30,16 +31,10 @@ export const SettingsPage: React.FC = () => {
   const navigate = useNavigate();
   const logoutUser = useAuthStore((state) => state.logoutUser);
   const setAdvancedMode = useUIModeStore((state) => state.setAdvancedMode);
+  const { theme, setTheme } = useThemeStore();
 
-  const [isDarkMode, setIsDarkMode] = React.useState(false);
   const [notifications, setNotifications] = React.useState(false);
   const [soundEffects, setSoundEffects] = React.useState(false);
-
-  useEffect(() => {
-    const currentTheme = localStorage.getItem('theme') || 'light';
-    setIsDarkMode(currentTheme === 'dark');
-    document.documentElement.classList.toggle('dark', currentTheme === 'dark');
-  }, []);
 
   const languages = [
     { code: 'en-US', name: 'English' },
@@ -55,11 +50,8 @@ export const SettingsPage: React.FC = () => {
   };
 
   const handleThemeToggle = (checked: boolean) => {
-    setIsDarkMode(checked);
-    const theme = checked ? 'dark' : 'light';
-    document.documentElement.classList.toggle('dark', checked);
-    document.documentElement.setAttribute('data-theme', theme);
-    localStorage.setItem('theme', theme);
+    const newTheme = checked ? 'dark' : 'light';
+    setTheme(newTheme);
   };
 
   const handleSimpleModeSwitch = () => {
@@ -196,7 +188,7 @@ export const SettingsPage: React.FC = () => {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                {isDarkMode ? (
+                {theme === 'dark' ? (
                   <Moon className="h-5 w-5" />
                 ) : (
                   <Sun className="h-5 w-5" />
@@ -207,24 +199,24 @@ export const SettingsPage: React.FC = () => {
             <CardContent>
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  {isDarkMode ? (
+                  {theme === 'dark' ? (
                     <Moon className="h-5 w-5 text-muted-foreground" />
                   ) : (
                     <Sun className="h-5 w-5 text-muted-foreground" />
                   )}
                   <div>
                     <p className="font-medium">
-                      {isDarkMode ? 'Dark Mode' : 'Light Mode'}
+                      {theme === 'dark' ? 'Dark Mode' : 'Light Mode'}
                     </p>
                     <p className="text-sm text-muted-foreground">
-                      {isDarkMode
+                      {theme === 'dark'
                         ? 'Switch to light theme'
                         : 'Switch to dark theme'}
                     </p>
                   </div>
                 </div>
                 <Switch
-                  checked={isDarkMode}
+                  checked={theme === 'dark'}
                   onCheckedChange={handleThemeToggle}
                 />
               </div>

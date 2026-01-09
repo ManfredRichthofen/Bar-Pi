@@ -1,10 +1,13 @@
 import React from 'react';
+import { Button } from '@/components/ui/button';
 
 const FilterButtons = React.memo(({ filters, onFilterChange }) => (
   <div className="flex flex-col gap-3">
     <div className="flex flex-wrap gap-2">
-      <button
-        className={`btn btn-sm h-10 ${filters.automatic ? 'btn-primary' : 'btn-outline'} transition-colors`}
+      <Button
+        variant={filters.automatic ? 'default' : 'outline'}
+        size="sm"
+        className="h-10"
         onClick={() => onFilterChange('automatic')}
         title="Show drinks with all automated ingredients"
       >
@@ -12,9 +15,11 @@ const FilterButtons = React.memo(({ filters, onFilterChange }) => (
           <span className="w-2 h-2 rounded-full bg-primary"></span>
           Automatic
         </span>
-      </button>
-      <button
-        className={`btn btn-sm h-10 ${filters.manual ? 'btn-primary' : 'btn-outline'} transition-colors`}
+      </Button>
+      <Button
+        variant={filters.manual ? 'default' : 'outline'}
+        size="sm"
+        className="h-10"
         onClick={() => onFilterChange('manual')}
         title="Show drinks that require manual preparation"
       >
@@ -22,9 +27,11 @@ const FilterButtons = React.memo(({ filters, onFilterChange }) => (
           <span className="w-2 h-2 rounded-full bg-primary"></span>
           Manual
         </span>
-      </button>
-      <button
-        className={`btn btn-sm h-10 ${filters.available ? 'btn-primary' : 'btn-outline'} transition-colors`}
+      </Button>
+      <Button
+        variant={filters.available ? 'default' : 'outline'}
+        size="sm"
+        className="h-10"
         onClick={() => onFilterChange('available')}
         title="Show drinks with ingredients on pumps or in the bar"
       >
@@ -32,15 +39,17 @@ const FilterButtons = React.memo(({ filters, onFilterChange }) => (
           <span className="w-2 h-2 rounded-full bg-primary"></span>
           Available
         </span>
-      </button>
+      </Button>
     </div>
     {(filters.automatic || filters.manual || filters.available) && (
-      <button
-        className="btn btn-ghost btn-sm h-10 text-error hover:bg-error/10 transition-colors"
+      <Button
+        variant="ghost"
+        size="sm"
+        className="h-10 text-destructive hover:bg-destructive/10"
         onClick={() => onFilterChange('clear')}
       >
         Clear Filters
-      </button>
+      </Button>
     )}
   </div>
 ));

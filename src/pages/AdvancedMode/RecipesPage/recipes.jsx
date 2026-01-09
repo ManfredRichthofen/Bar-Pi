@@ -1,46 +1,27 @@
-import React, {
-  useState,
-  useEffect,
-  lazy,
-  Suspense,
-  useMemo,
-  useCallback,
-} from 'react';
-import { Navigate } from '@tanstack/react-router';
-import { PlusCircle, AlertCircle } from 'lucide-react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import { Navigate, useNavigate } from '@tanstack/react-router';
+import {
+  PlusCircle,
+  AlertCircle,
+  Edit,
+  Trash2,
+  Heart,
+  Loader2,
+} from 'lucide-react';
 import useAuthStore from '../../../store/authStore';
 import RecipeService from '../../../services/recipe.service';
-import ingredientService from '../../../services/ingredient.service';
-import glassService from '../../../services/glass.service';
 import useFavoritesStore from '../../../store/favoritesStore';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
-
-// Lazy load components for code splitting
-const RecipeCard = lazy(() => import('./components/RecipeCard'));
-const RecipeModal = lazy(() => import('./components/RecipeModal'));
 
 const Recipes = ({ sidebarCollapsed = false }) => {
   const token = useAuthStore((state) => state.token);
+  const navigate = useNavigate();
   const favorites = useFavoritesStore((state) => state.favorites);
+  const { toggleFavorite } = useFavoritesStore();
   const [recipes, setRecipes] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [isModalVisible, setIsModalVisible] = useState(false);
-  const [editingRecipe, setEditingRecipe] = useState(null);
-  const [ingredients, setIngredients] = useState([]);
-  const [glasses, setGlasses] = useState([]);
-
-  // Form state
-  const [formData, setFormData] = useState({
-    name: '',
-    description: '',
-    defaultGlass: null,
-    defaultAmountToFill: 250,
-    productionSteps: [],
-    image: null,
-    imagePreview: null,
-    removeImage: false,
-  });
 
   const fetchRecipes = useCallback(async () => {
     try {
@@ -68,111 +49,21 @@ const Recipes = ({ sidebarCollapsed = false }) => {
   useEffect(() => {
     if (token) {
       fetchRecipes();
-      fetchIngredients();
-      fetchGlasses();
     }
   }, [token, fetchRecipes]);
 
-  const fetchIngredients = async () => {
-    try {
-      // Fetch ALL ingredients without filters to ensure recipe ingredients are available
-      const data = await ingredientService.getIngredients(token);
-      console.log('Fetched ingredients:', data.length, 'ingredients');
-      console.log(
-        'Sample ingredient IDs:',
-        data.slice(0, 5).map((i) => ({ id: i.id, name: i.name })),
-      );
-      setIngredients(data);
-    } catch (error) {
-      console.error('Failed to fetch ingredients:', error);
-    }
-  };
-
-  const fetchGlasses = async () => {
-    try {
-      const data = await glassService.getGlasses(token);
-      setGlasses(data);
-    } catch (error) {
-      console.error('Failed to fetch glasses:', error);
-    }
-  };
-
-  const resetForm = () => {
-    setFormData({
-      name: '',
-      description: '',
-      defaultGlass: null,
-      defaultAmountToFill: 250,
-      productionSteps: [],
-      image: null,
-      imagePreview: null,
-      removeImage: false,
-    });
-  };
-
   const handleAdd = useCallback(() => {
-    setEditingRecipe(null);
-    resetForm();
-    setIsModalVisible(true);
-  }, [resetForm]);
+    navigate({ to: '/recipes/new' });
+  }, [navigate]);
 
   const handleEdit = useCallback(
-    async (recipe) => {
-      setEditingRecipe(recipe);
-
-      // Fetch the full recipe details to ensure we have all ingredient data
-      try {
-        const fullRecipe = await RecipeService.getRecipe(
-          recipe.id,
-          false,
-          token,
-        );
-
-        // Deep clone production steps to ensure ingredient objects are properly loaded
-        const productionSteps =
-          fullRecipe.productionSteps?.map((step) => {
-            if (step.type === 'addIngredients') {
-              return {
-                ...step,
-                stepIngredients:
-                  step.stepIngredients?.map((si) => {
-                    // Ensure ingredient has an id property
-                    const ingredient = si.ingredient || {};
-                    return {
-                      ingredient: {
-                        id: ingredient.id,
-                        name: ingredient.name,
-                        ...ingredient,
-                      },
-                      amount: si.amount || 0,
-                      scale: si.scale || 'ml',
-                      boostable: si.boostable || false,
-                    };
-                  }) || [],
-              };
-            }
-            return { ...step };
-          }) || [];
-
-        console.log('Loaded production steps:', productionSteps);
-
-        setFormData({
-          name: fullRecipe.name || '',
-          description: fullRecipe.description || '',
-          defaultGlass: fullRecipe.defaultGlass || null,
-          defaultAmountToFill: fullRecipe.defaultAmountToFill || 250,
-          productionSteps: productionSteps,
-          image: null,
-          imagePreview: fullRecipe.image || null,
-          removeImage: false,
-        });
-        setIsModalVisible(true);
-      } catch (error) {
-        console.error('Error loading recipe details:', error);
-        toast.error('Failed to load recipe details');
-      }
+    (recipe) => {
+      navigate({
+        to: '/recipes/$recipeId/edit',
+        params: { recipeId: recipe.id },
+      });
     },
-    [token],
+    [navigate],
   );
 
   const handleDelete = useCallback(
@@ -190,131 +81,15 @@ const Recipes = ({ sidebarCollapsed = false }) => {
     [fetchRecipes],
   );
 
-  const handleSave = useCallback(async () => {
-    try {
-      if (!formData.name?.trim()) {
-        toast.error('Recipe name is required');
-        return;
-      }
-
-      const recipeDto = {
-        name: formData.name.trim(),
-        description: formData.description?.trim() || '',
-        defaultGlassId: formData.defaultGlass?.id || null,
-        defaultAmountToFill: formData.defaultAmountToFill || 250,
-        productionSteps: formData.productionSteps || [],
-        categoryIds: [],
-      };
-
-      if (editingRecipe) {
-        await RecipeService.updateRecipe(
-          editingRecipe.id,
-          recipeDto,
-          formData.image,
-          formData.removeImage,
-        );
-        toast.success('Recipe updated successfully');
-      } else {
-        await RecipeService.createRecipe(recipeDto, formData.image);
-        toast.success('Recipe created successfully');
-      }
-
-      setIsModalVisible(false);
-      resetForm();
-      fetchRecipes();
-    } catch (error) {
-      console.error('Error saving recipe:', error);
-      toast.error('Failed to save recipe');
-    }
-  }, [editingRecipe, formData, fetchRecipes, resetForm]);
-
-  const handleImageChange = useCallback((e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setFormData((prev) => ({ ...prev, image: file }));
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setFormData((prev) => ({ ...prev, imagePreview: reader.result }));
-      };
-      reader.readAsDataURL(file);
-    }
-  }, []);
-
-  const addProductionStep = useCallback((type) => {
-    const newStep =
-      type === 'addIngredients'
-        ? { type: 'addIngredients', stepIngredients: [] }
-        : { type: 'writtenInstruction', message: '' };
-
-    setFormData((prev) => ({
-      ...prev,
-      productionSteps: [...prev.productionSteps, newStep],
-    }));
-  }, []);
-
-  const removeProductionStep = useCallback((index) => {
-    setFormData((prev) => ({
-      ...prev,
-      productionSteps: prev.productionSteps.filter((_, i) => i !== index),
-    }));
-  }, []);
-
-  const updateProductionStep = useCallback((index, updatedStep) => {
-    setFormData((prev) => ({
-      ...prev,
-      productionSteps: prev.productionSteps.map((step, i) =>
-        i === index ? updatedStep : step,
-      ),
-    }));
-  }, []);
-
-  const addIngredientToStep = useCallback(
-    (stepIndex) => {
-      const step = formData.productionSteps[stepIndex];
-      if (step.type === 'addIngredients') {
-        const updatedStep = {
-          ...step,
-          stepIngredients: [
-            ...step.stepIngredients,
-            { ingredient: null, amount: 30, scale: 'ml', boostable: false },
-          ],
-        };
-        updateProductionStep(stepIndex, updatedStep);
+  const handleToggleFavorite = useCallback(
+    async (recipe) => {
+      try {
+        await toggleFavorite(recipe);
+      } catch (error) {
+        toast.error('Failed to toggle favorite');
       }
     },
-    [formData.productionSteps, updateProductionStep],
-  );
-
-  const removeIngredientFromStep = useCallback(
-    (stepIndex, ingredientIndex) => {
-      const step = formData.productionSteps[stepIndex];
-      if (step.type === 'addIngredients') {
-        const updatedStep = {
-          ...step,
-          stepIngredients: step.stepIngredients.filter(
-            (_, i) => i !== ingredientIndex,
-          ),
-        };
-        updateProductionStep(stepIndex, updatedStep);
-      }
-    },
-    [formData.productionSteps, updateProductionStep],
-  );
-
-  const updateStepIngredient = useCallback(
-    (stepIndex, ingredientIndex, field, value) => {
-      const step = formData.productionSteps[stepIndex];
-      if (step.type === 'addIngredients') {
-        const updatedStep = {
-          ...step,
-          stepIngredients: step.stepIngredients.map((ing, i) =>
-            i === ingredientIndex ? { ...ing, [field]: value } : ing,
-          ),
-        };
-        updateProductionStep(stepIndex, updatedStep);
-      }
-    },
-    [formData.productionSteps, updateProductionStep],
+    [toggleFavorite],
   );
 
   const favoriteIds = useMemo(
@@ -343,7 +118,7 @@ const Recipes = ({ sidebarCollapsed = false }) => {
       <div className="container mx-auto px-4 py-6 sm:py-8">
         {loading ? (
           <div className="flex justify-center items-center py-12">
-            <span className="loading loading-spinner loading-lg"></span>
+            <Loader2 className="h-8 w-8 animate-spin" />
           </div>
         ) : recipes.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16 px-4 min-h-[400px]">
@@ -358,48 +133,84 @@ const Recipes = ({ sidebarCollapsed = false }) => {
             </Button>
           </div>
         ) : (
-          <Suspense
-            fallback={
-              <div className="flex justify-center items-center py-12">
-                <span className="loading loading-spinner loading-lg"></span>
-              </div>
-            }
-          >
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4">
-              {recipes.map((recipe) => (
-                <RecipeCard
+          <div className="space-y-2">
+            {recipes.map((recipe) => {
+              const isFavorite = favoriteIds.has(recipe.id);
+              const ingredientCount =
+                recipe.productionSteps?.reduce(
+                  (count, step) =>
+                    step.type === 'addIngredients'
+                      ? count + (step.stepIngredients?.length || 0)
+                      : count,
+                  0,
+                ) || 0;
+
+              return (
+                <div
                   key={recipe.id}
-                  recipe={recipe}
-                  isFavorite={favoriteIds.has(recipe.id)}
-                  onEdit={handleEdit}
-                  onDelete={handleDelete}
-                />
-              ))}
-            </div>
-          </Suspense>
+                  className="flex items-center justify-between p-4 bg-card border rounded-lg hover:shadow-md transition-all duration-200"
+                >
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-3">
+                      <h3 className="font-semibold text-base truncate">
+                        {recipe.name}
+                      </h3>
+                      {isFavorite && (
+                        <Heart className="h-4 w-4 fill-destructive text-destructive flex-shrink-0" />
+                      )}
+                    </div>
+                    {recipe.description && (
+                      <p className="text-sm text-muted-foreground line-clamp-1 mt-1">
+                        {recipe.description}
+                      </p>
+                    )}
+                    <div className="flex items-center gap-2 mt-2">
+                      {ingredientCount > 0 && (
+                        <Badge variant="secondary" className="text-xs">
+                          {ingredientCount} ingredient
+                          {ingredientCount !== 1 ? 's' : ''}
+                        </Badge>
+                      )}
+                      {recipe.defaultGlass && (
+                        <Badge variant="outline" className="text-xs">
+                          {recipe.defaultGlass.name}
+                        </Badge>
+                      )}
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2 ml-4">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => handleToggleFavorite(recipe)}
+                    >
+                      <Heart
+                        className={`h-4 w-4 ${
+                          isFavorite ? 'fill-destructive text-destructive' : ''
+                        }`}
+                      />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => handleEdit(recipe)}
+                    >
+                      <Edit className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => handleDelete(recipe.id)}
+                    >
+                      <Trash2 className="h-4 w-4 text-destructive" />
+                    </Button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
         )}
       </div>
-
-      {/* Recipe Modal */}
-      <Suspense fallback={null}>
-        <RecipeModal
-          isVisible={isModalVisible}
-          onClose={() => setIsModalVisible(false)}
-          editingRecipe={editingRecipe}
-          formData={formData}
-          setFormData={setFormData}
-          ingredients={ingredients}
-          glasses={glasses}
-          onSave={handleSave}
-          onImageChange={handleImageChange}
-          addProductionStep={addProductionStep}
-          removeProductionStep={removeProductionStep}
-          updateProductionStep={updateProductionStep}
-          addIngredientToStep={addIngredientToStep}
-          removeIngredientFromStep={removeIngredientFromStep}
-          updateStepIngredient={updateStepIngredient}
-        />
-      </Suspense>
     </div>
   );
 };
