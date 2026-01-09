@@ -2,10 +2,19 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from '@tanstack/react-router';
 import { useTranslation } from 'react-i18next';
 import { useForm } from 'react-hook-form';
-import { Save, AlertCircle, CheckCircle } from 'lucide-react';
+import { Save, AlertCircle, CheckCircle, Loader2, X } from 'lucide-react';
 import useAuthStore from '../../../../store/authStore';
 import PumpSettingsService from '../../../../services/pumpsettings.service';
 import GpioService from '../../../../services/gpio.service';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Switch } from '@/components/ui/switch';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Progress } from '@/components/ui/progress';
+import { toast } from 'sonner';
 
 const ReversePumping = () => {
   const { t } = useTranslation();
@@ -135,37 +144,11 @@ const ReversePumping = () => {
   }, [token, setValue]);
 
   const showToast = (message, type = 'success') => {
-    const toastContainer = document.createElement('div');
-    toastContainer.className = 'toast toast-top toast-end z-50';
-    const alert = document.createElement('div');
-    alert.className = `alert ${type === 'success' ? 'alert-success' : 'alert-error'}`;
-    const content = document.createElement('div');
-    content.className = 'flex items-center gap-2';
-    const icon = document.createElement('span');
-    icon.innerHTML =
-      type === 'success'
-        ? `<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" /></svg>`
-        : `<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" /></svg>`;
-    const text = document.createElement('span');
-    text.textContent = message;
-    content.appendChild(icon);
-    content.appendChild(text);
-    alert.appendChild(content);
-    toastContainer.appendChild(alert);
-    document.body.appendChild(toastContainer);
-    setTimeout(() => {
-      toastContainer.style.opacity = '1';
-      toastContainer.style.transform = 'translateY(0)';
-    }, 100);
-    setTimeout(() => {
-      toastContainer.style.opacity = '0';
-      toastContainer.style.transform = 'translateY(-1rem)';
-      setTimeout(() => {
-        if (document.body.contains(toastContainer)) {
-          document.body.removeChild(toastContainer);
-        }
-      }, 300);
-    }, 3000);
+    if (type === 'success') {
+      toast.success(message);
+    } else {
+      toast.error(message);
+    }
   };
 
   const onSubmit = (formData) => {
@@ -188,7 +171,7 @@ const ReversePumping = () => {
   };
 
   return (
-    <div className="min-h-screen bg-base-100 p-4 sm:p-6">
+    <div className="min-h-screen bg-background p-4 sm:p-6">
       <div className="max-w-4xl mx-auto">
         <h1 className="text-xl sm:text-2xl font-bold mb-4">
           {t('component.reverse_pump_settings.headline', {
@@ -197,260 +180,250 @@ const ReversePumping = () => {
         </h1>
 
         {success && (
-          <div className="alert alert-success mb-4">
-            <CheckCircle className="h-5 w-5" />
-            <span className="font-medium">{success}</span>
-          </div>
+          <Alert className="mb-4">
+            <CheckCircle className="h-4 w-4" />
+            <AlertDescription>{success}</AlertDescription>
+          </Alert>
         )}
         {error && (
-          <div className="alert alert-error mb-4">
-            <AlertCircle className="h-5 w-5" />
-            <span className="font-medium">{error}</span>
-          </div>
+          <Alert variant="destructive" className="mb-4">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
         )}
 
-        <div className="card bg-base-100 shadow-lg border border-base-300">
-          <div className="card-body">
+        <Card>
+          <CardContent className="pt-6">
             <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
               {/* Enable toggle */}
-              <div className="card bg-base-200">
-                <div className="card-body">
-                  <label className="label cursor-pointer justify-start gap-4">
-                    <span className="label-text font-medium">
+              <Card>
+                <CardContent className="pt-6">
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="enable" className="cursor-pointer">
                       {t('component.reverse_pump_settings.form.enable_label', {
                         defaultValue: 'Enable Reverse Pumping',
                       })}
-                    </span>
-                    <input
-                      type="checkbox"
-                      className="toggle toggle-success"
-                      {...register('enable')}
+                    </Label>
+                    <Switch
+                      id="enable"
+                      checked={watch('enable')}
+                      onCheckedChange={(checked) => setValue('enable', checked)}
                     />
-                  </label>
-                </div>
-              </div>
+                  </div>
+                </CardContent>
+              </Card>
 
               {/* Director Pin and Forward State */}
               {enable && (
-                <div className="card bg-base-200">
-                  <div className="card-body">
-                    <h2 className="card-title text-base mb-2">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>
                       {t(
                         'component.reverse_pump_settings.form.vd_pin_headline',
                         { defaultValue: 'Direction/Driver Pin' },
                       )}
-                    </h2>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div className="form-control">
-                        <label className="label">
-                          <span className="label-text font-medium">
-                            {t(
-                              'component.reverse_pump_settings.form.vd_pin_label',
-                              { defaultValue: 'GPIO Board' },
-                            )}
-                          </span>
-                        </label>
-                        <select
-                          className="select select-bordered w-full"
-                          {...register('settings.directorPin.boardId')}
+                      <div className="space-y-2">
+                        <Label htmlFor="gpioBoard">
+                          {t(
+                            'component.reverse_pump_settings.form.vd_pin_label',
+                            { defaultValue: 'GPIO Board' },
+                          )}
+                        </Label>
+                        <Select
+                          value={watch('settings.directorPin.boardId')?.toString() || ''}
+                          onValueChange={(value) => setValue('settings.directorPin.boardId', value ? parseInt(value) : null)}
                         >
-                          <option value="">
-                            {t('common.select_board', {
-                              defaultValue: 'Select board',
-                            })}
-                          </option>
-                          {boards.map((board) => (
-                            <option key={board.id} value={board.id}>
-                              {board.name}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-                      <div className="form-control">
-                        <label className="label">
-                          <span className="label-text font-medium">
-                            {t(
-                              'component.reverse_pump_settings.form.vd_pin_gpio',
-                              { defaultValue: 'GPIO Pin' },
-                            )}
-                          </span>
-                        </label>
-                        <div className="flex items-center gap-2">
-                          <select
-                            className="select select-bordered w-full"
-                            disabled={!selectedDirectorBoardId}
-                            {...register('settings.directorPin.pinId')}
-                          >
-                            <option value="">
-                              {t('common.select_pin', {
-                                defaultValue: 'Select pin',
-                              })}
-                            </option>
-                            {directorPins.map((pin) => (
-                              <option
-                                key={pin.id ?? pin.pinId ?? pin.name}
-                                value={pin.id ?? pin.pinId ?? pin.name}
-                              >
-                                {(pin.pinName ??
-                                  pin.name ??
-                                  String(pin.id ?? pin.pinId)) +
-                                  (pin.inUse ? ' (In use)' : '')}
-                              </option>
+                          <SelectTrigger id="gpioBoard">
+                            <SelectValue placeholder={t('common.select_board', { defaultValue: 'Select board' })} />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {boards.map((board) => (
+                              <SelectItem key={board.id} value={board.id.toString()}>
+                                {board.name}
+                              </SelectItem>
                             ))}
-                          </select>
-                          <button
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="gpioPin">
+                          {t(
+                            'component.reverse_pump_settings.form.vd_pin_gpio',
+                            { defaultValue: 'GPIO Pin' },
+                          )}
+                        </Label>
+                        <div className="flex items-center gap-2">
+                          <Select
+                            value={watch('settings.directorPin.pinId')?.toString() || ''}
+                            onValueChange={(value) => setValue('settings.directorPin.pinId', value || null)}
+                            disabled={!selectedDirectorBoardId}
+                          >
+                            <SelectTrigger id="gpioPin">
+                              <SelectValue placeholder={t('common.select_pin', { defaultValue: 'Select pin' })} />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {directorPins.map((pin) => (
+                                <SelectItem
+                                  key={pin.id ?? pin.pinId ?? pin.name}
+                                  value={(pin.id ?? pin.pinId ?? pin.name).toString()}
+                                >
+                                  {(pin.pinName ?? pin.name ?? String(pin.id ?? pin.pinId)) + (pin.inUse ? ' (In use)' : '')}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          <Button
                             type="button"
-                            className="btn btn-ghost btn-sm"
+                            variant="ghost"
+                            size="icon"
                             disabled={!selectedDirectorBoardId || saving}
-                            onClick={() =>
-                              setValue('settings.directorPin.pinId', null)
-                            }
+                            onClick={() => setValue('settings.directorPin.pinId', null)}
                             title={t('common.clear', { defaultValue: 'Clear' })}
                           >
-                            ✕
-                          </button>
+                            <X className="h-4 w-4" />
+                          </Button>
                         </div>
                         {!selectedDirectorBoardId && (
-                          <label className="label">
-                            <span className="label-text-alt">
-                              {t('common.select_board_first', {
-                                defaultValue: 'Select a board first.',
-                              })}
-                            </span>
-                          </label>
+                          <p className="text-sm text-muted-foreground">
+                            {t('common.select_board_first', {
+                              defaultValue: 'Select a board first.',
+                            })}
+                          </p>
                         )}
                         {loadingPins && (
-                          <div className="mt-1">
-                            <progress className="progress progress-info w-full" />
-                            <div className="text-xs text-base-content/60 mt-1">
+                          <div className="mt-2 space-y-2">
+                            <Progress value={50} className="w-full" />
+                            <p className="text-xs text-muted-foreground">
                               {t('common.loading_pins', {
                                 defaultValue: 'Loading pins...',
                               })}
-                            </div>
+                            </p>
                           </div>
                         )}
                       </div>
-                      <div className="form-control">
-                        <label className="label">
-                          <span className="label-text font-medium">
-                            {t(
-                              'component.reverse_pump_settings.form.forward_state_high_label',
-                              { defaultValue: 'Forward State' },
-                            )}
-                          </span>
-                        </label>
-                        <select
-                          className="select select-bordered w-full"
-                          {...register('settings.forwardStateHigh')}
+                      <div className="space-y-2">
+                        <Label htmlFor="forwardState">
+                          {t(
+                            'component.reverse_pump_settings.form.forward_state_high_label',
+                            { defaultValue: 'Forward State' },
+                          )}
+                        </Label>
+                        <Select
+                          value={watch('settings.forwardStateHigh')?.toString() || 'false'}
+                          onValueChange={(value) => setValue('settings.forwardStateHigh', value === 'true')}
                         >
-                          <option value="true">
-                            {t(
-                              'component.reverse_pump_settings.form.forward_state.high',
-                              { defaultValue: 'High' },
-                            )}
-                          </option>
-                          <option value="false">
-                            {t(
-                              'component.reverse_pump_settings.form.forward_state.low',
-                              { defaultValue: 'Low' },
-                            )}
-                          </option>
-                        </select>
+                          <SelectTrigger id="forwardState">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="true">
+                              {t(
+                                'component.reverse_pump_settings.form.forward_state.high',
+                                { defaultValue: 'High' },
+                              )}
+                            </SelectItem>
+                            <SelectItem value="false">
+                              {t(
+                                'component.reverse_pump_settings.form.forward_state.low',
+                                { defaultValue: 'Low' },
+                              )}
+                            </SelectItem>
+                          </SelectContent>
+                        </Select>
                       </div>
                     </div>
-                  </div>
-                </div>
+                  </CardContent>
+                </Card>
               )}
 
               {/* Overshoot and Timer */}
               {enable && (
-                <div className="card bg-base-200">
-                  <div className="card-body">
+                <Card>
+                  <CardContent className="pt-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div className="form-control">
-                        <label className="label">
-                          <span className="label-text font-medium">
-                            {t(
-                              'component.reverse_pump_settings.form.overshoot_label',
-                              { defaultValue: 'Overshoot' },
-                            )}
-                          </span>
-                        </label>
-                        <div className="join w-full">
-                          <input
+                      <div className="space-y-2">
+                        <Label htmlFor="overshoot">
+                          {t(
+                            'component.reverse_pump_settings.form.overshoot_label',
+                            { defaultValue: 'Overshoot' },
+                          )}
+                        </Label>
+                        <div className="flex items-center gap-2">
+                          <Input
+                            id="overshoot"
                             type="number"
-                            className="input input-bordered join-item w-full"
                             placeholder="0"
                             {...register('settings.overshoot', {
                               min: 0,
                               max: 200,
                             })}
+                            className={`flex-1 ${errors.settings?.overshoot ? 'border-destructive' : ''}`}
                           />
-                          <span className="btn btn-ghost join-item no-animation">
-                            %
-                          </span>
+                          <span className="text-sm text-muted-foreground">%</span>
                         </div>
                         {errors.settings?.overshoot && (
-                          <label className="label">
-                            <span className="label-text-alt text-error">
-                              {t('common.validation_invalid', {
-                                defaultValue: 'Invalid value',
-                              })}
-                            </span>
-                          </label>
+                          <p className="text-sm text-destructive">
+                            {t('common.validation_invalid', {
+                              defaultValue: 'Invalid value',
+                            })}
+                          </p>
                         )}
                       </div>
-                      <div className="form-control">
-                        <label className="label">
-                          <span className="label-text font-medium">
-                            {t(
-                              'component.reverse_pump_settings.form.auto_pump_back_timer_label',
-                              { defaultValue: 'Auto Pump Back Timer' },
-                            )}
-                          </span>
-                        </label>
-                        <select
-                          className="select select-bordered w-full"
-                          {...register('settings.autoPumpBackTimer')}
+                      <div className="space-y-2">
+                        <Label htmlFor="autoPumpBack">
+                          {t(
+                            'component.reverse_pump_settings.form.auto_pump_back_timer_label',
+                            { defaultValue: 'Auto Pump Back Timer' },
+                          )}
+                        </Label>
+                        <Select
+                          value={watch('settings.autoPumpBackTimer')?.toString() || '0'}
+                          onValueChange={(value) => setValue('settings.autoPumpBackTimer', parseInt(value))}
                         >
-                          {timerOptions.map((opt) => (
-                            <option key={opt.value} value={opt.value}>
-                              {opt.label}
-                            </option>
-                          ))}
-                        </select>
+                          <SelectTrigger id="autoPumpBack">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {timerOptions.map((opt) => (
+                              <SelectItem key={opt.value} value={opt.value.toString()}>
+                                {opt.label}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
                       </div>
                     </div>
-                  </div>
-                </div>
+                  </CardContent>
+                </Card>
               )}
 
               {/* Actions */}
               <div className="flex justify-end">
-                <button
+                <Button
                   type="submit"
-                  className="btn btn-primary"
                   disabled={saving}
                 >
                   {saving ? (
-                    <div className="loading loading-spinner loading-sm"></div>
+                    <Loader2 className="h-4 w-4 animate-spin mr-2" />
                   ) : (
-                    <Save className="h-4 w-4" />
+                    <Save className="h-4 w-4 mr-2" />
                   )}
-                  <span className="ml-2">
-                    {t('component.reverse_pump_settings.form.save_btn_label', {
-                      defaultValue: 'Save',
-                    })}
-                  </span>
-                </button>
+                  {t('component.reverse_pump_settings.form.save_btn_label', {
+                    defaultValue: 'Save',
+                  })}
+                </Button>
               </div>
             </form>
-          </div>
-        </div>
+          </CardContent>
+        </Card>
 
         {loading && (
-          <div className="fixed inset-0 bg-base-100/50 backdrop-blur-sm flex justify-center items-center z-50">
-            <div className="loading loading-spinner loading-lg text-primary"></div>
+          <div className="fixed inset-0 bg-background/50 backdrop-blur-sm flex justify-center items-center z-50">
+            <Loader2 className="h-8 w-8 animate-spin" />
           </div>
         )}
       </div>
