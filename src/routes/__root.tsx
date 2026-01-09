@@ -2,6 +2,7 @@ import { createRootRoute, Outlet } from '@tanstack/react-router';
 import { useEffect, useState } from 'react';
 import useAuthStore from '../store/authStore';
 import useUIModeStore from '../store/uiModeStore';
+import useThemeStore from '../store/themeStore';
 import { themeChange } from 'theme-change';
 import { useTranslation } from 'react-i18next';
 import { StatusBar, Style } from '@capacitor/status-bar';
@@ -53,6 +54,7 @@ function RootComponent() {
   const { i18n } = useTranslation();
   const [isAuthInitialized, setIsAuthInitialized] = useState(false);
   const { isInitialized: isUIModeInitialized } = useUIModeStore();
+  const { theme, setTheme } = useThemeStore();
 
   // Auth initialization
   useEffect(() => {
@@ -65,23 +67,21 @@ function RootComponent() {
 
   // Theme and language initialization
   useEffect(() => {
-    // Theme initialization
-    const savedTheme = localStorage.getItem('theme') || 'light';
-    document.documentElement.setAttribute('data-theme', savedTheme);
+    // Theme initialization - theme store handles persistence
     themeChange(false);
-    applyStatusBarForTheme(savedTheme);
+    applyStatusBarForTheme(theme);
 
     // Language initialization
     const savedLanguage = localStorage.getItem('i18nextLng') || 'en-US';
     i18n.changeLanguage(savedLanguage);
 
-    // Theme observer
+    // Theme observer to sync external changes
     const observer = new MutationObserver((mutations) => {
       mutations.forEach((mutation) => {
         if (mutation.attributeName === 'data-theme') {
           const newTheme = document.documentElement.getAttribute('data-theme');
-          if (newTheme) {
-            localStorage.setItem('theme', newTheme);
+          if (newTheme && newTheme !== theme) {
+            setTheme(newTheme);
             applyStatusBarForTheme(newTheme);
           }
         }
@@ -95,7 +95,7 @@ function RootComponent() {
 
     return () => observer.disconnect();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [theme]);
 
   // Show nothing while initializing to prevent flash of incorrect content
   if (!isAuthInitialized || !isUIModeInitialized) {
