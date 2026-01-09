@@ -71,13 +71,13 @@ const SimpleDrinkCard = ({ recipe, onCardClick }) => {
       whileHover={{ y: -4, scale: 1.02 }}
       whileTap={{ scale: 0.98 }}
       transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-      className="h-full"
+      className="h-full w-full"
     >
       <Card
         className="group cursor-pointer overflow-hidden w-full h-full border-border/50 hover:border-border hover:shadow-xl transition-all duration-300 p-0"
         onClick={() => onCardClick(recipe)}
       >
-        <div className="flex flex-col h-full">
+        <div className="flex flex-col">
           {/* Image section - fixed aspect ratio */}
           <figure 
             ref={elementRef}
@@ -128,7 +128,7 @@ const SimpleDrinkCard = ({ recipe, onCardClick }) => {
           </figure>
 
           {/* Content section */}
-          <CardContent className="flex flex-col flex-1 p-4">
+          <CardContent className="px-4 pt-3 pb-3">
             {/* Title */}
             <h3 className="text-base sm:text-lg font-bold text-foreground leading-tight line-clamp-2">
               {recipe.name}

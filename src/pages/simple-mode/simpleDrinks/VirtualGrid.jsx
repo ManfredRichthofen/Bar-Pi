@@ -275,7 +275,7 @@ function VirtualGrid({
                   {rowRecipes.map((recipe) => (
                     <div
                       key={recipe.id}
-                      className="flex items-stretch justify-center"
+                      className="flex items-stretch justify-center w-full"
                     >
                       <SimpleDrinkCard
                         recipe={recipe}
