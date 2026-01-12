@@ -144,8 +144,8 @@ const IngredientRequirements = ({
       {requiredIngredients.length > 0 &&
         automaticIngredients.length === 0 &&
         manualIngredients.length === 0 && (
-          <Alert className="bg-yellow-500/10 border-yellow-500/30">
-            <AlertCircle className="h-4 w-4 text-yellow-600 dark:text-yellow-400" />
+          <Alert className="bg-accent/10 border-accent/30">
+            <AlertCircle className="h-4 w-4 text-accent-foreground" />
             <AlertDescription className="text-sm sm:text-base">
               Could not determine ingredient types. Please check the recipe
               configuration.

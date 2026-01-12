@@ -36,14 +36,14 @@ const StatusCard = ({
   const getStatusColor = () => {
     switch (state) {
       case 'FINISHED':
-        return 'text-green-600 dark:text-green-400 bg-green-500/10';
+        return 'text-primary bg-primary/10';
       case 'CANCELLED':
-        return 'text-red-600 dark:text-red-400 bg-red-500/10';
+        return 'text-destructive bg-destructive/10';
       case 'MANUAL_ACTION_REQUIRED':
       case 'MANUAL_INGREDIENT_ADD':
-        return 'text-yellow-600 dark:text-yellow-400 bg-yellow-500/10';
+        return 'text-accent-foreground bg-accent/10';
       default:
-        return 'text-blue-600 dark:text-blue-400 bg-blue-500/10';
+        return 'text-primary bg-primary/10';
     }
   };
 

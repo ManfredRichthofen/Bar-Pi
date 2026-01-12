@@ -1,11 +1,10 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { BeakerIcon, ArrowLeft, Info } from 'lucide-react';
 import { useLocation, useNavigate } from '@tanstack/react-router';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { Spinner } from '@/components/ui/spinner';
-import { BentoGrid } from '@/components/ui/bento-grid';
 import { toast } from 'sonner';
 import useAuthStore from '../../../store/authStore';
 import cocktailService from '../../../services/cocktail.service';
@@ -50,6 +49,12 @@ const SimpleOrder = () => {
   const [boost, setBoost] = useState(100);
   const [ingredients, setIngredients] = useState<Ingredient[]>([]);
   const [additionalIngredients, setAdditionalIngredients] = useState<any[]>([]);
+  const feasibilityCheckTimeout = useRef<NodeJS.Timeout | null>(null);
+
+  // Scroll to top when component mounts
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
 
   useEffect(() => {
     if (recipe) {
@@ -65,8 +70,22 @@ const SimpleOrder = () => {
 
   useEffect(() => {
     if (recipe && amountToProduce) {
-      checkFeasibility(recipe.id, getOrderConfig());
+      // Clear existing timeout
+      if (feasibilityCheckTimeout.current) {
+        clearTimeout(feasibilityCheckTimeout.current);
+      }
+
+      // Debounce feasibility check to prevent slider jumping
+      feasibilityCheckTimeout.current = setTimeout(() => {
+        checkFeasibility(recipe.id, getOrderConfig());
+      }, 300);
     }
+
+    return () => {
+      if (feasibilityCheckTimeout.current) {
+        clearTimeout(feasibilityCheckTimeout.current);
+      }
+    };
   }, [recipe, amountToProduce, boost]);
 
   const getOrderConfig = () => ({
@@ -135,7 +154,7 @@ const SimpleOrder = () => {
           error.response.data.message.includes('pumps are currently occupied')
         ) {
           toast.error(
-            'Some pumps are currently occupied - please wait for the current drink to finish'
+            'Some pumps are currently occupied - please wait for the current drink to finish',
           );
         } else {
           toast.error(error.response.data.message);
@@ -154,10 +173,10 @@ const SimpleOrder = () => {
     orderDrink(recipe.id, orderConfig);
   }, [recipe, amountToProduce, boost, additionalIngredients, token]);
 
-  // Handle redirects in useEffect to prevent infinite loops
+  // Handle redirects in useEffect to prevent infinite loops tanstack router is weird
   useEffect(() => {
     if (hasOrdered) return; // Don't redirect after successful order
-    
+
     if (!token) {
       navigate({ to: '/login' });
     } else if (!recipe) {
@@ -203,53 +222,32 @@ const SimpleOrder = () => {
 
       {/* Main Content */}
       <div className="flex-1 overflow-y-auto">
-        <div className="p-3 sm:p-4">
-          {/* Bento Grid Layout */}
-          <BentoGrid className="grid-cols-1 md:grid-cols-2 lg:grid-cols-3 auto-rows-[minmax(200px,auto)] gap-3 sm:gap-4 max-w-7xl mx-auto">
-            {/* Hero Image - Large featured card */}
-            {recipe.image && (
-              <Card className="md:col-span-2 lg:col-span-2 md:row-span-2 overflow-hidden group">
-                <CardContent className="p-0 h-full relative">
-                  <div className="relative w-full h-full min-h-[300px] md:min-h-[400px]">
-                    <img
-                      className="object-cover absolute inset-0 w-full h-full transition-transform duration-500 group-hover:scale-105"
-                      src={recipe.image}
-                      alt={recipe.name}
-                      loading="lazy"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
-                    <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-6">
-                      <div className="flex items-start justify-between gap-3 mb-2">
-                        <h3 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white break-words flex-1">
-                          {recipe.name}
-                        </h3>
-                        {recipe.alcoholic && (
-                          <Badge
-                            variant="destructive"
-                            className="shrink-0 text-xs sm:text-sm"
-                          >
-                            Alcoholic
-                          </Badge>
-                        )}
-                      </div>
-                      {recipe.description && (
-                        <p className="text-white/90 text-sm sm:text-base whitespace-normal break-words line-clamp-3">
-                          {recipe.description}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            )}
-
-            {/* Make Drink Button - Prominent action card */}
-            <Card className="bg-gradient-to-br from-primary/10 to-primary/5 border-primary/20 hover:shadow-lg transition-shadow">
-              <CardContent className="p-4 sm:p-6 h-full flex flex-col justify-center gap-3">
+        <div className="p-3 sm:p-4 lg:p-6 max-w-7xl mx-auto">
+          {/* Bento Grid Layout - Responsive for phone, tablet, and desktop */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-3 sm:gap-4 lg:gap-5 auto-rows-[minmax(140px,auto)]">
+            {/* Make Drink Button - Hero card */}
+            <Card className="sm:col-span-2 lg:col-span-5 lg:row-span-2 bg-gradient-to-br from-primary/10 via-primary/5 to-background border-primary/20 hover:shadow-lg hover:border-primary/30 transition-all duration-300">
+              <CardContent className="p-5 sm:p-6 lg:p-8 h-full flex flex-col justify-center gap-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <BeakerIcon className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
+                  <h3 className="font-bold text-lg sm:text-xl lg:text-2xl truncate flex-1">
+                    {recipe.name}
+                  </h3>
+                  {recipe.alcoholic && (
+                    <Badge variant="destructive" className="shrink-0 text-xs">
+                      21+
+                    </Badge>
+                  )}
+                </div>
+                {recipe.description && (
+                  <p className="text-sm sm:text-base text-muted-foreground line-clamp-2 sm:line-clamp-3">
+                    {recipe.description}
+                  </p>
+                )}
                 <Button
                   type="button"
                   size="lg"
-                  className="w-full h-14 sm:h-16 gap-2 sm:gap-3 text-base sm:text-lg font-bold shadow-lg hover:shadow-xl transition-all duration-200"
+                  className="w-full h-12 sm:h-14 lg:h-16 gap-2 sm:gap-3 text-base sm:text-lg font-bold shadow-lg hover:shadow-xl transition-all duration-200"
                   onClick={handleMakeDrink}
                   disabled={!canOrderDrink || loading}
                 >
@@ -257,8 +255,8 @@ const SimpleOrder = () => {
                   {!loading && <BeakerIcon className="w-5 h-5 sm:w-6 sm:h-6" />}
                   {loading ? 'Making...' : 'Make Drink'}
                 </Button>
-                {!canOrderDrink && !loading && (
-                  <p className="text-sm sm:text-base text-error text-center mt-3 font-medium">
+                {!canOrderDrink && !loading && !checking && (
+                  <p className="text-sm text-error text-center font-medium">
                     {feasibilityResult?.requiredIngredients?.some(
                       (item: any) => item.amountMissing > 0,
                     )
@@ -270,8 +268,8 @@ const SimpleOrder = () => {
             </Card>
 
             {/* Glass Selector Card */}
-            <Card className="md:col-span-2 lg:col-span-1 hover:shadow-md transition-shadow">
-              <CardContent className="p-4 sm:p-6">
+            <Card className="sm:col-span-1 lg:col-span-4 lg:row-span-2 hover:shadow-md hover:border-primary/20 transition-all duration-300">
+              <CardContent className="p-4 sm:p-5 lg:p-6 h-full">
                 <GlassSelector
                   selectedGlass={selectedGlass}
                   defaultGlass={recipe.defaultGlass || null}
@@ -286,42 +284,37 @@ const SimpleOrder = () => {
               </CardContent>
             </Card>
 
-            {/* Recipe Ingredients Card */}
-            <Card className="md:col-span-1 hover:shadow-md transition-shadow">
-              <CardContent className="p-4 sm:p-6">
+            {/* Recipe Ingredients Card - Tall card on desktop */}
+            <Card className="sm:col-span-1 lg:col-span-3 lg:row-span-3 hover:shadow-md hover:border-primary/20 transition-all duration-300">
+              <CardContent className="p-4 sm:p-5 lg:p-6 h-full flex flex-col">
                 <div className="flex items-center gap-2 mb-4">
                   <BeakerIcon className="w-5 h-5 text-primary" />
                   <h3 className="font-bold text-base sm:text-lg">Recipe</h3>
                 </div>
-                <ul className="space-y-2 text-sm sm:text-base">
-                  {ingredients.slice(0, 5).map((item, index) => (
+                <ul className="space-y-2 text-sm sm:text-base flex-1 overflow-y-auto max-h-[400px] lg:max-h-none">
+                  {ingredients.map((item, index) => (
                     <li
                       key={index}
-                      className="flex justify-between gap-2 whitespace-normal break-words"
+                      className="flex justify-between gap-2 whitespace-normal break-words py-1.5 border-b border-border/50 last:border-0"
                     >
                       <span className="font-medium">{item.name}</span>
-                      <span className="text-muted-foreground">
+                      <span className="text-muted-foreground shrink-0">
                         {item.amount} {item.unit}
                       </span>
                     </li>
                   ))}
-                  {ingredients.length > 5 && (
-                    <li className="text-muted-foreground text-xs">
-                      +{ingredients.length - 5} more...
-                    </li>
-                  )}
                 </ul>
               </CardContent>
             </Card>
 
-            {/* Required Ingredients Card */}
+            {/* Required Ingredients Card - Wide card */}
             {feasibilityResult?.requiredIngredients && (
-              <Card className="md:col-span-1 hover:shadow-md transition-shadow">
-                <CardContent className="p-4 sm:p-6">
+              <Card className="sm:col-span-2 lg:col-span-9 hover:shadow-md hover:border-primary/20 transition-all duration-300">
+                <CardContent className="p-4 sm:p-5 lg:p-6">
                   <div className="flex items-center gap-2 mb-4">
                     <Info className="w-5 h-5 text-primary" />
                     <h3 className="font-bold text-base sm:text-lg">
-                      Available
+                      Ingredient Availability
                     </h3>
                   </div>
                   <IngredientRequirements
@@ -331,8 +324,8 @@ const SimpleOrder = () => {
               </Card>
             )}
 
-            {/* Customizer section - Spans full width */}
-            <div className="md:col-span-2 lg:col-span-3">
+            {/* Customizer section - Full width */}
+            <div className="sm:col-span-2 lg:col-span-12">
               <DrinkCustomizer
                 disableBoosting={!hasBoostableIngredients}
                 customisations={{
@@ -352,7 +345,7 @@ const SimpleOrder = () => {
                 }
               />
             </div>
-          </BentoGrid>
+          </div>
         </div>
       </div>
 

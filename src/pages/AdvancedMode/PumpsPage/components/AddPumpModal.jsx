@@ -139,7 +139,6 @@ const AddPumpModal = ({ show, onClose, pumpType = null }) => {
     }
   };
 
-
   // Handle form submission
   const onSubmit = async (data) => {
     if (!token) return;

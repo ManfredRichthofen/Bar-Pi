@@ -8,10 +8,12 @@ import { Loader2, GlassWater } from 'lucide-react';
 
 const SimpleDrinkCard = ({ recipe, onCardClick }) => {
   // Lazy load image
-  const { imageUrl, loading: imageLoading, error: imageError, elementRef } = useLazyImage(
-    recipe.id,
-    recipe.hasImage
-  );
+  const {
+    imageUrl,
+    loading: imageLoading,
+    error: imageError,
+    elementRef,
+  } = useLazyImage(recipe.id, recipe.hasImage);
 
   // Determine recipe characteristics
   const isAutomatic =
@@ -41,7 +43,7 @@ const SimpleDrinkCard = ({ recipe, onCardClick }) => {
 
   // Determine availability text and color
   let availabilityText = 'Available';
-  let availabilityColor = 'bg-success/60';
+  let availabilityColor = 'bg-primary/60';
 
   if (isAutomaticAndAvailable) {
     availabilityText = 'Auto + Available';
@@ -51,19 +53,19 @@ const SimpleDrinkCard = ({ recipe, onCardClick }) => {
     availabilityColor = 'bg-primary/60';
   } else if (isAutomatic) {
     availabilityText = 'Automatic';
-    availabilityColor = 'bg-info/60';
+    availabilityColor = 'bg-primary/60';
   } else if (isManual && isAvailable) {
     availabilityText = 'Manual + Available';
-    availabilityColor = 'bg-warning/60';
+    availabilityColor = 'bg-accent/60';
   } else if (isManual) {
     availabilityText = 'Manual';
-    availabilityColor = 'bg-warning/40';
+    availabilityColor = 'bg-accent/40';
   } else if (isAvailable) {
     availabilityText = 'Available';
-    availabilityColor = 'bg-success/60';
+    availabilityColor = 'bg-primary/60';
   } else {
     availabilityText = 'Unavailable';
-    availabilityColor = 'bg-error/60';
+    availabilityColor = 'bg-destructive/60';
   }
 
   return (
@@ -79,7 +81,7 @@ const SimpleDrinkCard = ({ recipe, onCardClick }) => {
       >
         <div className="flex flex-col">
           {/* Image section - fixed aspect ratio */}
-          <figure 
+          <figure
             ref={elementRef}
             className="relative w-full aspect-[4/3] overflow-hidden bg-gradient-to-br from-muted to-accent flex-shrink-0"
           >
@@ -105,7 +107,7 @@ const SimpleDrinkCard = ({ recipe, onCardClick }) => {
                 </span>
               </div>
             )}
-            
+
             {/* Alcoholic Badge - positioned on image */}
             {recipe.alcoholic && (
               <div className="absolute top-3 left-3 z-10">
@@ -117,12 +119,16 @@ const SimpleDrinkCard = ({ recipe, onCardClick }) => {
                 </Badge>
               </div>
             )}
-            
+
             {/* Availability indicator - positioned on image */}
             <div className="absolute bottom-3 right-3 z-10">
               <div className="flex items-center gap-2 px-2.5 py-1.5 rounded-full bg-background/80 backdrop-blur-sm shadow-lg">
-                <div className={`w-2 h-2 rounded-full ${availabilityColor}`}></div>
-                <span className="text-xs font-semibold text-foreground">{availabilityText}</span>
+                <div
+                  className={`w-2 h-2 rounded-full ${availabilityColor}`}
+                ></div>
+                <span className="text-xs font-semibold text-foreground">
+                  {availabilityText}
+                </span>
               </div>
             </div>
           </figure>

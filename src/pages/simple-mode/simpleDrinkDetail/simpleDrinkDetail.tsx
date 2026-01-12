@@ -23,6 +23,7 @@ interface Recipe {
   name: string;
   description?: string;
   image?: string;
+  hasImage?: boolean;
   alcoholic: boolean;
   defaultGlass?: Glass;
   ingredients: Ingredient[];
@@ -32,6 +33,11 @@ const SimpleDrinkDetail = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const recipe = (location.state as any)?.recipe as Recipe | undefined;
+
+  // Scroll to top when component mounts
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
 
   // Redirect if no recipe data
   useEffect(() => {
@@ -73,7 +79,11 @@ const SimpleDrinkDetail = () => {
       <div className="flex-1 overflow-y-auto">
         <div className="p-3 sm:p-4 space-y-4 sm:space-y-6 max-w-4xl mx-auto">
           {/* Image */}
-          <DrinkImage image={recipe.image} name={recipe.name} />
+          <DrinkImage
+            recipeId={recipe.id}
+            hasImage={recipe.hasImage || false}
+            name={recipe.name}
+          />
 
           {/* Make Drink Button - Below Image */}
           <Button
@@ -81,9 +91,9 @@ const SimpleDrinkDetail = () => {
             size="lg"
             className="w-full h-12 sm:h-14 gap-2 sm:gap-3 text-sm sm:text-base font-semibold shadow-lg hover:shadow-xl transition-all duration-200 active:scale-95"
             onClick={() => {
-              navigate({ 
+              navigate({
                 to: '/simple/order',
-                state: { recipe }
+                state: { recipe },
               } as any);
             }}
           >

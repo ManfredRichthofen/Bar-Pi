@@ -95,19 +95,21 @@ const DrinkCustomizer = ({
   );
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 sm:space-y-5">
       <div className="flex items-center gap-3 mb-4">
-        <Settings className="w-6 h-6 text-primary" />
-        <h2 className="text-xl sm:text-2xl font-bold">Customize Your Drink</h2>
+        <Settings className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
+        <h2 className="text-lg sm:text-xl lg:text-2xl font-bold">
+          Customize Your Drink
+        </h2>
       </div>
 
       {/* Bento Grid for Customization Options */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 lg:gap-5">
         {/* Alcohol Strength Card */}
         <Card
-          className={`md:col-span-${automatedIngredients.length > 0 ? '1' : '2'}`}
+          className={`${automatedIngredients.length > 0 ? 'sm:col-span-1' : 'sm:col-span-2'} hover:shadow-md hover:border-primary/20 transition-all duration-300`}
         >
-          <CardContent className="p-4 sm:p-6">
+          <CardContent className="p-4 sm:p-5 lg:p-6">
             <div className="flex items-center gap-2 mb-4">
               <BeakerIcon className="w-5 h-5 text-primary" />
               <h3 className="text-base sm:text-lg font-bold">
@@ -116,16 +118,16 @@ const DrinkCustomizer = ({
             </div>
 
             {disableBoosting ? (
-              <Alert className="bg-yellow-500/10 border-yellow-500/30">
-                <AlertTriangle className="h-4 w-4 text-yellow-600 dark:text-yellow-400" />
+              <Alert className="bg-accent/10 border-accent/30">
+                <AlertTriangle className="h-4 w-4 text-accent-foreground" />
                 <AlertDescription className="text-sm">
                   This drink's strength cannot be adjusted
                 </AlertDescription>
               </Alert>
             ) : (
-              <div className="space-y-4">
+              <div className="space-y-5 sm:space-y-6">
                 <div className="text-center">
-                  <div className="text-3xl sm:text-4xl font-bold text-primary mb-1">
+                  <div className="text-3xl sm:text-4xl lg:text-5xl font-bold text-primary mb-2">
                     {customisations?.boost === 100
                       ? 'Normal'
                       : `${customisations?.boost > 100 ? '+' : ''}${(customisations?.boost || 100) - 100}%`}
@@ -135,29 +137,34 @@ const DrinkCustomizer = ({
                   </p>
                 </div>
 
-                <Slider
-                  value={[customisations?.boost || 100]}
-                  onValueChange={handleBoostChange}
-                  min={0}
-                  max={200}
-                  step={10}
-                  className="my-6"
-                />
+                <div className="px-2 sm:px-3">
+                  <Slider
+                    value={[customisations?.boost || 100]}
+                    onValueChange={handleBoostChange}
+                    min={0}
+                    max={200}
+                    step={10}
+                    className="my-6 sm:my-8"
+                  />
+                </div>
 
-                <div className="flex justify-between text-xs text-muted-foreground">
-                  <span className="font-medium">
-                    0%
-                    <br />
+                <div className="flex justify-between text-xs sm:text-sm text-muted-foreground px-1">
+                  <span className="font-medium text-center">
+                    <span className="block text-base sm:text-lg font-bold text-foreground">
+                      0%
+                    </span>
                     None
                   </span>
-                  <span className="font-medium">
-                    100%
-                    <br />
+                  <span className="font-medium text-center">
+                    <span className="block text-base sm:text-lg font-bold text-primary">
+                      100%
+                    </span>
                     Normal
                   </span>
-                  <span className="font-medium">
-                    200%
-                    <br />
+                  <span className="font-medium text-center">
+                    <span className="block text-base sm:text-lg font-bold text-foreground">
+                      200%
+                    </span>
                     Double
                   </span>
                 </div>
@@ -168,8 +175,8 @@ const DrinkCustomizer = ({
 
         {/* Additional Ingredients Card */}
         {automatedIngredients.length > 0 && (
-          <Card className="md:col-span-1">
-            <CardContent className="p-4 sm:p-6">
+          <Card className="sm:col-span-1 hover:shadow-md hover:border-primary/20 transition-all duration-300">
+            <CardContent className="p-4 sm:p-5 lg:p-6">
               <div className="flex items-center gap-2 mb-4">
                 <PlusCircle className="w-5 h-5 text-primary" />
                 <h3 className="text-base sm:text-lg font-bold">

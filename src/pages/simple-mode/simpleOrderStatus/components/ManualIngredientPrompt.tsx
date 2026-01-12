@@ -22,11 +22,11 @@ const ManualIngredientPrompt = ({
   confirming,
 }: ManualIngredientPromptProps) => {
   return (
-    <Card className="border-yellow-500/30 bg-yellow-500/5">
+    <Card className="border-accent/30 bg-accent/5">
       <CardContent className="p-4 sm:p-6">
         <div className="flex items-start gap-3 sm:gap-4 mb-4">
-          <div className="rounded-full p-2 sm:p-3 bg-yellow-500/20">
-            <AlertTriangle className="w-6 h-6 sm:w-8 sm:h-8 text-yellow-600 dark:text-yellow-400" />
+          <div className="rounded-full p-2 sm:p-3 bg-accent/20">
+            <AlertTriangle className="w-6 h-6 sm:w-8 sm:h-8 text-accent-foreground" />
           </div>
           <div className="flex-1">
             <h3 className="text-lg sm:text-xl font-bold mb-1">
@@ -43,12 +43,12 @@ const ManualIngredientPrompt = ({
             {ingredients.map((item, index) => (
               <div
                 key={`${item.ingredient.name}-${index}`}
-                className="flex justify-between items-center p-3 sm:p-4 bg-background rounded-lg border border-yellow-500/20 hover:border-yellow-500/40 transition-colors"
+                className="flex justify-between items-center p-3 sm:p-4 bg-background rounded-lg border border-accent/20 hover:border-accent/40 transition-colors"
               >
                 <span className="font-medium text-sm sm:text-base min-w-0 break-words flex-1 pr-2">
                   {item.ingredient.name}
                 </span>
-                <span className="text-sm sm:text-base text-yellow-600 dark:text-yellow-400 shrink-0 font-bold">
+                <span className="text-sm sm:text-base text-accent-foreground shrink-0 font-bold">
                   {item.amount} {item.ingredient.unit}
                 </span>
               </div>

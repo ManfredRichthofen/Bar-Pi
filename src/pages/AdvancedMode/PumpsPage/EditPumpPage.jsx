@@ -148,7 +148,6 @@ const EditPumpPage = () => {
     loadPumpData();
   }, [pumpId, token, setValue]);
 
-
   // Handle form submission
   const onSubmit = async (data) => {
     if (!token || !pumpId) return;
