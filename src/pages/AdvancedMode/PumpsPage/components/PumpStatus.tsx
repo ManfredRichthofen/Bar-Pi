@@ -62,51 +62,35 @@ export const PumpStatus: React.FC = () => {
       <Collapsible
         defaultOpen={typeof window !== 'undefined' && window.innerWidth > 768}
       >
-        <CardHeader className="bg-muted/50 rounded-t-2xl border-b">
-          <CardTitle className="text-base sm:text-lg">
+        <CardHeader className="border-b">
+          <CardTitle className="text-lg font-bold">
             {t('pump_status.headline')}
           </CardTitle>
         </CardHeader>
-        <CardContent className="divide-y">
-          <div className="py-4">
-            <h3 className="font-medium mb-3 text-muted-foreground text-sm">
+        <CardContent className="divide-y divide-border/50">
+          <div className="py-5">
+            <h3 className="font-semibold mb-4 text-sm uppercase tracking-wide text-muted-foreground">
               {t('pump_status.pumps_headline')}
             </h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-2 gap-x-2 sm:gap-x-4">
-              <div className="text-sm flex justify-between sm:block">
-                <span className="sm:hidden">
+            <div className="space-y-3">
+              <div className="flex items-center justify-between py-2 px-3 rounded-lg bg-muted/30">
+                <span className="text-sm font-medium">
                   {t('pump_status.pumps_installed')}
                 </span>
-                <span className="hidden sm:block">
-                  {t('pump_status.pumps_installed')}
-                </span>
-                <span className="sm:hidden">
-                  <Badge variant="default">{nrPumps}</Badge>
-                </span>
+                <Badge variant="default" className="font-semibold">{nrPumps}</Badge>
               </div>
-              <div className="hidden sm:block text-right">
-                <Badge variant="default">{nrPumps}</Badge>
-              </div>
-              <div className="text-sm flex justify-between sm:block">
-                <span className="sm:hidden">
+              <div className="flex items-center justify-between py-2 px-3 rounded-lg bg-muted/30">
+                <span className="text-sm font-medium">
                   {t('pump_status.pumps_ingredients_installed')}
                 </span>
-                <span className="hidden sm:block">
-                  {t('pump_status.pumps_ingredients_installed')}
-                </span>
-                <span className="sm:hidden">
-                  <Badge variant="default">{nrIngredientsInstalled}</Badge>
-                </span>
-              </div>
-              <div className="hidden sm:block text-right">
-                <Badge variant="default">{nrIngredientsInstalled}</Badge>
+                <Badge variant="default" className="font-semibold">{nrIngredientsInstalled}</Badge>
               </div>
             </div>
           </div>
 
-          <div className="py-4">
-            <div className="flex justify-between items-center mb-3">
-              <h3 className="font-medium text-muted-foreground text-sm">
+          <div className="py-5">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="font-semibold text-sm uppercase tracking-wide text-muted-foreground">
                 {t('pump_status.reverse_pumping_headline')}
               </h3>
               <Button
@@ -114,73 +98,40 @@ export const PumpStatus: React.FC = () => {
                 size="icon-sm"
                 onClick={() => navigate({ to: '/reversepumpsettings' })}
                 title={t('common.edit')}
+                className="-mr-2"
               >
-                <Pencil />
+                <Pencil className="h-4 w-4" />
               </Button>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-2 gap-x-2 sm:gap-x-4">
-              <div className="text-sm flex justify-between sm:block">
-                <span className="sm:hidden">
+            <div className="space-y-3">
+              <div className="flex items-center justify-between py-2 px-3 rounded-lg bg-muted/30">
+                <span className="text-sm font-medium">
                   {t('pump_status.reverse_pumping')}
                 </span>
-                <span className="hidden sm:block">
-                  {t('pump_status.reverse_pumping')}
-                </span>
-                <span className="sm:hidden">
-                  <Badge
-                    variant={
-                      reversePumpSettings?.enable ? 'default' : 'destructive'
-                    }
-                  >
-                    {reversePumpingStatus}
-                  </Badge>
-                </span>
-              </div>
-              <div className="hidden sm:block text-right">
                 <Badge
                   variant={
                     reversePumpSettings?.enable ? 'default' : 'destructive'
                   }
+                  className="font-semibold"
                 >
                   {reversePumpingStatus}
                 </Badge>
               </div>
               {reversePumpSettings?.enable && (
                 <>
-                  <div className="text-sm flex justify-between sm:block">
-                    <span className="sm:hidden">
+                  <div className="flex items-center justify-between py-2 px-3 rounded-lg bg-muted/30">
+                    <span className="text-sm font-medium">
                       {t('pump_status.reverse_pumping_overshoot')}
                     </span>
-                    <span className="hidden sm:block">
-                      {t('pump_status.reverse_pumping_overshoot')}
-                    </span>
-                    <span className="sm:hidden">
-                      <Badge variant="outline">
-                        {reversePumpSettings?.settings?.overshoot || 0}%
-                      </Badge>
-                    </span>
-                  </div>
-                  <div className="hidden sm:block text-right">
-                    <Badge variant="outline">
+                    <Badge variant="outline" className="font-semibold">
                       {reversePumpSettings?.settings?.overshoot || 0}%
                     </Badge>
                   </div>
-                  <div className="text-sm flex justify-between sm:block">
-                    <span className="sm:hidden">
+                  <div className="flex items-center justify-between py-2 px-3 rounded-lg bg-muted/30">
+                    <span className="text-sm font-medium">
                       {t('pump_status.reverse_pumping_timer')}
                     </span>
-                    <span className="hidden sm:block">
-                      {t('pump_status.reverse_pumping_timer')}
-                    </span>
-                    <span className="sm:hidden">
-                      <Badge variant="outline">
-                        {reversePumpSettings?.settings?.autoPumpBackTimer || 0}{' '}
-                        min
-                      </Badge>
-                    </span>
-                  </div>
-                  <div className="hidden sm:block text-right">
-                    <Badge variant="outline">
+                    <Badge variant="outline" className="font-semibold">
                       {reversePumpSettings?.settings?.autoPumpBackTimer || 0}{' '}
                       min
                     </Badge>
@@ -190,9 +141,9 @@ export const PumpStatus: React.FC = () => {
             </div>
           </div>
 
-          <div className="py-4">
-            <div className="flex justify-between items-center mb-3">
-              <h3 className="font-medium text-muted-foreground text-sm">
+          <div className="py-5">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="font-semibold text-sm uppercase tracking-wide text-muted-foreground">
                 {t('pump_status.load_cell_headline')}
               </h3>
               <Button
@@ -200,66 +151,37 @@ export const PumpStatus: React.FC = () => {
                 size="icon-sm"
                 onClick={() => navigate({ to: '/reversepumpsettings' } as any)}
                 title={t('common.edit')}
+                className="-mr-2"
               >
-                <Pencil />
+                <Pencil className="h-4 w-4" />
               </Button>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-2 gap-x-2 sm:gap-x-4">
-              <div className="text-sm flex justify-between sm:block">
-                <span className="sm:hidden">
+            <div className="space-y-3">
+              <div className="flex items-center justify-between py-2 px-3 rounded-lg bg-muted/30">
+                <span className="text-sm font-medium">
                   {t('pump_status.load_cell_status')}
                 </span>
-                <span className="hidden sm:block">
-                  {t('pump_status.load_cell_status')}
-                </span>
-                <span className="sm:hidden">
-                  <Badge
-                    variant={
-                      loadCellSettings?.enable ? 'default' : 'destructive'
-                    }
-                  >
-                    {loadCellStatus}
-                  </Badge>
-                </span>
-              </div>
-              <div className="hidden sm:block text-right">
                 <Badge
                   variant={loadCellSettings?.enable ? 'default' : 'destructive'}
+                  className="font-semibold"
                 >
                   {loadCellStatus}
                 </Badge>
               </div>
               {loadCellSettings?.enable && (
-                <>
-                  <div className="text-sm flex justify-between sm:block">
-                    <span className="sm:hidden">
-                      {t('pump_status.load_cell_calibrated')}
-                    </span>
-                    <span className="hidden sm:block">
-                      {t('pump_status.load_cell_calibrated')}
-                    </span>
-                    <span className="sm:hidden">
-                      <Badge
-                        variant={
-                          loadCellSettings?.calibrated
-                            ? 'default'
-                            : 'destructive'
-                        }
-                      >
-                        {loadCellCalibrated}
-                      </Badge>
-                    </span>
-                  </div>
-                  <div className="hidden sm:block text-right">
-                    <Badge
-                      variant={
-                        loadCellSettings?.calibrated ? 'default' : 'destructive'
-                      }
-                    >
-                      {loadCellCalibrated}
-                    </Badge>
-                  </div>
-                </>
+                <div className="flex items-center justify-between py-2 px-3 rounded-lg bg-muted/30">
+                  <span className="text-sm font-medium">
+                    {t('pump_status.load_cell_calibrated')}
+                  </span>
+                  <Badge
+                    variant={
+                      loadCellSettings?.calibrated ? 'default' : 'destructive'
+                    }
+                    className="font-semibold"
+                  >
+                    {loadCellCalibrated}
+                  </Badge>
+                </div>
               )}
             </div>
           </div>

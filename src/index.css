@@ -28,6 +28,14 @@
   --chart-3: oklch(0.854 0.012 264.504);
   --chart-4: oklch(0.953 0.002 264.544);
   --chart-5: oklch(0.599 0.159 262.59);
+  --sidebar: oklch(0.97 0.01 264.5);
+  --sidebar-foreground: oklch(0 0 0);
+  --sidebar-primary: oklch(0.601 0.153 262.676);
+  --sidebar-primary-foreground: oklch(1 0 180);
+  --sidebar-accent: oklch(0.854 0.012 264.504);
+  --sidebar-accent-foreground: oklch(0.331 0.018 264.282);
+  --sidebar-border: oklch(0.946 0.001 264.549);
+  --sidebar-ring: oklch(0.601 0.153 262.676);
 }
 
 .dark {
@@ -56,6 +64,14 @@
   --chart-3: oklch(0.272 0.014 264.308);
   --chart-4: oklch(0.234 0.006 264.454);
   --chart-5: oklch(0.599 0.159 262.59);
+  --sidebar: oklch(0.19 0.02 262.622);
+  --sidebar-foreground: oklch(0.992 0.001 264.549);
+  --sidebar-primary: oklch(0.601 0.153 262.676);
+  --sidebar-primary-foreground: oklch(1 0 180);
+  --sidebar-accent: oklch(0.272 0.014 264.308);
+  --sidebar-accent-foreground: oklch(0.804 0.016 264.478);
+  --sidebar-border: oklch(0.247 0.002 264.528);
+  --sidebar-ring: oklch(0.601 0.153 262.676);
 }
 
 @theme inline {
@@ -114,6 +130,43 @@
 @plugin "tailwindcss-animate";
 
 @layer utilities {
+  /* Running pump indicator - override Card ring border */
+  [data-slot="card"].pump-running {
+    --tw-ring-color: var(--primary) !important;
+    --tw-ring-opacity: 1 !important;
+    box-shadow: 0 0 0 2px var(--primary), 
+                0 10px 15px -3px oklch(0.601 0.153 262.676 / 0.3) !important;
+  }
+
+  /* Scrolling progress bar animation */
+  @keyframes progress-scroll {
+    0% {
+      background-position: 0 0;
+    }
+    100% {
+      background-position: 40px 0;
+    }
+  }
+
+  /* Target progress indicator with multiple selectors for reliability */
+  .progress-scrolling [data-slot="progress-indicator"],
+  .running-progress [data-slot="progress-indicator"],
+  .progress-scrolling .bg-primary,
+  .running-progress .bg-primary {
+    background-image: linear-gradient(
+      45deg,
+      rgba(255, 255, 255, 0.3) 25%,
+      transparent 25%,
+      transparent 50%,
+      rgba(255, 255, 255, 0.3) 50%,
+      rgba(255, 255, 255, 0.3) 75%,
+      transparent 75%,
+      transparent
+    ) !important;
+    background-size: 40px 40px !important;
+    animation: progress-scroll 1s linear infinite !important;
+  }
+
   .scrollbar-thin {
     scrollbar-width: thin;
   }

@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from '@tanstack/react-router';
 import { useTranslation } from 'react-i18next';
 import { useForm } from 'react-hook-form';
-import { Save, AlertCircle, CheckCircle, Loader2, X } from 'lucide-react';
+import { Save, AlertCircle, CheckCircle, Loader2, X, ArrowLeft } from 'lucide-react';
 import useAuthStore from '../../../../store/authStore';
 import PumpSettingsService from '../../../../services/pumpsettings.service';
 import GpioService from '../../../../services/gpio.service';
@@ -169,60 +169,85 @@ const ReversePumping = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background p-4 sm:p-6">
-      <div className="max-w-4xl mx-auto">
-        <h1 className="text-xl sm:text-2xl font-bold mb-4">
-          {t('component.reverse_pump_settings.headline', {
-            defaultValue: 'Reverse Pump Settings',
-          })}
-        </h1>
+    <div className="min-h-screen bg-background">
+      {/* Header */}
+      <div className="sticky top-0 z-20 bg-background/95 backdrop-blur-md border-b shadow-sm pt-2">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-5">
+          <div className="flex items-center gap-3">
+            <Button
+              onClick={() => navigate({ to: '/pumps' })}
+              variant="ghost"
+              size="icon-sm"
+              title="Back to Pumps"
+            >
+              <ArrowLeft className="h-4 w-4" />
+            </Button>
+            <div>
+              <h1 className="text-3xl font-bold tracking-tight">
+                {t('component.reverse_pump_settings.headline', {
+                  defaultValue: 'Reverse Pump Settings',
+                })}
+              </h1>
+              <p className="text-sm text-muted-foreground mt-1">
+                Configure reverse pumping and load cell settings
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
 
-        {success && (
-          <Alert className="mb-4">
-            <CheckCircle className="h-4 w-4" />
-            <AlertDescription>{success}</AlertDescription>
-          </Alert>
-        )}
-        {error && (
-          <Alert variant="destructive" className="mb-4">
-            <AlertCircle className="h-4 w-4" />
-            <AlertDescription>{error}</AlertDescription>
-          </Alert>
-        )}
+      {/* Main Content */}
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+        <div className="max-w-4xl mx-auto">
+          {success && (
+            <Alert className="mb-6">
+              <CheckCircle className="h-4 w-4" />
+              <AlertDescription>{success}</AlertDescription>
+            </Alert>
+          )}
+          {error && (
+            <Alert variant="destructive" className="mb-6">
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          )}
 
-        <Card>
-          <CardContent className="pt-6">
-            <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
-              {/* Enable toggle */}
-              <Card>
-                <CardContent className="pt-6">
-                  <div className="flex items-center justify-between">
-                    <Label htmlFor="enable" className="cursor-pointer">
+          <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
+            {/* Enable toggle */}
+            <Card>
+              <CardContent className="pt-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <Label htmlFor="enable" className="cursor-pointer text-base font-semibold">
                       {t('component.reverse_pump_settings.form.enable_label', {
                         defaultValue: 'Enable Reverse Pumping',
                       })}
                     </Label>
-                    <Switch
-                      id="enable"
-                      checked={watch('enable')}
-                      onCheckedChange={(checked) => setValue('enable', checked)}
-                    />
+                    <p className="text-sm text-muted-foreground mt-1">
+                      Allow pumps to reverse direction for cleaning
+                    </p>
                   </div>
-                </CardContent>
-              </Card>
+                  <Switch
+                    id="enable"
+                    checked={watch('enable')}
+                    onCheckedChange={(checked) => setValue('enable', checked)}
+                  />
+                </div>
+              </CardContent>
+            </Card>
 
-              {/* Director Pin and Forward State */}
-              {enable && (
-                <Card>
-                  <CardHeader>
-                    <CardTitle>
-                      {t(
-                        'component.reverse_pump_settings.form.vd_pin_headline',
-                        { defaultValue: 'Direction/Driver Pin' },
-                      )}
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
+            {/* Director Pin and Forward State */}
+            {enable && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg font-bold">
+                    {t(
+                      'component.reverse_pump_settings.form.vd_pin_headline',
+                      { defaultValue: 'Direction/Driver Pin' },
+                    )}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="space-y-2">
                         <Label htmlFor="gpioBoard">
@@ -378,14 +403,19 @@ const ReversePumping = () => {
                         </Select>
                       </div>
                     </div>
-                  </CardContent>
-                </Card>
-              )}
+                </CardContent>
+              </Card>
+            )}
 
-              {/* Overshoot and Timer */}
-              {enable && (
-                <Card>
-                  <CardContent className="pt-6">
+            {/* Overshoot and Timer */}
+            {enable && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg font-bold">
+                    Advanced Settings
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="space-y-2">
                         <Label htmlFor="overshoot">
@@ -452,33 +482,43 @@ const ReversePumping = () => {
                         </Select>
                       </div>
                     </div>
-                  </CardContent>
-                </Card>
-              )}
+                </CardContent>
+              </Card>
+            )}
 
-              {/* Actions */}
-              <div className="flex justify-end">
-                <Button type="submit" disabled={saving}>
-                  {saving ? (
-                    <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                  ) : (
-                    <Save className="h-4 w-4 mr-2" />
-                  )}
-                  {t('component.reverse_pump_settings.form.save_btn_label', {
-                    defaultValue: 'Save',
-                  })}
-                </Button>
-              </div>
-            </form>
-          </CardContent>
-        </Card>
-
-        {loading && (
-          <div className="fixed inset-0 bg-background/50 backdrop-blur-sm flex justify-center items-center z-50">
-            <Loader2 className="h-8 w-8 animate-spin" />
-          </div>
-        )}
+            {/* Actions */}
+            <div className="flex justify-end gap-3 pt-8 border-t mt-8">
+              <Button
+                type="button"
+                variant="outline"
+                size="lg"
+                onClick={() => navigate({ to: '/pumps' })}
+              >
+                Cancel
+              </Button>
+              <Button type="submit" disabled={saving} size="lg" className="gap-2">
+                {saving ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <Save className="h-4 w-4" />
+                )}
+                {t('component.reverse_pump_settings.form.save_btn_label', {
+                  defaultValue: 'Save Changes',
+                })}
+              </Button>
+            </div>
+          </form>
+        </div>
       </div>
+
+      {loading && (
+        <div className="fixed inset-0 bg-background/80 backdrop-blur-sm flex justify-center items-center z-50">
+          <div className="flex flex-col items-center gap-3">
+            <Loader2 className="h-10 w-10 animate-spin" />
+            <p className="text-sm text-muted-foreground">Loading settings...</p>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
