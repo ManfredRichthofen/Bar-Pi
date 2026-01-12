@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   GlassWater,
   Heart,
@@ -12,6 +12,14 @@ import {
   Tag,
 } from 'lucide-react';
 import { useNavigate, useLocation } from '@tanstack/react-router';
+import { canAccessRoute } from '../utils/roleAccess';
+import useAuthStore from '../store/authStore';
+import userService from '../services/user.service';
+
+interface UserData {
+  username: string;
+  role: string;
+}
 
 interface SidebarProps {
   collapsed: boolean;
@@ -21,6 +29,32 @@ interface SidebarProps {
 const Sidebar: React.FC<SidebarProps> = ({ collapsed, onCollapse }) => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { token } = useAuthStore();
+  const [userData, setUserData] = useState<UserData | null>(null);
+  const [loading, setLoading] = useState(true);
+  
+  useEffect(() => {
+    const fetchUserData = async () => {
+      if (!token) {
+        setLoading(false);
+        return;
+      }
+
+      try {
+        const headers = {
+          Authorization: `Bearer ${token}`,
+        };
+        const data = await userService.getMe(headers);
+        setUserData(data);
+      } catch (error) {
+        console.error('Failed to fetch user data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUserData();
+  }, [token]);
 
   const menuItems = [
     {
@@ -124,44 +158,63 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed, onCollapse }) => {
 
           <div className="flex-1 overflow-y-auto overflow-x-hidden">
             <nav className="p-3 sm:p-4 space-y-6">
-              {menuItems.map((group) => (
-                <div key={group.group}>
-                  <h2 className="text-xs font-semibold tracking-wider text-muted-foreground px-2 mb-2 uppercase">
-                    {group.group}
-                  </h2>
-                  <div className="space-y-1">
-                    {group.items.map((item) => (
-                      <button
-                        key={item.key}
-                        className={`w-full flex items-center gap-3 px-3 sm:px-4 py-2.5 rounded-lg transition-all duration-200 text-left
-                          ${
-                            location.pathname === item.key
-                              ? 'bg-primary/10 text-primary hover:bg-primary/15 font-medium'
-                              : 'text-muted-foreground hover:text-foreground hover:bg-accent'
-                          }
-                          active:scale-[0.98]`}
-                        onClick={() => {
-                          navigate({ to: item.key });
-                          if (window.innerWidth < 640) {
-                            onCollapse(true);
-                          }
-                        }}
-                      >
-                        {React.cloneElement(item.icon, {
-                          size: 18,
-                          strokeWidth: 2,
-                          className: `transition-colors duration-200 ${
-                            location.pathname === item.key ? 'text-primary' : ''
-                          }`,
-                        })}
-                        <span className="text-sm whitespace-nowrap">
-                          {item.label}
-                        </span>
-                      </button>
-                    ))}
+              {menuItems.map((group) => {
+                const accessibleItems = group.items.filter((item) => {
+                  if (loading || !userData) {
+                    return item.key === '/drinks' || item.key === '/favorites';
+                  }
+                  
+                  if (item.key === '/drinks' || item.key === '/favorites') {
+                    return true;
+                  }
+                  
+                  return canAccessRoute(userData.role, item.key);
+                });
+
+                // Only show the section if there are accessible items
+                if (accessibleItems.length === 0) {
+                  return null;
+                }
+
+                return (
+                  <div key={group.group}>
+                    <h2 className="text-xs font-semibold tracking-wider text-muted-foreground px-2 mb-2 uppercase">
+                      {group.group}
+                    </h2>
+                    <div className="space-y-1">
+                      {accessibleItems.map((item) => (
+                        <button
+                          key={item.key}
+                          className={`w-full flex items-center gap-3 px-3 sm:px-4 py-2.5 rounded-lg transition-all duration-200 text-left
+                            ${
+                              location.pathname === item.key
+                                ? 'bg-primary/10 text-primary hover:bg-primary/15 font-medium'
+                                : 'text-muted-foreground hover:text-foreground hover:bg-accent'
+                            }
+                            active:scale-[0.98]`}
+                          onClick={() => {
+                            navigate({ to: item.key });
+                            if (window.innerWidth < 640) {
+                              onCollapse(true);
+                            }
+                          }}
+                        >
+                          {React.cloneElement(item.icon, {
+                            size: 18,
+                            strokeWidth: 2,
+                            className: `transition-colors duration-200 ${
+                              location.pathname === item.key ? 'text-primary' : ''
+                            }`,
+                          })}
+                          <span className="text-sm whitespace-nowrap">
+                            {item.label}
+                          </span>
+                        </button>
+                      ))}
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </nav>
           </div>
         </div>

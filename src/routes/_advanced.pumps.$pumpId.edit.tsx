@@ -6,5 +6,6 @@ export const Route = createFileRoute('/_advanced/pumps/$pumpId/edit')({
 });
 
 function EditPumpRoute() {
+  console.log('EditPumpRoute rendering');
   return <EditPumpPage />;
 }

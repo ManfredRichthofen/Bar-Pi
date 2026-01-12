@@ -1,7 +1,9 @@
 import React from 'react';
 import { CheckCircle, XCircle } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 const IngredientRequirements = ({ requiredIngredients }) => {
+  const { t } = useTranslation();
   const insufficientIngredients = requiredIngredients.filter(
     (x) => x.amountMissing > 0,
   );
@@ -36,7 +38,7 @@ const IngredientRequirements = ({ requiredIngredients }) => {
                   {!isFulfilled && item.amountMissing > 0 && (
                     <span className="text-error">
                       {' '}
-                      (missing: {item.amountMissing} {item.ingredient.unit})
+                      ({t('ingredient_requirements.missing')}: {item.amountMissing} {item.ingredient.unit})
                     </span>
                   )}
                 </span>

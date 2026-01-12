@@ -1,6 +1,7 @@
 import { AlertTriangle, CheckCircle } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { useTranslation } from 'react-i18next';
 
 interface ManualIngredient {
   ingredient: {
@@ -21,6 +22,7 @@ const ManualIngredientPrompt = ({
   onConfirm,
   confirming,
 }: ManualIngredientPromptProps) => {
+  const { t } = useTranslation();
   return (
     <Card className="border-yellow-500/30 bg-yellow-500/5">
       <CardContent className="p-4 sm:p-6">
@@ -30,10 +32,10 @@ const ManualIngredientPrompt = ({
           </div>
           <div className="flex-1">
             <h3 className="text-lg sm:text-xl font-bold mb-1">
-              Manual Action Required
+              {t('manual_ingredient_prompt.title')}
             </h3>
             <p className="text-sm sm:text-base text-muted-foreground">
-              Please add the following ingredients manually
+              {t('manual_ingredient_prompt.description')}
             </p>
           </div>
         </div>
@@ -56,7 +58,7 @@ const ManualIngredientPrompt = ({
           </div>
         ) : (
           <p className="text-sm sm:text-base text-muted-foreground mb-4 sm:mb-6">
-            Required ingredients will be listed here
+            {t('manual_ingredient_prompt.no_ingredients')}
           </p>
         )}
 
@@ -67,7 +69,7 @@ const ManualIngredientPrompt = ({
           size="lg"
         >
           <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5" />
-          {confirming ? 'Confirming...' : 'Confirm Ingredients Added'}
+          {confirming ? t('manual_ingredient_prompt.confirming') : t('manual_ingredient_prompt.confirm_button')}
         </Button>
       </CardContent>
     </Card>

@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { useTranslation } from 'react-i18next';
 import {
   Select,
   SelectContent,
@@ -38,12 +39,13 @@ const RecipeModal = ({
   removeIngredientFromStep,
   updateStepIngredient,
 }) => {
+  const { t } = useTranslation();
   return (
     <Dialog open={isVisible} onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="max-w-5xl max-h-[90vh] overflow-hidden p-0 flex flex-col">
         <DialogHeader className="px-6 py-4 border-b">
           <DialogTitle className="text-xl">
-            {editingRecipe ? 'Edit Recipe' : 'Create Recipe'}
+            {editingRecipe ? t('recipe_modal.edit_title') : t('recipe_modal.create_title')}
           </DialogTitle>
           <DialogDescription>
             Define the basics, image and production steps for this drink.
@@ -53,7 +55,7 @@ const RecipeModal = ({
         <div className="flex-1 overflow-y-auto px-6 pb-6 pt-4 space-y-6">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="recipe-name">Recipe Name *</Label>
+              <Label htmlFor="recipe-name">{t('recipe_modal.name_required')}</Label>
               <Input
                 id="recipe-name"
                 placeholder="Enter recipe name"
@@ -64,7 +66,7 @@ const RecipeModal = ({
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="default-glass">Default Glass</Label>
+              <Label htmlFor="default-glass">{t('recipe_modal.default_glass')}</Label>
               <Select
                 value={formData.defaultGlass?.id?.toString() || ''}
                 onValueChange={(value) => {
@@ -88,7 +90,7 @@ const RecipeModal = ({
               </Select>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="default-amount">Default Amount (ml)</Label>
+              <Label htmlFor="default-amount">{t('recipe_modal.default_amount_ml')}</Label>
               <Input
                 id="default-amount"
                 type="number"
@@ -103,10 +105,10 @@ const RecipeModal = ({
             </div>
           </div>
           <div className="space-y-2">
-            <Label htmlFor="description">Description</Label>
+            <Label htmlFor="description">{t('recipe_modal.description')}</Label>
             <Textarea
               id="description"
-              placeholder="Describe the drink, flavor profile or any notes for the bartender"
+              placeholder={t('recipe_modal.description_placeholder')}
               value={formData.description}
               onChange={(e) =>
                 setFormData((prev) => ({
@@ -119,13 +121,13 @@ const RecipeModal = ({
           </div>
 
           <div className="space-y-2">
-            <Label>Recipe Image</Label>
+            <Label>{t('recipe_modal.image')}</Label>
             <div className="flex flex-wrap items-center gap-4">
               {formData.imagePreview ? (
                 <div className="relative w-32 h-32 rounded-lg overflow-hidden shadow-sm">
                   <img
                     src={formData.imagePreview}
-                    alt="Recipe preview"
+                    alt={t('recipe_modal.preview_alt')}
                     className="w-full h-full object-cover"
                   />
                   <Button
@@ -148,7 +150,7 @@ const RecipeModal = ({
                 <label className="flex flex-col items-center justify-center w-32 h-32 border-2 border-dashed rounded-lg cursor-pointer hover:bg-muted/50 transition-colors">
                   <div className="flex flex-col items-center justify-center p-3">
                     <ImageIcon size={24} className="mb-2" />
-                    <p className="text-xs text-center font-semibold">Upload</p>
+                    <p className="text-xs text-center font-semibold">{t('recipe_modal.upload')}</p>
                   </div>
                   <input
                     type="file"
@@ -171,7 +173,7 @@ const RecipeModal = ({
                       }))
                     }
                   />
-                  <span className="text-sm">Remove existing image</span>
+                  <span className="text-sm">{t('recipe_modal.remove_existing_image')}</span>
                 </div>
               )}
             </div>
@@ -180,10 +182,9 @@ const RecipeModal = ({
           <div className="border-t pt-6">
             <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
               <div>
-                <h4 className="font-semibold text-base">Production Steps</h4>
+                <h4 className="font-semibold text-base">{t('recipe_modal.production_steps')}</h4>
                 <p className="text-xs text-muted-foreground mt-1">
-                  Build the drink using ingredient steps and written
-                  instructions.
+                  {t('recipe_modal.production_steps_description')}
                 </p>
               </div>
               <div className="flex gap-2">
@@ -193,7 +194,7 @@ const RecipeModal = ({
                   size="sm"
                   onClick={() => addProductionStep('addIngredients')}
                 >
-                  + Add Ingredients
+                  {t('recipe_modal.add_ingredients')}
                 </Button>
                 <Button
                   type="button"
@@ -201,7 +202,7 @@ const RecipeModal = ({
                   size="sm"
                   onClick={() => addProductionStep('writtenInstruction')}
                 >
-                  + Add Instruction
+                  {t('recipe_modal.add_instruction')}
                 </Button>
               </div>
             </div>
@@ -212,10 +213,10 @@ const RecipeModal = ({
                   <CardContent className="pt-4">
                     <div className="flex items-center justify-between gap-3 mb-3">
                       <span className="font-medium text-sm">
-                        Step {stepIndex + 1} ·{' '}
+                        {t('recipe_modal.step')} {stepIndex + 1} ·{' '}
                         {step.type === 'addIngredients'
-                          ? 'Add ingredients'
-                          : 'Instruction'}
+                          ? t('recipe_modal.add_ingredients')
+                          : t('recipe_modal.instruction')}
                       </span>
                       <Button
                         type="button"
@@ -315,12 +316,12 @@ const RecipeModal = ({
                           className="w-full mt-1"
                           onClick={() => addIngredientToStep(stepIndex)}
                         >
-                          + Add Ingredient
+                          {t('recipe_modal.add_ingredient')}
                         </Button>
                       </div>
                     ) : (
                       <Textarea
-                        placeholder="Enter instruction"
+                        placeholder={t('recipe_modal.enter_instruction')}
                         value={step.message || ''}
                         onChange={(e) =>
                           updateProductionStep(stepIndex, {
@@ -339,10 +340,10 @@ const RecipeModal = ({
 
         <DialogFooter className="px-6 py-4 border-t">
           <Button type="button" variant="outline" onClick={onClose}>
-            Cancel
+            {t('recipe_modal.cancel')}
           </Button>
           <Button type="button" onClick={onSave}>
-            {editingRecipe ? 'Update Recipe' : 'Create Recipe'}
+            {editingRecipe ? t('recipe_modal.update_recipe') : t('recipe_modal.create_recipe')}
           </Button>
         </DialogFooter>
       </DialogContent>

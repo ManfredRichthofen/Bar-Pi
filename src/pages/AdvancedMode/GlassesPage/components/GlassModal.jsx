@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { useTranslation } from 'react-i18next';
 import {
   Dialog,
   DialogContent,
@@ -13,6 +14,7 @@ import {
 } from '@/components/ui/dialog';
 
 function GlassModal({ show, onHide, onSave, glass }) {
+  const { t } = useTranslation();
   const [formData, setFormData] = useState({
     name: '',
     description: '',
@@ -60,7 +62,7 @@ function GlassModal({ show, onHide, onSave, glass }) {
           </DialogHeader>
           <div className="grid gap-4 py-4">
             <div className="grid gap-2">
-              <Label htmlFor="name">Name</Label>
+              <Label htmlFor="name">{t('glass_modal.name')}</Label>
               <Input
                 id="name"
                 name="name"
@@ -70,7 +72,7 @@ function GlassModal({ show, onHide, onSave, glass }) {
               />
             </div>
             <div className="grid gap-2">
-              <Label htmlFor="description">Description</Label>
+              <Label htmlFor="description">{t('glass_modal.description')}</Label>
               <Textarea
                 id="description"
                 name="description"
@@ -82,9 +84,9 @@ function GlassModal({ show, onHide, onSave, glass }) {
           </div>
           <DialogFooter>
             <Button type="button" variant="outline" onClick={onHide}>
-              Cancel
+              {t('glass_modal.cancel')}
             </Button>
-            <Button type="submit">Save</Button>
+            <Button type="submit">{t('glass_modal.save')}</Button>
           </DialogFooter>
         </form>
       </DialogContent>

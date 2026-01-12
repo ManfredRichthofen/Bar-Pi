@@ -59,8 +59,10 @@ const StepperMotorIcon = ({ width = 24, height = 24, className = '' }) => (
 );
 
 const EditPumpPage = () => {
-  const { pumpId } = useParams({ from: '/pumps/$pumpId/edit' });
-  const navigate = useNavigate();
+  const navigate = useNavigate({ from: '/pumps/$pumpId/edit' });
+  const params = useParams({ strict: false });
+  const pumpId = params?.pumpId;
+  console.log('EditPumpPage rendering, pumpId:', pumpId);
   const { t } = useTranslation();
   const token = useAuthStore((state) => state.token);
   const { updatePump, removePump } = usePumpStore();
@@ -108,16 +110,22 @@ const EditPumpPage = () => {
   // Load pump data
   useEffect(() => {
     const loadPumpData = async () => {
-      if (!token || !pumpId) return;
+      console.log('loadPumpData called, token:', !!token, 'pumpId:', pumpId);
+      if (!token || !pumpId) {
+        console.log('Aborting load - missing token or pumpId');
+        return;
+      }
 
       try {
         setLoading(true);
+        console.log('Fetching pump data for pumpId:', pumpId);
         const [pumpData, ingredientsData, boardsData] = await Promise.all([
           PumpService.getPump(pumpId, token),
           IngredientService.getIngredients(token),
           GpioService.getBoards(token),
         ]);
 
+        console.log('Pump data loaded:', pumpData);
         setPump(pumpData);
         setIngredients(ingredientsData);
         setBoards(boardsData);
@@ -255,7 +263,10 @@ const EditPumpPage = () => {
     }
   };
 
+  console.log('Render state - loading:', loading, 'pump:', !!pump, 'pumpId:', pumpId);
+
   if (loading) {
+    console.log('Rendering loading state');
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin" />
@@ -264,6 +275,7 @@ const EditPumpPage = () => {
   }
 
   if (!pump) {
+    console.log('Rendering pump not found state');
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
@@ -280,6 +292,8 @@ const EditPumpPage = () => {
       </div>
     );
   }
+
+  console.log('Rendering main edit form');
 
   return (
     <div className="min-h-screen bg-background">

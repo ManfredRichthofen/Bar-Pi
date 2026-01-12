@@ -8,8 +8,10 @@ import {
   CardHeader,
 } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { useTranslation } from 'react-i18next';
 
 const RecipeCard = ({ recipe, isFavorite, onEdit, onDelete }) => {
+  const { t } = useTranslation();
   const handleEditClick = () => {
     onEdit(recipe);
   };
@@ -31,7 +33,7 @@ const RecipeCard = ({ recipe, isFavorite, onEdit, onDelete }) => {
         ) : (
           <div className="w-full h-full bg-gradient-to-br from-muted to-muted/80 flex items-center justify-center">
             <span className="text-muted-foreground text-sm font-medium">
-              No image
+              {t('recipe_card.no_image')}
             </span>
           </div>
         )}
@@ -55,8 +57,8 @@ const RecipeCard = ({ recipe, isFavorite, onEdit, onDelete }) => {
           </p>
         )}
         <div className="text-xs text-muted-foreground">
-          {recipe.productionSteps?.length || 0} step
-          {recipe.productionSteps?.length !== 1 ? 's' : ''}
+          {recipe.productionSteps?.length || 0} {t('recipe_card.step')}
+          {recipe.productionSteps?.length !== 1 ? t('recipe_card.steps_plural') : ''}
         </div>
       </CardContent>
 
