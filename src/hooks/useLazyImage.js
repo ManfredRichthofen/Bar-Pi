@@ -36,7 +36,7 @@ export const useLazyImage = (recipeId, hasImage) => {
       {
         rootMargin: '50px', // Start loading 50px before entering viewport
         threshold: 0.01,
-      }
+      },
     );
 
     if (elementRef.current) {
@@ -69,7 +69,7 @@ export const useLazyImage = (recipeId, hasImage) => {
 
       const uint8Array = new Uint8Array(response.data);
       const base64String = btoa(
-        uint8Array.reduce((data, byte) => data + String.fromCharCode(byte), '')
+        uint8Array.reduce((data, byte) => data + String.fromCharCode(byte), ''),
       );
       const contentType = response.headers['content-type'] || 'image/jpeg';
       const dataUrl = `data:${contentType};base64,${base64String}`;

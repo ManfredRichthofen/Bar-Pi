@@ -139,15 +139,6 @@ const AddPumpModal = ({ show, onClose, pumpType = null }) => {
     }
   };
 
-  // Show toast notification
-  const showToast = (message, type = 'success') => {
-    if (type === 'success') {
-      toast.success(message);
-    } else {
-      toast.error(message);
-    }
-  };
-
   // Handle form submission
   const onSubmit = async (data) => {
     if (!token) return;
@@ -164,7 +155,7 @@ const AddPumpModal = ({ show, onClose, pumpType = null }) => {
       addPump(newPump);
 
       setSuccess('Pump created successfully');
-      showToast('Pump created successfully', 'success');
+      toast.success('Pump created successfully');
 
       // Reset form
       reset();
@@ -176,7 +167,7 @@ const AddPumpModal = ({ show, onClose, pumpType = null }) => {
     } catch (err) {
       console.error('Error creating pump:', err);
       setError('Failed to create pump');
-      showToast('Failed to create pump', 'error');
+      toast.error('Failed to create pump');
     } finally {
       setSaving(false);
     }

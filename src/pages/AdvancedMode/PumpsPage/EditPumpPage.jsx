@@ -156,15 +156,6 @@ const EditPumpPage = () => {
     loadPumpData();
   }, [pumpId, token, setValue]);
 
-  // Show toast notification
-  const showToast = (message, type = 'success') => {
-    if (type === 'success') {
-      toast.success(message);
-    } else {
-      toast.error(message);
-    }
-  };
-
   // Handle form submission
   const onSubmit = async (data) => {
     if (!token || !pumpId) return;
@@ -186,7 +177,7 @@ const EditPumpPage = () => {
       updatePump(pumpId, updatedPump);
 
       setSuccess('Pump updated successfully');
-      showToast('Pump updated successfully', 'success');
+      toast.success('Pump updated successfully');
 
       // Navigate back after a short delay
       setTimeout(() => {
@@ -195,7 +186,7 @@ const EditPumpPage = () => {
     } catch (err) {
       console.error('Error updating pump:', err);
       setError('Failed to update pump');
-      showToast('Failed to update pump', 'error');
+      toast.error('Failed to update pump');
     } finally {
       setSaving(false);
     }
@@ -222,14 +213,14 @@ const EditPumpPage = () => {
       // Update local store
       removePump(pumpId);
 
-      showToast('Pump deleted successfully', 'success');
+      toast.success('Pump deleted successfully');
 
       // Navigate back
       navigate({ to: '/pumps' });
     } catch (err) {
       console.error('Error deleting pump:', err);
       setError('Failed to delete pump');
-      showToast('Failed to delete pump', 'error');
+      toast.error('Failed to delete pump');
     } finally {
       setDeleting(false);
     }
@@ -298,84 +289,87 @@ const EditPumpPage = () => {
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <div className="sticky top-0 z-10 bg-background border-b shadow-sm pt-2">
-        <div className="px-4 sm:px-6 py-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-          <div className="flex items-center gap-3">
-            <Button
-              onClick={() => navigate({ to: '/pumps' })}
-              variant="ghost"
-              size="sm"
-              title="Back to Pumps"
-            >
-              <ArrowLeft className="h-4 w-4" />
-            </Button>
-            <div>
-              <h1 className="text-xl sm:text-2xl font-bold break-words">
-                Edit Pump
-              </h1>
-              <p className="text-sm text-muted-foreground flex items-center gap-2">
-                {getPumpTypeIcon(pump.type)}
-                {getPumpTypeName(pump.type)}
-                {pump.name && (
-                  <>
-                    <span>•</span>
-                    <span>{pump.name}</span>
-                  </>
-                )}
-              </p>
+      <div className="sticky top-0 z-20 bg-background/95 backdrop-blur-md border-b shadow-sm pt-2">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-5">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <div className="flex items-center gap-3">
+              <Button
+                onClick={() => navigate({ to: '/pumps' })}
+                variant="ghost"
+                size="icon-sm"
+                title="Back to Pumps"
+              >
+                <ArrowLeft className="h-4 w-4" />
+              </Button>
+              <div>
+                <h1 className="text-3xl font-bold tracking-tight">
+                  Edit Pump
+                </h1>
+                <p className="text-sm text-muted-foreground flex items-center gap-2 mt-1">
+                  {getPumpTypeIcon(pump.type)}
+                  <span>{getPumpTypeName(pump.type)}</span>
+                  {pump.name && (
+                    <>
+                      <span className="text-muted-foreground/40">•</span>
+                      <span>{pump.name}</span>
+                    </>
+                  )}
+                </p>
+              </div>
             </div>
-          </div>
 
-          <div className="flex gap-2 flex-shrink-0">
-            <Button
-              type="button"
-              variant="destructive"
-              size="sm"
-              onClick={handleDelete}
-              disabled={deleting}
-            >
-              {deleting ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : (
-                <Trash2 className="h-4 w-4" />
-              )}
-              <span className="hidden sm:inline ml-2">Delete</span>
-            </Button>
-            <Button type="submit" form="pump-form" size="sm" disabled={saving}>
-              {saving ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : (
-                <Save className="h-4 w-4" />
-              )}
-              <span className="hidden sm:inline ml-2">Save</span>
-            </Button>
+            <div className="flex gap-2 flex-shrink-0">
+              <Button
+                type="button"
+                variant="destructive"
+                size="default"
+                onClick={handleDelete}
+                disabled={deleting}
+                className="gap-2"
+              >
+                {deleting ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <Trash2 className="h-4 w-4" />
+                )}
+                Delete
+              </Button>
+              <Button type="submit" form="pump-form" size="default" disabled={saving} className="gap-2">
+                {saving ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <Save className="h-4 w-4" />
+                )}
+                Save Changes
+              </Button>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Success/Error Messages */}
-      {success && (
-        <Alert className="mx-4 mt-4">
-          <CheckCircle className="h-4 w-4" />
-          <AlertDescription>{success}</AlertDescription>
-        </Alert>
-      )}
-
-      {error && (
-        <Alert variant="destructive" className="mx-4 mt-4">
-          <AlertCircle className="h-4 w-4" />
-          <AlertDescription>{error}</AlertDescription>
-        </Alert>
-      )}
-
       {/* Main Content */}
-      <div className="p-4 sm:p-6">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+        {/* Success/Error Messages */}
+        {success && (
+          <Alert className="mb-6">
+            <CheckCircle className="h-4 w-4" />
+            <AlertDescription>{success}</AlertDescription>
+          </Alert>
+        )}
+
+        {error && (
+          <Alert variant="destructive" className="mb-6">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+        )}
+
         <form
           id="pump-form"
           onSubmit={handleSubmit(onSubmit)}
           className="space-y-6"
         >
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 lg:gap-6">
             {/* Basic Information */}
             <Card>
               <CardHeader>
@@ -713,19 +707,20 @@ const EditPumpPage = () => {
           </div>
 
           {/* Action Buttons */}
-          <div className="flex justify-end gap-4 pt-6 border-t">
+          <div className="flex justify-end gap-3 pt-8 border-t mt-8">
             <Button
               type="button"
               variant="outline"
+              size="lg"
               onClick={() => navigate({ to: '/pumps' })}
             >
               Cancel
             </Button>
-            <Button type="submit" disabled={saving}>
+            <Button type="submit" disabled={saving} size="lg" className="gap-2">
               {saving ? (
-                <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                <Loader2 className="h-4 w-4 animate-spin" />
               ) : (
-                <Save className="h-4 w-4 mr-2" />
+                <Save className="h-4 w-4" />
               )}
               Save Changes
             </Button>

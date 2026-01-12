@@ -38,7 +38,10 @@ declare module '@tanstack/react-router' {
 
 // Restore last route on page load
 const lastRoute = localStorage.getItem('lastRoute');
-if (lastRoute && lastRoute !== window.location.pathname + window.location.search) {
+if (
+  lastRoute &&
+  lastRoute !== window.location.pathname + window.location.search
+) {
   // Only restore if we're at root or a different path
   const currentPath = window.location.pathname;
   if (currentPath === '/' || currentPath === '') {

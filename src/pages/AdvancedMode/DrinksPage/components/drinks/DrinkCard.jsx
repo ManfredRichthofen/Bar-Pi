@@ -1,5 +1,11 @@
 import React, { useState } from 'react';
-import { BeakerIcon, PencilIcon, Heart, Loader2, GlassWater } from 'lucide-react';
+import {
+  BeakerIcon,
+  PencilIcon,
+  Heart,
+  Loader2,
+  GlassWater,
+} from 'lucide-react';
 import { useNavigate } from '@tanstack/react-router';
 import { motion } from 'motion/react';
 import useFavoritesStore from '@/store/favoritesStore';
@@ -20,12 +26,14 @@ const DrinkCard = ({ recipe }) => {
   const navigate = useNavigate({ from: '/drinks' });
   const { toggleFavorite, isFavorite } = useFavoritesStore();
   const favorited = isFavorite(recipe.id);
-  
+
   // Lazy load image
-  const { imageUrl, loading: imageLoading, error: imageError, elementRef } = useLazyImage(
-    recipe.id,
-    recipe.hasImage
-  );
+  const {
+    imageUrl,
+    loading: imageLoading,
+    error: imageError,
+    elementRef,
+  } = useLazyImage(recipe.id, recipe.hasImage);
 
   const showModal = () => setIsModalOpen(true);
   const handleCancel = () => setIsModalOpen(false);
@@ -61,7 +69,7 @@ const DrinkCard = ({ recipe }) => {
         >
           <div className="flex flex-col h-full">
             {/* Image Section with Gradient Overlay */}
-            <div 
+            <div
               ref={elementRef}
               className="relative aspect-[4/3] overflow-hidden bg-gradient-to-br from-muted to-accent flex-shrink-0"
             >
@@ -87,7 +95,7 @@ const DrinkCard = ({ recipe }) => {
                   </span>
                 </div>
               )}
-              
+
               {/* Favorite Button */}
               <div className="absolute top-3 right-3 z-10">
                 <Button
@@ -95,8 +103,8 @@ const DrinkCard = ({ recipe }) => {
                   size="icon"
                   variant={favorited ? 'default' : 'secondary'}
                   className={`h-9 w-9 rounded-full shadow-lg backdrop-blur-sm transition-all ${
-                    favorited 
-                      ? 'bg-destructive/90 hover:bg-destructive' 
+                    favorited
+                      ? 'bg-destructive/90 hover:bg-destructive'
                       : 'bg-background/80 hover:bg-background'
                   }`}
                   onClick={handleToggleFavorite}
@@ -112,8 +120,8 @@ const DrinkCard = ({ recipe }) => {
               {/* Alcoholic Badge */}
               {recipe.alcoholic && (
                 <div className="absolute top-3 left-3 z-10">
-                  <Badge 
-                    variant="destructive" 
+                  <Badge
+                    variant="destructive"
                     className="text-xs font-semibold shadow-lg backdrop-blur-sm bg-destructive/90"
                   >
                     21+
@@ -123,8 +131,8 @@ const DrinkCard = ({ recipe }) => {
 
               {/* Ingredient Count Badge */}
               <div className="absolute bottom-3 right-3 z-10">
-                <Badge 
-                  variant="secondary" 
+                <Badge
+                  variant="secondary"
                   className="text-xs font-medium shadow-lg backdrop-blur-sm bg-background/80"
                 >
                   {ingredientCount} ingredient{ingredientCount !== 1 ? 's' : ''}

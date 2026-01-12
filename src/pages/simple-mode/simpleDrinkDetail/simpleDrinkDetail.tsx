@@ -1,4 +1,5 @@
-import { useLocation, useNavigate, Navigate } from '@tanstack/react-router';
+import { useLocation, useNavigate } from '@tanstack/react-router';
+import { useEffect } from 'react';
 import { Beaker, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -22,6 +23,7 @@ interface Recipe {
   name: string;
   description?: string;
   image?: string;
+  hasImage?: boolean;
   alcoholic: boolean;
   defaultGlass?: Glass;
   ingredients: Ingredient[];
@@ -29,12 +31,23 @@ interface Recipe {
 
 const SimpleDrinkDetail = () => {
   const location = useLocation();
-  const navigate = useNavigate({ from: '/simple/drink/$id' });
+  const navigate = useNavigate();
   const recipe = (location.state as any)?.recipe as Recipe | undefined;
 
+  // Scroll to top when component mounts
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   // Redirect if no recipe data
+  useEffect(() => {
+    if (!recipe) {
+      navigate({ to: '/simple/drinks' });
+    }
+  }, [recipe, navigate]);
+
   if (!recipe) {
-    return <Navigate to="/simple/drinks" />;
+    return null;
   }
 
   return (
@@ -66,14 +79,23 @@ const SimpleDrinkDetail = () => {
       <div className="flex-1 overflow-y-auto">
         <div className="p-3 sm:p-4 space-y-4 sm:space-y-6 max-w-4xl mx-auto">
           {/* Image */}
-          <DrinkImage image={recipe.image} name={recipe.name} />
+          <DrinkImage
+            recipeId={recipe.id}
+            hasImage={recipe.hasImage || false}
+            name={recipe.name}
+          />
 
           {/* Make Drink Button - Below Image */}
           <Button
             type="button"
             size="lg"
             className="w-full h-12 sm:h-14 gap-2 sm:gap-3 text-sm sm:text-base font-semibold shadow-lg hover:shadow-xl transition-all duration-200 active:scale-95"
-            onClick={() => navigate({ to: '/simple/order' } as any)}
+            onClick={() => {
+              navigate({
+                to: '/simple/order',
+                state: { recipe },
+              } as any);
+            }}
           >
             <Beaker className="w-4 h-4 sm:w-5 sm:h-5" />
             Make Drink
