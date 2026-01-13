@@ -24,15 +24,13 @@ import {
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-<<<<<<< Updated upstream
 import {
   Progress,
   ProgressTrack,
   ProgressIndicator,
 } from '@/components/ui/progress';
-=======
->>>>>>> Stashed changes
 import { toast } from 'sonner';
+import { cn } from '@/lib/utils';
 
 const StepperMotorIcon = ({ width = 24, height = 24, className = '' }) => (
   <svg
@@ -281,47 +279,12 @@ export const PumpCard: React.FC<PumpCardProps> = ({ pump }) => {
       transition={{ type: 'spring', stiffness: 400, damping: 25 }}
       className="h-full"
     >
-<<<<<<< Updated upstream
       <Card className="group h-full flex flex-col overflow-hidden border-border/50 hover:border-border hover:shadow-xl transition-all duration-300 p-0">
         <CardHeader className="bg-gradient-to-br from-muted/50 to-accent/20 border-b relative p-4">
           <div className="flex items-start justify-between gap-4">
             <div className="flex-1 min-w-0">
               <CardTitle className="text-lg sm:text-xl font-bold truncate mb-2">{displayName}</CardTitle>
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
-=======
-      <Card 
-        className={cn(
-          "group h-full flex flex-col overflow-hidden transition-all duration-300",
-          pumpJobState.runningState 
-            ? "ring-2 ring-primary shadow-[0_10px_15px_-3px_rgba(124,58,237,0.3)]" 
-            : "hover:shadow-lg"
-        )}
-      >
-        <CardHeader className="space-y-0 pb-4">
-          <div className="flex items-start justify-between gap-3">
-            <div className="flex-1 min-w-0 space-y-3">
-              <div className="flex items-start justify-between gap-2">
-                <CardTitle className="text-xl font-bold leading-tight">
-                  {displayName}
-                </CardTitle>
-                <Button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    if (pump?.id) {
-                      navigate({ to: '/pumps/$pumpId/edit', params: { pumpId: pump.id.toString() } });
-                    }
-                  }}
-                  variant="ghost"
-                  size="icon-sm"
-                  title={t('common.edit')}
-                  className="shrink-0 -mt-1 -mr-2"
-                >
-                  <Pencil className="h-4 w-4" />
-                </Button>
-              </div>
-              
-              <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
->>>>>>> Stashed changes
                 {pumpTypeInfo.PumpTypeIcon}
                 <span className="font-medium">{pumpTypeInfo.printPumpType}</span>
               </div>
@@ -385,7 +348,6 @@ export const PumpCard: React.FC<PumpCardProps> = ({ pump }) => {
           </div>
         </CardHeader>
 
-<<<<<<< Updated upstream
       <div className="flex-shrink-0 relative">
         {pumpJobState.runningState ? (
           <div className="relative w-full">
@@ -408,88 +370,9 @@ export const PumpCard: React.FC<PumpCardProps> = ({ pump }) => {
               />
             </div>
             <style>{`@keyframes progressScroll { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }`}</style>
-=======
-        <CardContent className="flex-1 space-y-3">
-          <div className="space-y-2">
-            <div className="flex items-center justify-between py-2.5 px-3 rounded-lg bg-muted/40 border border-border/50">
-              <span className="text-sm text-muted-foreground font-medium">
-                {t('pump_card.ingredient')}
-              </span>
-              <span className="text-sm font-semibold truncate ml-3 max-w-[60%] text-right">
-                {printIngredient}
-              </span>
-            </div>
-            <div className="flex items-center justify-between py-2.5 px-3 rounded-lg bg-muted/40 border border-border/50">
-              <span className="text-sm text-muted-foreground font-medium">
-                {t('pump_card.filling_level')}
-              </span>
-              <span
-                className={`text-sm font-semibold ${displayAttributes.fillingLevel.className}`}
-              >
-                {displayAttributes.fillingLevel.label}
-              </span>
-            </div>
-          </div>
-        </CardContent>
-
-        <CardFooter className="mt-auto border-t pt-4">
-          <div className="flex gap-2 w-full">
-            {pump.canControlDirection && (
-              <div className="flex gap-2">
-                <Button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onClickPumpUp(true);
-                  }}
-                  disabled={!!pumpJobState.runningState || pumpDownBtnLoading}
-                  variant="outline"
-                  size="sm"
-                  title={t('pump_card.pump_down')}
-                >
-                  <CornerUpLeft className="h-4 w-4" />
-                </Button>
-                <Button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onClickPumpUp(false);
-                  }}
-                  disabled={!!pumpJobState.runningState || pumpUpBtnLoading}
-                  variant="outline"
-                  size="sm"
-                  title={t('pump_card.pump_up')}
-                >
-                  <CornerUpRight className="h-4 w-4" />
-                </Button>
-              </div>
-            )}
-            <Button
-              onClick={(e) => {
-                e.stopPropagation();
-                onClickTurnOnOrOffPump();
-              }}
-              disabled={runningBtnLoading}
-              variant={pumpJobState.runningState ? 'destructive' : 'default'}
-              size="sm"
-              title={
-                pumpJobState.runningState
-                  ? t('pump_card.stop')
-                  : t('pump_card.start')
-              }
-              className="ml-auto min-w-20"
-            >
-              {runningBtnLoading ? (
-                <Loader2 className="h-4 w-4 mr-1.5 animate-spin" />
-              ) : pumpJobState.runningState ? (
-                <StopCircle className="h-4 w-4 mr-1.5" />
-              ) : (
-                <PlayCircle className="h-4 w-4 mr-1.5" />
-              )}
-              {pumpJobState.runningState ? t('pump.pump_card.stop') : t('pump.pump_card.start')}
-            </Button>
->>>>>>> Stashed changes
           </div>
         ) : (
-          <Progress value={progressBar.value * 100}>
+          <Progress value={0}>
             <ProgressTrack>
               <ProgressIndicator className="transition-all duration-300" />
             </ProgressTrack>

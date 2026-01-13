@@ -182,7 +182,6 @@ const ReversePumping = () => {
   };
 
   return (
-<<<<<<< Updated upstream
     <div className="min-h-screen bg-background p-4 sm:p-6">
       <div className="max-w-4xl mx-auto">
         <h1 className="text-xl sm:text-2xl font-bold mb-4">
@@ -190,34 +189,6 @@ const ReversePumping = () => {
             defaultValue: 'Reverse Pump Settings',
           })}
         </h1>
-=======
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <div className="sticky top-0 z-20 bg-background/95 backdrop-blur-md border-b shadow-sm pt-2">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-5">
-          <div className="flex items-center gap-3">
-            <Button
-              onClick={() => navigate({ to: '/pumps' })}
-              variant="ghost"
-              size="icon-sm"
-              title={t('reverse_pumping.back_to_pumps')}
-            >
-              <ArrowLeft className="h-4 w-4" />
-            </Button>
-            <div>
-              <h1 className="text-3xl font-bold tracking-tight">
-                {t('component.reverse_pump_settings.headline', {
-                  defaultValue: 'Reverse Pump Settings',
-                })}
-              </h1>
-              <p className="text-sm text-muted-foreground mt-1">
-                {t('reverse_pumping.description')}
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
->>>>>>> Stashed changes
 
         {success && (
           <Alert className="mb-4">
@@ -244,17 +215,11 @@ const ReversePumping = () => {
                         defaultValue: 'Enable Reverse Pumping',
                       })}
                     </Label>
-<<<<<<< Updated upstream
                     <Switch
                       id="enable"
                       checked={watch('enable')}
                       onCheckedChange={(checked) => setValue('enable', checked)}
                     />
-=======
-                    <p className="text-sm text-muted-foreground mt-1">
-                      {t('reverse_pumping.allow_reverse')}
-                    </p>
->>>>>>> Stashed changes
                   </div>
                 </CardContent>
               </Card>
@@ -516,7 +481,6 @@ const ReversePumping = () => {
                 </Card>
               )}
 
-<<<<<<< Updated upstream
               {/* Actions */}
               <div className="flex justify-end">
                 <Button type="submit" disabled={saving}>
@@ -537,38 +501,6 @@ const ReversePumping = () => {
         {loading && (
           <div className="fixed inset-0 bg-background/50 backdrop-blur-sm flex justify-center items-center z-50">
             <Loader2 className="h-8 w-8 animate-spin" />
-=======
-            {/* Actions */}
-            <div className="flex justify-end gap-3 pt-8 border-t mt-8">
-              <Button
-                type="button"
-                variant="outline"
-                size="lg"
-                onClick={() => navigate({ to: '/pumps' })}
-              >
-                {t('reverse_pumping.cancel')}
-              </Button>
-              <Button type="submit" disabled={saving} size="lg" className="gap-2">
-                {saving ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                ) : (
-                  <Save className="h-4 w-4" />
-                )}
-                {t('component.reverse_pump_settings.form.save_btn_label', {
-                  defaultValue: 'Save Changes',
-                })}
-              </Button>
-            </div>
-          </form>
-        </div>
-      </div>
-
-      {loading && (
-        <div className="fixed inset-0 bg-background/80 backdrop-blur-sm flex justify-center items-center z-50">
-          <div className="flex flex-col items-center gap-3">
-            <Loader2 className="h-10 w-10 animate-spin" />
-            <p className="text-sm text-muted-foreground">{t('reverse_pumping.loading_settings')}</p>
->>>>>>> Stashed changes
           </div>
         )}
       </div>
