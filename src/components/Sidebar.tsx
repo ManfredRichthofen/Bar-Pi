@@ -12,13 +12,15 @@ import {
   Tag,
 } from 'lucide-react';
 import { useNavigate, useLocation } from '@tanstack/react-router';
-import { canAccessRoute } from '../utils/roleAccess';
+import { canAccessRoute, mapAdminLevelToRole } from '../utils/roleAccess';
 import useAuthStore from '../store/authStore';
 import userService from '../services/user.service';
 
 interface UserData {
+  id: number;
   username: string;
-  role: string;
+  adminLevel: number;
+  accountNonLocked: boolean;
 }
 
 interface SidebarProps {
@@ -168,7 +170,8 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed, onCollapse }) => {
                     return true;
                   }
                   
-                  return canAccessRoute(userData.role, item.key);
+                  const role = mapAdminLevelToRole(userData.adminLevel);
+                  return canAccessRoute(role, item.key);
                 });
 
                 // Only show the section if there are accessible items

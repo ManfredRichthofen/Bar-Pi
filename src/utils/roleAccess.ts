@@ -11,6 +11,21 @@ export interface RolePermissions {
   canManageSettings: boolean;
 }
 
+export const mapAdminLevelToRole = (adminLevel: number | undefined): UserRole => {
+  if (!adminLevel) return 'user';
+  
+  switch (adminLevel) {
+    case 4:
+      return 'super-admin';
+    case 3:
+      return 'recipe-creator';
+    case 2:
+    case 1:
+    default:
+      return 'user';
+  }
+};
+
 export const ROLE_PERMISSIONS: Record<UserRole, RolePermissions> = {
   'super-admin': {
     canManageUsers: true,

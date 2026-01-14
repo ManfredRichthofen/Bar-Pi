@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from '@tanstack/react-router';
-import { UserPlus, Edit, Trash2, Shield, User as UserIcon } from 'lucide-react';
+import { UserPlus, Edit, Trash2, Shield, User as UserIcon, Crown } from 'lucide-react';
 import UserService from '../../../services/user.service';
+import { mapAdminLevelToRole, getRoleDisplayName } from '../../../utils/roleAccess';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -31,7 +32,7 @@ const UserPage = () => {
   const [formData, setFormData] = useState({
     username: '',
     password: '',
-    role: 'USER',
+    adminLevel: 1,
   });
   const [error, setError] = useState('');
 
@@ -67,7 +68,7 @@ const UserPage = () => {
       setFormData({
         username: '',
         password: '',
-        role: 'USER',
+        adminLevel: 1,
       });
       setIsModalOpen(false);
     } catch (err) {
@@ -118,51 +119,62 @@ const UserPage = () => {
               {users.map((user) => (
                 <Card
                   key={user.id}
-                  className="hover:shadow-lg transition-all duration-300 hover:-translate-y-1"
+                  className="hover:shadow-lg transition-all duration-300 hover:-translate-y-1 overflow-hidden"
                 >
-                  <CardContent className="p-4">
-                    <div className="flex items-start justify-between mb-3">
-                      <div className="flex items-center gap-3">
-                        <Avatar>
-                          <AvatarFallback className="bg-primary text-primary-foreground">
-                            {user.username.charAt(0).toUpperCase()}
-                          </AvatarFallback>
-                        </Avatar>
-                        <div>
-                          <h3 className="text-base font-bold line-clamp-1">
-                            {user.username}
-                          </h3>
-                          <div className="flex items-center gap-1 mt-1">
-                            {user.role === 'ADMIN' ? (
-                              <>
-                                <Shield
-                                  size={14}
-                                  className="text-destructive"
-                                />
-                                <Badge
-                                  variant="destructive"
-                                  className="text-xs"
-                                >
-                                  Admin
-                                </Badge>
-                              </>
-                            ) : (
-                              <>
-                                <UserIcon size={14} />
-                                <Badge className="text-xs">User</Badge>
-                              </>
-                            )}
-                          </div>
+                  <CardContent className="p-6">
+                    <div className="flex flex-col items-center text-center space-y-4">
+                      <Avatar className="h-20 w-20">
+                        <AvatarFallback className="bg-gradient-to-br from-primary to-primary/70 text-primary-foreground text-2xl font-bold">
+                          {user.username.charAt(0).toUpperCase()}
+                        </AvatarFallback>
+                      </Avatar>
+                      
+                      <div className="space-y-2 w-full">
+                        <h3 className="text-lg font-bold truncate">
+                          {user.username}
+                        </h3>
+                        
+                        <div className="flex items-center justify-center gap-2">
+                          {user.adminLevel === 4 ? (
+                            <>
+                              <Crown size={16} className="text-yellow-500" />
+                              <Badge variant="default" className="text-xs bg-yellow-500 hover:bg-yellow-600 font-semibold">
+                                {getRoleDisplayName(mapAdminLevelToRole(user.adminLevel))}
+                              </Badge>
+                            </>
+                          ) : user.adminLevel === 3 ? (
+                            <>
+                              <Shield size={16} className="text-blue-500" />
+                              <Badge variant="default" className="text-xs bg-blue-500 hover:bg-blue-600 font-semibold">
+                                {getRoleDisplayName(mapAdminLevelToRole(user.adminLevel))}
+                              </Badge>
+                            </>
+                          ) : (
+                            <>
+                              <UserIcon size={16} className="text-muted-foreground" />
+                              <Badge variant="secondary" className="text-xs font-semibold">
+                                {getRoleDisplayName(mapAdminLevelToRole(user.adminLevel))}
+                              </Badge>
+                            </>
+                          )}
                         </div>
+
+                        {user.accountNonLocked === false && (
+                          <Badge variant="destructive" className="text-xs">
+                            Locked
+                          </Badge>
+                        )}
                       </div>
                     </div>
                   </CardContent>
-                  <CardFooter className="flex justify-end gap-2 pt-4 border-t">
-                    <Button variant="ghost" size="icon-sm" onClick={() => {}}>
-                      <Edit size={16} />
+                  <CardFooter className="flex justify-center gap-2 p-4 bg-muted/30 border-t">
+                    <Button variant="ghost" size="sm" onClick={() => {}}>
+                      <Edit size={16} className="mr-2" />
+                      Edit
                     </Button>
-                    <Button variant="ghost" size="icon-sm" onClick={() => {}}>
-                      <Trash2 size={16} className="text-destructive" />
+                    <Button variant="ghost" size="sm" onClick={() => {}} className="text-destructive hover:text-destructive">
+                      <Trash2 size={16} className="mr-2" />
+                      Delete
                     </Button>
                   </CardFooter>
                 </Card>
@@ -210,19 +222,21 @@ const UserPage = () => {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="role">Role</Label>
+              <Label htmlFor="adminLevel">Access Level</Label>
               <Select
-                value={formData.role}
+                value={formData.adminLevel.toString()}
                 onValueChange={(value) =>
-                  setFormData((prev) => ({ ...prev, role: value }))
+                  setFormData((prev) => ({ ...prev, adminLevel: parseInt(value) }))
                 }
               >
-                <SelectTrigger id="role">
+                <SelectTrigger id="adminLevel">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="USER">User</SelectItem>
-                  <SelectItem value="ADMIN">Admin</SelectItem>
+                  <SelectItem value="1">User (Level 1)</SelectItem>
+                  <SelectItem value="2">User (Level 2)</SelectItem>
+                  <SelectItem value="3">Recipe Creator (Level 3)</SelectItem>
+                  <SelectItem value="4">Super Admin (Level 4)</SelectItem>
                 </SelectContent>
               </Select>
             </div>

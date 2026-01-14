@@ -1,8 +1,8 @@
 import { createFileRoute, redirect } from '@tanstack/react-router';
-import Recipes from '../pages/AdvancedMode/RecipesPage/recipes.jsx';
+import Recipes from '../pages/AdvancedMode/RecipesPage/recipes';
 import useAuthStore from '../store/authStore';
 import userService from '../services/user.service';
-import { hasPermission } from '../utils/roleAccess';
+import { hasPermission, mapAdminLevelToRole } from '../utils/roleAccess';
 
 export const Route = createFileRoute('/_advanced/recipes')({
   component: Recipes,
@@ -15,8 +15,9 @@ export const Route = createFileRoute('/_advanced/recipes')({
     try {
       const headers = { Authorization: `Bearer ${token}` };
       const userData = await userService.getMe(headers);
+      const role = mapAdminLevelToRole(userData.adminLevel);
       
-      if (!hasPermission(userData.role, 'canManageRecipes')) {
+      if (!hasPermission(role, 'canManageRecipes')) {
         throw redirect({ to: '/drinks' });
       }
     } catch (error) {

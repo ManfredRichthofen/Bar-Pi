@@ -2,7 +2,7 @@ import { createFileRoute, redirect, Outlet, useMatches } from '@tanstack/react-r
 import { PumpsPage } from '../pages/AdvancedMode/PumpsPage/PumpsPage';
 import useAuthStore from '../store/authStore';
 import userService from '../services/user.service';
-import { hasPermission } from '../utils/roleAccess';
+import { hasPermission, mapAdminLevelToRole } from '../utils/roleAccess';
 
 export const Route = createFileRoute('/_advanced/pumps')({
   component: AdvancedPumpsRoute,
@@ -15,8 +15,9 @@ export const Route = createFileRoute('/_advanced/pumps')({
     try {
       const headers = { Authorization: `Bearer ${token}` };
       const userData = await userService.getMe(headers);
+      const role = mapAdminLevelToRole(userData.adminLevel);
       
-      if (!hasPermission(userData.role, 'canManagePumps')) {
+      if (!hasPermission(role, 'canManagePumps')) {
         throw redirect({ to: '/drinks' });
       }
     } catch (error) {
