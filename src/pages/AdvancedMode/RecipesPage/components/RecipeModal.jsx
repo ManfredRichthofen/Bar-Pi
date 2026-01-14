@@ -45,7 +45,9 @@ const RecipeModal = ({
       <DialogContent className="max-w-5xl max-h-[90vh] overflow-hidden p-0 flex flex-col">
         <DialogHeader className="px-6 py-4 border-b">
           <DialogTitle className="text-xl">
-            {editingRecipe ? t('recipe_modal.edit_title') : t('recipe_modal.create_title')}
+            {editingRecipe
+              ? t('recipe_modal.edit_title')
+              : t('recipe_modal.create_title')}
           </DialogTitle>
           <DialogDescription>
             Define the basics, image and production steps for this drink.
@@ -55,7 +57,9 @@ const RecipeModal = ({
         <div className="flex-1 overflow-y-auto px-6 pb-6 pt-4 space-y-6">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="recipe-name">{t('recipe_modal.name_required')}</Label>
+              <Label htmlFor="recipe-name">
+                {t('recipe_modal.name_required')}
+              </Label>
               <Input
                 id="recipe-name"
                 placeholder="Enter recipe name"
@@ -66,7 +70,9 @@ const RecipeModal = ({
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="default-glass">{t('recipe_modal.default_glass')}</Label>
+              <Label htmlFor="default-glass">
+                {t('recipe_modal.default_glass')}
+              </Label>
               <Select
                 value={formData.defaultGlass?.id?.toString() || ''}
                 onValueChange={(value) => {
@@ -90,7 +96,9 @@ const RecipeModal = ({
               </Select>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="default-amount">{t('recipe_modal.default_amount_ml')}</Label>
+              <Label htmlFor="default-amount">
+                {t('recipe_modal.default_amount_ml')}
+              </Label>
               <Input
                 id="default-amount"
                 type="number"
@@ -150,7 +158,9 @@ const RecipeModal = ({
                 <label className="flex flex-col items-center justify-center w-32 h-32 border-2 border-dashed rounded-lg cursor-pointer hover:bg-muted/50 transition-colors">
                   <div className="flex flex-col items-center justify-center p-3">
                     <ImageIcon size={24} className="mb-2" />
-                    <p className="text-xs text-center font-semibold">{t('recipe_modal.upload')}</p>
+                    <p className="text-xs text-center font-semibold">
+                      {t('recipe_modal.upload')}
+                    </p>
                   </div>
                   <input
                     type="file"
@@ -173,7 +183,9 @@ const RecipeModal = ({
                       }))
                     }
                   />
-                  <span className="text-sm">{t('recipe_modal.remove_existing_image')}</span>
+                  <span className="text-sm">
+                    {t('recipe_modal.remove_existing_image')}
+                  </span>
                 </div>
               )}
             </div>
@@ -182,7 +194,9 @@ const RecipeModal = ({
           <div className="border-t pt-6">
             <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
               <div>
-                <h4 className="font-semibold text-base">{t('recipe_modal.production_steps')}</h4>
+                <h4 className="font-semibold text-base">
+                  {t('recipe_modal.production_steps')}
+                </h4>
                 <p className="text-xs text-muted-foreground mt-1">
                   {t('recipe_modal.production_steps_description')}
                 </p>
@@ -343,7 +357,9 @@ const RecipeModal = ({
             {t('recipe_modal.cancel')}
           </Button>
           <Button type="button" onClick={onSave}>
-            {editingRecipe ? t('recipe_modal.update_recipe') : t('recipe_modal.create_recipe')}
+            {editingRecipe
+              ? t('recipe_modal.update_recipe')
+              : t('recipe_modal.create_recipe')}
           </Button>
         </DialogFooter>
       </DialogContent>

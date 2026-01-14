@@ -318,7 +318,9 @@ function VirtualDrinksGrid({ token, searchTerm, collapsed = false }) {
           <div className="text-muted-foreground mb-4">
             <Search className="w-16 h-16" />
           </div>
-          <h3 className="text-lg font-semibold mb-2">{t('virtual_drinks_grid.no_drinks_found')}</h3>
+          <h3 className="text-lg font-semibold mb-2">
+            {t('virtual_drinks_grid.no_drinks_found')}
+          </h3>
           <p className="text-muted-foreground text-center text-sm">
             {t('virtual_drinks_grid.try_adjusting_search')}
           </p>

@@ -69,7 +69,9 @@ const ManualIngredientPrompt = ({
           size="lg"
         >
           <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5" />
-          {confirming ? t('manual_ingredient_prompt.confirming') : t('manual_ingredient_prompt.confirm_button')}
+          {confirming
+            ? t('manual_ingredient_prompt.confirming')
+            : t('manual_ingredient_prompt.confirm_button')}
         </Button>
       </CardContent>
     </Card>

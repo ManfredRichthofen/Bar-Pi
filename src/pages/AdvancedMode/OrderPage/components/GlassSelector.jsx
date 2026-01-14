@@ -104,7 +104,9 @@ const GlassSelector = ({
               onChange={(e) => onCustomAmountChange(parseFloat(e.target.value))}
               className="w-24"
             />
-            <span className="text-sm text-muted-foreground">{t('glass_selector.ml')}</span>
+            <span className="text-sm text-muted-foreground">
+              {t('glass_selector.ml')}
+            </span>
           </div>
         )}
       </div>

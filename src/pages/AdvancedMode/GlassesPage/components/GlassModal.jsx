@@ -72,7 +72,9 @@ function GlassModal({ show, onHide, onSave, glass }) {
               />
             </div>
             <div className="grid gap-2">
-              <Label htmlFor="description">{t('glass_modal.description')}</Label>
+              <Label htmlFor="description">
+                {t('glass_modal.description')}
+              </Label>
               <Textarea
                 id="description"
                 name="description"

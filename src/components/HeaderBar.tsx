@@ -123,7 +123,11 @@ const HeaderBar: React.FC<HeaderBarProps> = ({ collapsed, onToggle }) => {
                       {loading ? 'Loading...' : userData?.username || 'Guest'}
                     </p>
                     <p className="text-xs text-muted-foreground m-0">
-                      {loading ? '' : getRoleDisplayName(mapAdminLevelToRole(userData?.adminLevel))}
+                      {loading
+                        ? ''
+                        : getRoleDisplayName(
+                            mapAdminLevelToRole(userData?.adminLevel),
+                          )}
                     </p>
                   </div>
                 </Button>

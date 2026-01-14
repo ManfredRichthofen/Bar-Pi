@@ -134,7 +134,9 @@ const DrinkCustomizer = ({
             </div>
 
             <div>
-              <h3 className="text-lg font-bold mb-2">{t('drink_customizer.additional_ingredients')}</h3>
+              <h3 className="text-lg font-bold mb-2">
+                {t('drink_customizer.additional_ingredients')}
+              </h3>
               <p className="text-muted-foreground mb-4">
                 {t('drink_customizer.additional_ingredients_description')}
               </p>
@@ -171,7 +173,9 @@ const DrinkCustomizer = ({
                 {addingIngredient ? (
                   <Card>
                     <CardContent className="p-4">
-                      <h4 className="font-bold mb-2">{t('drink_customizer.add_new_ingredient')}</h4>
+                      <h4 className="font-bold mb-2">
+                        {t('drink_customizer.add_new_ingredient')}
+                      </h4>
                       <Select
                         value={selectedIngredient?.id || ''}
                         onValueChange={(value) => {

@@ -1,6 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from '@tanstack/react-router';
-import { ArrowLeft, Save, X, Image as ImageIcon, Plus, Trash2 } from 'lucide-react';
+import {
+  ArrowLeft,
+  Save,
+  X,
+  Image as ImageIcon,
+  Plus,
+  Trash2,
+} from 'lucide-react';
 import useAuthStore from '../../../store/authStore';
 import RecipeService from '../../../services/recipe.service';
 import ingredientService from '../../../services/ingredient.service';
@@ -144,7 +151,7 @@ export const NewRecipePage: React.FC = () => {
     stepIndex: number,
     ingredientIndex: number,
     field: keyof StepIngredient,
-    value: any
+    value: any,
   ) => {
     const newSteps = [...formData.productionSteps];
     const step = newSteps[stepIndex];
@@ -157,11 +164,16 @@ export const NewRecipePage: React.FC = () => {
     }
   };
 
-  const removeIngredientFromStep = (stepIndex: number, ingredientIndex: number) => {
+  const removeIngredientFromStep = (
+    stepIndex: number,
+    ingredientIndex: number,
+  ) => {
     const newSteps = [...formData.productionSteps];
     const step = newSteps[stepIndex];
     if (step.type === 'addIngredients' && step.stepIngredients) {
-      step.stepIngredients = step.stepIngredients.filter((_, i) => i !== ingredientIndex);
+      step.stepIngredients = step.stepIngredients.filter(
+        (_, i) => i !== ingredientIndex,
+      );
       setFormData({ ...formData, productionSteps: newSteps });
     }
   };
@@ -183,7 +195,10 @@ export const NewRecipePage: React.FC = () => {
       if (formData.defaultGlass) {
         recipeData.append('defaultGlass', formData.defaultGlass.id.toString());
       }
-      recipeData.append('defaultAmountToFill', formData.defaultAmountToFill.toString());
+      recipeData.append(
+        'defaultAmountToFill',
+        formData.defaultAmountToFill.toString(),
+      );
 
       const productionStepsPayload = formData.productionSteps.map((step) => ({
         type: step.type,
@@ -196,7 +211,10 @@ export const NewRecipePage: React.FC = () => {
           })) || [],
       }));
 
-      recipeData.append('productionSteps', JSON.stringify(productionStepsPayload));
+      recipeData.append(
+        'productionSteps',
+        JSON.stringify(productionStepsPayload),
+      );
 
       if (formData.image) {
         recipeData.append('image', formData.image);
@@ -246,7 +264,9 @@ export const NewRecipePage: React.FC = () => {
               <Input
                 id="name"
                 value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, name: e.target.value })
+                }
                 placeholder="Enter recipe name"
                 required
               />
@@ -257,7 +277,9 @@ export const NewRecipePage: React.FC = () => {
               <Textarea
                 id="description"
                 value={formData.description}
-                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, description: e.target.value })
+                }
                 placeholder="Enter recipe description"
                 rows={3}
               />
@@ -269,7 +291,9 @@ export const NewRecipePage: React.FC = () => {
                 <Select
                   value={formData.defaultGlass?.id.toString()}
                   onValueChange={(value) => {
-                    const glass = glasses.find((g) => g.id.toString() === value);
+                    const glass = glasses.find(
+                      (g) => g.id.toString() === value,
+                    );
                     setFormData({ ...formData, defaultGlass: glass || null });
                   }}
                 >
@@ -293,7 +317,10 @@ export const NewRecipePage: React.FC = () => {
                   type="number"
                   value={formData.defaultAmountToFill}
                   onChange={(e) =>
-                    setFormData({ ...formData, defaultAmountToFill: parseInt(e.target.value) || 0 })
+                    setFormData({
+                      ...formData,
+                      defaultAmountToFill: parseInt(e.target.value) || 0,
+                    })
                   }
                   min="0"
                 />
@@ -370,17 +397,25 @@ export const NewRecipePage: React.FC = () => {
 
                     <div className="space-y-3">
                       {step.stepIngredients?.map((si, ingredientIndex) => (
-                        <div key={ingredientIndex} className="flex gap-2 items-end">
+                        <div
+                          key={ingredientIndex}
+                          className="flex gap-2 items-end"
+                        >
                           <div className="flex-1">
                             <Label>Ingredient</Label>
                             <Select
                               value={si.ingredient.id.toString()}
                               onValueChange={(value) => {
                                 const ingredient = ingredients.find(
-                                  (ing) => ing.id.toString() === value
+                                  (ing) => ing.id.toString() === value,
                                 );
                                 if (ingredient) {
-                                  updateStepIngredient(stepIndex, ingredientIndex, 'ingredient', ingredient);
+                                  updateStepIngredient(
+                                    stepIndex,
+                                    ingredientIndex,
+                                    'ingredient',
+                                    ingredient,
+                                  );
                                 }
                               }}
                             >
@@ -389,7 +424,10 @@ export const NewRecipePage: React.FC = () => {
                               </SelectTrigger>
                               <SelectContent>
                                 {ingredients.map((ing) => (
-                                  <SelectItem key={ing.id} value={ing.id.toString()}>
+                                  <SelectItem
+                                    key={ing.id}
+                                    value={ing.id.toString()}
+                                  >
                                     {ing.name}
                                   </SelectItem>
                                 ))}
@@ -407,7 +445,7 @@ export const NewRecipePage: React.FC = () => {
                                   stepIndex,
                                   ingredientIndex,
                                   'amount',
-                                  parseInt(e.target.value) || 0
+                                  parseInt(e.target.value) || 0,
                                 )
                               }
                               min="0"
@@ -419,7 +457,12 @@ export const NewRecipePage: React.FC = () => {
                             <Select
                               value={si.scale}
                               onValueChange={(value) =>
-                                updateStepIngredient(stepIndex, ingredientIndex, 'scale', value)
+                                updateStepIngredient(
+                                  stepIndex,
+                                  ingredientIndex,
+                                  'scale',
+                                  value,
+                                )
                               }
                             >
                               <SelectTrigger>
@@ -437,7 +480,12 @@ export const NewRecipePage: React.FC = () => {
                             type="button"
                             variant="ghost"
                             size="icon"
-                            onClick={() => removeIngredientFromStep(stepIndex, ingredientIndex)}
+                            onClick={() =>
+                              removeIngredientFromStep(
+                                stepIndex,
+                                ingredientIndex,
+                              )
+                            }
                           >
                             <X className="h-4 w-4" />
                           </Button>

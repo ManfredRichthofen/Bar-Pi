@@ -1,13 +1,9 @@
 import { defineConfig } from 'i18next-cli';
 
 export default defineConfig({
-  locales: [
-    "en",
-    "es",
-    "de"
-  ],
+  locales: ['en', 'es', 'de'],
   extract: {
-    input: "src/**/*.{js,jsx,ts,tsx}",
-    output: "public\\locales\\{{language}}\\{{namespace}}.json"
-  }
+    input: 'src/**/*.{js,jsx,ts,tsx}',
+    output: 'public\\locales\\{{language}}\\{{namespace}}.json',
+  },
 });

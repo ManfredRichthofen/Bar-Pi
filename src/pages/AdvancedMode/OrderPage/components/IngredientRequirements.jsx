@@ -38,7 +38,8 @@ const IngredientRequirements = ({ requiredIngredients }) => {
                   {!isFulfilled && item.amountMissing > 0 && (
                     <span className="text-error">
                       {' '}
-                      ({t('ingredient_requirements.missing')}: {item.amountMissing} {item.ingredient.unit})
+                      ({t('ingredient_requirements.missing')}:{' '}
+                      {item.amountMissing} {item.ingredient.unit})
                     </span>
                   )}
                 </span>

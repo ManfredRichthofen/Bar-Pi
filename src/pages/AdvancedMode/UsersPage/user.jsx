@@ -1,8 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from '@tanstack/react-router';
-import { UserPlus, Edit, Trash2, Shield, User as UserIcon, Crown } from 'lucide-react';
+import {
+  UserPlus,
+  Edit,
+  Trash2,
+  Shield,
+  User as UserIcon,
+  Crown,
+  Settings,
+  Wrench,
+} from 'lucide-react';
 import UserService from '../../../services/user.service';
-import { mapAdminLevelToRole, getRoleDisplayName } from '../../../utils/roleAccess';
+import {
+  mapAdminLevelToRole,
+  getRoleDisplayName,
+} from '../../../utils/roleAccess';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -32,7 +44,7 @@ const UserPage = () => {
   const [formData, setFormData] = useState({
     username: '',
     password: '',
-    adminLevel: 1,
+    adminLevel: 0,
   });
   const [error, setError] = useState('');
 
@@ -128,32 +140,74 @@ const UserPage = () => {
                           {user.username.charAt(0).toUpperCase()}
                         </AvatarFallback>
                       </Avatar>
-                      
+
                       <div className="space-y-2 w-full">
                         <h3 className="text-lg font-bold truncate">
                           {user.username}
                         </h3>
-                        
+
                         <div className="flex items-center justify-center gap-2">
                           {user.adminLevel === 4 ? (
                             <>
                               <Crown size={16} className="text-yellow-500" />
-                              <Badge variant="default" className="text-xs bg-yellow-500 hover:bg-yellow-600 font-semibold">
-                                {getRoleDisplayName(mapAdminLevelToRole(user.adminLevel))}
+                              <Badge
+                                variant="default"
+                                className="text-xs bg-yellow-500 hover:bg-yellow-600 font-semibold"
+                              >
+                                {getRoleDisplayName(
+                                  mapAdminLevelToRole(user.adminLevel),
+                                )}
                               </Badge>
                             </>
                           ) : user.adminLevel === 3 ? (
                             <>
-                              <Shield size={16} className="text-blue-500" />
-                              <Badge variant="default" className="text-xs bg-blue-500 hover:bg-blue-600 font-semibold">
-                                {getRoleDisplayName(mapAdminLevelToRole(user.adminLevel))}
+                              <Shield size={16} className="text-purple-500" />
+                              <Badge
+                                variant="default"
+                                className="text-xs bg-purple-500 hover:bg-purple-600 font-semibold"
+                              >
+                                {getRoleDisplayName(
+                                  mapAdminLevelToRole(user.adminLevel),
+                                )}
+                              </Badge>
+                            </>
+                          ) : user.adminLevel === 2 ? (
+                            <>
+                              <Wrench size={16} className="text-orange-500" />
+                              <Badge
+                                variant="default"
+                                className="text-xs bg-orange-500 hover:bg-orange-600 font-semibold"
+                              >
+                                {getRoleDisplayName(
+                                  mapAdminLevelToRole(user.adminLevel),
+                                )}
+                              </Badge>
+                            </>
+                          ) : user.adminLevel === 1 ? (
+                            <>
+                              <Settings size={16} className="text-blue-500" />
+                              <Badge
+                                variant="default"
+                                className="text-xs bg-blue-500 hover:bg-blue-600 font-semibold"
+                              >
+                                {getRoleDisplayName(
+                                  mapAdminLevelToRole(user.adminLevel),
+                                )}
                               </Badge>
                             </>
                           ) : (
                             <>
-                              <UserIcon size={16} className="text-muted-foreground" />
-                              <Badge variant="secondary" className="text-xs font-semibold">
-                                {getRoleDisplayName(mapAdminLevelToRole(user.adminLevel))}
+                              <UserIcon
+                                size={16}
+                                className="text-muted-foreground"
+                              />
+                              <Badge
+                                variant="secondary"
+                                className="text-xs font-semibold"
+                              >
+                                {getRoleDisplayName(
+                                  mapAdminLevelToRole(user.adminLevel),
+                                )}
                               </Badge>
                             </>
                           )}
@@ -172,7 +226,12 @@ const UserPage = () => {
                       <Edit size={16} className="mr-2" />
                       Edit
                     </Button>
-                    <Button variant="ghost" size="sm" onClick={() => {}} className="text-destructive hover:text-destructive">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => {}}
+                      className="text-destructive hover:text-destructive"
+                    >
                       <Trash2 size={16} className="mr-2" />
                       Delete
                     </Button>
@@ -226,17 +285,21 @@ const UserPage = () => {
               <Select
                 value={formData.adminLevel.toString()}
                 onValueChange={(value) =>
-                  setFormData((prev) => ({ ...prev, adminLevel: parseInt(value) }))
+                  setFormData((prev) => ({
+                    ...prev,
+                    adminLevel: parseInt(value),
+                  }))
                 }
               >
                 <SelectTrigger id="adminLevel">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="1">User (Level 1)</SelectItem>
-                  <SelectItem value="2">User (Level 2)</SelectItem>
-                  <SelectItem value="3">Recipe Creator (Level 3)</SelectItem>
-                  <SelectItem value="4">Super Admin (Level 4)</SelectItem>
+                  <SelectItem value="0">User</SelectItem>
+                  <SelectItem value="1">Recipe Creator</SelectItem>
+                  <SelectItem value="2">Pump & Ingredient Editor</SelectItem>
+                  <SelectItem value="3">Admin</SelectItem>
+                  <SelectItem value="4">Super Admin</SelectItem>
                 </SelectContent>
               </Select>
             </div>

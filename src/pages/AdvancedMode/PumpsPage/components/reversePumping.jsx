@@ -302,12 +302,12 @@ const ReversePumping = () => {
                                   loadingPins
                                     ? 'Loading pins...'
                                     : !selectedDirectorBoardId
-                                    ? 'Select a board first'
-                                    : directorPins.length === 0
-                                    ? 'No pins available'
-                                    : t('common.select_pin', {
-                                        defaultValue: 'Select pin',
-                                      })
+                                      ? 'Select a board first'
+                                      : directorPins.length === 0
+                                        ? 'No pins available'
+                                        : t('common.select_pin', {
+                                            defaultValue: 'Select pin',
+                                          })
                                 }
                               />
                             </SelectTrigger>
@@ -322,14 +322,19 @@ const ReversePumping = () => {
                                 </div>
                               ) : (
                                 directorPins.map((pin) => {
-                                  const pinValue = pin.nr ?? pin.id ?? pin.pinId ?? '';
-                                  const pinLabel = pin.pinName ?? pin.name ?? `Pin ${pin.nr ?? pin.id ?? pin.pinId ?? 'Unknown'}`;
+                                  const pinValue =
+                                    pin.nr ?? pin.id ?? pin.pinId ?? '';
+                                  const pinLabel =
+                                    pin.pinName ??
+                                    pin.name ??
+                                    `Pin ${pin.nr ?? pin.id ?? pin.pinId ?? 'Unknown'}`;
                                   return (
                                     <SelectItem
                                       key={pinValue.toString()}
                                       value={pinValue.toString()}
                                     >
-                                      {pinLabel + (pin.inUse ? ' (In use)' : '')}
+                                      {pinLabel +
+                                        (pin.inUse ? ' (In use)' : '')}
                                     </SelectItem>
                                   );
                                 })
@@ -340,7 +345,9 @@ const ReversePumping = () => {
                             type="button"
                             variant="ghost"
                             size="icon"
-                            disabled={!selectedDirectorBoardId || saving || loadingPins}
+                            disabled={
+                              !selectedDirectorBoardId || saving || loadingPins
+                            }
                             onClick={() =>
                               setValue('settings.directorPin.pinId', null)
                             }
@@ -349,11 +356,13 @@ const ReversePumping = () => {
                             <X className="h-4 w-4" />
                           </Button>
                         </div>
-                        {selectedDirectorBoardId && !loadingPins && directorPins.length === 0 && (
-                          <p className="text-sm text-muted-foreground">
-                            {t('reverse_pumping.no_available_pins')}
-                          </p>
-                        )}
+                        {selectedDirectorBoardId &&
+                          !loadingPins &&
+                          directorPins.length === 0 && (
+                            <p className="text-sm text-muted-foreground">
+                              {t('reverse_pumping.no_available_pins')}
+                            </p>
+                          )}
                         {loadingPins && (
                           <div className="mt-2 space-y-2">
                             <Progress value={50} className="w-full" />

@@ -77,13 +77,17 @@ export const PumpStatus: React.FC = () => {
                 <span className="text-sm font-medium">
                   {t('pump_status.pumps_installed')}
                 </span>
-                <Badge variant="default" className="font-semibold">{nrPumps}</Badge>
+                <Badge variant="default" className="font-semibold">
+                  {nrPumps}
+                </Badge>
               </div>
               <div className="flex items-center justify-between py-2 px-3 rounded-lg bg-muted/30">
                 <span className="text-sm font-medium">
                   {t('pump_status.pumps_ingredients_installed')}
                 </span>
-                <Badge variant="default" className="font-semibold">{nrIngredientsInstalled}</Badge>
+                <Badge variant="default" className="font-semibold">
+                  {nrIngredientsInstalled}
+                </Badge>
               </div>
             </div>
           </div>

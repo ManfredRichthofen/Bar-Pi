@@ -1,4 +1,9 @@
-import { createFileRoute, redirect, Outlet, useMatches } from '@tanstack/react-router';
+import {
+  createFileRoute,
+  redirect,
+  Outlet,
+  useMatches,
+} from '@tanstack/react-router';
 import { PumpsPage } from '../pages/AdvancedMode/PumpsPage/PumpsPage';
 import useAuthStore from '../store/authStore';
 import userService from '../services/user.service';
@@ -16,7 +21,7 @@ export const Route = createFileRoute('/_advanced/pumps')({
       const headers = { Authorization: `Bearer ${token}` };
       const userData = await userService.getMe(headers);
       const role = mapAdminLevelToRole(userData.adminLevel);
-      
+
       if (!hasPermission(role, 'canManagePumps')) {
         throw redirect({ to: '/drinks' });
       }
@@ -34,13 +39,15 @@ export const Route = createFileRoute('/_advanced/pumps')({
 
 function AdvancedPumpsRoute() {
   const matches = useMatches();
-  const isChildRoute = matches.some(match => match.id.includes('/$pumpId/edit'));
-  
+  const isChildRoute = matches.some((match) =>
+    match.id.includes('/$pumpId/edit'),
+  );
+
   // If we're on a child route (like edit), show the Outlet
   // Otherwise show the pumps list page
   if (isChildRoute) {
     return <Outlet />;
   }
-  
+
   return <PumpsPage />;
 }

@@ -58,7 +58,9 @@ const RecipeCard = ({ recipe, isFavorite, onEdit, onDelete }) => {
         )}
         <div className="text-xs text-muted-foreground">
           {recipe.productionSteps?.length || 0} {t('recipe_card.step')}
-          {recipe.productionSteps?.length !== 1 ? t('recipe_card.steps_plural') : ''}
+          {recipe.productionSteps?.length !== 1
+            ? t('recipe_card.steps_plural')
+            : ''}
         </div>
       </CardContent>
 

@@ -16,7 +16,7 @@ export const Route = createFileRoute('/_advanced/users')({
       const headers = { Authorization: `Bearer ${token}` };
       const userData = await userService.getMe(headers);
       const role = mapAdminLevelToRole(userData.adminLevel);
-      
+
       if (!hasPermission(role, 'canManageUsers')) {
         throw redirect({ to: '/drinks' });
       }

@@ -47,14 +47,17 @@ const DrinkInfo = ({
             <div className="flex items-center justify-between">
               <span>{t('drink_info.type')}:</span>
               <span className="font-medium">
-                {alcoholic ? t('drink_info.alcoholic') : t('drink_info.non_alcoholic')}
+                {alcoholic
+                  ? t('drink_info.alcoholic')
+                  : t('drink_info.non_alcoholic')}
               </span>
             </div>
             {defaultGlass && (
               <div className="flex items-center justify-between">
                 <span>{t('drink_info.glass')}:</span>
                 <span className="font-medium">
-                  {defaultGlass.name} ({defaultGlass.sizeInMl}{t('drink_info.ml_unit')})
+                  {defaultGlass.name} ({defaultGlass.sizeInMl}
+                  {t('drink_info.ml_unit')})
                 </span>
               </div>
             )}

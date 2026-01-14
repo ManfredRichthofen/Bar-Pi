@@ -298,7 +298,9 @@ const AddPumpModal = ({ show, onClose, pumpType = null }) => {
                   )}
 
                   <div className="space-y-2">
-                    <Label htmlFor="ingredient">{t('add_pump_modal.current_ingredient')}</Label>
+                    <Label htmlFor="ingredient">
+                      {t('add_pump_modal.current_ingredient')}
+                    </Label>
                     <Select
                       value={watch('currentIngredientId')?.toString() || ''}
                       onValueChange={(value) =>
@@ -339,7 +341,9 @@ const AddPumpModal = ({ show, onClose, pumpType = null }) => {
                   {/* DC Pump / Valve Pin */}
                   {(pumpTypeValue === 'dc' || pumpTypeValue === 'valve') && (
                     <div className="space-y-2">
-                      <Label htmlFor="controlPin">{t('add_pump_modal.control_pin')}</Label>
+                      <Label htmlFor="controlPin">
+                        {t('add_pump_modal.control_pin')}
+                      </Label>
                       <Select
                         value={watch('pin.boardId')?.toString() || ''}
                         onValueChange={(value) =>
@@ -370,7 +374,9 @@ const AddPumpModal = ({ show, onClose, pumpType = null }) => {
                   {pumpTypeValue === 'stepper' && (
                     <>
                       <div className="space-y-2">
-                        <Label htmlFor="enablePin">{t('add_pump_modal.enable_pin')}</Label>
+                        <Label htmlFor="enablePin">
+                          {t('add_pump_modal.enable_pin')}
+                        </Label>
                         <Select
                           value={watch('enablePin.boardId')?.toString() || ''}
                           onValueChange={(value) =>
@@ -397,7 +403,9 @@ const AddPumpModal = ({ show, onClose, pumpType = null }) => {
                       </div>
 
                       <div className="space-y-2">
-                        <Label htmlFor="stepPin">{t('add_pump_modal.step_pin')}</Label>
+                        <Label htmlFor="stepPin">
+                          {t('add_pump_modal.step_pin')}
+                        </Label>
                         <Select
                           value={watch('stepPin.boardId')?.toString() || ''}
                           onValueChange={(value) =>
@@ -426,7 +434,9 @@ const AddPumpModal = ({ show, onClose, pumpType = null }) => {
                   )}
 
                   <div className="flex items-center justify-between">
-                    <Label htmlFor="powerState">{t('add_pump_modal.power_state_high')}</Label>
+                    <Label htmlFor="powerState">
+                      {t('add_pump_modal.power_state_high')}
+                    </Label>
                     <Switch
                       id="powerState"
                       checked={watch('isPowerStateHigh')}
@@ -448,7 +458,9 @@ const AddPumpModal = ({ show, onClose, pumpType = null }) => {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="timePerCl">{t('add_pump_modal.time_per_cl_ms')}</Label>
+                    <Label htmlFor="timePerCl">
+                      {t('add_pump_modal.time_per_cl_ms')}
+                    </Label>
                     <Input
                       id="timePerCl"
                       type="number"
@@ -472,7 +484,9 @@ const AddPumpModal = ({ show, onClose, pumpType = null }) => {
                   {pumpTypeValue === 'stepper' && (
                     <>
                       <div className="space-y-2">
-                        <Label htmlFor="acceleration">{t('add_pump_modal.acceleration')}</Label>
+                        <Label htmlFor="acceleration">
+                          {t('add_pump_modal.acceleration')}
+                        </Label>
                         <Input
                           id="acceleration"
                           type="number"
@@ -492,7 +506,9 @@ const AddPumpModal = ({ show, onClose, pumpType = null }) => {
                       </div>
 
                       <div className="space-y-2">
-                        <Label htmlFor="maxSteps">{t('add_pump_modal.max_steps_per_second')}</Label>
+                        <Label htmlFor="maxSteps">
+                          {t('add_pump_modal.max_steps_per_second')}
+                        </Label>
                         <Input
                           id="maxSteps"
                           type="number"
@@ -512,7 +528,9 @@ const AddPumpModal = ({ show, onClose, pumpType = null }) => {
                       </div>
 
                       <div className="space-y-2">
-                        <Label htmlFor="stepsPerCl">{t('add_pump_modal.steps_per_cl')}</Label>
+                        <Label htmlFor="stepsPerCl">
+                          {t('add_pump_modal.steps_per_cl')}
+                        </Label>
                         <Input
                           id="stepsPerCl"
                           type="number"
@@ -545,7 +563,9 @@ const AddPumpModal = ({ show, onClose, pumpType = null }) => {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="tubeCapacity">{t('add_pump_modal.tube_capacity_ml')}</Label>
+                    <Label htmlFor="tubeCapacity">
+                      {t('add_pump_modal.tube_capacity_ml')}
+                    </Label>
                     <Input
                       id="tubeCapacity"
                       type="number"
@@ -566,7 +586,9 @@ const AddPumpModal = ({ show, onClose, pumpType = null }) => {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="fillingLevel">{t('add_pump_modal.filling_level_ml')}</Label>
+                    <Label htmlFor="fillingLevel">
+                      {t('add_pump_modal.filling_level_ml')}
+                    </Label>
                     <Input
                       id="fillingLevel"
                       type="number"
@@ -586,7 +608,9 @@ const AddPumpModal = ({ show, onClose, pumpType = null }) => {
                   </div>
 
                   <div className="flex items-center justify-between">
-                    <Label htmlFor="pumpedUp">{t('add_pump_modal.pumped_up')}</Label>
+                    <Label htmlFor="pumpedUp">
+                      {t('add_pump_modal.pumped_up')}
+                    </Label>
                     <Switch
                       id="pumpedUp"
                       checked={watch('isPumpedUp')}

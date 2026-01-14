@@ -34,7 +34,7 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed, onCollapse }) => {
   const { token } = useAuthStore();
   const [userData, setUserData] = useState<UserData | null>(null);
   const [loading, setLoading] = useState(true);
-  
+
   useEffect(() => {
     const fetchUserData = async () => {
       if (!token) {
@@ -165,11 +165,11 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed, onCollapse }) => {
                   if (loading || !userData) {
                     return item.key === '/drinks' || item.key === '/favorites';
                   }
-                  
+
                   if (item.key === '/drinks' || item.key === '/favorites') {
                     return true;
                   }
-                  
+
                   const role = mapAdminLevelToRole(userData.adminLevel);
                   return canAccessRoute(role, item.key);
                 });
@@ -206,7 +206,9 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed, onCollapse }) => {
                             size: 18,
                             strokeWidth: 2,
                             className: `transition-colors duration-200 ${
-                              location.pathname === item.key ? 'text-primary' : ''
+                              location.pathname === item.key
+                                ? 'text-primary'
+                                : ''
                             }`,
                           })}
                           <span className="text-sm whitespace-nowrap">
