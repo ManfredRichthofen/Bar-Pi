@@ -114,8 +114,6 @@
 @plugin "tailwindcss-animate";
 
 @layer utilities {
-<<<<<<< Updated upstream
-=======
   /* Running pump indicator - override Card ring border */
   [data-slot="card"].pump-running {
     --tw-ring-color: var(--primary) !important;
@@ -166,7 +164,6 @@
     animation: progress-scroll 1s linear infinite !important;
   }
 
->>>>>>> Stashed changes
   .scrollbar-thin {
     scrollbar-width: thin;
   }
