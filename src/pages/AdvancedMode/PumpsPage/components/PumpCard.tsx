@@ -11,7 +11,6 @@ import {
   CornerUpRight,
   Droplet,
   Hexagon,
-  Loader2,
 } from 'lucide-react';
 import WebSocketService from '../../../../services/websocket.service';
 import PumpService from '../../../../services/pump.service';
@@ -25,7 +24,11 @@ import {
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
+import {
+  Progress,
+  ProgressTrack,
+  ProgressIndicator,
+} from '@/components/ui/progress';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 
@@ -54,7 +57,7 @@ interface PumpCardProps {
 
 export const PumpCard: React.FC<PumpCardProps> = ({ pump }) => {
   const { t } = useTranslation();
-  const navigate = useNavigate();
+  const navigate = useNavigate({ from: '/pumps' });
   const token = useAuthStore((state) => state.token);
 
   const [pumpDownBtnLoading, setPumpDownBtnLoading] = useState(false);
@@ -67,6 +70,7 @@ export const PumpCard: React.FC<PumpCardProps> = ({ pump }) => {
     lastJobId: null,
     runningState: null,
   });
+  const [lastUpdate, setLastUpdate] = useState<Date | null>(null);
 
   const wsTopic = useMemo(
     () => `/user/topic/pump/runningstate/${pump.id}`,
@@ -74,16 +78,11 @@ export const PumpCard: React.FC<PumpCardProps> = ({ pump }) => {
   );
 
   useEffect(() => {
-    if (!token) return;
-
-    if (!WebSocketService.connected) {
-      WebSocketService.connectWebsocket(token);
-    }
-
     const handleWebSocketMessage = (data: any) => {
       try {
         const parsed = JSON.parse(data.body);
-        setPumpJobState(Object.assign({}, parsed));
+        setPumpJobState(parsed);
+        setLastUpdate(new Date());
       } catch (err) {
         console.error('Error parsing pump job state', err);
       }
@@ -99,7 +98,7 @@ export const PumpCard: React.FC<PumpCardProps> = ({ pump }) => {
     return () => {
       WebSocketService.unsubscribe(`pump-${pump.id}`, wsTopic);
     };
-  }, [pump.id, wsTopic, token]);
+  }, [pump.id, wsTopic]);
 
   const displayAttributes = useMemo(() => {
     const getDisplayAttribute = (attr: any, suffix = '') => {
@@ -133,7 +132,7 @@ export const PumpCard: React.FC<PumpCardProps> = ({ pump }) => {
   }, [pump.fillingLevelInMl, pump.pin]);
 
   const displayName = useMemo(
-    () => pump.name || t('pump_card.unnamed', { id: pump.id }),
+    () => pump.name || t('pump.pump_card.unnamed', { id: pump.id }),
     [pump.name, pump.id, t],
   );
 
@@ -141,11 +140,11 @@ export const PumpCard: React.FC<PumpCardProps> = ({ pump }) => {
     const printPumpType = (() => {
       switch (pump.type) {
         case 'dc':
-          return t('pump_card.type_dc');
+          return t('pump.pump_card.type_dc');
         case 'stepper':
-          return t('pump_card.type_stepper');
+          return t('pump.pump_card.type_stepper');
         case 'valve':
-          return t('pump_card.type_valve');
+          return t('pump.pump_card.type_valve');
         default:
           return '';
       }
@@ -170,32 +169,11 @@ export const PumpCard: React.FC<PumpCardProps> = ({ pump }) => {
     return { printPumpType, PumpTypeIcon };
   }, [pump.type, t]);
 
-  const progressBar = useMemo(() => {
-    const abortVal = {
-      value: pump.pumpedUp ? 1 : 0,
-      query: false,
-      reverse: false,
-    };
-    if (!pumpJobState.runningState) {
-      return abortVal;
-    }
-    const runningState = pumpJobState.runningState;
-    let value = runningState.forward
-      ? runningState.percentage
-      : 100 - runningState.percentage;
-    value = value / 100;
-    return {
-      value,
-      query: runningState.runInfinity,
-      reverse: runningState.forward && runningState.runInfinity,
-    };
-  }, [pumpJobState.runningState, pump.pumpedUp]);
-
   const printIngredient = useMemo(
     () =>
       pump.currentIngredient
         ? pump.currentIngredient.name
-        : t('pump_card.no_ingredient'),
+        : t('pump.pump_card.no_ingredient'),
     [pump.currentIngredient, t],
   );
 
@@ -204,12 +182,12 @@ export const PumpCard: React.FC<PumpCardProps> = ({ pump }) => {
       if (pump.pumpedUp) {
         return {
           variant: 'default' as const,
-          label: t('pump_card.state_pumped_up'),
+          label: t('pump.pump_card.state_pumped_up'),
         };
       } else {
         return {
           variant: 'destructive' as const,
-          label: t('pump_card.state_pumped_down'),
+          label: t('pump.pump_card.state_pumped_down'),
         };
       }
     })();
@@ -296,103 +274,140 @@ export const PumpCard: React.FC<PumpCardProps> = ({ pump }) => {
 
   return (
     <motion.div
-      whileHover={{ y: -4 }}
+      whileHover={{ y: -4, scale: 1.02 }}
       whileTap={{ scale: 0.98 }}
-      transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+      transition={{ type: 'spring', stiffness: 400, damping: 25 }}
       className="h-full"
     >
-      <Card 
-        className={cn(
-          "group h-full flex flex-col overflow-hidden transition-all duration-300",
-          pumpJobState.runningState 
-            ? "ring-2 ring-primary shadow-[0_10px_15px_-3px_rgba(124,58,237,0.3)]" 
-            : "hover:shadow-lg"
-        )}
-      >
-        <CardHeader className="space-y-0 pb-4">
-          <div className="flex items-start justify-between gap-3">
-            <div className="flex-1 min-w-0 space-y-3">
-              <div className="flex items-start justify-between gap-2">
-                <CardTitle className="text-xl font-bold leading-tight">
-                  {displayName}
-                </CardTitle>
-                <Button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    if (pump?.id) {
-                      navigate({ to: `/pumps/$pumpId/edit`, params: { pumpId: pump.id.toString() } });
-                    }
-                  }}
-                  variant="ghost"
-                  size="icon-sm"
-                  title={t('common.edit')}
-                  className="shrink-0 -mt-1 -mr-2"
-                >
-                  <Pencil className="h-4 w-4" />
-                </Button>
-              </div>
-              
-              <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
+      <Card className="group h-full flex flex-col overflow-hidden border-border/50 hover:border-border hover:shadow-xl transition-all duration-300 p-0">
+        <CardHeader className="bg-gradient-to-br from-muted/50 to-accent/20 border-b relative p-4">
+          <div className="flex items-start justify-between gap-4">
+            <div className="flex-1 min-w-0">
+              <CardTitle className="text-lg sm:text-xl font-bold truncate mb-2">
+                {displayName}
+              </CardTitle>
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 {pumpTypeInfo.PumpTypeIcon}
                 <span className="font-medium">
                   {pumpTypeInfo.printPumpType}
                 </span>
               </div>
-              
-              <div className="flex items-center gap-2 flex-wrap">
+              {lastUpdate && (
+                <div className="text-xs text-muted-foreground/60 mt-1.5">
+                  Updated {lastUpdate.toLocaleTimeString()}
+                </div>
+              )}
+            </div>
+            <div className="flex flex-col items-end gap-2 flex-shrink-0">
+              <Button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  navigate({ to: `/pumps/${pump.id}/edit` });
+                }}
+                variant="ghost"
+                size="icon-sm"
+                title={t('common.edit')}
+                className="hover:bg-background/80 backdrop-blur-sm transition-all"
+              >
+                <Pencil className="h-4 w-4" />
+              </Button>
+              <div className="flex flex-col gap-1.5">
                 <Badge
                   variant={stateInfo.pumpedUpState.variant}
-                  className="text-xs font-medium"
+                  className="shadow-sm backdrop-blur-sm text-xs"
                 >
                   {stateInfo.pumpedUpState.label}
                 </Badge>
                 <Badge
                   variant={stateInfo.pumpState.variant}
-                  className="text-xs font-medium"
+                  className="shadow-sm backdrop-blur-sm text-xs"
                 >
                   {stateInfo.pumpState.label}
                 </Badge>
+              </div>
+
+              <div className="w-full h-1 bg-muted/40 overflow-hidden relative rounded-full">
+                <motion.div
+                  className={cn(
+                    'h-full w-[30%] absolute top-0 rounded-full',
+                    pumpJobState.runningState
+                      ? 'bg-primary'
+                      : 'bg-muted-foreground/20',
+                  )}
+                  animate={
+                    pumpJobState.runningState
+                      ? {
+                          left: [`-30%`, `100%`],
+                        }
+                      : {
+                          left: `-30%`,
+                        }
+                  }
+                  transition={
+                    pumpJobState.runningState
+                      ? {
+                          duration: 2,
+                          repeat: Number.POSITIVE_INFINITY,
+                          ease: 'linear',
+                        }
+                      : {
+                          duration: 0,
+                        }
+                  }
+                />
               </div>
             </div>
           </div>
         </CardHeader>
 
-        <motion.div 
-          className={cn(
-            "px-6 pb-4",
-            pumpJobState.runningState && "progress-scrolling"
+        <div className="flex-shrink-0 relative">
+          {pumpJobState.runningState ? (
+            <div className="relative w-full">
+              <Progress value={30}>
+                <ProgressTrack>
+                  <ProgressIndicator className="bg-gradient-to-r from-primary to-primary/80" />
+                </ProgressTrack>
+              </Progress>
+              <div
+                className="absolute left-0 top-0 h-full pointer-events-none"
+                style={{ width: '30%', overflow: 'hidden' }}
+              >
+                <div
+                  className="h-full w-[200%]"
+                  style={{
+                    backgroundImage:
+                      'repeating-linear-gradient(45deg, rgba(255,255,255,0.25) 0px, rgba(255,255,255,0.25) 10px, transparent 10px, transparent 20px)',
+                    animation: 'progressScroll 1s linear infinite',
+                  }}
+                />
+              </div>
+              <style>{`@keyframes progressScroll { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }`}</style>
+            </div>
+          ) : (
+            <Progress value={0}>
+              <ProgressTrack>
+                <ProgressIndicator className="transition-all duration-300" />
+              </ProgressTrack>
+            </Progress>
           )}
-          animate={pumpJobState.runningState ? {
-            opacity: [1, 0.8, 1],
-          } : {}}
-          transition={{
-            duration: 2,
-            repeat: pumpJobState.runningState ? Infinity : 0,
-            ease: "easeInOut"
-          }}
-        >
-          <Progress 
-            value={progressBar.value * 100}
-            className={pumpJobState.runningState ? "running-progress" : ""}
-          />
-        </motion.div>
+        </div>
 
-        <CardContent className="flex-1 space-y-3 pt-0">
-          <div className="space-y-2">
-            <div className="flex items-center justify-between py-2.5 px-3 rounded-lg bg-muted/40 border border-border/50">
-              <span className="text-sm text-muted-foreground font-medium">
+        <CardContent className="flex-1 flex flex-col gap-4 p-4">
+          <div className="space-y-3 text-sm">
+            <div className="flex items-center justify-between p-3 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors">
+              <span className="text-muted-foreground font-medium">
                 {t('pump_card.ingredient')}
               </span>
-              <span className="text-sm font-semibold truncate ml-3 max-w-[60%] text-right">
+              <span className="font-semibold truncate ml-2 text-foreground">
                 {printIngredient}
               </span>
             </div>
-            <div className="flex items-center justify-between py-2.5 px-3 rounded-lg bg-muted/40 border border-border/50">
-              <span className="text-sm text-muted-foreground font-medium">
+            <div className="flex items-center justify-between p-3 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors">
+              <span className="text-muted-foreground font-medium">
                 {t('pump_card.filling_level')}
               </span>
               <span
-                className={`text-sm font-semibold ${displayAttributes.fillingLevel.className}`}
+                className={`font-semibold ${displayAttributes.fillingLevel.className}`}
               >
                 {displayAttributes.fillingLevel.label}
               </span>
@@ -400,10 +415,10 @@ export const PumpCard: React.FC<PumpCardProps> = ({ pump }) => {
           </div>
         </CardContent>
 
-        <CardFooter className="mt-auto border-t pt-4">
-          <div className="flex gap-2 w-full">
+        <CardFooter className="mt-auto border-t p-4 bg-muted/20">
+          <div className="flex gap-2 ml-auto">
             {pump.canControlDirection && (
-              <div className="flex gap-2">
+              <>
                 <Button
                   onClick={(e) => {
                     e.stopPropagation();
@@ -413,6 +428,7 @@ export const PumpCard: React.FC<PumpCardProps> = ({ pump }) => {
                   variant="outline"
                   size="sm"
                   title={t('pump_card.pump_down')}
+                  className="hover:bg-background transition-all"
                 >
                   <CornerUpLeft className="h-4 w-4" />
                 </Button>
@@ -425,10 +441,11 @@ export const PumpCard: React.FC<PumpCardProps> = ({ pump }) => {
                   variant="outline"
                   size="sm"
                   title={t('pump_card.pump_up')}
+                  className="hover:bg-background transition-all"
                 >
                   <CornerUpRight className="h-4 w-4" />
                 </Button>
-              </div>
+              </>
             )}
             <Button
               onClick={(e) => {
@@ -443,16 +460,13 @@ export const PumpCard: React.FC<PumpCardProps> = ({ pump }) => {
                   ? t('pump_card.stop')
                   : t('pump_card.start')
               }
-              className="ml-auto min-w-20"
+              className="shadow-sm"
             >
-              {runningBtnLoading ? (
-                <Loader2 className="h-4 w-4 mr-1.5 animate-spin" />
-              ) : pumpJobState.runningState ? (
-                <StopCircle className="h-4 w-4 mr-1.5" />
+              {pumpJobState.runningState ? (
+                <StopCircle className="h-4 w-4" />
               ) : (
-                <PlayCircle className="h-4 w-4 mr-1.5" />
+                <PlayCircle className="h-4 w-4" />
               )}
-              {pumpJobState.runningState ? t('pump_card.stop') : t('pump_card.start')}
             </Button>
           </div>
         </CardFooter>

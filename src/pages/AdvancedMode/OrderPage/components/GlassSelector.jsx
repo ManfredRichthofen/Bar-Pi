@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { GlassWater, Loader2 } from 'lucide-react';
 import glassService from '../../../../services/glass.service';
 import { Label } from '@/components/ui/label';
+import { useTranslation } from 'react-i18next';
 import {
   Select,
   SelectContent,
@@ -19,6 +20,7 @@ const GlassSelector = ({
   defaultGlass = null,
   token,
 }) => {
+  const { t } = useTranslation();
   const [glasses, setGlasses] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -62,7 +64,7 @@ const GlassSelector = ({
     <div className="w-full space-y-2">
       <Label className="flex items-center gap-2">
         <GlassWater size={16} />
-        Glass Size
+        {t('glass_selector.glass_size')}
       </Label>
 
       <div className="flex gap-2">
@@ -102,7 +104,9 @@ const GlassSelector = ({
               onChange={(e) => onCustomAmountChange(parseFloat(e.target.value))}
               className="w-24"
             />
-            <span className="text-sm text-muted-foreground">ml</span>
+            <span className="text-sm text-muted-foreground">
+              {t('glass_selector.ml')}
+            </span>
           </div>
         )}
       </div>

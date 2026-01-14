@@ -1,148 +1,244 @@
 {
+  "add_pump_modal": {
+    "acceleration": "Acceleration",
+    "cancel": "Cancel",
+    "control_pin": "Control Pin",
+    "create_pump": "Create Pump",
+    "current_ingredient": "Current Ingredient",
+    "enable_pin": "Enable Pin",
+    "filling_level_ml": "Filling Level (ml)",
+    "max_steps_per_second": "Max Steps per Second",
+    "name": "Pump Name",
+    "power_state_high": "Power State High",
+    "pumped_up": "Pumped Up",
+    "step_pin": "Step Pin",
+    "steps_per_cl": "Steps per CL",
+    "time_per_cl_ms": "Time per CL (ms)",
+    "tube_capacity_ml": "Tube Capacity (ml)",
+    "type": "Pump Type"
+  },
+  "common": {
+    "clear": "Clear",
+    "close": "Close",
+    "edit": "Edit",
+    "hide": "Hide",
+    "loading_pins": "Loading pins...",
+    "logout": "Logout",
+    "optional": "optional",
+    "select_board": "Select board",
+    "select_pin": "Select pin",
+    "show": "Show",
+    "validation_invalid": "Invalid value"
+  },
+  "component": {
+    "reverse_pump_settings": {
+      "form": {
+        "auto_pump_back_timer_label": "Auto Pump Back Timer",
+        "enable_label": "Enable Reverse Pumping",
+        "forward_state": {
+          "high": "High",
+          "low": "Low"
+        },
+        "forward_state_high_label": "Forward State",
+        "overshoot_label": "Overshoot",
+        "save_btn_label": "Save Changes",
+        "timer_options": {
+          "in_minutes": "{{nr}} min",
+          "never": "Never"
+        },
+        "vd_pin_gpio": "GPIO Pin",
+        "vd_pin_headline": "Direction/Driver Pin",
+        "vd_pin_label": "GPIO Board"
+      },
+      "headline": "Reverse Pump Settings"
+    }
+  },
+  "drink_customizer": {
+    "add": "Add",
+    "add_ingredient": "Add Ingredient",
+    "add_new_ingredient": "Add New Ingredient",
+    "additional_ingredients": "Additional Ingredients",
+    "additional_ingredients_description": "Add extra ingredients to customize your drink",
+    "alcohol_content_adjustment": "Alcohol Content Adjustment",
+    "alcohol_content_description": "Adjust the strength of your drink by modifying the alcohol content",
+    "cancel": "Cancel",
+    "customize_drink": "Customize Drink",
+    "double": "Double",
+    "ml": "ml",
+    "no_alcohol": "No Alcohol",
+    "normal": "Normal"
+  },
+  "drink_info": {
+    "alcoholic": "Alcoholic",
+    "description": "Description",
+    "glass": "Glass:",
+    "ml_unit": "ml)",
+    "non_alcoholic": "Non-alcoholic",
+    "preparation": "Preparation",
+    "type": "Type:"
+  },
+  "glass_modal": {
+    "cancel": "Cancel",
+    "description": "Description",
+    "name": "Name",
+    "save": "Save"
+  },
+  "glass_selector": {
+    "glass_size": "Glass Size",
+    "ml": "ml"
+  },
+  "ingredient_requirements": {
+    "missing": "missing:"
+  },
+  "ingredients_list": {
+    "title": "Ingredients"
+  },
   "login": {
-    "password_field_label": "Password",
-    "username_field_label": "Username",
-    "remember_me": "Remember me",
-    "forgot_password": "Forgot your password?",
-    "no_account": "Don't have an account?",
-    "create_account": "Create one here",
-    "create_account_short": "Sign up",
-    "headline": "Welcome to the",
-    "headline_short": "Sign in",
-    "subtitle": "Please sign in to your account",
-    "divider_text": "Sign in with email",
+    "advanced_settings": "Advanced Settings",
+    "api_url": "API URL",
+    "api_url_help": "Enter the URL of the API server. If you are using the default server, leave this field blank.",
     "btn_label": "Sign in to your account",
     "btn_label_short": "Login",
+    "create_account": "Create one here",
+    "create_account_short": "Sign up",
+    "divider_text": "Sign in with email",
+    "forgot_password": "Forgot your password?",
+    "headline_short": "Sign in",
     "logging_in": "Signing you in...",
-    "errors_field_required": "This field is required",
-    "api_url": "API URL",
-    "username": "Username",
-    "password": "Password",
-    "advanced_settings": "Advanced Settings",
-    "api_url_help": "Enter the URL of the API server. If you are using the default server, leave this field blank."
+    "no_account": "Don't have an account?",
+    "password_field_label": "Password",
+    "remember_me": "Remember me",
+    "subtitle": "Please sign in to your account",
+    "username_field_label": "Username"
+  },
+  "manual_ingredient_prompt": {
+    "confirm_button": "Confirm Ingredients Added",
+    "confirming": "Confirming...",
+    "description": "Please add the following ingredients manually",
+    "no_ingredients": "Required ingredients will be listed here",
+    "title": "Manual Action Required"
   },
   "navigation": {
     "drinks": "Drinks",
     "order_status": "Order Status",
-    "settings": "Settings",
-    "logout": "Logout"
+    "settings": "Settings"
   },
-  "common": {
-    "edit": "Edit",
-    "close": "Close",
-    "logout": "Logout",
-    "confirm_logout": "Are you sure you want to logout?",
-    "show": "Show",
-    "hide": "Hide",
-    "optional": "optional"
-  },
-
-  "pump_status": {
-    "headline": "Pump Status",
-    "pumps_headline": "Pumps",
-    "pumps_installed": "Pumps Installed",
-    "pumps_ingredients_installed": "Ingredients Installed",
-    "reverse_pumping_headline": "Reverse Pumping",
-    "reverse_pumping": "Status",
-    "reverse_pumping_status_enabled": "Enabled",
-    "reverse_pumping_status_disabled": "Disabled",
-    "reverse_pumping_overshoot": "Overshoot",
-    "reverse_pumping_timer": "Timer",
-    "load_cell_headline": "Load Cell",
-    "load_cell_status": "Status",
-    "load_cell_status_enabled": "Enabled",
-    "load_cell_status_disabled": "Disabled",
-    "load_cell_calibrated": "Calibrated",
-    "load_cell_calibrated_yes": "Yes",
-    "load_cell_calibrated_no": "No"
-  },
-  "pump_card": {
-    "stop": "Stop",
-    "reverse": "Reverse",
-    "calibrate": "Calibrate",
-    "unnamed": "Pump #{{id}}",
-    "type_dc": "DC Pump",
-    "type_stepper": "Stepper Pump",
-    "type_valve": "Valve",
-    "no_ingredient": "No ingredient assigned",
-    "state_pumped_up": "Pumped Up",
-    "state_pumped_down": "Pumped Down",
-    "state_running": "Running",
-    "state_ready": "Ready",
-    "state_incomplete": "Incomplete",
-    "ingredient": "Ingredient",
-    "filling_level": "Filling Level",
-    "pump_up": "Pump Up",
-    "pump_down": "Pump Down",
-    "start": "Start Pump"
-  },
-  "pump_selector": {
-    "headline": "Select Pump Type",
-    "valve": "Valve",
-    "dc_pump": "DC Pump",
-    "stepper_pump": "Stepper Pump"
-  },
-  "settings": {
-    "title": "Settings",
-    "general": {
-      "title": "General Settings",
-      "language_label": "Language",
-      "notifications": "Enable Notifications",
-      "sound_effects": "Sound Effects"
-    },
-    "advanced": {
-      "title": "Advanced Settings",
-      "api_url_label": "API Base URL",
-      "api_url_placeholder": "https://api.example.com",
-      "save": "Save",
-      "saved": "Saved!",
-      "error": "Error!",
-      "invalid_url": "Please enter a valid URL including http:// or https://",
-      "api_unreachable": "Unable to connect to API",
-      "save_error": "Failed to save API URL"
-    },
-    "appearance": {
-      "title": "Appearance",
-      "themes": {
-        "light": "Light",
-        "dark": "Dark",
-        "cupcake": "Cupcake",
-        "bumblebee": "Bumblebee",
-        "emerald": "Emerald",
-        "corporate": "Corporate",
-        "synthwave": "Synthwave",
-        "retro": "Retro",
-        "cyberpunk": "Cyberpunk",
-        "valentine": "Valentine",
-        "halloween": "Halloween",
-        "garden": "Garden",
-        "forest": "Forest",
-        "aqua": "Aqua",
-        "lofi": "Lo-Fi",
-        "pastel": "Pastel",
-        "fantasy": "Fantasy",
-        "wireframe": "Wireframe",
-        "black": "Black",
-        "luxury": "Luxury",
-        "dracula": "Dracula",
-        "cmyk": "CMYK",
-        "autumn": "Autumn",
-        "business": "Business",
-        "acid": "Acid",
-        "lemonade": "Lemonade",
-        "night": "Night",
-        "coffee": "Coffee",
-        "winter": "Winter",
-        "dim": "Dim",
-        "nord": "Nord",
-        "sunset": "Sunset"
-      }
+  "pump": {
+    "pump_card": {
+      "no_ingredient": "No ingredient assigned",
+      "start": "Start",
+      "state_pumped_down": "Pumped Down",
+      "state_pumped_up": "Pumped Up",
+      "stop": "Stop",
+      "type_dc": "DC Pump",
+      "type_stepper": "Stepper Pump",
+      "type_valve": "Valve",
+      "unnamed": "Pump #{{id}}"
     }
   },
-  "languages": {
-    "english": "English",
-    "spanish": "Español",
-    "french": "Français",
-    "german": "Deutsch"
+  "pump_card": {
+    "filling_level": "Filling Level",
+    "ingredient": "Ingredient",
+    "pump_down": "Pump Down",
+    "pump_up": "Pump Up",
+    "start": "Start Pump",
+    "state_incomplete": "Incomplete",
+    "state_ready": "Ready",
+    "state_running": "Running",
+    "stop": "Stop"
+  },
+  "pump_selector": {
+    "dc_pump": "DC Pump",
+    "dc_pump_description": "DC motor pump for continuous flow",
+    "headline": "Select Pump Type",
+    "stepper_pump": "Stepper Pump",
+    "stepper_pump_description": "Stepper motor for precise control",
+    "valve": "Valve",
+    "valve_description": "Control valve for precise flow"
+  },
+  "pump_status": {
+    "headline": "Pump Status",
+    "load_cell_calibrated": "Calibrated",
+    "load_cell_calibrated_no": "No",
+    "load_cell_calibrated_yes": "Yes",
+    "load_cell_headline": "Load Cell",
+    "load_cell_status": "Status",
+    "load_cell_status_disabled": "Disabled",
+    "load_cell_status_enabled": "Enabled",
+    "pumps_headline": "Pumps",
+    "pumps_ingredients_installed": "Ingredients Installed",
+    "pumps_installed": "Pumps Installed",
+    "reverse_pumping": "Status",
+    "reverse_pumping_headline": "Reverse Pumping",
+    "reverse_pumping_overshoot": "Overshoot",
+    "reverse_pumping_status_disabled": "Disabled",
+    "reverse_pumping_status_enabled": "Enabled",
+    "reverse_pumping_timer": "Timer"
+  },
+  "recipe_card": {
+    "no_image": "No image",
+    "step": "step",
+    "steps_plural": "s"
+  },
+  "recipe_modal": {
+    "add_ingredient": "+ Add Ingredient",
+    "add_ingredients": "+ Add Ingredients",
+    "add_instruction": "+ Add Instruction",
+    "cancel": "Cancel",
+    "create_recipe": "Create Recipe",
+    "create_title": "Create Recipe",
+    "default_amount_ml": "Default Amount (ml)",
+    "default_glass": "Default Glass",
+    "description": "Description",
+    "description_placeholder": "Describe the drink, flavor profile or any notes for the bartender",
+    "edit_title": "Edit Recipe",
+    "enter_instruction": "Enter instruction",
+    "image": "Recipe Image",
+    "instruction": "recipe_modal.instruction",
+    "name_required": "Recipe Name *",
+    "preview_alt": "Recipe preview",
+    "production_steps": "Production Steps",
+    "production_steps_description": "Build the drink using ingredient steps and written instructions.",
+    "remove_existing_image": "Remove existing image",
+    "step": "Step",
+    "update_recipe": "Update Recipe",
+    "upload": "Upload"
+  },
+  "reverse_pumping": {
+    "allow_reverse": "Allow pumps to reverse direction for cleaning",
+    "back_to_pumps": "Back to Pumps",
+    "cancel": "Cancel",
+    "description": "Configure reverse pumping and load cell settings",
+    "loading_settings": "Loading settings...",
+    "no_available_pins": "No available pins found for this board",
+    "no_pins_available": "No pins available"
+  },
+  "settings": {
+    "appearance": {
+      "title": "Appearance"
+    },
+    "general": {
+      "language_label": "Language",
+      "notifications": "Enable Notifications",
+      "sound_effects": "Sound Effects",
+      "title": "General Settings"
+    },
+    "title": "Settings",
+    "updates": {
+      "check": "Check for Updates",
+      "current_version": "Current Version",
+      "downloaded": "Update Downloaded",
+      "manual_install_required": "Please check your downloads folder for the update package. Extract and replace your current installation files with the new ones.",
+      "new_version_available": "Update Available",
+      "release_notes": "Release Notes",
+      "title": "Updates",
+      "update_now": "Update Now"
+    }
+  },
+  "virtual_drinks_grid": {
+    "loading_drinks": "Loading drinks...",
+    "no_drinks_found": "No drinks found",
+    "no_more_drinks": "No more drinks to load",
+    "try_adjusting_search": "Try adjusting your search"
   }
 }

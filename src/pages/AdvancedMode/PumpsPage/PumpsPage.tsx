@@ -61,7 +61,9 @@ export const PumpsPage: React.FC = () => {
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-5">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div>
-              <h1 className="text-3xl font-bold tracking-tight">Pump Management</h1>
+              <h1 className="text-3xl font-bold tracking-tight">
+                Pump Management
+              </h1>
               <p className="text-sm text-muted-foreground mt-1">
                 Manage and monitor your pump system
               </p>

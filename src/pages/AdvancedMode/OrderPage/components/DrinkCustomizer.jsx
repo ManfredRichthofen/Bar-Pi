@@ -3,6 +3,7 @@ import { PlusCircle, AlertTriangle } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
+import { useTranslation } from 'react-i18next';
 import {
   Select,
   SelectContent,
@@ -25,6 +26,7 @@ const DrinkCustomizer = ({
   onCustomizationsChange,
   availableIngredients = [],
 }) => {
+  const { t } = useTranslation();
   const [addingIngredient, setAddingIngredient] = useState(false);
   const [selectedIngredient, setSelectedIngredient] = useState(null);
 
@@ -77,7 +79,7 @@ const DrinkCustomizer = ({
       <CardContent className="pt-6">
         <Collapsible open={isOpen} onOpenChange={setIsOpen}>
           <CollapsibleTrigger className="flex items-center justify-between w-full text-xl font-medium py-2">
-            Customize Drink
+            {t('drink_customizer.customize_drink')}
             <span
               className={`transform transition-transform ${isOpen ? 'rotate-180' : ''}`}
             >
@@ -87,7 +89,7 @@ const DrinkCustomizer = ({
           <CollapsibleContent className="pt-4">
             <div className="mb-6">
               <h3 className="text-lg font-bold mb-2">
-                Alcohol Content Adjustment
+                {t('drink_customizer.alcohol_content_adjustment')}
               </h3>
               {disableBoosting ? (
                 <Alert className="mb-2">
@@ -98,8 +100,7 @@ const DrinkCustomizer = ({
                 </Alert>
               ) : (
                 <p className="text-muted-foreground mb-2">
-                  Adjust the strength of your drink by modifying the alcohol
-                  content
+                  {t('drink_customizer.alcohol_content_description')}
                 </p>
               )}
               <div className="flex items-center gap-4">
@@ -119,23 +120,25 @@ const DrinkCustomizer = ({
                   className={`min-w-20 justify-center ${disableBoosting ? 'opacity-50' : ''}`}
                 >
                   {customizations.boost === 100
-                    ? 'Normal'
+                    ? t('drink_customizer.normal')
                     : `${customizations.boost > 100 ? '+' : ''}${customizations.boost - 100}%`}
                 </Badge>
               </div>
               <div
                 className={`w-full flex justify-between text-xs px-2 mt-1 text-muted-foreground ${disableBoosting ? 'opacity-50' : ''}`}
               >
-                <span>No Alcohol</span>
-                <span>Normal</span>
-                <span>Double</span>
+                <span>{t('drink_customizer.no_alcohol')}</span>
+                <span>{t('drink_customizer.normal')}</span>
+                <span>{t('drink_customizer.double')}</span>
               </div>
             </div>
 
             <div>
-              <h3 className="text-lg font-bold mb-2">Additional Ingredients</h3>
+              <h3 className="text-lg font-bold mb-2">
+                {t('drink_customizer.additional_ingredients')}
+              </h3>
               <p className="text-muted-foreground mb-4">
-                Add extra ingredients to customize your drink
+                {t('drink_customizer.additional_ingredients_description')}
               </p>
 
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
@@ -159,7 +162,7 @@ const DrinkCustomizer = ({
                             className="flex-1"
                           />
                           <span className="text-sm text-muted-foreground">
-                            ml
+                            {t('drink_customizer.ml')}
                           </span>
                         </div>
                       </CardContent>
@@ -170,7 +173,9 @@ const DrinkCustomizer = ({
                 {addingIngredient ? (
                   <Card>
                     <CardContent className="p-4">
-                      <h4 className="font-bold mb-2">Add New Ingredient</h4>
+                      <h4 className="font-bold mb-2">
+                        {t('drink_customizer.add_new_ingredient')}
+                      </h4>
                       <Select
                         value={selectedIngredient?.id || ''}
                         onValueChange={(value) => {
@@ -204,7 +209,7 @@ const DrinkCustomizer = ({
                           onClick={handleAddIngredient}
                           disabled={!selectedIngredient}
                         >
-                          Add
+                          {t('drink_customizer.add')}
                         </Button>
                         <Button
                           variant="ghost"
@@ -214,7 +219,7 @@ const DrinkCustomizer = ({
                             setSelectedIngredient(null);
                           }}
                         >
-                          Cancel
+                          {t('drink_customizer.cancel')}
                         </Button>
                       </div>
                     </CardContent>
@@ -226,7 +231,7 @@ const DrinkCustomizer = ({
                   >
                     <CardContent className="flex flex-col items-center justify-center text-center p-4 min-h-32">
                       <PlusCircle className="mb-2" size={24} />
-                      <span>Add Ingredient</span>
+                      <span>{t('drink_customizer.add_ingredient')}</span>
                     </CardContent>
                   </Card>
                 )}

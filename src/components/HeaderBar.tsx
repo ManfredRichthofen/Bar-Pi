@@ -14,6 +14,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { toast } from 'sonner';
+import { getRoleDisplayName, mapAdminLevelToRole } from '../utils/roleAccess';
 
 interface HeaderBarProps {
   collapsed: boolean;
@@ -21,8 +22,10 @@ interface HeaderBarProps {
 }
 
 interface UserData {
+  id: number;
   username: string;
-  role: string;
+  adminLevel: number;
+  accountNonLocked: boolean;
 }
 
 const HeaderBar: React.FC<HeaderBarProps> = ({ collapsed, onToggle }) => {
@@ -99,7 +102,7 @@ const HeaderBar: React.FC<HeaderBarProps> = ({ collapsed, onToggle }) => {
           <h1
             className={`text-lg sm:text-xl font-semibold ${!collapsed && 'lg:hidden'}`}
           >
-            What to name it
+            BarPi
           </h1>
         </div>
 
@@ -120,7 +123,11 @@ const HeaderBar: React.FC<HeaderBarProps> = ({ collapsed, onToggle }) => {
                       {loading ? 'Loading...' : userData?.username || 'Guest'}
                     </p>
                     <p className="text-xs text-muted-foreground m-0">
-                      {loading ? '' : userData?.role || 'Unknown Role'}
+                      {loading
+                        ? ''
+                        : getRoleDisplayName(
+                            mapAdminLevelToRole(userData?.adminLevel),
+                          )}
                     </p>
                   </div>
                 </Button>

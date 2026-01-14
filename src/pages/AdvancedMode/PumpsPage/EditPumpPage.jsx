@@ -59,8 +59,10 @@ const StepperMotorIcon = ({ width = 24, height = 24, className = '' }) => (
 );
 
 const EditPumpPage = () => {
-  const { pumpId } = useParams({ from: '/pumps/$pumpId/edit' });
-  const navigate = useNavigate();
+  const navigate = useNavigate({ from: '/pumps/$pumpId/edit' });
+  const params = useParams({ strict: false });
+  const pumpId = params?.pumpId;
+  console.log('EditPumpPage rendering, pumpId:', pumpId);
   const { t } = useTranslation();
   const token = useAuthStore((state) => state.token);
   const { updatePump, removePump } = usePumpStore();
@@ -100,6 +102,7 @@ const EditPumpPage = () => {
   const [deleting, setDeleting] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
+  const [ingredientSearch, setIngredientSearch] = useState('');
 
   // Watch form values for conditional rendering
   const pumpType = watch('type');
@@ -108,16 +111,22 @@ const EditPumpPage = () => {
   // Load pump data
   useEffect(() => {
     const loadPumpData = async () => {
-      if (!token || !pumpId) return;
+      console.log('loadPumpData called, token:', !!token, 'pumpId:', pumpId);
+      if (!token || !pumpId) {
+        console.log('Aborting load - missing token or pumpId');
+        return;
+      }
 
       try {
         setLoading(true);
+        console.log('Fetching pump data for pumpId:', pumpId);
         const [pumpData, ingredientsData, boardsData] = await Promise.all([
           PumpService.getPump(pumpId, token),
           IngredientService.getIngredients(token),
           GpioService.getBoards(token),
         ]);
 
+        console.log('Pump data loaded:', pumpData);
         setPump(pumpData);
         setIngredients(ingredientsData);
         setBoards(boardsData);
@@ -246,7 +255,17 @@ const EditPumpPage = () => {
     }
   };
 
+  console.log(
+    'Render state - loading:',
+    loading,
+    'pump:',
+    !!pump,
+    'pumpId:',
+    pumpId,
+  );
+
   if (loading) {
+    console.log('Rendering loading state');
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin" />
@@ -255,6 +274,7 @@ const EditPumpPage = () => {
   }
 
   if (!pump) {
+    console.log('Rendering pump not found state');
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
@@ -272,6 +292,8 @@ const EditPumpPage = () => {
     );
   }
 
+  console.log('Rendering main edit form');
+
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
@@ -288,9 +310,7 @@ const EditPumpPage = () => {
                 <ArrowLeft className="h-4 w-4" />
               </Button>
               <div>
-                <h1 className="text-3xl font-bold tracking-tight">
-                  Edit Pump
-                </h1>
+                <h1 className="text-3xl font-bold tracking-tight">Edit Pump</h1>
                 <p className="text-sm text-muted-foreground flex items-center gap-2 mt-1">
                   {getPumpTypeIcon(pump.type)}
                   <span>{getPumpTypeName(pump.type)}</span>
@@ -320,7 +340,13 @@ const EditPumpPage = () => {
                 )}
                 Delete
               </Button>
-              <Button type="submit" form="pump-form" size="default" disabled={saving} className="gap-2">
+              <Button
+                type="submit"
+                form="pump-form"
+                size="default"
+                disabled={saving}
+                className="gap-2"
+              >
                 {saving ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
                 ) : (
@@ -333,7 +359,6 @@ const EditPumpPage = () => {
         </div>
       </div>
 
-      {/* Main Content */}
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
         {/* Success/Error Messages */}
         {success && (
@@ -398,27 +423,50 @@ const EditPumpPage = () => {
                 <div className="space-y-2">
                   <Label htmlFor="ingredient">Current Ingredient</Label>
                   <Select
-                    value={watch('currentIngredientId')?.toString() || ''}
+                    value={watch('currentIngredientId')?.toString() || 'none'}
                     onValueChange={(value) =>
                       setValue(
                         'currentIngredientId',
-                        value ? parseInt(value) : null,
+                        value === 'none' ? null : parseInt(value),
                       )
                     }
                   >
                     <SelectTrigger id="ingredient">
-                      <SelectValue placeholder="No ingredient assigned" />
+                      <SelectValue>
+                        {watch('currentIngredientId')
+                          ? ingredients.find(
+                              (i) => i.id === watch('currentIngredientId'),
+                            )?.name || 'No ingredient assigned'
+                          : 'No ingredient assigned'}
+                      </SelectValue>
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">No ingredient assigned</SelectItem>
-                      {ingredients.map((ingredient) => (
-                        <SelectItem
-                          key={ingredient.id}
-                          value={ingredient.id.toString()}
-                        >
-                          {ingredient.name}
-                        </SelectItem>
-                      ))}
+                      <div className="px-2 py-1.5">
+                        <Input
+                          placeholder="Search ingredients..."
+                          value={ingredientSearch}
+                          onChange={(e) => setIngredientSearch(e.target.value)}
+                          className="h-8"
+                          onClick={(e) => e.stopPropagation()}
+                        />
+                      </div>
+                      <SelectItem value="none">
+                        No ingredient assigned
+                      </SelectItem>
+                      {ingredients
+                        .filter((ingredient) =>
+                          ingredient.name
+                            .toLowerCase()
+                            .includes(ingredientSearch.toLowerCase()),
+                        )
+                        .map((ingredient) => (
+                          <SelectItem
+                            key={ingredient.id}
+                            value={ingredient.id.toString()}
+                          >
+                            {ingredient.name}
+                          </SelectItem>
+                        ))}
                     </SelectContent>
                   </Select>
                 </div>
@@ -436,47 +484,29 @@ const EditPumpPage = () => {
               <CardContent className="space-y-4">
                 {/* DC Pump / Valve Pin */}
                 {(pumpType === 'dc' || pumpType === 'valve') && (
-                  <div className="space-y-2">
-                    <Label htmlFor="controlPin">Control Pin</Label>
-                    <Select
-                      value={watch('pin.boardId')?.toString() || ''}
-                      onValueChange={(value) =>
-                        setValue('pin.boardId', value ? parseInt(value) : null)
-                      }
-                    >
-                      <SelectTrigger id="controlPin">
-                        <SelectValue placeholder="Select board" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {boards.map((board) => (
-                          <SelectItem
-                            key={board.id}
-                            value={board.id.toString()}
-                          >
-                            {board.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                )}
-
-                {/* Stepper Motor Pins */}
-                {pumpType === 'stepper' && (
                   <>
                     <div className="space-y-2">
-                      <Label htmlFor="enablePin">Enable Pin</Label>
+                      <Label htmlFor="controlPinBoard">
+                        Control Pin - Board
+                      </Label>
                       <Select
-                        value={watch('enablePin.boardId')?.toString() || ''}
-                        onValueChange={(value) =>
-                          setValue(
-                            'enablePin.boardId',
-                            value ? parseInt(value) : null,
-                          )
-                        }
+                        value={watch('pin')?.boardId?.toString() || ''}
+                        onValueChange={(value) => {
+                          const currentPin = watch('pin') || {};
+                          setValue('pin', {
+                            ...currentPin,
+                            boardId: value ? parseInt(value) : null,
+                          });
+                        }}
                       >
-                        <SelectTrigger id="enablePin">
-                          <SelectValue placeholder="Select board" />
+                        <SelectTrigger id="controlPinBoard">
+                          <SelectValue>
+                            {watch('pin')?.boardId
+                              ? boards.find(
+                                  (b) => b.id === watch('pin').boardId,
+                                )?.name || 'Select board'
+                              : 'Select board'}
+                          </SelectValue>
                         </SelectTrigger>
                         <SelectContent>
                           {boards.map((board) => (
@@ -490,20 +520,52 @@ const EditPumpPage = () => {
                         </SelectContent>
                       </Select>
                     </div>
-
                     <div className="space-y-2">
-                      <Label htmlFor="stepPin">Step Pin</Label>
+                      <Label htmlFor="controlPinNumber">
+                        Control Pin - Number
+                      </Label>
+                      <Input
+                        id="controlPinNumber"
+                        type="number"
+                        placeholder="Pin number"
+                        value={watch('pin')?.nr || ''}
+                        onChange={(e) => {
+                          const currentPin = watch('pin') || {};
+                          setValue('pin', {
+                            ...currentPin,
+                            nr: e.target.value
+                              ? parseInt(e.target.value)
+                              : null,
+                          });
+                        }}
+                      />
+                    </div>
+                  </>
+                )}
+
+                {/* Stepper Motor Pins */}
+                {pumpType === 'stepper' && (
+                  <>
+                    <div className="space-y-2">
+                      <Label htmlFor="enablePinBoard">Enable Pin - Board</Label>
                       <Select
-                        value={watch('stepPin.boardId')?.toString() || ''}
-                        onValueChange={(value) =>
-                          setValue(
-                            'stepPin.boardId',
-                            value ? parseInt(value) : null,
-                          )
-                        }
+                        value={watch('enablePin')?.boardId?.toString() || ''}
+                        onValueChange={(value) => {
+                          const currentPin = watch('enablePin') || {};
+                          setValue('enablePin', {
+                            ...currentPin,
+                            boardId: value ? parseInt(value) : null,
+                          });
+                        }}
                       >
-                        <SelectTrigger id="stepPin">
-                          <SelectValue placeholder="Select board" />
+                        <SelectTrigger id="enablePinBoard">
+                          <SelectValue>
+                            {watch('enablePin')?.boardId
+                              ? boards.find(
+                                  (b) => b.id === watch('enablePin').boardId,
+                                )?.name || 'Select board'
+                              : 'Select board'}
+                          </SelectValue>
                         </SelectTrigger>
                         <SelectContent>
                           {boards.map((board) => (
@@ -516,6 +578,78 @@ const EditPumpPage = () => {
                           ))}
                         </SelectContent>
                       </Select>
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="enablePinNumber">
+                        Enable Pin - Number
+                      </Label>
+                      <Input
+                        id="enablePinNumber"
+                        type="number"
+                        placeholder="Pin number"
+                        value={watch('enablePin')?.nr || ''}
+                        onChange={(e) => {
+                          const currentPin = watch('enablePin') || {};
+                          setValue('enablePin', {
+                            ...currentPin,
+                            nr: e.target.value
+                              ? parseInt(e.target.value)
+                              : null,
+                          });
+                        }}
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="stepPinBoard">Step Pin - Board</Label>
+                      <Select
+                        value={watch('stepPin')?.boardId?.toString() || ''}
+                        onValueChange={(value) => {
+                          const currentPin = watch('stepPin') || {};
+                          setValue('stepPin', {
+                            ...currentPin,
+                            boardId: value ? parseInt(value) : null,
+                          });
+                        }}
+                      >
+                        <SelectTrigger id="stepPinBoard">
+                          <SelectValue>
+                            {watch('stepPin')?.boardId
+                              ? boards.find(
+                                  (b) => b.id === watch('stepPin').boardId,
+                                )?.name || 'Select board'
+                              : 'Select board'}
+                          </SelectValue>
+                        </SelectTrigger>
+                        <SelectContent>
+                          {boards.map((board) => (
+                            <SelectItem
+                              key={board.id}
+                              value={board.id.toString()}
+                            >
+                              {board.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="stepPinNumber">Step Pin - Number</Label>
+                      <Input
+                        id="stepPinNumber"
+                        type="number"
+                        placeholder="Pin number"
+                        value={watch('stepPin')?.nr || ''}
+                        onChange={(e) => {
+                          const currentPin = watch('stepPin') || {};
+                          setValue('stepPin', {
+                            ...currentPin,
+                            nr: e.target.value
+                              ? parseInt(e.target.value)
+                              : null,
+                          });
+                        }}
+                      />
                     </div>
                   </>
                 )}

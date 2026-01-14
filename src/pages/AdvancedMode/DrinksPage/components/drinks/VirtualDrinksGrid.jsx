@@ -3,6 +3,7 @@ import { useWindowVirtualizer } from '@tanstack/react-virtual';
 import { useInfiniteQuery } from '@tanstack/react-query';
 import { AlertCircle, Search, Loader2 } from 'lucide-react';
 import debounce from 'lodash/debounce';
+import { useTranslation } from 'react-i18next';
 
 import RecipeService from '@/services/recipe.service.js';
 import DrinkCard from './DrinkCard.jsx';
@@ -10,6 +11,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Card, CardContent } from '@/components/ui/card';
 
 function VirtualDrinksGrid({ token, searchTerm, collapsed = false }) {
+  const { t } = useTranslation();
   const listRef = React.useRef(null);
   const [itemsPerRow, setItemsPerRow] = React.useState(2);
   const [rowHeight, setRowHeight] = React.useState(320);
@@ -203,7 +205,7 @@ function VirtualDrinksGrid({ token, searchTerm, collapsed = false }) {
           <div className="flex items-center gap-3">
             <Loader2 className="h-5 w-5 animate-spin" />
             <span className="text-base text-muted-foreground">
-              Loading drinks...
+              {t('virtual_drinks_grid.loading_drinks')}
             </span>
           </div>
         </div>
@@ -307,7 +309,7 @@ function VirtualDrinksGrid({ token, searchTerm, collapsed = false }) {
       {!hasNextPage && !isFetching && allRecipes.length > 0 && (
         <div className="flex items-center justify-center py-8 px-4">
           <p className="text-center text-muted-foreground text-sm">
-            No more drinks to load
+            {t('virtual_drinks_grid.no_more_drinks')}
           </p>
         </div>
       )}
@@ -316,9 +318,11 @@ function VirtualDrinksGrid({ token, searchTerm, collapsed = false }) {
           <div className="text-muted-foreground mb-4">
             <Search className="w-16 h-16" />
           </div>
-          <h3 className="text-lg font-semibold mb-2">No drinks found</h3>
+          <h3 className="text-lg font-semibold mb-2">
+            {t('virtual_drinks_grid.no_drinks_found')}
+          </h3>
           <p className="text-muted-foreground text-center text-sm">
-            Try adjusting your search
+            {t('virtual_drinks_grid.try_adjusting_search')}
           </p>
         </div>
       )}

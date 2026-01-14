@@ -127,7 +127,7 @@ export const PumpSelector: React.FC<PumpSelectorProps> = ({
               <div className="flex-1">
                 <p className="font-bold text-lg">{t('pump_selector.valve')}</p>
                 <p className="text-sm text-muted-foreground">
-                  Control valve for precise flow
+                  {t('pump_selector.valve_description')}
                 </p>
               </div>
             </CardContent>
@@ -150,7 +150,7 @@ export const PumpSelector: React.FC<PumpSelectorProps> = ({
                   {t('pump_selector.dc_pump')}
                 </p>
                 <p className="text-sm text-muted-foreground">
-                  DC motor pump for continuous flow
+                  {t('pump_selector.dc_pump_description')}
                 </p>
               </div>
             </CardContent>
@@ -173,7 +173,7 @@ export const PumpSelector: React.FC<PumpSelectorProps> = ({
                   {t('pump_selector.stepper_pump')}
                 </p>
                 <p className="text-sm text-muted-foreground">
-                  Stepper motor for precise control
+                  {t('pump_selector.stepper_pump_description')}
                 </p>
               </div>
             </CardContent>
@@ -197,7 +197,7 @@ export const PumpSelector: React.FC<PumpSelectorProps> = ({
                 {t('pump_selector.valve')}
               </p>
               <p className="text-xs sm:text-sm text-muted-foreground text-center mt-1">
-                Control valve for precise flow
+                {t('pump_selector.valve_description')}
               </p>
             </CardContent>
           </Card>
@@ -218,7 +218,7 @@ export const PumpSelector: React.FC<PumpSelectorProps> = ({
                 {t('pump_selector.dc_pump')}
               </p>
               <p className="text-xs sm:text-sm text-muted-foreground text-center mt-1">
-                DC motor pump for continuous flow
+                {t('pump_selector.dc_pump_description')}
               </p>
             </CardContent>
           </Card>
@@ -243,7 +243,7 @@ export const PumpSelector: React.FC<PumpSelectorProps> = ({
                 {t('pump_selector.stepper_pump')}
               </p>
               <p className="text-xs sm:text-sm text-muted-foreground text-center mt-1">
-                Stepper motor for precise control
+                {t('pump_selector.stepper_pump_description')}
               </p>
             </CardContent>
           </Card>

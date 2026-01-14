@@ -1,5 +1,6 @@
 import { Beaker } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
+import { useTranslation } from 'react-i18next';
 
 interface Ingredient {
   name: string;
@@ -12,12 +13,13 @@ interface IngredientsListProps {
 }
 
 const IngredientsList = ({ ingredients }: IngredientsListProps) => {
+  const { t } = useTranslation();
   return (
     <Card className="bg-muted/50">
       <CardContent className="p-3 sm:p-4">
         <h2 className="text-sm sm:text-base font-semibold mb-3 sm:mb-4 flex items-center gap-2">
           <Beaker className="w-3 h-3 sm:w-4 sm:h-4" />
-          Ingredients
+          {t('ingredients_list.title')}
         </h2>
         <ul className="space-y-2 sm:space-y-3">
           {ingredients.map((ingredient, index) => (

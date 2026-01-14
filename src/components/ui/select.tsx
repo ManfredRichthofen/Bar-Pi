@@ -1,4 +1,4 @@
-import type * as React from 'react';
+import * as React from 'react';
 import { Select as SelectPrimitive } from '@base-ui/react/select';
 
 import { cn } from '@/lib/utils';
