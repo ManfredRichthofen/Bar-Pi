@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { GlassWater, Loader2 } from 'lucide-react';
 import glassService from '../../../../services/glass.service';
 import { Button } from '@/components/ui/button';
@@ -16,7 +16,8 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 interface Glass {
   id: string;
   name: string;
-  sizeInMl: number;
+  size: number;
+  sizeInMl?: number;
   description?: string;
 }
 
@@ -38,23 +39,42 @@ const GlassSelector = ({
   const [loading, setLoading] = useState(true);
   const [glasses, setGlasses] = useState<Glass[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const hasInitialized = useRef(false);
 
   useEffect(() => {
     const fetchGlasses = async () => {
       try {
-        // Fetch all available glasses
         const allGlasses = await glassService.getGlasses(token);
         setGlasses(allGlasses);
 
-        // If default glass is provided, select it
-        if (defaultGlass) {
-          const glass = allGlasses.find((g: Glass) => g.id === defaultGlass.id);
-          if (glass) {
-            setSelectedGlass(glass);
+        if (!hasInitialized.current) {
+          hasInitialized.current = true;
+
+          console.log('GlassSelector initializing:', {
+            defaultGlass,
+            selectedGlass,
+            glassCount: allGlasses.length,
+          });
+
+          if (defaultGlass) {
+            const glass = allGlasses.find(
+              (g: Glass) => g.id === defaultGlass.id,
+            );
+            if (glass) {
+              console.log('Setting default glass:', glass);
+              setSelectedGlass(glass);
+              if (onGlassChange) {
+                onGlassChange(glass);
+              }
+            }
+          } else if (allGlasses.length > 0 && !selectedGlass) {
+            // Auto-select first glass if none selected
+            console.log('Auto-selecting first glass:', allGlasses[0]);
+            setSelectedGlass(allGlasses[0]);
+            if (onGlassChange) {
+              onGlassChange(allGlasses[0]);
+            }
           }
-        } else if (allGlasses.length > 0 && !selectedGlass) {
-          // Auto-select first glass if none selected
-          setSelectedGlass(allGlasses[0]);
         }
       } catch (error) {
         console.error('Failed to fetch glasses:', error);
@@ -66,7 +86,7 @@ const GlassSelector = ({
     if (token) {
       fetchGlasses();
     }
-  }, [token, defaultGlass, setSelectedGlass]);
+  }, [token]);
 
   if (loading) {
     return (
@@ -113,11 +133,11 @@ const GlassSelector = ({
                     {selectedGlass.name}
                   </div>
                   <div className="text-xs sm:text-sm text-muted-foreground">
-                    {selectedGlass.sizeInMl}ml capacity
+                    {selectedGlass.size}ml capacity
                   </div>
                 </div>
               </div>
-              <Badge className="shrink-0">{selectedGlass.sizeInMl}ml</Badge>
+              <Badge className="shrink-0">{selectedGlass.size}ml</Badge>
             </div>
           ) : (
             <div className="flex items-center gap-2 text-muted-foreground">
@@ -173,7 +193,7 @@ const GlassSelector = ({
                         }
                         className="shrink-0"
                       >
-                        {glass.sizeInMl}ml
+                        {glass.size}ml
                       </Badge>
                     </div>
                     {glass.description && (

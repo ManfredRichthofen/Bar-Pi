@@ -21,7 +21,8 @@ interface Ingredient {
 interface Glass {
   id: string;
   name: string;
-  sizeInMl: number;
+  size: number;
+  sizeInMl?: number;
   description?: string;
 }
 
@@ -58,12 +59,6 @@ const SimpleOrder = () => {
 
   useEffect(() => {
     if (recipe) {
-      if (recipe.defaultGlass) {
-        setSelectedGlass(recipe.defaultGlass);
-        setAmountToProduce(recipe.defaultGlass.sizeInMl);
-      } else {
-        setAmountToProduce(250);
-      }
       setIngredients(recipe.ingredients || []);
     }
   }, [recipe]);
@@ -89,7 +84,11 @@ const SimpleOrder = () => {
   }, [recipe, amountToProduce, boost]);
 
   const getOrderConfig = () => ({
-    amountOrderedInMl: amountToProduce || recipe?.defaultGlass?.sizeInMl || 250,
+    amountOrderedInMl:
+      amountToProduce ||
+      (recipe?.defaultGlass as any)?.size ||
+      recipe?.defaultGlass?.sizeInMl ||
+      250,
     customisations: {
       boost: parseInt(boost.toString()) || 100,
       additionalIngredients: additionalIngredients || [],
@@ -193,6 +192,18 @@ const SimpleOrder = () => {
     !checking &&
     areAllIngredientsAvailable(feasibilityResult?.requiredIngredients || []);
 
+  // Debug logging
+  console.log('canOrderDrink debug:', {
+    feasible: feasibilityResult?.feasible,
+    selectedGlass: selectedGlass,
+    loading,
+    checking,
+    ingredientsAvailable: areAllIngredientsAvailable(
+      feasibilityResult?.requiredIngredients || [],
+    ),
+    canOrderDrink,
+  });
+
   const hasBoostableIngredients = feasibilityResult?.requiredIngredients?.some(
     (item: any) =>
       item.ingredient.type === 'automated' &&
@@ -277,7 +288,7 @@ const SimpleOrder = () => {
                   setSelectedGlass={setSelectedGlass}
                   onGlassChange={(glass) => {
                     if (glass) {
-                      setAmountToProduce(glass.sizeInMl);
+                      setAmountToProduce(glass.size || glass.sizeInMl || 250);
                     }
                   }}
                 />
