@@ -1,13 +1,17 @@
 import { Navigate } from '@tanstack/react-router';
+import { useQuery } from '@tanstack/react-query';
+import { useWindowVirtualizer } from '@tanstack/react-virtual';
 import {
   AlertCircle,
   Edit,
   Image as ImageIcon,
+  Loader2,
   PlusCircle,
+  Search,
   Trash2,
   X,
 } from 'lucide-react';
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { Badge } from '@/components/ui/badge';
@@ -36,8 +40,7 @@ import ingredientService, {
 import useAuthStore from '../../../store/authStore';
 
 const Ingredients = () => {
-  const [ingredients, setIngredients] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [editingIngredient, setEditingIngredient] = useState(null);
   const { register, handleSubmit, setValue, watch, reset } = useForm({
@@ -53,31 +56,39 @@ const Ingredients = () => {
     },
   });
   const token = useAuthStore((state) => state.token);
-
-  useEffect(() => {
-    fetchIngredients();
-  }, [token]);
-
-  const fetchIngredients = async () => {
-    try {
-      const data = await ingredientService.getIngredientsFilter(
-        token,
-        null,
-        true,
-        true,
-        false,
-        null,
-        null,
-        null,
-        null,
-      );
-      setIngredients(data);
-    } catch (error) {
-      toast.error('Failed to fetch ingredients');
-    } finally {
-      setLoading(false);
-    }
-  };
+  
+  const listRef = useRef();
+  const parentOffsetRef = useRef(0);
+  const [rowHeight, setRowHeight] = React.useState(100);
+  
+  React.useLayoutEffect(() => {
+    parentOffsetRef.current = listRef.current?.offsetTop || 0;
+  }, []);
+  
+  // Query for all ingredients
+  const { status, data, error, isFetching } = useQuery({
+    queryKey: ['ingredients'],
+    queryFn: async () => {
+      const response = await ingredientService.getIngredients(token);
+      return response || [];
+    },
+    staleTime: 30000,
+    gcTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    retry: 2,
+  });
+  
+  // Client-side filtering for search
+  const ingredients = useMemo(() => {
+    if (!data) return [];
+    if (!searchTerm) return data;
+    
+    const searchLower = searchTerm.toLowerCase();
+    return data.filter(ingredient => 
+      ingredient.name.toLowerCase().includes(searchLower)
+    );
+  }, [data, searchTerm]);
 
   const handleAddEdit = async (values) => {
     try {
@@ -173,7 +184,8 @@ const Ingredients = () => {
         imagePreview: null,
         removeImage: false,
       });
-      fetchIngredients();
+      // Refetch the query to refresh the list
+      window.location.reload();
     } catch (error) {
       console.error('Error saving ingredient:', error);
       if (error.response?.data?.message) {
@@ -190,11 +202,26 @@ const Ingredients = () => {
     try {
       await ingredientService.deleteIngredient(id, token);
       toast.success('Ingredient deleted successfully');
-      fetchIngredients();
+      // Refetch the query to refresh the list
+      window.location.reload();
     } catch (error) {
       toast.error('Failed to delete ingredient');
     }
   };
+  
+  const handleSearch = useCallback((e) => {
+    setSearchTerm(e.target.value);
+  }, []);
+  
+  // Window virtualizer setup
+  const virtualizer = useWindowVirtualizer({
+    count: ingredients.length,
+    estimateSize: () => rowHeight,
+    overscan: 5,
+    scrollMargin: parentOffsetRef.current,
+  });
+  
+  const virtualItems = virtualizer.getVirtualItems();
 
   const columns = [
     {
@@ -259,9 +286,9 @@ const Ingredients = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="sticky top-0 z-20 bg-background border-b shadow-sm">
+      <div className="sticky top-16 z-40 bg-background border-b shadow-sm">
         <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <h1 className="text-2xl font-bold">Ingredients</h1>
             <Button
               onClick={() => {
@@ -279,109 +306,182 @@ const Ingredients = () => {
               Add Ingredient
             </Button>
           </div>
+          
+          {/* Search Bar */}
+          <div className="mt-4">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+              <Input
+                type="text"
+                placeholder="Search ingredients..."
+                value={searchTerm}
+                onChange={handleSearch}
+                className="pl-10"
+              />
+            </div>
+            {data && data.length > 0 && (
+              <p className="text-sm text-muted-foreground mt-2">
+                Showing {ingredients.length} of {data.length} ingredients
+              </p>
+            )}
+          </div>
         </div>
       </div>
 
       <div className="container mx-auto px-4 py-6 sm:py-8">
-        {ingredients.length === 0 ? (
+        {status === 'pending' ? (
+          <div className="flex justify-center items-center py-12">
+            <Loader2 className="h-8 w-8 animate-spin" />
+          </div>
+        ) : status === 'error' ? (
+          <div className="flex flex-col items-center justify-center py-16 px-4 min-h-[400px]">
+            <AlertCircle className="h-16 w-16 text-destructive mb-4" />
+            <h3 className="text-xl font-semibold mb-2">Error Loading Ingredients</h3>
+            <p className="text-muted-foreground text-center mb-6 max-w-sm">
+              {error?.message || 'Failed to load ingredients'}
+            </p>
+          </div>
+        ) : ingredients.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16 px-4 min-h-[400px]">
             <AlertCircle className="h-16 w-16 text-muted-foreground mb-4" />
-            <h3 className="text-xl font-semibold mb-2">No Ingredients Found</h3>
+            <h3 className="text-xl font-semibold mb-2">
+              {searchTerm ? 'No Ingredients Found' : 'No Ingredients Found'}
+            </h3>
             <p className="text-muted-foreground text-center mb-6 max-w-sm">
-              Get started by adding your first ingredient to begin managing your
-              inventory
+              {searchTerm 
+                ? `No ingredients found matching "${searchTerm}"`
+                : 'Get started by adding your first ingredient to begin managing your inventory'
+              }
             </p>
-            <Button
-              size="lg"
-              onClick={() => {
-                setEditingIngredient(null);
-                reset({
-                  type: 'manual',
-                  alcoholContent: 0,
-                  bottleSize: 0,
-                  pumpTimeMultiplier: 1,
-                });
-                setIsModalVisible(true);
-              }}
-            >
-              <PlusCircle className="mr-2" />
-              Add First Ingredient
-            </Button>
+            {!searchTerm && (
+              <Button
+                size="lg"
+                onClick={() => {
+                  setEditingIngredient(null);
+                  reset({
+                    type: 'manual',
+                    alcoholContent: 0,
+                    bottleSize: 0,
+                    pumpTimeMultiplier: 1,
+                  });
+                  setIsModalVisible(true);
+                }}
+              >
+                <PlusCircle className="mr-2" />
+                Add First Ingredient
+              </Button>
+            )}
           </div>
         ) : (
           <div className="space-y-2">
-            {ingredients.map((ingredient) => {
-              const parentGroup = ingredient.parentGroupId
-                ? ingredients.find((ing) => ing.id === ingredient.parentGroupId)
-                : null;
-
-              return (
+            {/* Virtual List Container */}
+            <div ref={listRef} className="relative">
+              <div
+                style={{
+                  height: `${virtualizer.getTotalSize()}px`,
+                  width: '100%',
+                  position: 'relative',
+                }}
+              >
                 <div
-                  key={ingredient.id}
-                  className="flex items-center justify-between p-4 bg-card border rounded-lg hover:shadow-md transition-all duration-200"
+                  style={{
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    width: '100%',
+                    transform: `translateY(${(virtualItems[0]?.start ?? 0) - virtualizer.options.scrollMargin}px)`,
+                  }}
                 >
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-2">
-                      <h3 className="font-semibold text-base">
-                        {ingredient.name}
-                      </h3>
-                      {ingredient.inBar && (
-                        <Badge variant="default" className="text-xs">
-                          In Bar
-                        </Badge>
-                      )}
-                    </div>
-                    <div className="flex flex-wrap items-center gap-2">
-                      <Badge
-                        variant={
-                          ingredient.type === 'automated'
-                            ? 'default'
-                            : 'secondary'
-                        }
-                        className="text-xs"
+                  {virtualItems.map((virtualItem) => {
+                    const ingredient = ingredients[virtualItem.index];
+                    if (!ingredient) return null;
+                    
+                    const parentGroup = ingredient.parentGroupId
+                      ? ingredients.find((ing) => ing.id === ingredient.parentGroupId)
+                      : null;
+
+                    return (
+                      <div
+                        key={ingredient.id}
+                        data-index={virtualItem.index}
+                        ref={virtualizer.measureElement}
+                        className="px-4 py-2"
                       >
-                        {ingredient.type === 'automated'
-                          ? 'Automated'
-                          : 'Manual'}
-                      </Badge>
-                      {parentGroup && (
-                        <Badge variant="outline" className="text-xs">
-                          {parentGroup.name}
-                        </Badge>
-                      )}
-                      {ingredient.alcoholContent > 0 && (
-                        <span className="text-xs text-muted-foreground">
-                          {ingredient.alcoholContent}% ABV
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2 ml-4">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => {
-                        setEditingIngredient(ingredient);
-                        Object.entries(ingredient).forEach(([key, value]) => {
-                          setValue(key, value);
-                        });
-                        setValue('type', ingredient.type || 'manual');
-                        setIsModalVisible(true);
-                      }}
-                    >
-                      <Edit className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => handleDelete(ingredient.id)}
-                    >
-                      <Trash2 className="h-4 w-4 text-destructive" />
-                    </Button>
-                  </div>
+                        <div className="flex items-center justify-between p-4 bg-card border rounded-lg hover:shadow-md transition-all duration-200">
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 mb-2">
+                              <h3 className="font-semibold text-base">
+                                {ingredient.name}
+                              </h3>
+                              {ingredient.inBar && (
+                                <Badge variant="default" className="text-xs">
+                                  In Bar
+                                </Badge>
+                              )}
+                            </div>
+                            <div className="flex flex-wrap items-center gap-2">
+                              <Badge
+                                variant={
+                                  ingredient.type === 'automated'
+                                    ? 'default'
+                                    : 'secondary'
+                                }
+                                className="text-xs"
+                              >
+                                {ingredient.type === 'automated'
+                                  ? 'Automated'
+                                  : 'Manual'}
+                              </Badge>
+                              {parentGroup && (
+                                <Badge variant="outline" className="text-xs">
+                                  {parentGroup.name}
+                                </Badge>
+                              )}
+                              {ingredient.alcoholContent > 0 && (
+                                <span className="text-xs text-muted-foreground">
+                                  {ingredient.alcoholContent}% ABV
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-2 ml-4">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => {
+                                setEditingIngredient(ingredient);
+                                Object.entries(ingredient).forEach(([key, value]) => {
+                                  setValue(key, value);
+                                });
+                                setValue('type', ingredient.type || 'manual');
+                                setIsModalVisible(true);
+                              }}
+                            >
+                              <Edit className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => handleDelete(ingredient.id)}
+                            >
+                              <Trash2 className="h-4 w-4 text-destructive" />
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
-              );
-            })}
+              </div>
+            </div>
+            
+            {!isFetching && ingredients.length > 0 && (
+              <div className="flex items-center justify-center py-8">
+                <p className="text-center text-muted-foreground text-sm">
+                  Showing all {ingredients.length} ingredients
+                </p>
+              </div>
+            )}
           </div>
         )}
       </div>

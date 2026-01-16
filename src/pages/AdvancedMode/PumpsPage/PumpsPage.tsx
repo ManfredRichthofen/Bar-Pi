@@ -70,7 +70,7 @@ export const PumpsPage: React.FC = () => {
         </div>
       )}
 
-      <div className="sticky top-0 z-20 bg-background/95 backdrop-blur-md border-b shadow-sm pt-2">
+      <div className="sticky top-16 z-40 bg-background/95 backdrop-blur-md border-b shadow-sm pt-2">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-5">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div>

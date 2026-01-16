@@ -1,6 +1,7 @@
 import { AlertCircle, Edit, PlusCircle, Trash2 } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 import { toast } from 'sonner';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import GlassService from '@/services/glass.service';
 import useAuthStore from '@/store/authStore';
@@ -65,7 +66,7 @@ function Glasses() {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="sticky top-0 z-20 bg-background border-b shadow-sm">
+      <div className="sticky top-16 z-40 bg-background border-b shadow-sm">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <h1 className="text-2xl font-bold">Glasses</h1>
@@ -92,40 +93,59 @@ function Glasses() {
             </Button>
           </div>
         ) : (
-          <div className="max-w-4xl mx-auto">
-            <div className="border rounded-lg divide-y">
-              {glasses.map((glass) => (
-                <div
-                  key={glass.id}
-                  className="flex items-center justify-between p-4 hover:bg-muted/50 transition-colors"
-                >
-                  <div className="flex-1 min-w-0 mr-4">
-                    <h3 className="font-semibold text-sm">{glass.name}</h3>
-                    {glass.description && (
-                      <p className="text-sm text-muted-foreground truncate">
-                        {glass.description}
-                      </p>
+          <div className="space-y-2">
+            {glasses.map((glass) => (
+              <div
+                key={glass.id}
+                className="flex items-center justify-between p-4 bg-card border rounded-lg hover:shadow-md transition-all duration-200"
+              >
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-3 mb-2">
+                    <h3 className="font-semibold text-base truncate">
+                      {glass.name}
+                    </h3>
+                    {glass.sizeInMl && (
+                      <Badge variant="secondary" className="text-xs">
+                        {glass.sizeInMl}ml
+                      </Badge>
                     )}
                   </div>
-                  <div className="flex items-center gap-2">
-                    <Button
-                      variant="ghost"
-                      size="icon-sm"
-                      onClick={() => handleEdit(glass)}
-                    >
-                      <Edit className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon-sm"
-                      onClick={() => handleDelete(glass.id)}
-                    >
-                      <Trash2 className="h-4 w-4 text-destructive" />
-                    </Button>
+                  {glass.description && (
+                    <p className="text-sm text-muted-foreground line-clamp-1 mt-1">
+                      {glass.description}
+                    </p>
+                  )}
+                  <div className="flex items-center gap-2 mt-2">
+                    {glass.type && (
+                      <Badge variant="outline" className="text-xs">
+                        {glass.type}
+                      </Badge>
+                    )}
+                    {glass.sizeInMl && (
+                      <span className="text-xs text-muted-foreground">
+                        Capacity: {glass.sizeInMl}ml
+                      </span>
+                    )}
                   </div>
                 </div>
-              ))}
-            </div>
+                <div className="flex items-center gap-2 ml-4">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => handleEdit(glass)}
+                  >
+                    <Edit className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => handleDelete(glass.id)}
+                  >
+                    <Trash2 className="h-4 w-4 text-destructive" />
+                  </Button>
+                </div>
+              </div>
+            ))}
           </div>
         )}
       </div>

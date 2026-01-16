@@ -1,6 +1,6 @@
 import { Navigate, useNavigate } from '@tanstack/react-router';
 import { AlertCircle, Heart, Trash2 } from 'lucide-react';
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -14,6 +14,7 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import RecipeService from '@/services/recipe.service';
 import useAuthStore from '../../../store/authStore';
 import useFavoritesStore from '../../../store/favoritesStore';
 
@@ -22,10 +23,49 @@ const Favorites = ({ sidebarCollapsed = false }) => {
   const navigate = useNavigate({ from: '/favorites' });
   const { favorites, removeFavorite, clearFavorites } = useFavoritesStore();
   const [showClearConfirm, setShowClearConfirm] = useState(false);
+  const [favoritesWithImages, setFavoritesWithImages] = useState([]);
+  const [loadingImages, setLoadingImages] = useState(false);
+
+  // Load images for favorites
+  const loadImagesForFavorites = useCallback(async () => {
+    if (!token || favorites.length === 0) return;
+    
+    setLoadingImages(true);
+    try {
+      const updatedFavorites = await Promise.all(
+        favorites.map(async (recipe) => {
+          // Only load image if recipe hasImage but no image data
+          if (recipe.hasImage && !recipe.image) {
+            try {
+              const recipeWithImage = await RecipeService.getRecipe(recipe.id, false, token);
+              return { ...recipe, image: recipeWithImage.image };
+            } catch (error) {
+              console.error(`Failed to load image for recipe ${recipe.id}:`, error);
+              return recipe;
+            }
+          }
+          return recipe;
+        })
+      );
+      setFavoritesWithImages(updatedFavorites);
+    } catch (error) {
+      console.error('Failed to load images:', error);
+      setFavoritesWithImages(favorites);
+    } finally {
+      setLoadingImages(false);
+    }
+  }, [token, favorites]);
+  
+  useEffect(() => {
+    loadImagesForFavorites();
+  }, [loadImagesForFavorites]);
 
   if (!token) {
     return <Navigate to="/login" />;
   }
+  
+  // Use favorites with images for rendering
+  const displayFavorites = favoritesWithImages.length > 0 ? favoritesWithImages : favorites;
 
   const handleCardClick = (recipe) => {
     navigate({ to: '/order', state: { recipe } });
@@ -43,7 +83,7 @@ const Favorites = ({ sidebarCollapsed = false }) => {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="sticky top-0 z-20 bg-background border-b shadow-sm">
+      <div className="sticky top-16 z-40 bg-background border-b shadow-sm">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -75,9 +115,13 @@ const Favorites = ({ sidebarCollapsed = false }) => {
               Your favorite drinks will appear here
             </p>
           </div>
+        ) : loadingImages ? (
+          <div className="flex justify-center items-center py-12">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+          </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4">
-            {favorites.map((recipe) => (
+            {displayFavorites.map((recipe) => (
               <Card
                 key={recipe.id}
                 onClick={() => handleCardClick(recipe)}
