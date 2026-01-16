@@ -1,7 +1,8 @@
 import axios from 'axios';
-import { pinDtoMapper } from './gpio.service';
 import authHeader from './auth-header';
 import config from './config';
+import { pinDtoMapper } from './gpio.service';
+
 axios.defaults.baseURL = config.API_BASE_URL;
 
 const API_PATH = 'api/pump/settings/';

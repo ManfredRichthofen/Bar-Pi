@@ -1,10 +1,8 @@
+import { useNavigate } from '@tanstack/react-router';
+import { LogOut, Menu, Settings, Smartphone, User } from 'lucide-react';
 import type React from 'react';
 import { useEffect, useState } from 'react';
-import { User, LogOut, Settings, Smartphone, Menu } from 'lucide-react';
-import useAuthStore from '../store/authStore';
-import useUIModeStore from '../store/uiModeStore.ts';
-import { useNavigate } from '@tanstack/react-router';
-import userService from '../services/user.service';
+import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -13,7 +11,9 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { toast } from 'sonner';
+import userService from '../services/user.service';
+import useAuthStore from '../store/authStore';
+import useUIModeStore from '../store/uiModeStore.ts';
 import { getRoleDisplayName, mapAdminLevelToRole } from '../utils/roleAccess';
 
 interface HeaderBarProps {

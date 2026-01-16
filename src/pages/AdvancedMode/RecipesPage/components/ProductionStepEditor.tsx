@@ -1,5 +1,5 @@
-import React from 'react';
 import { Trash2 } from 'lucide-react';
+import type React from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
@@ -32,7 +32,11 @@ interface ProductionStepEditorProps {
   onRemoveStep: () => void;
   onAddIngredient: () => void;
   onRemoveIngredient: (ingredientIndex: number) => void;
-  onUpdateIngredient: (ingredientIndex: number, field: keyof StepIngredient, value: any) => void;
+  onUpdateIngredient: (
+    ingredientIndex: number,
+    field: keyof StepIngredient,
+    value: any,
+  ) => void;
 }
 
 export const ProductionStepEditor: React.FC<ProductionStepEditorProps> = ({
@@ -45,7 +49,11 @@ export const ProductionStepEditor: React.FC<ProductionStepEditorProps> = ({
   onRemoveIngredient,
   onUpdateIngredient,
 }) => {
-  const updateStepIngredient = (ingredientIndex: number, field: keyof StepIngredient, value: any) => {
+  const updateStepIngredient = (
+    ingredientIndex: number,
+    field: keyof StepIngredient,
+    value: any,
+  ) => {
     onUpdateIngredient(ingredientIndex, field, value);
   };
 
@@ -55,9 +63,7 @@ export const ProductionStepEditor: React.FC<ProductionStepEditorProps> = ({
         <div className="flex items-center justify-between mb-3">
           <span className="font-medium text-sm">
             Step {stepIndex + 1} ·{' '}
-            {step.type === 'addIngredients'
-              ? 'Add ingredients'
-              : 'Instruction'}
+            {step.type === 'addIngredients' ? 'Add ingredients' : 'Instruction'}
           </span>
           <Button
             type="button"
@@ -76,7 +82,9 @@ export const ProductionStepEditor: React.FC<ProductionStepEditorProps> = ({
                 key={ingIndex}
                 stepIngredient={ing}
                 ingredients={ingredients}
-                onUpdate={(field, value) => updateStepIngredient(ingIndex, field, value)}
+                onUpdate={(field, value) =>
+                  updateStepIngredient(ingIndex, field, value)
+                }
                 onRemove={() => onRemoveIngredient(ingIndex)}
                 showBoostable={true}
               />

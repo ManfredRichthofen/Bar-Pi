@@ -14,7 +14,10 @@ class UserService {
     if (!userData || !userData.username) {
       throw new Error('Username is required');
     }
-    if (requirePassword && (!userData.password || userData.password.trim() === '')) {
+    if (
+      requirePassword &&
+      (!userData.password || userData.password.trim() === '')
+    ) {
       throw new Error('Password is required');
     }
   }
@@ -30,15 +33,19 @@ class UserService {
   getAllUsers() {
     const token = localStorage.getItem('token');
     const headers = this.getAuthHeaders(token);
-    return axios.get(API_PATH, { headers }).then(response => response.data);
+    return axios.get(API_PATH, { headers }).then((response) => response.data);
   }
 
   getUser(userId) {
-    return axios.get(API_PATH + String(userId)).then(response => response.data);
+    return axios
+      .get(API_PATH + String(userId))
+      .then((response) => response.data);
   }
 
   getMe(headers = {}) {
-    return axios.get(API_PATH + 'current', { headers }).then(response => response.data);
+    return axios
+      .get(API_PATH + 'current', { headers })
+      .then((response) => response.data);
   }
 
   updateMe(updateRequest) {
@@ -52,17 +59,20 @@ class UserService {
 
   updateUser(userId, updateRequest, token = null) {
     const headers = this.getAuthHeaders(token);
-    
+
     this.validateUserData(updateRequest, false);
-    
+
     const userDto = this.createUserDto(updateRequest);
-    
-    userDto.password = updateRequest.password && updateRequest.password.trim() !== '' 
-      ? updateRequest.password 
-      : 'dummy_password_for_update';
+
+    userDto.password =
+      updateRequest.password && updateRequest.password.trim() !== ''
+        ? updateRequest.password
+        : 'dummy_password_for_update';
 
     const requestBody = {
-      updatePassword: !!(updateRequest.password && updateRequest.password.trim() !== ''),
+      updatePassword: !!(
+        updateRequest.password && updateRequest.password.trim() !== ''
+      ),
       userDto,
     };
 
@@ -72,9 +82,9 @@ class UserService {
   // CREATE user
   createUser(createUser, token = null) {
     const headers = this.getAuthHeaders(token);
-    
+
     this.validateUserData(createUser, true);
-    
+
     const userDto = {
       ...this.createUserDto(createUser),
       password: createUser.password,

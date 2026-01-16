@@ -1,4 +1,4 @@
-import { Info, ChefHat } from 'lucide-react';
+import { ChefHat, Info } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 
 interface Ingredient {

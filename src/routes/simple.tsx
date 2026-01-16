@@ -1,7 +1,7 @@
 import { createFileRoute, Outlet, redirect } from '@tanstack/react-router';
+import SimpleLayout from '../components/simple-mode/simpleLayout';
 import useAuthStore from '../store/authStore';
 import useUIModeStore from '../store/uiModeStore';
-import SimpleLayout from '../components/simple-mode/simpleLayout';
 
 export const Route = createFileRoute('/simple')({
   component: SimpleModeLayout,

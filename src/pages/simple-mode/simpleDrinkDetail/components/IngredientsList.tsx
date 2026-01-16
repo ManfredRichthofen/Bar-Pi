@@ -1,6 +1,6 @@
 import { Beaker } from 'lucide-react';
-import { Card, CardContent } from '@/components/ui/card';
 import { useTranslation } from 'react-i18next';
+import { Card, CardContent } from '@/components/ui/card';
 
 interface Ingredient {
   name: string;

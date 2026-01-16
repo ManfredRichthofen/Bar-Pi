@@ -1,11 +1,11 @@
+import { AlertTriangle, BeakerIcon, PlusCircle, Settings } from 'lucide-react';
 import { useState } from 'react';
-import { PlusCircle, Settings, AlertTriangle, BeakerIcon } from 'lucide-react';
-import { Card, CardContent } from '@/components/ui/card';
-import { Slider } from '@/components/ui/slider';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Slider } from '@/components/ui/slider';
 
 interface Ingredient {
   id: string;

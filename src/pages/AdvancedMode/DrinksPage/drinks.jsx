@@ -1,11 +1,11 @@
-import React, { useState, useCallback } from 'react';
-import useAuthStore from '@/store/authStore.js';
 import { Navigate } from '@tanstack/react-router';
-import VirtualDrinksGrid from './components/drinks/VirtualDrinksGrid.jsx';
-import { Search } from 'lucide-react';
 import debounce from 'lodash/debounce';
-import { Input } from '@/components/ui/input';
+import { Search } from 'lucide-react';
+import React, { useCallback, useState } from 'react';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import useAuthStore from '@/store/authStore.js';
+import VirtualDrinksGrid from './components/drinks/VirtualDrinksGrid.jsx';
 
 const Drinks = ({ sidebarCollapsed = false }) => {
   const [searchTerm, setSearchTerm] = useState('');

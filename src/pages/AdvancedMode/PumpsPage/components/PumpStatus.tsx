@@ -1,19 +1,19 @@
+import { useNavigate } from '@tanstack/react-router';
+import { ChevronsUpDown, Pencil } from 'lucide-react';
 import type React from 'react';
 import { useEffect, useState } from 'react';
-import { useNavigate } from '@tanstack/react-router';
 import { useTranslation } from 'react-i18next';
-import { Pencil, ChevronsUpDown } from 'lucide-react';
-import PumpSettingsService from '../../../../services/pumpsettings.service';
-import useAuthStore from '../../../../store/authStore';
-import { usePumpStore } from '../../../../store/pumpStore';
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
 } from '@/components/ui/collapsible';
+import PumpSettingsService from '../../../../services/pumpsettings.service';
+import useAuthStore from '../../../../store/authStore';
+import { usePumpStore } from '../../../../store/pumpStore';
 
 export const PumpStatus: React.FC = () => {
   const { t } = useTranslation();

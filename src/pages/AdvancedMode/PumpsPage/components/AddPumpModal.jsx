@@ -1,27 +1,31 @@
-import React, { useState, useEffect } from 'react';
 import { useNavigate } from '@tanstack/react-router';
-import { useTranslation } from 'react-i18next';
 import {
-  X,
-  Save,
   AlertCircle,
   CheckCircle,
   Droplet,
   Hexagon,
-  Settings,
-  Zap,
-  Timer,
-  Package,
   Loader2,
+  Package,
+  Save,
+  Settings,
+  Timer,
+  X,
+  Zap,
 } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import useAuthStore from '../../../../store/authStore';
-import { usePumpStore } from '../../../../store/pumpStore';
-import PumpService from '../../../../services/pump.service';
-import IngredientService from '../../../../services/ingredient.service';
-import GpioService from '../../../../services/gpio.service';
+import { useTranslation } from 'react-i18next';
+import { toast } from 'sonner';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
@@ -31,20 +35,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Switch } from '@/components/ui/switch';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from '@/components/ui/dialog';
-import { toast } from 'sonner';
-
-import { StepperMotorIcon } from '@/pages/AdvancedMode/PumpsPage/components/StepperMotorIcon';
-import { PinSelector } from '@/pages/AdvancedMode/PumpsPage/components/PinSelector';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Switch } from '@/components/ui/switch';
+import { PinSelector } from '@/pages/AdvancedMode/PumpsPage/components/PinSelector';
+import { StepperMotorIcon } from '@/pages/AdvancedMode/PumpsPage/components/StepperMotorIcon';
+import GpioService from '../../../../services/gpio.service';
+import IngredientService from '../../../../services/ingredient.service';
+import PumpService from '../../../../services/pump.service';
+import useAuthStore from '../../../../store/authStore';
+import { usePumpStore } from '../../../../store/pumpStore';
 
 const AddPumpModal = ({ show, onClose, pumpType = null }) => {
   const navigate = useNavigate({ from: '/pumps' });

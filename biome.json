@@ -26,7 +26,21 @@
       "!**/public/locales*"
     ]
   },
-  "linter": { "enabled": true, "rules": { "recommended": true } },
+  "linter": {
+    "enabled": true,
+    "rules": { "recommended": true },
+    "includes": [
+      "**",
+      "!**/node_modules",
+      "!**/dist",
+      "!src-tauri/target",
+      "!**/*.html",
+      "!**/android*",
+      "!**/ios*",
+      "!**/keys*",
+      "!**/public/locales*"
+    ]
+  },
   "css": {
     "parser": {
       "tailwindDirectives": true

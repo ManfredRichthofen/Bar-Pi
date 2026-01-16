@@ -1,7 +1,7 @@
-import { Palette, Sun, Moon } from 'lucide-react';
+import { Moon, Palette, Sun } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
-import { Button } from '@/components/ui/button';
 import useThemeStore from '@/store/themeStore';
 
 const ThemeSelector = () => {

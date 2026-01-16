@@ -1,34 +1,33 @@
-import type React from 'react';
-import { useEffect, useState, useCallback, useMemo } from 'react';
 import { useNavigate } from '@tanstack/react-router';
-import { useTranslation } from 'react-i18next';
-import { motion } from 'motion/react';
 import {
-  Pencil,
-  PlayCircle,
-  StopCircle,
+  Activity,
   CornerUpLeft,
   CornerUpRight,
   Droplet,
   Hexagon,
-  Activity,
+  Pencil,
+  PlayCircle,
+  StopCircle,
 } from 'lucide-react';
-import WebSocketService from '../../../../services/websocket.service';
-import PumpService from '../../../../services/pump.service';
-import useAuthStore from '../../../../store/authStore';
+import { motion } from 'motion/react';
+import type React from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { toast } from 'sonner';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import {
   Card,
-  CardHeader,
-  CardTitle,
   CardContent,
   CardFooter,
+  CardHeader,
+  CardTitle,
 } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
-
 import { StepperMotorIcon } from '@/pages/AdvancedMode/PumpsPage/components/StepperMotorIcon';
+import PumpService from '../../../../services/pump.service';
+import WebSocketService from '../../../../services/websocket.service';
+import useAuthStore from '../../../../store/authStore';
 
 interface PumpCardProps {
   pump: any;
@@ -68,8 +67,11 @@ export const PumpCard: React.FC<PumpCardProps> = ({ pump }) => {
     };
 
     console.log(`Pump ${pump.id} subscribing to WebSocket topic:`, wsTopic);
-    console.log(`Pump ${pump.id} WebSocket service connected:`, WebSocketService.connected);
-    
+    console.log(
+      `Pump ${pump.id} WebSocket service connected:`,
+      WebSocketService.connected,
+    );
+
     WebSocketService.subscribe(
       `pump-${pump.id}`,
       wsTopic,
@@ -78,7 +80,10 @@ export const PumpCard: React.FC<PumpCardProps> = ({ pump }) => {
     );
 
     return () => {
-      console.log(`Pump ${pump.id} unsubscribing from WebSocket topic:`, wsTopic);
+      console.log(
+        `Pump ${pump.id} unsubscribing from WebSocket topic:`,
+        wsTopic,
+      );
       WebSocketService.unsubscribe(`pump-${pump.id}`, wsTopic);
     };
   }, [pump.id, wsTopic]);
@@ -209,8 +214,11 @@ export const PumpCard: React.FC<PumpCardProps> = ({ pump }) => {
 
   const onClickTurnOnOrOffPump = useCallback(() => {
     setRunningBtnLoading(true);
-    console.log(`Pump ${pump.id} current running state:`, pumpJobState.runningState);
-    
+    console.log(
+      `Pump ${pump.id} current running state:`,
+      pumpJobState.runningState,
+    );
+
     if (pumpJobState.runningState) {
       console.log(`Stopping pump ${pump.id}...`);
       PumpService.stopPump(pump.id, token)

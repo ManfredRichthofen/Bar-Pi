@@ -1,7 +1,7 @@
 import { createFileRoute, redirect } from '@tanstack/react-router';
 import { SettingsPage } from '../pages/AdvancedMode/SettingsPage/SettingsPage';
-import useAuthStore from '../store/authStore';
 import userService from '../services/user.service';
+import useAuthStore from '../store/authStore';
 import { hasPermission, mapAdminLevelToRole } from '../utils/roleAccess';
 
 export const Route = createFileRoute('/_advanced/settings')({

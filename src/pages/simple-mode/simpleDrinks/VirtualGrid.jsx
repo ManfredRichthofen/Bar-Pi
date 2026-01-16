@@ -1,8 +1,8 @@
-import React, { useEffect } from 'react';
-import { useWindowVirtualizer } from '@tanstack/react-virtual';
 import { useInfiniteQuery } from '@tanstack/react-query';
-import { AlertCircle, Search, Loader2 } from 'lucide-react';
+import { useWindowVirtualizer } from '@tanstack/react-virtual';
 import debounce from 'lodash/debounce';
+import { AlertCircle, Loader2, Search } from 'lucide-react';
+import React, { useEffect } from 'react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
 import RecipeService from '../../../services/recipe.service.js';

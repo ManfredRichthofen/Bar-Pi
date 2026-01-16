@@ -1,9 +1,10 @@
 import { Stomp } from '@stomp/stompjs';
-import SockJS from 'sockjs-client/dist/sockjs';
 import axios from 'axios';
-import authHeader from './auth-header';
+import SockJS from 'sockjs-client/dist/sockjs';
 import useAuthStore from '../store/authStore';
+import authHeader from './auth-header';
 import config from './config';
+
 axios.defaults.baseURL = config.API_BASE_URL;
 
 const getFormattedServerAddress = () => {

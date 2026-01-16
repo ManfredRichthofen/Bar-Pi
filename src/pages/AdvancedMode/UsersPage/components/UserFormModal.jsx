@@ -1,4 +1,6 @@
+import { Lock, Shield } from 'lucide-react';
 import React from 'react';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -16,8 +18,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Shield, Lock } from 'lucide-react';
 
 export const UserFormModal = ({
   isOpen,
@@ -62,7 +62,9 @@ export const UserFormModal = ({
 
           <div className="space-y-2">
             <Label htmlFor="password">
-              {isEditing ? 'New Password (leave blank to keep current)' : 'Password'}
+              {isEditing
+                ? 'New Password (leave blank to keep current)'
+                : 'Password'}
             </Label>
             <Input
               id="password"
@@ -71,7 +73,9 @@ export const UserFormModal = ({
               value={formData.password}
               onChange={onChange}
               required={!isEditing}
-              placeholder={isEditing ? 'Leave blank to keep current password' : ''}
+              placeholder={
+                isEditing ? 'Leave blank to keep current password' : ''
+              }
             />
           </div>
 
@@ -106,7 +110,7 @@ export const UserFormModal = ({
               <Shield className="h-4 w-4" />
               Account Security Settings
             </Label>
-            
+
             <div className="flex items-center space-x-3">
               <input
                 type="checkbox"
@@ -117,14 +121,16 @@ export const UserFormModal = ({
                 className="h-5 w-5 text-primary focus:ring-primary border-gray-300 rounded"
               />
               <div className="flex-1">
-                <Label htmlFor="accountLocked" className="text-sm font-medium cursor-pointer">
+                <Label
+                  htmlFor="accountLocked"
+                  className="text-sm font-medium cursor-pointer"
+                >
                   Lock Account
                 </Label>
                 <p className="text-xs text-muted-foreground mt-1">
-                  {formData.accountLocked 
-                    ? "User will be unable to log in" 
-                    : "User can log in and access the system"
-                  }
+                  {formData.accountLocked
+                    ? 'User will be unable to log in'
+                    : 'User can log in and access the system'}
                 </p>
               </div>
             </div>
@@ -133,18 +139,15 @@ export const UserFormModal = ({
               <div className="flex items-center gap-2 p-2 bg-red-50 border border-red-200 rounded-md">
                 <Lock className="h-4 w-4 text-red-600" />
                 <span className="text-xs text-red-800">
-                  ⚠️ This user will be completely locked out and unable to access the system
+                  ⚠️ This user will be completely locked out and unable to access
+                  the system
                 </span>
               </div>
             )}
           </div>
 
           <DialogFooter>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={onClose}
-            >
+            <Button type="button" variant="outline" onClick={onClose}>
               Cancel
             </Button>
             <Button type="submit">

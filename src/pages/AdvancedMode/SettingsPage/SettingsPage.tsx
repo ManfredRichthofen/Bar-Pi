@@ -1,22 +1,17 @@
-import React from 'react';
-import { useTranslation } from 'react-i18next';
 import { useNavigate } from '@tanstack/react-router';
 import {
+  Bell,
+  Globe,
   LogOut,
   Moon,
-  Sun,
-  Globe,
-  Bell,
-  Volume2,
   Smartphone,
+  Sun,
+  Volume2,
 } from 'lucide-react';
-import useAuthStore from '../../../store/authStore';
-import useUIModeStore from '../../../store/uiModeStore';
-import useThemeStore from '../../../store/themeStore';
-import UpdateChecker from '../../../components/UpdateChecker';
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
-import { Switch } from '@/components/ui/switch';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   Select,
   SelectContent,
@@ -25,6 +20,11 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
+import { Switch } from '@/components/ui/switch';
+import UpdateChecker from '../../../components/UpdateChecker';
+import useAuthStore from '../../../store/authStore';
+import useThemeStore from '../../../store/themeStore';
+import useUIModeStore from '../../../store/uiModeStore';
 
 export const SettingsPage: React.FC = () => {
   const { t, i18n } = useTranslation();

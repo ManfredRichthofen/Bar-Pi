@@ -1,16 +1,16 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
-import { BeakerIcon, ArrowLeft, Info } from 'lucide-react';
 import { useLocation, useNavigate } from '@tanstack/react-router';
-import { Button } from '@/components/ui/button';
+import { ArrowLeft, BeakerIcon, Info } from 'lucide-react';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { toast } from 'sonner';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Spinner } from '@/components/ui/spinner';
-import { toast } from 'sonner';
-import useAuthStore from '../../../store/authStore';
 import cocktailService from '../../../services/cocktail.service';
+import useAuthStore from '../../../store/authStore';
+import DrinkCustomizer from './components/DrinkCustomizer';
 import GlassSelector from './components/GlassSelector';
 import IngredientRequirements from './components/IngredientRequirements';
-import DrinkCustomizer from './components/DrinkCustomizer';
 
 interface Ingredient {
   name: string;

@@ -1,11 +1,11 @@
 import { useLocation, useNavigate } from '@tanstack/react-router';
+import { ArrowLeft, Beaker } from 'lucide-react';
 import { useEffect } from 'react';
-import { Beaker, ArrowLeft } from 'lucide-react';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import DrinkImage from './components/DrinkImage';
-import IngredientsList from './components/IngredientsList';
 import DrinkInfo from './components/DrinkInfo';
+import IngredientsList from './components/IngredientsList';
 
 interface Ingredient {
   name: string;

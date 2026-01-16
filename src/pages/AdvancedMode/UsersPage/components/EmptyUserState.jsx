@@ -1,6 +1,6 @@
+import { User as UserIcon, UserPlus } from 'lucide-react';
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { UserPlus, User as UserIcon } from 'lucide-react';
 
 export const EmptyUserState = ({ onAddUser }) => {
   return (

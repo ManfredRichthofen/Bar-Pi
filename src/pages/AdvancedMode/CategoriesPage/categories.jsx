@@ -1,6 +1,6 @@
+import { Navigate } from '@tanstack/react-router';
 import React from 'react';
 import useAuthStore from '../../../store/authStore';
-import { Navigate } from '@tanstack/react-router';
 
 const Categories = ({ sidebarCollapsed = false }) => {
   const token = useAuthStore((state) => state.token);

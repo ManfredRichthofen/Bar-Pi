@@ -1,20 +1,20 @@
-import React, { useEffect, useState } from 'react';
+import { useLocation, useNavigate } from '@tanstack/react-router';
 import {
-  GlassWater,
-  Heart,
-  Settings,
   ArrowLeftToLine,
   BookText,
-  Users,
-  Gauge,
-  Martini,
   FlaskConical,
+  Gauge,
+  GlassWater,
+  Heart,
+  Martini,
+  Settings,
   Tag,
+  Users,
 } from 'lucide-react';
-import { useNavigate, useLocation } from '@tanstack/react-router';
-import { canAccessRoute, mapAdminLevelToRole } from '../utils/roleAccess';
-import useAuthStore from '../store/authStore';
+import React, { useEffect, useState } from 'react';
 import userService from '../services/user.service';
+import useAuthStore from '../store/authStore';
+import { canAccessRoute, mapAdminLevelToRole } from '../utils/roleAccess';
 
 interface UserData {
   id: number;

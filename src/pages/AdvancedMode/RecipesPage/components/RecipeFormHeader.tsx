@@ -1,6 +1,6 @@
-import React from 'react';
 import { useNavigate } from '@tanstack/react-router';
-import { ArrowLeft, Save, Loader2 } from 'lucide-react';
+import { ArrowLeft, Loader2, Save } from 'lucide-react';
+import type React from 'react';
 import { Button } from '@/components/ui/button';
 
 interface RecipeFormHeaderProps {

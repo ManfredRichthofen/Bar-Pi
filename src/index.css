@@ -58,7 +58,6 @@
   --chart-5: oklch(0.565 0.247 260.969);
 }
 
-
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);

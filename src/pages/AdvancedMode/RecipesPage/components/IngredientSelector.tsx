@@ -1,5 +1,5 @@
-import React from 'react';
 import { X } from 'lucide-react';
+import type React from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -64,15 +64,14 @@ export const IngredientSelector: React.FC<IngredientSelectorProps> = ({
         >
           <SelectTrigger>
             <SelectValue>
-              {stepIngredient.ingredient ? stepIngredient.ingredient.name : "Select ingredient"}
+              {stepIngredient.ingredient
+                ? stepIngredient.ingredient.name
+                : 'Select ingredient'}
             </SelectValue>
           </SelectTrigger>
           <SelectContent>
             {ingredients.map((ingredient) => (
-              <SelectItem
-                key={ingredient.id}
-                value={ingredient.id.toString()}
-              >
+              <SelectItem key={ingredient.id} value={ingredient.id.toString()}>
                 {ingredient.name}
               </SelectItem>
             ))}
@@ -92,14 +91,9 @@ export const IngredientSelector: React.FC<IngredientSelectorProps> = ({
 
       <div className="w-20">
         <Label>Unit</Label>
-        <Select
-          value={stepIngredient.scale}
-          onValueChange={updateScale}
-        >
+        <Select value={stepIngredient.scale} onValueChange={updateScale}>
           <SelectTrigger>
-            <SelectValue>
-              {stepIngredient.scale || "ml"}
-            </SelectValue>
+            <SelectValue>{stepIngredient.scale || 'ml'}</SelectValue>
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="ml">ml</SelectItem>
@@ -122,12 +116,7 @@ export const IngredientSelector: React.FC<IngredientSelectorProps> = ({
         </div>
       )}
 
-      <Button
-        type="button"
-        variant="ghost"
-        size="icon"
-        onClick={onRemove}
-      >
+      <Button type="button" variant="ghost" size="icon" onClick={onRemove}>
         <X className="h-4 w-4" />
       </Button>
     </div>

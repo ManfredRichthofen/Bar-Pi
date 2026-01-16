@@ -1,12 +1,12 @@
-import { useTranslation } from 'react-i18next';
 import { useNavigate } from '@tanstack/react-router';
 import { ArrowLeft } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
+import UpdateChecker from '../../../components/UpdateChecker';
 import useAuthStore from '../../../store/authStore';
 import useUIModeStore from '../../../store/uiModeStore';
-import UpdateChecker from '../../../components/UpdateChecker';
-import ThemeSelector from './components/ThemeSelector';
 import GeneralSettings from './components/GeneralSettings';
+import ThemeSelector from './components/ThemeSelector';
 
 const SimpleSettings = () => {
   const { t, i18n } = useTranslation();

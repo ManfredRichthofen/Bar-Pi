@@ -1,11 +1,6 @@
-import React, { useState } from 'react';
 import { Navigate, useNavigate } from '@tanstack/react-router';
-import { Heart, Trash2, AlertCircle } from 'lucide-react';
-import useAuthStore from '../../../store/authStore';
-import useFavoritesStore from '../../../store/favoritesStore';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+import { AlertCircle, Heart, Trash2 } from 'lucide-react';
+import React, { useState } from 'react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -16,6 +11,11 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import useAuthStore from '../../../store/authStore';
+import useFavoritesStore from '../../../store/favoritesStore';
 
 const Favorites = ({ sidebarCollapsed = false }) => {
   const token = useAuthStore((state) => state.token);

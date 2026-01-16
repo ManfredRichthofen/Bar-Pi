@@ -1,11 +1,11 @@
 import { create } from 'zustand';
 import AuthService from '../services/auth.service.js';
 import config from '../services/config';
-import useConfigStore from './configStore';
+import websocketService from '../services/websocket.service';
 import useCocktailProgressStore from './cocktailProgressStore';
+import useConfigStore from './configStore';
 import useFilterStore from './filterStore';
 import { usePumpStore } from './pumpStore';
-import websocketService from '../services/websocket.service';
 
 const useAuthStore = create((set) => ({
   token: null,

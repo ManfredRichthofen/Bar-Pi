@@ -1,6 +1,9 @@
 import config from './config';
+
 const API_PATH = 'api/ingredient/';
+
 import axios from 'axios';
+
 axios.defaults.baseURL = config.API_BASE_URL;
 
 class IngredientService {

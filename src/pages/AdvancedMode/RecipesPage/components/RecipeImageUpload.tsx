@@ -1,5 +1,5 @@
-import React from 'react';
-import { X, Image as ImageIcon } from 'lucide-react';
+import { Image as ImageIcon, X } from 'lucide-react';
+import type React from 'react';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 
@@ -51,10 +51,7 @@ export const RecipeImageUpload: React.FC<RecipeImageUploadProps> = ({
         ) : (
           <label className="flex flex-col items-center justify-center w-40 h-40 border-2 border-dashed rounded-lg cursor-pointer hover:bg-accent hover:border-primary transition-all">
             <div className="flex flex-col items-center justify-center p-4">
-              <ImageIcon
-                size={32}
-                className="mb-2 text-muted-foreground"
-              />
+              <ImageIcon size={32} className="mb-2 text-muted-foreground" />
               <p className="text-xs text-center text-muted-foreground">
                 <span className="font-semibold">Click to upload</span>
                 <br />
@@ -70,7 +67,7 @@ export const RecipeImageUpload: React.FC<RecipeImageUploadProps> = ({
             />
           </label>
         )}
-        
+
         {showRemoveToggle && !imagePreview && (
           <div className="flex items-center gap-2">
             <input

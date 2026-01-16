@@ -1,11 +1,11 @@
-import { createRootRoute, Outlet } from '@tanstack/react-router';
-import { useEffect, useState } from 'react';
-import useAuthStore from '../store/authStore';
-import useUIModeStore from '../store/uiModeStore';
-import useThemeStore from '../store/themeStore';
-import { useTranslation } from 'react-i18next';
 import { StatusBar, Style } from '@capacitor/status-bar';
 import { EdgeToEdge } from '@capawesome/capacitor-android-edge-to-edge-support';
+import { createRootRoute, Outlet } from '@tanstack/react-router';
+import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import useAuthStore from '../store/authStore';
+import useThemeStore from '../store/themeStore';
+import useUIModeStore from '../store/uiModeStore';
 
 export const Route = createRootRoute({
   component: RootComponent,

@@ -1,5 +1,7 @@
+import { Edit, Heart, Trash2 } from 'lucide-react';
 import React from 'react';
-import { Edit, Trash2, Heart } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -7,8 +9,6 @@ import {
   CardFooter,
   CardHeader,
 } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { useTranslation } from 'react-i18next';
 
 const RecipeCard = ({ recipe, isFavorite, onEdit, onDelete }) => {
   const { t } = useTranslation();

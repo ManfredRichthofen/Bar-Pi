@@ -1,8 +1,8 @@
+import { Link, useLocation } from '@tanstack/react-router';
+import { Clock, GlassWater, Settings } from 'lucide-react';
+import { motion } from 'motion/react';
 import type React from 'react';
 import { useTranslation } from 'react-i18next';
-import { Link, useLocation } from '@tanstack/react-router';
-import { Clock, Settings, GlassWater } from 'lucide-react';
-import { motion } from 'motion/react';
 import { cn } from '@/lib/utils';
 
 const Dock: React.FC = () => {

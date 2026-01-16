@@ -1,13 +1,13 @@
+import { AlertCircle, CheckCircle2, Download, RefreshCw } from 'lucide-react';
 import type React from 'react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Download, RefreshCw, CheckCircle2, AlertCircle } from 'lucide-react';
-import updateService from '../services/update.service';
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
+import updateService from '../services/update.service';
 
 const UpdateChecker: React.FC = () => {
   const { t } = useTranslation();

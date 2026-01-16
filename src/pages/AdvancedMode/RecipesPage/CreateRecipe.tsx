@@ -1,18 +1,18 @@
-import React, { useState, useEffect } from 'react';
 import { useNavigate } from '@tanstack/react-router';
-import { Plus } from 'lucide-react';
-import useAuthStore from '@/store/authStore';
-import RecipeService from '@/services/recipe.service';
-import ingredientService from '@/services/ingredient.service';
-import glassService from '@/services/glass.service';
+import { Loader2, Plus } from 'lucide-react';
+import type React from 'react';
+import { useEffect, useState } from 'react';
+import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { toast } from 'sonner';
-import { Loader2 } from 'lucide-react';
-import { RecipeFormHeader } from './components/RecipeFormHeader';
-import { RecipeBasicInfo } from './components/RecipeBasicInfo';
-import { RecipeImageUpload } from './components/RecipeImageUpload';
+import glassService from '@/services/glass.service';
+import ingredientService from '@/services/ingredient.service';
+import RecipeService from '@/services/recipe.service';
+import useAuthStore from '@/store/authStore';
 import { ProductionStepEditor } from './components/ProductionStepEditor';
+import { RecipeBasicInfo } from './components/RecipeBasicInfo';
+import { RecipeFormHeader } from './components/RecipeFormHeader';
+import { RecipeImageUpload } from './components/RecipeImageUpload';
 
 // Types
 interface Ingredient {
@@ -224,7 +224,9 @@ export const NewRecipePage: React.FC = () => {
             defaultGlass={formData.defaultGlass}
             defaultAmountToFill={formData.defaultAmountToFill}
             glasses={glasses}
-            onUpdate={(field, value) => setFormData({ ...formData, [field]: value })}
+            onUpdate={(field, value) =>
+              setFormData({ ...formData, [field]: value })
+            }
           />
 
           <Card>
@@ -234,8 +236,16 @@ export const NewRecipePage: React.FC = () => {
             <CardContent>
               <RecipeImageUpload
                 imagePreview={formData.imagePreview}
-                onImageChange={(file) => setFormData({ ...formData, image: file, imagePreview: URL.createObjectURL(file) })}
-                onRemoveImage={() => setFormData({ ...formData, image: null, imagePreview: null })}
+                onImageChange={(file) =>
+                  setFormData({
+                    ...formData,
+                    image: file,
+                    imagePreview: URL.createObjectURL(file),
+                  })
+                }
+                onRemoveImage={() =>
+                  setFormData({ ...formData, image: null, imagePreview: null })
+                }
               />
             </CardContent>
           </Card>
@@ -269,8 +279,17 @@ export const NewRecipePage: React.FC = () => {
                     }}
                     onRemoveStep={() => removeProductionStep(stepIndex)}
                     onAddIngredient={() => addIngredientToStep(stepIndex)}
-                    onRemoveIngredient={(ingredientIndex) => removeIngredientFromStep(stepIndex, ingredientIndex)}
-                    onUpdateIngredient={(ingredientIndex, field, value) => updateStepIngredient(stepIndex, ingredientIndex, field, value)}
+                    onRemoveIngredient={(ingredientIndex) =>
+                      removeIngredientFromStep(stepIndex, ingredientIndex)
+                    }
+                    onUpdateIngredient={(ingredientIndex, field, value) =>
+                      updateStepIngredient(
+                        stepIndex,
+                        ingredientIndex,
+                        field,
+                        value,
+                      )
+                    }
                   />
                 ))
               )}
@@ -285,9 +304,7 @@ export const NewRecipePage: React.FC = () => {
                   Creating...
                 </>
               ) : (
-                <>
-                  Save
-                </>
+                <>Save</>
               )}
             </Button>
             <Button

@@ -1,10 +1,10 @@
-import React from 'react';
+import { GlassWater, Loader2 } from 'lucide-react';
 import { motion } from 'motion/react';
-import { Card, CardContent } from '@/components/ui/card';
+import React from 'react';
 import { Badge } from '@/components/ui/badge';
-import { cn } from '@/lib/utils';
+import { Card, CardContent } from '@/components/ui/card';
 import { useLazyImage } from '@/hooks/useLazyImage';
-import { Loader2, GlassWater } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 const SimpleDrinkCard = ({ recipe, onCardClick }) => {
   // Lazy load image

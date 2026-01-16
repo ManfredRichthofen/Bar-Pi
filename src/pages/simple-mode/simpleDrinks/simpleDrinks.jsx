@@ -1,16 +1,15 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Navigate, useNavigate } from '@tanstack/react-router';
-import { Filter, ArrowUp } from 'lucide-react';
 import debounce from 'lodash/debounce';
+import { ArrowUp, Filter } from 'lucide-react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
-
+import CocktailService from '../../../services/cocktail.service.js';
 import useAuthStore from '../../../store/authStore.js';
 import useFilterStore from '../../../store/filterStore.js';
-import CocktailService from '../../../services/cocktail.service.js';
 import { filterRecipes } from '../../../utils/recipeFilters.js';
-import SearchForm from './SearchForm.jsx';
-import FilterButtons from './FilterButtons.jsx';
 import ErrorMessage from './ErrorMessage.jsx';
+import FilterButtons from './FilterButtons.jsx';
+import SearchForm from './SearchForm.jsx';
 import VirtualGrid from './VirtualGrid.jsx';
 
 function SimpleDrinks() {

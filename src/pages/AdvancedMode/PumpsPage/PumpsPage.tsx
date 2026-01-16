@@ -1,18 +1,18 @@
+import { AlertCircle, PlayCircle, PlusCircle, StopCircle } from 'lucide-react';
 import type React from 'react';
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import { toast } from 'sonner';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Button } from '@/components/ui/button';
+import { Skeleton } from '@/components/ui/skeleton';
+import PumpService from '../../../services/pump.service';
+import WebSocketService from '../../../services/websocket.service';
 import useAuthStore from '../../../store/authStore';
 import { usePumpStore } from '../../../store/pumpStore';
-import PumpService from '../../../services/pump.service';
-import { PumpStatus } from './components/PumpStatus';
 import { PumpCard } from './components/PumpCard';
 import { PumpSelector } from './components/PumpSelector';
-import { PlusCircle, PlayCircle, StopCircle, AlertCircle } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { toast } from 'sonner';
-import { Skeleton } from '@/components/ui/skeleton';
+import { PumpStatus } from './components/PumpStatus';
 import { StepperMotorIcon } from './components/StepperMotorIcon';
-import WebSocketService from '../../../services/websocket.service';
 
 export const PumpsPage: React.FC = () => {
   const [showAddDialog, setShowAddDialog] = useState(false);

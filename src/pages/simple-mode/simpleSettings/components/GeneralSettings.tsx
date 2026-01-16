@@ -1,15 +1,15 @@
 import {
-  Globe,
   Bell,
-  Volume2,
+  Globe,
   LogOut,
   Settings as SettingsIcon,
+  Volume2,
 } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Switch } from '@/components/ui/switch';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
+import { Switch } from '@/components/ui/switch';
 
 interface Language {
   code: string;

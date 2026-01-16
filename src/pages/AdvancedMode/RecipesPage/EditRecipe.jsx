@@ -1,17 +1,17 @@
-import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useParams } from '@tanstack/react-router';
 import { Loader2 } from 'lucide-react';
-import useAuthStore from '@/store/authStore';
-import RecipeService from '@/services/recipe.service';
-import ingredientService from '@/services/ingredient.service';
-import glassService from '@/services/glass.service';
+import React, { useCallback, useEffect, useState } from 'react';
+import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { toast } from 'sonner';
-import { RecipeFormHeader } from './components/RecipeFormHeader';
-import { RecipeBasicInfo } from './components/RecipeBasicInfo';
-import { RecipeImageUpload } from './components/RecipeImageUpload';
+import glassService from '@/services/glass.service';
+import ingredientService from '@/services/ingredient.service';
+import RecipeService from '@/services/recipe.service';
+import useAuthStore from '@/store/authStore';
 import { ProductionStepEditor } from './components/ProductionStepEditor';
+import { RecipeBasicInfo } from './components/RecipeBasicInfo';
+import { RecipeFormHeader } from './components/RecipeFormHeader';
+import { RecipeImageUpload } from './components/RecipeImageUpload';
 
 // Types
 const Ingredient = {
@@ -275,7 +275,9 @@ const RecipeEditPage = () => {
             defaultGlass={formData.defaultGlass}
             defaultAmountToFill={formData.defaultAmountToFill}
             glasses={glasses}
-            onUpdate={(field, value) => setFormData(prev => ({ ...prev, [field]: value }))}
+            onUpdate={(field, value) =>
+              setFormData((prev) => ({ ...prev, [field]: value }))
+            }
           />
 
           <Card>
@@ -283,10 +285,18 @@ const RecipeEditPage = () => {
               <RecipeImageUpload
                 imagePreview={formData.imagePreview}
                 onImageChange={handleImageChange}
-                onRemoveImage={() => setFormData(prev => ({ ...prev, image: null, imagePreview: null }))}
+                onRemoveImage={() =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    image: null,
+                    imagePreview: null,
+                  }))
+                }
                 showRemoveToggle={!!recipeId}
                 removeImage={formData.removeImage}
-                onToggleRemoveImage={(checked) => setFormData(prev => ({ ...prev, removeImage: checked }))}
+                onToggleRemoveImage={(checked) =>
+                  setFormData((prev) => ({ ...prev, removeImage: checked }))
+                }
               />
             </CardContent>
           </Card>
@@ -297,7 +307,8 @@ const RecipeEditPage = () => {
                 <div>
                   <h3 className="font-semibold text-lg">Production Steps</h3>
                   <p className="text-sm text-muted-foreground mt-1">
-                    Build the drink using ingredient steps and written instructions
+                    Build the drink using ingredient steps and written
+                    instructions
                   </p>
                 </div>
                 <div className="flex gap-2">
@@ -327,11 +338,22 @@ const RecipeEditPage = () => {
                     step={step}
                     stepIndex={stepIndex}
                     ingredients={ingredients}
-                    onUpdateStep={(updatedStep) => updateProductionStep(stepIndex, updatedStep)}
+                    onUpdateStep={(updatedStep) =>
+                      updateProductionStep(stepIndex, updatedStep)
+                    }
                     onRemoveStep={() => removeProductionStep(stepIndex)}
                     onAddIngredient={() => addIngredientToStep(stepIndex)}
-                    onRemoveIngredient={(ingredientIndex) => removeIngredientFromStep(stepIndex, ingredientIndex)}
-                    onUpdateIngredient={(ingredientIndex, field, value) => updateStepIngredient(stepIndex, ingredientIndex, field, value)}
+                    onRemoveIngredient={(ingredientIndex) =>
+                      removeIngredientFromStep(stepIndex, ingredientIndex)
+                    }
+                    onUpdateIngredient={(ingredientIndex, field, value) =>
+                      updateStepIngredient(
+                        stepIndex,
+                        ingredientIndex,
+                        field,
+                        value,
+                      )
+                    }
                   />
                 ))}
               </div>

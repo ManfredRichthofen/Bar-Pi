@@ -1,21 +1,20 @@
-import type React from 'react';
-import { useState, useEffect } from 'react';
 import { useNavigate } from '@tanstack/react-router';
+import { Droplet, Hexagon, Loader2 } from 'lucide-react';
+import type React from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Loader2, Droplet, Hexagon } from 'lucide-react';
-import PumpService from '../../../../services/pump.service';
-import useAuthStore from '../../../../store/authStore';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
 import {
   Dialog,
   DialogContent,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogFooter,
 } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-
 import { StepperMotorIcon } from '@/pages/AdvancedMode/PumpsPage/components/StepperMotorIcon';
+import PumpService from '../../../../services/pump.service';
+import useAuthStore from '../../../../store/authStore';
 
 interface PumpSelectorProps {
   show: boolean;

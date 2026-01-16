@@ -1,7 +1,7 @@
+import { Loader2, Search } from 'lucide-react';
 import React from 'react';
-import { Search, Loader2 } from 'lucide-react';
-import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 
 const SearchForm = React.memo(({ onSubmit, onInput, loading, value }) => (
   <form onSubmit={onSubmit} className="w-full">

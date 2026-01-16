@@ -1,5 +1,5 @@
-import React from 'react';
 import { CheckCircle, XCircle } from 'lucide-react';
+import React from 'react';
 import { useTranslation } from 'react-i18next';
 
 const IngredientRequirements = ({ requiredIngredients }) => {

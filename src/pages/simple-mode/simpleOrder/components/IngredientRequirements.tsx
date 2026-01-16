@@ -1,4 +1,4 @@
-import { XCircle, AlertCircle, CheckCircle } from 'lucide-react';
+import { AlertCircle, CheckCircle, XCircle } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
 interface Ingredient {

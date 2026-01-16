@@ -1,7 +1,7 @@
-import { Check, AlertTriangle, Square, Loader2, XCircle } from 'lucide-react';
-import { Card, CardContent } from '@/components/ui/card';
+import { AlertTriangle, Check, Loader2, Square, XCircle } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 
 interface StatusCardProps {

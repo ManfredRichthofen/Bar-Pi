@@ -1,8 +1,7 @@
-import React from 'react';
+import type React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
 import {
   Select,
   SelectContent,
@@ -10,6 +9,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
 
 interface Glass {
   id: number;
@@ -72,15 +72,15 @@ export const RecipeBasicInfo: React.FC<RecipeBasicInfoProps> = ({
             <Select
               value={defaultGlass?.id?.toString() || ''}
               onValueChange={(value) => {
-                const glass = glasses.find(
-                  (g) => g.id.toString() === value,
-                );
+                const glass = glasses.find((g) => g.id.toString() === value);
                 updateField('defaultGlass', glass || null);
               }}
             >
               <SelectTrigger>
                 <SelectValue>
-                  {defaultGlass ? `${defaultGlass.name} (${defaultGlass.size}ml)` : "Select a glass"}
+                  {defaultGlass
+                    ? `${defaultGlass.name} (${defaultGlass.size}ml)`
+                    : 'Select a glass'}
                 </SelectValue>
               </SelectTrigger>
               <SelectContent>
@@ -100,7 +100,10 @@ export const RecipeBasicInfo: React.FC<RecipeBasicInfoProps> = ({
               type="number"
               value={defaultAmountToFill}
               onChange={(e) =>
-                updateField('defaultAmountToFill', parseInt(e.target.value) || 0)
+                updateField(
+                  'defaultAmountToFill',
+                  parseInt(e.target.value) || 0,
+                )
               }
               min="0"
             />

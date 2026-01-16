@@ -1,18 +1,18 @@
-import React, { useState, useEffect } from 'react';
-import { BeakerIcon, XCircle, PlayCircle } from 'lucide-react';
 import { useLocation, useNavigate } from '@tanstack/react-router';
-import useAuthStore from '../../../store/authStore';
-import cocktailService from '../../../services/cocktail.service';
-import DrinkCustomizer from './components/DrinkCustomizer';
-import glassService from '../../../services/glass.service';
-import IngredientRequirements from './components/IngredientRequirements';
-import GlassSelector from './components/GlassSelector';
-import ingredientService from '../../../services/ingredient.service';
+import { BeakerIcon, PlayCircle, XCircle } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { toast } from 'sonner';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { toast } from 'sonner';
+import cocktailService from '../../../services/cocktail.service';
+import glassService from '../../../services/glass.service';
+import ingredientService from '../../../services/ingredient.service';
+import useAuthStore from '../../../store/authStore';
+import DrinkCustomizer from './components/DrinkCustomizer';
+import GlassSelector from './components/GlassSelector';
+import IngredientRequirements from './components/IngredientRequirements';
 
 const Order = () => {
   const [loading, setLoading] = useState(false);

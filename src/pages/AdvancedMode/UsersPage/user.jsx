@@ -1,13 +1,13 @@
-import React, { useState, useEffect } from 'react';
 import { useNavigate } from '@tanstack/react-router';
 import { UserPlus } from 'lucide-react';
-import UserService from '@/services/user.service';
-import { Button } from '@/components/ui/button';
+import React, { useEffect, useState } from 'react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { UserFormModal } from './components/UserFormModal';
+import { Button } from '@/components/ui/button';
+import UserService from '@/services/user.service';
 import { DeleteUserDialog } from './components/DeleteUserDialog';
-import { UserCard } from './components/UserCard';
 import { EmptyUserState } from './components/EmptyUserState';
+import { UserCard } from './components/UserCard';
+import { UserFormModal } from './components/UserFormModal';
 
 const UserPage = () => {
   const navigate = useNavigate({ from: '/users' });
@@ -63,7 +63,7 @@ const UserPage = () => {
 
   const confirmDelete = async () => {
     if (!userToDelete) return;
-    
+
     try {
       const token = localStorage.getItem('token');
       await UserService.deleteUser(userToDelete.id, token);
@@ -102,7 +102,7 @@ const UserPage = () => {
         };
         await UserService.createUser(createData, token);
       }
-      
+
       await loadUsers();
       setFormData({
         username: '',
@@ -120,7 +120,11 @@ const UserPage = () => {
       } else if (err.response?.data?.error) {
         setError(err.response.data.error);
       } else {
-        setError(err.response?.data?.message || err.message || `Failed to ${editingUser ? 'update' : 'create'} user`);
+        setError(
+          err.response?.data?.message ||
+            err.message ||
+            `Failed to ${editingUser ? 'update' : 'create'} user`,
+        );
       }
     }
   };
@@ -150,19 +154,19 @@ const UserPage = () => {
           )}
 
           {users.length === 0 ? (
-          <EmptyUserState onAddUser={() => setIsModalOpen(true)} />
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-5 lg:gap-6">
-            {users.map((user) => (
-              <UserCard
-                key={user.id}
-                user={user}
-                onEdit={handleEditUser}
-                onDelete={handleDeleteUser}
-              />
-            ))}
-          </div>
-        )}
+            <EmptyUserState onAddUser={() => setIsModalOpen(true)} />
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-5 lg:gap-6">
+              {users.map((user) => (
+                <UserCard
+                  key={user.id}
+                  user={user}
+                  onEdit={handleEditUser}
+                  onDelete={handleDeleteUser}
+                />
+              ))}
+            </div>
+          )}
         </div>
       </div>
 

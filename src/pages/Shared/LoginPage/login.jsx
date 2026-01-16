@@ -1,18 +1,18 @@
+import { useLocation, useNavigate } from '@tanstack/react-router';
+import { Globe, KeyRound, Loader2, Settings, User } from 'lucide-react';
 import { useState } from 'react';
-import { useNavigate, useLocation } from '@tanstack/react-router';
 import { useTranslation } from 'react-i18next';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Label } from '@/components/ui/label';
+import backgroundL from '../../../assets/login/background_l.jpg';
+import backgroundM from '../../../assets/login/background_m.jpg';
+import backgroundS from '../../../assets/login/background_s.jpg';
+import backgroundXL from '../../../assets/login/background_xl.jpg';
+import logoFull from '../../../assets/logo-full.svg';
 import useAuthStore from '../../../store/authStore';
 import useConfigStore from '../../../store/configStore';
-import logoFull from '../../../assets/logo-full.svg';
-import backgroundS from '../../../assets/login/background_s.jpg';
-import backgroundM from '../../../assets/login/background_m.jpg';
-import backgroundL from '../../../assets/login/background_l.jpg';
-import backgroundXL from '../../../assets/login/background_xl.jpg';
-import { User, KeyRound, Globe, Settings, Loader2 } from 'lucide-react';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Button } from '@/components/ui/button';
-import { Label } from '@/components/ui/label';
 
 const Login = () => {
   const { t } = useTranslation();

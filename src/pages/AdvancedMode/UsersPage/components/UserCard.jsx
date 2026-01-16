@@ -1,21 +1,21 @@
+import {
+  Check,
+  Crown,
+  Edit,
+  Lock,
+  Settings,
+  Shield,
+  Trash2,
+  User as UserIcon,
+  UserPlus,
+  Wrench,
+} from 'lucide-react';
 import React from 'react';
-import { Card, CardContent, CardFooter } from '@/components/ui/card';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import {
-  UserPlus,
-  Edit,
-  Trash2,
-  Shield,
-  User as UserIcon,
-  Crown,
-  Settings,
-  Wrench,
-  Lock,
-  Check,
-} from 'lucide-react';
-import { mapAdminLevelToRole, getRoleDisplayName } from '@/utils/roleAccess';
+import { Card, CardContent, CardFooter } from '@/components/ui/card';
+import { getRoleDisplayName, mapAdminLevelToRole } from '@/utils/roleAccess';
 
 export const UserCard = ({ user, onEdit, onDelete }) => {
   const getRoleIcon = (adminLevel) => {
@@ -59,9 +59,7 @@ export const UserCard = ({ user, onEdit, onDelete }) => {
           </Avatar>
 
           <div className="space-y-2 w-full">
-            <h3 className="text-lg font-bold truncate">
-              {user.username}
-            </h3>
+            <h3 className="text-lg font-bold truncate">{user.username}</h3>
 
             <div className="flex items-center justify-center gap-2">
               {getRoleIcon(user.adminLevel)}
@@ -81,7 +79,10 @@ export const UserCard = ({ user, onEdit, onDelete }) => {
                   Locked
                 </Badge>
               ) : (
-                <Badge variant="default" className="text-xs bg-green-100 text-green-800 hover:bg-green-200">
+                <Badge
+                  variant="default"
+                  className="text-xs bg-green-100 text-green-800 hover:bg-green-200"
+                >
                   <Check className="h-3 w-3 mr-1" />
                   Active
                 </Badge>
@@ -91,9 +92,9 @@ export const UserCard = ({ user, onEdit, onDelete }) => {
         </div>
       </CardContent>
       <CardFooter className="flex justify-center gap-2 p-4 bg-muted/30 border-t">
-        <Button 
-          variant="ghost" 
-          size="sm" 
+        <Button
+          variant="ghost"
+          size="sm"
           onClick={() => onEdit(user)}
           className="text-blue-600 hover:text-blue-700 hover:bg-blue-50"
         >

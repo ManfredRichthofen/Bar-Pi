@@ -1,7 +1,7 @@
 import { createFileRoute, Outlet, redirect } from '@tanstack/react-router';
+import MainLayout from '../components/Layout';
 import useAuthStore from '../store/authStore';
 import useUIModeStore from '../store/uiModeStore';
-import MainLayout from '../components/Layout';
 
 export const Route = createFileRoute('/_advanced')({
   component: AdvancedModeLayout,

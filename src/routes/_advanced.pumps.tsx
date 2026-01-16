@@ -1,12 +1,12 @@
 import {
   createFileRoute,
-  redirect,
   Outlet,
+  redirect,
   useMatches,
 } from '@tanstack/react-router';
 import { PumpsPage } from '../pages/AdvancedMode/PumpsPage/PumpsPage';
-import useAuthStore from '../store/authStore';
 import userService from '../services/user.service';
+import useAuthStore from '../store/authStore';
 import { hasPermission, mapAdminLevelToRole } from '../utils/roleAccess';
 
 export const Route = createFileRoute('/_advanced/pumps')({

@@ -1,19 +1,19 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { Navigate, useNavigate } from '@tanstack/react-router';
 import {
-  PlusCircle,
   AlertCircle,
   Edit,
-  Trash2,
   Heart,
   Loader2,
+  PlusCircle,
+  Trash2,
 } from 'lucide-react';
-import useAuthStore from '@/store/authStore';
-import RecipeService from '@/services/recipe.service';
-import useFavoritesStore from '@/store/favoritesStore';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { toast } from 'sonner';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import RecipeService from '@/services/recipe.service';
+import useAuthStore from '@/store/authStore';
+import useFavoritesStore from '@/store/favoritesStore';
 
 const Recipes = ({ sidebarCollapsed = false }) => {
   const token = useAuthStore((state) => state.token);

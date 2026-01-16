@@ -1,17 +1,16 @@
-import React, { useState } from 'react';
+import { useNavigate } from '@tanstack/react-router';
 import {
   BeakerIcon,
-  PencilIcon,
+  GlassWater,
   Heart,
   Loader2,
-  GlassWater,
+  PencilIcon,
 } from 'lucide-react';
-import { useNavigate } from '@tanstack/react-router';
 import { motion } from 'motion/react';
-import useFavoritesStore from '@/store/favoritesStore';
+import React, { useState } from 'react';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import {
   Dialog,
   DialogContent,
@@ -20,6 +19,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { useLazyImage } from '@/hooks/useLazyImage';
+import useFavoritesStore from '@/store/favoritesStore';
 
 const DrinkCard = ({ recipe }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);

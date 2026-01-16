@@ -1,14 +1,13 @@
-import React, { useEffect } from 'react';
-import { useWindowVirtualizer } from '@tanstack/react-virtual';
 import { useInfiniteQuery } from '@tanstack/react-query';
-import { AlertCircle, Search, Loader2 } from 'lucide-react';
+import { useWindowVirtualizer } from '@tanstack/react-virtual';
 import debounce from 'lodash/debounce';
+import { AlertCircle, Loader2, Search } from 'lucide-react';
+import React, { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-
-import RecipeService from '@/services/recipe.service.js';
-import DrinkCard from './DrinkCard.jsx';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Card, CardContent } from '@/components/ui/card';
+import RecipeService from '@/services/recipe.service.js';
+import DrinkCard from './DrinkCard.jsx';
 
 function VirtualDrinksGrid({ token, searchTerm, collapsed = false }) {
   const { t } = useTranslation();

@@ -1,7 +1,12 @@
-import { createFileRoute, redirect, Outlet, useMatches } from '@tanstack/react-router';
+import {
+  createFileRoute,
+  Outlet,
+  redirect,
+  useMatches,
+} from '@tanstack/react-router';
 import Recipes from '../pages/AdvancedMode/RecipesPage/recipes';
-import useAuthStore from '../store/authStore';
 import userService from '../services/user.service';
+import useAuthStore from '../store/authStore';
 import { hasPermission, mapAdminLevelToRole } from '../utils/roleAccess';
 
 export const Route = createFileRoute('/_advanced/recipes')({
@@ -34,8 +39,9 @@ export const Route = createFileRoute('/_advanced/recipes')({
 
 function AdvancedRecipesRoute() {
   const matches = useMatches();
-  const isChildRoute = matches.some((match) =>
-    match.id.includes('/new') || match.id.includes('/$recipeId/edit'),
+  const isChildRoute = matches.some(
+    (match) =>
+      match.id.includes('/new') || match.id.includes('/$recipeId/edit'),
   );
 
   // If we're on a child route (like new or edit), show the Outlet

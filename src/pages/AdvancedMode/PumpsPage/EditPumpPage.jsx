@@ -1,28 +1,25 @@
-import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from '@tanstack/react-router';
-import { useTranslation } from 'react-i18next';
 import {
-  ArrowLeft,
-  Save,
-  Trash2,
   AlertCircle,
+  ArrowLeft,
   CheckCircle,
   Droplet,
   Hexagon,
+  Loader2,
+  Package,
+  Save,
   Settings,
-  Zap,
+  TestTube,
   Thermometer,
   Timer,
-  Package,
-  TestTube,
-  Loader2,
+  Trash2,
+  Zap,
 } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import useAuthStore from '../../../store/authStore';
-import { usePumpStore } from '../../../store/pumpStore';
-import PumpService from '../../../services/pump.service';
-import IngredientService from '../../../services/ingredient.service';
-import GpioService from '../../../services/gpio.service';
+import { useTranslation } from 'react-i18next';
+import { toast } from 'sonner';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -34,13 +31,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Switch } from '@/components/ui/switch';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { toast } from 'sonner';
-
-import { StepperMotorIcon } from '@/pages/AdvancedMode/PumpsPage/components/StepperMotorIcon';
-import { PinSelector } from '@/pages/AdvancedMode/PumpsPage/components/PinSelector';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Switch } from '@/components/ui/switch';
+import { PinSelector } from '@/pages/AdvancedMode/PumpsPage/components/PinSelector';
+import { StepperMotorIcon } from '@/pages/AdvancedMode/PumpsPage/components/StepperMotorIcon';
+import GpioService from '../../../services/gpio.service';
+import IngredientService from '../../../services/ingredient.service';
+import PumpService from '../../../services/pump.service';
+import useAuthStore from '../../../store/authStore';
+import { usePumpStore } from '../../../store/pumpStore';
 
 const EditPumpPage = () => {
   const navigate = useNavigate({ from: '/pumps/$pumpId/edit' });

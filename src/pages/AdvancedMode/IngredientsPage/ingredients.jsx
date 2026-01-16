@@ -1,27 +1,24 @@
-import React, { useState, useEffect } from 'react';
-import {
-  PlusCircle,
-  Edit,
-  Trash2,
-  Image as ImageIcon,
-  X,
-  AlertCircle,
-} from 'lucide-react';
 import { Navigate } from '@tanstack/react-router';
-import useAuthStore from '../../../store/authStore';
-import ingredientService, {
-  ingredientDtoMapper,
-} from '../../../services/ingredient.service';
+import {
+  AlertCircle,
+  Edit,
+  Image as ImageIcon,
+  PlusCircle,
+  Trash2,
+  X,
+} from 'lucide-react';
+import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
 import {
   Dialog,
   DialogContent,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogFooter,
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -32,8 +29,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Checkbox } from '@/components/ui/checkbox';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import ingredientService, {
+  ingredientDtoMapper,
+} from '../../../services/ingredient.service';
+import useAuthStore from '../../../store/authStore';
 
 const Ingredients = () => {
   const [ingredients, setIngredients] = useState([]);
