@@ -14,6 +14,7 @@ import { Badge } from '@/components/ui/badge';
 import { useLazyImage } from '@/hooks/useLazyImage';
 import useFavoritesStore from '@/store/favoritesStore';
 import useAuthStore from '@/store/authStore';
+import { calculateRecipeStats } from '@/utils/recipeStats';
 
 const RecipeDetailPage = () => {
   const navigate = useNavigate({ from: '/drinks/$recipeId' });
@@ -80,36 +81,8 @@ const RecipeDetailPage = () => {
     navigate({ to: '/drinks' });
   };
 
-  // Calculate recipe stats
-  const recipeStats = useMemo(() => {
-    if (!recipe) return { automatedIngredients: 0, manualIngredients: 0, estimatedABV: '0.0', totalVolume: 0 };
-    
-    const automatedIngredients = recipe.ingredients?.filter(ing => ing.type === 'automated').length || 0;
-    const manualIngredients = recipe.ingredients?.filter(ing => ing.type === 'manual').length || 0;
-    const totalAlcoholContent = recipe.ingredients?.reduce((sum, ing) => {
-      if (ing.alcoholContent && ing.amount) {
-        const amountMl = ing.unit === 'cl' ? ing.amount * 10 : ing.amount;
-        return sum + (amountMl * ing.alcoholContent / 100);
-      }
-      return sum;
-    }, 0) || 0;
-    
-    const estimatedABV = recipe.ingredients?.length > 0 ? 
-      (totalAlcoholContent / recipe.ingredients.reduce((sum, ing) => {
-        const amountMl = ing.unit === 'cl' ? ing.amount * 10 : ing.amount;
-        return sum + amountMl;
-      }, 0)) * 100 : 0;
-    
-    return {
-      automatedIngredients,
-      manualIngredients,
-      estimatedABV: estimatedABV.toFixed(1),
-      totalVolume: recipe.ingredients?.reduce((sum, ing) => {
-        const amountMl = ing.unit === 'cl' ? ing.amount * 10 : ing.amount;
-        return sum + amountMl;
-      }, 0) || 0
-    };
-  }, [recipe]);
+  // Calculate recipe stats using utility function
+  const recipeStats = useMemo(() => calculateRecipeStats(recipe), [recipe]);
 
   const ingredientCount = recipe?.ingredients?.length || 0;
   const stepCount = recipe?.productionSteps?.length || 0;
@@ -216,7 +189,7 @@ const RecipeDetailPage = () => {
             )}
             
             {/* Stats Grid */}
-            <div className="grid grid-cols-2 gap-2 sm:gap-3">
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-3">
               <div className="bg-card border rounded-lg p-2 sm:p-3 text-center">
                 <div className="text-lg sm:text-xl font-bold text-primary">{ingredientCount}</div>
                 <div className="text-xs text-muted-foreground">Ingredients</div>
@@ -226,6 +199,14 @@ const RecipeDetailPage = () => {
                 <div className="text-xs text-muted-foreground">Steps</div>
               </div>
               <div className="bg-card border rounded-lg p-2 sm:p-3 text-center">
+                <div className="text-lg sm:text-xl font-bold text-primary">{recipeStats.totalVolume}</div>
+                <div className="text-xs text-muted-foreground">ml</div>
+              </div>
+              <div className="bg-card border rounded-lg p-2 sm:p-3 text-center">
+                <div className="text-lg sm:text-xl font-bold text-primary">{recipeStats.estimatedABV}%</div>
+                <div className="text-xs text-muted-foreground">ABV</div>
+              </div>
+              <div className="bg-card border rounded-lg p-2 sm:p-3 text-center">
                 <div className="text-lg sm:text-xl font-bold text-primary">{recipeStats.automatedIngredients}</div>
                 <div className="text-xs text-muted-foreground">Automated</div>
               </div>
@@ -233,22 +214,6 @@ const RecipeDetailPage = () => {
                 <div className="text-lg sm:text-xl font-bold text-primary">{recipeStats.manualIngredients}</div>
                 <div className="text-xs text-muted-foreground">Manual</div>
               </div>
-            </div>
-            
-            {/* Mobile-only volume and ABV */}
-            <div className="xl:hidden grid grid-cols-2 gap-2 sm:gap-3">
-              {recipeStats.totalVolume > 0 && (
-                <div className="bg-card border rounded-lg p-2 sm:p-3 text-center">
-                  <div className="text-lg sm:text-xl font-bold text-primary">{recipeStats.totalVolume}</div>
-                  <div className="text-xs text-muted-foreground">ml</div>
-                </div>
-              )}
-              {recipeStats.estimatedABV > 0 && (
-                <div className="bg-card border rounded-lg p-2 sm:p-3 text-center">
-                  <div className="text-lg sm:text-xl font-bold text-primary">{recipeStats.estimatedABV}%</div>
-                  <div className="text-xs text-muted-foreground">ABV</div>
-                </div>
-              )}
             </div>
             
             {/* Description */}
@@ -325,21 +290,21 @@ const RecipeDetailPage = () => {
 
             {/* Instructions Section */}
             {recipe.productionSteps && recipe.productionSteps.length > 0 && (
-              <div className="bg-card border rounded-lg p-4">
-                <h4 className="font-semibold text-base mb-4 flex items-center gap-2">
+              <div className="bg-card border rounded-lg p-3 sm:p-4">
+                <h4 className="font-semibold text-base mb-3 sm:mb-4 flex items-center gap-2">
                   <BeakerIcon className="h-4 w-4 text-primary" />
                   Instructions
                   <Badge variant="secondary" className="text-xs">
                     {stepCount} steps
                   </Badge>
                 </h4>
-                <div className="space-y-3">
+                <div className="space-y-2 sm:space-y-3">
                   {recipe.productionSteps.map((step, index) => (
                     <div
                       key={index}
-                      className="flex gap-4 p-4 bg-muted/30 rounded-lg border border-border/50"
+                      className="flex gap-3 sm:gap-4 p-3 sm:p-4 bg-muted/30 rounded-lg border border-border/50"
                     >
-                      <div className="w-6 h-6 bg-primary text-primary-foreground rounded-full flex items-center justify-center flex-shrink-0 text-xs font-bold">
+                      <div className="w-6 h-6 sm:w-8 h-8 bg-primary text-primary-foreground rounded-full flex items-center justify-center flex-shrink-0 text-xs font-bold">
                         {index + 1}
                       </div>
                       <div className="flex-1 text-sm">
@@ -361,8 +326,8 @@ const RecipeDetailPage = () => {
                             </div>
                           </div>
                         ) : (
-                          <div className="flex items-center gap-2">
-                            <Badge variant="outline" className="text-xs">
+                          <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+                            <Badge variant="outline" className="text-xs w-fit">
                               {step.type}
                             </Badge>
                             <p className="text-muted-foreground">
@@ -378,9 +343,9 @@ const RecipeDetailPage = () => {
             )}
             
             {/* Recipe Details Section */}
-            <div className="bg-card border rounded-lg p-4">
-              <h4 className="font-semibold text-base mb-4">Recipe Details</h4>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+            <div className="bg-card border rounded-lg p-3 sm:p-4">
+              <h4 className="font-semibold text-base mb-3 sm:mb-4">Recipe Details</h4>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 text-sm">
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Total Volume:</span>
                   <span className="font-medium">{recipeStats.totalVolume}ml</span>
@@ -400,13 +365,13 @@ const RecipeDetailPage = () => {
                 {recipe.defaultGlass && (
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Recommended Glass:</span>
-                    <span className="font-medium">{recipe.defaultGlass.name}</span>
+                    <span className="font-medium truncate">{recipe.defaultGlass.name}</span>
                   </div>
                 )}
                 {recipe.category && (
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Category:</span>
-                    <span className="font-medium">{recipe.category}</span>
+                    <span className="font-medium truncate">{recipe.category}</span>
                   </div>
                 )}
               </div>
@@ -419,15 +384,6 @@ const RecipeDetailPage = () => {
           <Button onClick={handleMakeDrink} className="w-full sm:flex-1" size="lg">
             <BeakerIcon className="mr-2 h-4 w-4" />
             Make Drink
-          </Button>
-          <Button
-            variant="outline"
-            onClick={handleEditRecipe}
-            className="w-full sm:flex-none"
-            size="lg"
-          >
-            <PencilIcon className="mr-2 h-4 w-4" />
-            Edit Recipe
           </Button>
         </div>
       </div>
