@@ -38,25 +38,9 @@ import { Switch } from '@/components/ui/switch';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { toast } from 'sonner';
 
-// Stepper Motor Icon Component
-const StepperMotorIcon = ({ width = 24, height = 24, className = '' }) => (
-  <svg
-    width={width}
-    height={height}
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    className={className}
-  >
-    <circle cx="12" cy="12" r="10" />
-    <path d="M12 6v12" />
-    <path d="M8 10l8 4" />
-    <path d="M16 10l-8 4" />
-  </svg>
-);
+import { StepperMotorIcon } from '@/pages/AdvancedMode/PumpsPage/components/StepperMotorIcon';
+import { PinSelector } from '@/pages/AdvancedMode/PumpsPage/components/PinSelector';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const EditPumpPage = () => {
   const navigate = useNavigate({ from: '/pumps/$pumpId/edit' });
@@ -268,7 +252,7 @@ const EditPumpPage = () => {
     console.log('Rendering loading state');
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin" />
+        <Skeleton className="h-8 w-8 rounded-full" />
       </div>
     );
   }
@@ -393,6 +377,7 @@ const EditPumpPage = () => {
                     id="name"
                     type="text"
                     placeholder="Enter pump name"
+                    value={watch('name') || ''}
                     {...register('name', { required: 'Pump name is required' })}
                     className={errors.name ? 'border-destructive' : ''}
                   />
@@ -484,173 +469,29 @@ const EditPumpPage = () => {
               <CardContent className="space-y-4">
                 {/* DC Pump / Valve Pin */}
                 {(pumpType === 'dc' || pumpType === 'valve') && (
-                  <>
-                    <div className="space-y-2">
-                      <Label htmlFor="controlPinBoard">
-                        Control Pin - Board
-                      </Label>
-                      <Select
-                        value={watch('pin')?.boardId?.toString() || ''}
-                        onValueChange={(value) => {
-                          const currentPin = watch('pin') || {};
-                          setValue('pin', {
-                            ...currentPin,
-                            boardId: value ? parseInt(value) : null,
-                          });
-                        }}
-                      >
-                        <SelectTrigger id="controlPinBoard">
-                          <SelectValue>
-                            {watch('pin')?.boardId
-                              ? boards.find(
-                                  (b) => b.id === watch('pin').boardId,
-                                )?.name || 'Select board'
-                              : 'Select board'}
-                          </SelectValue>
-                        </SelectTrigger>
-                        <SelectContent>
-                          {boards.map((board) => (
-                            <SelectItem
-                              key={board.id}
-                              value={board.id.toString()}
-                            >
-                              {board.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="controlPinNumber">
-                        Control Pin - Number
-                      </Label>
-                      <Input
-                        id="controlPinNumber"
-                        type="number"
-                        placeholder="Pin number"
-                        value={watch('pin')?.nr || ''}
-                        onChange={(e) => {
-                          const currentPin = watch('pin') || {};
-                          setValue('pin', {
-                            ...currentPin,
-                            nr: e.target.value
-                              ? parseInt(e.target.value)
-                              : null,
-                          });
-                        }}
-                      />
-                    </div>
-                  </>
+                  <PinSelector
+                    label="Control Pin"
+                    pin={watch('pin') || { boardId: null, nr: null }}
+                    boards={boards}
+                    onPinChange={(pin) => setValue('pin', pin)}
+                  />
                 )}
 
                 {/* Stepper Motor Pins */}
                 {pumpType === 'stepper' && (
                   <>
-                    <div className="space-y-2">
-                      <Label htmlFor="enablePinBoard">Enable Pin - Board</Label>
-                      <Select
-                        value={watch('enablePin')?.boardId?.toString() || ''}
-                        onValueChange={(value) => {
-                          const currentPin = watch('enablePin') || {};
-                          setValue('enablePin', {
-                            ...currentPin,
-                            boardId: value ? parseInt(value) : null,
-                          });
-                        }}
-                      >
-                        <SelectTrigger id="enablePinBoard">
-                          <SelectValue>
-                            {watch('enablePin')?.boardId
-                              ? boards.find(
-                                  (b) => b.id === watch('enablePin').boardId,
-                                )?.name || 'Select board'
-                              : 'Select board'}
-                          </SelectValue>
-                        </SelectTrigger>
-                        <SelectContent>
-                          {boards.map((board) => (
-                            <SelectItem
-                              key={board.id}
-                              value={board.id.toString()}
-                            >
-                              {board.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="enablePinNumber">
-                        Enable Pin - Number
-                      </Label>
-                      <Input
-                        id="enablePinNumber"
-                        type="number"
-                        placeholder="Pin number"
-                        value={watch('enablePin')?.nr || ''}
-                        onChange={(e) => {
-                          const currentPin = watch('enablePin') || {};
-                          setValue('enablePin', {
-                            ...currentPin,
-                            nr: e.target.value
-                              ? parseInt(e.target.value)
-                              : null,
-                          });
-                        }}
-                      />
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="stepPinBoard">Step Pin - Board</Label>
-                      <Select
-                        value={watch('stepPin')?.boardId?.toString() || ''}
-                        onValueChange={(value) => {
-                          const currentPin = watch('stepPin') || {};
-                          setValue('stepPin', {
-                            ...currentPin,
-                            boardId: value ? parseInt(value) : null,
-                          });
-                        }}
-                      >
-                        <SelectTrigger id="stepPinBoard">
-                          <SelectValue>
-                            {watch('stepPin')?.boardId
-                              ? boards.find(
-                                  (b) => b.id === watch('stepPin').boardId,
-                                )?.name || 'Select board'
-                              : 'Select board'}
-                          </SelectValue>
-                        </SelectTrigger>
-                        <SelectContent>
-                          {boards.map((board) => (
-                            <SelectItem
-                              key={board.id}
-                              value={board.id.toString()}
-                            >
-                              {board.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="stepPinNumber">Step Pin - Number</Label>
-                      <Input
-                        id="stepPinNumber"
-                        type="number"
-                        placeholder="Pin number"
-                        value={watch('stepPin')?.nr || ''}
-                        onChange={(e) => {
-                          const currentPin = watch('stepPin') || {};
-                          setValue('stepPin', {
-                            ...currentPin,
-                            nr: e.target.value
-                              ? parseInt(e.target.value)
-                              : null,
-                          });
-                        }}
-                      />
-                    </div>
+                    <PinSelector
+                      label="Enable Pin"
+                      pin={watch('enablePin') || { boardId: null, nr: null }}
+                      boards={boards}
+                      onPinChange={(pin) => setValue('enablePin', pin)}
+                    />
+                    <PinSelector
+                      label="Step Pin"
+                      pin={watch('stepPin') || { boardId: null, nr: null }}
+                      boards={boards}
+                      onPinChange={(pin) => setValue('stepPin', pin)}
+                    />
                   </>
                 )}
 

@@ -10,7 +10,9 @@ import { PlusCircle, PlayCircle, StopCircle, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { toast } from 'sonner';
-import { Spinner } from '@/components/ui/spinner';
+import { Skeleton } from '@/components/ui/skeleton';
+import { StepperMotorIcon } from './components/StepperMotorIcon';
+import WebSocketService from '../../../services/websocket.service';
 
 export const PumpsPage: React.FC = () => {
   const [showAddDialog, setShowAddDialog] = useState(false);
@@ -21,8 +23,19 @@ export const PumpsPage: React.FC = () => {
   useEffect(() => {
     if (token) {
       fetchPumps(token);
+      // Initialize WebSocket connection for real-time pump updates
+      if (!WebSocketService.connected) {
+        WebSocketService.connectWebsocket(token);
+      }
     }
   }, [token, fetchPumps]);
+
+  // Cleanup WebSocket on unmount
+  useEffect(() => {
+    return () => {
+      // Don't disconnect WebSocket as other components might be using it
+    };
+  }, []);
 
   const onClickTurnOnAllPumps = () => {
     PumpService.startPump(null, token)
@@ -51,7 +64,7 @@ export const PumpsPage: React.FC = () => {
       {loading && (
         <div className="fixed inset-0 bg-background/80 backdrop-blur-sm flex justify-center items-center z-50">
           <div className="flex flex-col items-center gap-3">
-            <Spinner className="h-10 w-10" />
+            <Skeleton className="h-10 w-10 rounded-full" />
             <p className="text-sm text-muted-foreground">Loading pumps...</p>
           </div>
         </div>
@@ -124,7 +137,7 @@ export const PumpsPage: React.FC = () => {
             ) : (
               <div className="flex flex-col items-center justify-center py-20 px-4 min-h-[500px]">
                 <div className="rounded-full bg-muted/50 p-6 mb-6">
-                  <AlertCircle className="h-12 w-12 text-muted-foreground" />
+                  <StepperMotorIcon className="h-12 w-12 text-muted-foreground" />
                 </div>
                 <h3 className="text-2xl font-bold mb-2">No Pumps Found</h3>
                 <p className="text-muted-foreground text-center mb-8 max-w-md">

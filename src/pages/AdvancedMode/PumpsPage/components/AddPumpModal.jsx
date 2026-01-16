@@ -42,25 +42,9 @@ import {
 } from '@/components/ui/dialog';
 import { toast } from 'sonner';
 
-// Stepper Motor Icon Component
-const StepperMotorIcon = ({ width = 24, height = 24, className = '' }) => (
-  <svg
-    width={width}
-    height={height}
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    className={className}
-  >
-    <circle cx="12" cy="12" r="10" />
-    <path d="M12 6v12" />
-    <path d="M8 10l8 4" />
-    <path d="M16 10l-8 4" />
-  </svg>
-);
+import { StepperMotorIcon } from '@/pages/AdvancedMode/PumpsPage/components/StepperMotorIcon';
+import { PinSelector } from '@/pages/AdvancedMode/PumpsPage/components/PinSelector';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const AddPumpModal = ({ show, onClose, pumpType = null }) => {
   const navigate = useNavigate({ from: '/pumps' });
@@ -246,7 +230,7 @@ const AddPumpModal = ({ show, onClose, pumpType = null }) => {
         {/* Loading State */}
         {loading && (
           <div className="flex justify-center items-center py-8">
-            <Loader2 className="h-8 w-8 animate-spin" />
+            <Skeleton className="h-8 w-8 rounded-full" />
           </div>
         )}
 
@@ -340,96 +324,29 @@ const AddPumpModal = ({ show, onClose, pumpType = null }) => {
                 <CardContent className="space-y-4">
                   {/* DC Pump / Valve Pin */}
                   {(pumpTypeValue === 'dc' || pumpTypeValue === 'valve') && (
-                    <div className="space-y-2">
-                      <Label htmlFor="controlPin">
-                        {t('add_pump_modal.control_pin')}
-                      </Label>
-                      <Select
-                        value={watch('pin.boardId')?.toString() || ''}
-                        onValueChange={(value) =>
-                          setValue(
-                            'pin.boardId',
-                            value ? parseInt(value) : null,
-                          )
-                        }
-                      >
-                        <SelectTrigger id="controlPin">
-                          <SelectValue placeholder="Select board" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {boards.map((board) => (
-                            <SelectItem
-                              key={board.id}
-                              value={board.id.toString()}
-                            >
-                              {board.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
+                    <PinSelector
+                      label="Control Pin"
+                      pin={watch('pin') || { boardId: null, nr: null }}
+                      boards={boards}
+                      onPinChange={(pin) => setValue('pin', pin)}
+                    />
                   )}
 
                   {/* Stepper Motor Pins */}
                   {pumpTypeValue === 'stepper' && (
                     <>
-                      <div className="space-y-2">
-                        <Label htmlFor="enablePin">
-                          {t('add_pump_modal.enable_pin')}
-                        </Label>
-                        <Select
-                          value={watch('enablePin.boardId')?.toString() || ''}
-                          onValueChange={(value) =>
-                            setValue(
-                              'enablePin.boardId',
-                              value ? parseInt(value) : null,
-                            )
-                          }
-                        >
-                          <SelectTrigger id="enablePin">
-                            <SelectValue placeholder="Select board" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {boards.map((board) => (
-                              <SelectItem
-                                key={board.id}
-                                value={board.id.toString()}
-                              >
-                                {board.name}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label htmlFor="stepPin">
-                          {t('add_pump_modal.step_pin')}
-                        </Label>
-                        <Select
-                          value={watch('stepPin.boardId')?.toString() || ''}
-                          onValueChange={(value) =>
-                            setValue(
-                              'stepPin.boardId',
-                              value ? parseInt(value) : null,
-                            )
-                          }
-                        >
-                          <SelectTrigger id="stepPin">
-                            <SelectValue placeholder="Select board" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {boards.map((board) => (
-                              <SelectItem
-                                key={board.id}
-                                value={board.id.toString()}
-                              >
-                                {board.name}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
+                      <PinSelector
+                        label="Enable Pin"
+                        pin={watch('enablePin') || { boardId: null, nr: null }}
+                        boards={boards}
+                        onPinChange={(pin) => setValue('enablePin', pin)}
+                      />
+                      <PinSelector
+                        label="Step Pin"
+                        pin={watch('stepPin') || { boardId: null, nr: null }}
+                        boards={boards}
+                        onPinChange={(pin) => setValue('stepPin', pin)}
+                      />
                     </>
                   )}
 
