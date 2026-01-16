@@ -1,11 +1,11 @@
-import { createFileRoute, redirect } from '@tanstack/react-router';
+import { createFileRoute, redirect, Outlet, useMatches } from '@tanstack/react-router';
 import Recipes from '../pages/AdvancedMode/RecipesPage/recipes';
 import useAuthStore from '../store/authStore';
 import userService from '../services/user.service';
 import { hasPermission, mapAdminLevelToRole } from '../utils/roleAccess';
 
 export const Route = createFileRoute('/_advanced/recipes')({
-  component: Recipes,
+  component: AdvancedRecipesRoute,
   beforeLoad: async () => {
     const token = useAuthStore.getState().token;
     if (!token) {
@@ -31,3 +31,18 @@ export const Route = createFileRoute('/_advanced/recipes')({
     }
   },
 });
+
+function AdvancedRecipesRoute() {
+  const matches = useMatches();
+  const isChildRoute = matches.some((match) =>
+    match.id.includes('/new') || match.id.includes('/$recipeId/edit'),
+  );
+
+  // If we're on a child route (like new or edit), show the Outlet
+  // Otherwise show the recipes list page
+  if (isChildRoute) {
+    return <Outlet />;
+  }
+
+  return <Recipes />;
+}

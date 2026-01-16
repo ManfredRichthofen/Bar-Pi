@@ -8,9 +8,9 @@ import {
   Heart,
   Loader2,
 } from 'lucide-react';
-import useAuthStore from '../../../store/authStore';
-import RecipeService from '../../../services/recipe.service';
-import useFavoritesStore from '../../../store/favoritesStore';
+import useAuthStore from '@/store/authStore';
+import RecipeService from '@/services/recipe.service';
+import useFavoritesStore from '@/store/favoritesStore';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
@@ -59,8 +59,7 @@ const Recipes = ({ sidebarCollapsed = false }) => {
   const handleEdit = useCallback(
     (recipe) => {
       navigate({
-        to: '/recipes/$recipeId/edit',
-        params: { recipeId: recipe.id },
+        to: `/recipes/${recipe.id}/edit`,
       });
     },
     [navigate],
