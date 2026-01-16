@@ -99,6 +99,10 @@ const Drinks = ({ sidebarCollapsed = false }) => {
     debouncedSearch(value);
   };
 
+  const handleCardClick = (recipe) => {
+    navigate({ to: '/order', state: { recipe } });
+  };
+
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -224,6 +228,7 @@ const Drinks = ({ sidebarCollapsed = false }) => {
         fabricableRecipes={fabricableRecipes}
         onCheckFabricability={checkFabricability}
         onFilterRecipes={handleFilterRecipes}
+        onCardClick={handleCardClick}
       />
       
       {/* Scroll to Top Button */}

@@ -1,27 +1,19 @@
 import { useNavigate } from '@tanstack/react-router';
 import {
-  BeakerIcon,
   GlassWater,
   Heart,
   Loader2,
-  PencilIcon,
 } from 'lucide-react';
 import { motion } from 'motion/react';
 import React, { useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import {
-  Dialog,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
 import { useLazyImage } from '@/hooks/useLazyImage';
 import useFavoritesStore from '@/store/favoritesStore';
+import DrinkModal from './DrinkModal';
 
-const DrinkCard = ({ recipe }) => {
+const DrinkCard = ({ recipe, onCardClick }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const navigate = useNavigate({ from: '/drinks' });
   const { toggleFavorite, isFavorite } = useFavoritesStore();
@@ -37,20 +29,15 @@ const DrinkCard = ({ recipe }) => {
 
   const showModal = () => setIsModalOpen(true);
   const handleCancel = () => setIsModalOpen(false);
+  
+  const handleCardClick = () => {
+    // Always show modal for card click in advanced mode
+    showModal();
+  };
 
   const handleToggleFavorite = (e) => {
     e.stopPropagation();
     toggleFavorite(recipe);
-  };
-
-  const handleMakeDrink = () => {
-    navigate({ to: '/order', state: { recipe } });
-    handleCancel();
-  };
-
-  const handleEditRecipe = () => {
-    // TODO: edit recipe
-    console.log('Edit recipe:', recipe.id);
   };
 
   const ingredientCount = recipe.ingredients?.length || 0;
@@ -64,7 +51,7 @@ const DrinkCard = ({ recipe }) => {
         className="h-full"
       >
         <Card
-          onClick={showModal}
+          onClick={handleCardClick}
           className="group cursor-pointer h-full overflow-hidden border-border/50 hover:border-border hover:shadow-xl transition-all duration-300 p-0"
         >
           <div className="flex flex-col h-full">
@@ -181,126 +168,9 @@ const DrinkCard = ({ recipe }) => {
           </div>
         </Card>
       </motion.div>
-      <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-        <DialogContent className="max-w-3xl">
-          <DialogHeader>
-            <div className="flex items-center justify-between gap-2">
-              <DialogTitle className="text-lg sm:text-xl">
-                {recipe.name}
-              </DialogTitle>
-              {recipe.alcoholic && (
-                <Badge
-                  variant="destructive"
-                  className="text-xs whitespace-nowrap"
-                >
-                  Alcoholic
-                </Badge>
-              )}
-            </div>
-          </DialogHeader>
-
-          <div className="flex flex-col sm:flex-row gap-4">
-            {(imageUrl || imageLoading) && (
-              <div className="w-full sm:w-1/2">
-                {imageLoading ? (
-                  <div className="w-full aspect-[4/3] rounded-lg bg-muted flex items-center justify-center">
-                    <Loader2 className="h-8 w-8 animate-spin text-muted-foreground/40" />
-                  </div>
-                ) : (
-                  <img
-                    className="w-full rounded-lg object-cover aspect-[4/3]"
-                    src={imageUrl}
-                    alt={recipe.name}
-                  />
-                )}
-              </div>
-            )}
-
-            <div className="flex-1 min-w-0">
-              {recipe.description && (
-                <div className="mb-4">
-                  <h4 className="font-bold text-base mb-2">Description</h4>
-                  <p className="text-sm">{recipe.description}</p>
-                </div>
-              )}
-
-              <div className="mb-4">
-                <h4 className="font-bold text-base mb-2">Ingredients</h4>
-                <ul className="space-y-1">
-                  {recipe.ingredients.map((ingredient, index) => (
-                    <li key={index} className="text-sm">
-                      • {ingredient.name} - {ingredient.amount}{' '}
-                      {ingredient.unit}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-
-              {recipe.productionSteps && recipe.productionSteps.length > 0 && (
-                <div>
-                  <h4 className="font-bold text-base mb-2">Instructions</h4>
-                  <ul className="space-y-1">
-                    {recipe.productionSteps.map((step, index) => (
-                      <li key={index} className="text-sm">
-                        {step.type === 'writtenInstruction' ? (
-                          <span>
-                            {index + 1}. {step.message}
-                          </span>
-                        ) : (
-                          step.type === 'addIngredients' && (
-                            <span>
-                              {index + 1}. Add:{' '}
-                              {step.stepIngredients
-                                .map(
-                                  (si) =>
-                                    `${si.ingredient.name} (${si.amount} ${si.scale})`,
-                                )
-                                .join(', ')}
-                            </span>
-                          )
-                        )}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-            </div>
-          </div>
-
-          <DialogFooter className="flex-col sm:flex-row gap-2">
-            <Button onClick={handleMakeDrink} className="flex-1 sm:flex-none">
-              <BeakerIcon className="mr-2 h-4 w-4" />
-              Make Drink
-            </Button>
-            <Button
-              variant={favorited ? 'destructive' : 'outline'}
-              onClick={handleToggleFavorite}
-              className="flex-1 sm:flex-none"
-            >
-              <Heart
-                className="mr-2 h-4 w-4"
-                fill={favorited ? 'currentColor' : 'none'}
-              />
-              {favorited ? 'Unfavorite' : 'Favorite'}
-            </Button>
-            <Button
-              variant="outline"
-              onClick={handleEditRecipe}
-              className="flex-1 sm:flex-none"
-            >
-              <PencilIcon className="mr-2 h-4 w-4" />
-              Edit Recipe
-            </Button>
-            <Button
-              variant="outline"
-              onClick={handleCancel}
-              className="w-full sm:w-auto"
-            >
-              Close
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      
+      {/* Drink Modal */}
+      <DrinkModal recipe={recipe} isOpen={isModalOpen} onClose={handleCancel} />
     </>
   );
 };

@@ -9,7 +9,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import RecipeService from '@/services/recipe.service.js';
 import DrinkCard from './DrinkCard.jsx';
 
-function VirtualDrinksGrid({ token, searchTerm, collapsed = false, filters, fabricableRecipes, onCheckFabricability, onFilterRecipes }) {
+function VirtualDrinksGrid({ token, searchTerm, collapsed = false, filters, fabricableRecipes, onCheckFabricability, onFilterRecipes, onCardClick }) {
   const { t } = useTranslation();
   const listRef = React.useRef(null);
   const [itemsPerRow, setItemsPerRow] = React.useState(2);
@@ -284,7 +284,7 @@ function VirtualDrinksGrid({ token, searchTerm, collapsed = false, filters, fabr
                       key={recipe.id}
                       className="flex items-stretch justify-center"
                     >
-                      <DrinkCard recipe={recipe} />
+                      <DrinkCard recipe={recipe} onCardClick={onCardClick} />
                     </div>
                   ))}
                   {/* Fill empty slots to maintain grid structure */}
