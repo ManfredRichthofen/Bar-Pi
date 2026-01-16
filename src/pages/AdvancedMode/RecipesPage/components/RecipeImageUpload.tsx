@@ -29,7 +29,6 @@ export const RecipeImageUpload: React.FC<RecipeImageUploadProps> = ({
 
   return (
     <div className="space-y-2">
-      <Label>Recipe Image</Label>
       <div className="flex flex-wrap items-center gap-4">
         {imagePreview && !removeImage ? (
           <div className="relative w-40 h-40 rounded-lg overflow-hidden shadow-sm border-2 border-border">
