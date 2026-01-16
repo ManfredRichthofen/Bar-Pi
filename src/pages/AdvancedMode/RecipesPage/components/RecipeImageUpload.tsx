@@ -1,7 +1,6 @@
 import { Image as ImageIcon, X } from 'lucide-react';
 import type React from 'react';
 import { Button } from '@/components/ui/button';
-import { Label } from '@/components/ui/label';
 
 interface RecipeImageUploadProps {
   imagePreview: string | null;
