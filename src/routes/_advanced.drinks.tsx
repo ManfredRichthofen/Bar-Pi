@@ -1,4 +1,4 @@
-import { createFileRoute } from '@tanstack/react-router';
+import { createFileRoute, Outlet, useMatches } from '@tanstack/react-router';
 import Drinks from '../pages/AdvancedMode/DrinksPage/drinks';
 
 export const Route = createFileRoute('/_advanced/drinks')({
@@ -6,5 +6,14 @@ export const Route = createFileRoute('/_advanced/drinks')({
 });
 
 function AdvancedDrinksRoute() {
+  const matches = useMatches();
+  const isChildRoute = matches.some(
+    (match) => match.id.includes('/$recipeId'),
+  );
+
+  if (isChildRoute) {
+    return <Outlet />;
+  }
+
   return <Drinks />;
 }
