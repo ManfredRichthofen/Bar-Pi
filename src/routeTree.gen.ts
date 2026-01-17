@@ -345,7 +345,7 @@ declare module '@tanstack/react-router' {
     '/_advanced': {
       id: '/_advanced'
       path: ''
-      fullPath: ''
+      fullPath: '/'
       preLoaderRoute: typeof AdvancedRouteImport
       parentRoute: typeof rootRouteImport
     }
