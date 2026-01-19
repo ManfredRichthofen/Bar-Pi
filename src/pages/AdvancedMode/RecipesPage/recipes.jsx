@@ -1,23 +1,20 @@
-import { Navigate, useNavigate } from '@tanstack/react-router';
 import { useInfiniteQuery } from '@tanstack/react-query';
 import { useWindowVirtualizer } from '@tanstack/react-virtual';
 import {
   AlertCircle,
-  Edit,
   Heart,
   Loader2,
   PlusCircle,
-  Search,
   Trash2,
 } from 'lucide-react';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { toast } from 'sonner';
-import { Badge } from '@/components/ui/badge';
+import { useNavigate } from '@tanstack/react-router';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import RecipeService from '@/services/recipe.service';
-import useAuthStore from '@/store/authStore';
-import useFavoritesStore from '@/store/favoritesStore';
+import SearchInput from '@/components/ui/search-input.jsx';
+import RecipeService from '../../../services/recipe.service.js';
+import useAuthStore from '../../../store/authStore.js';
+import useFavoritesStore from '../../../store/favoritesStore.js';
+import RecipeCard from './components/RecipeCard.jsx';
 
 const Recipes = ({ sidebarCollapsed = false }) => {
   const token = useAuthStore((state) => state.token);
@@ -122,8 +119,8 @@ const Recipes = ({ sidebarCollapsed = false }) => {
     }
   }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
   
-  const handleSearch = useCallback((e) => {
-    setSearchTerm(e.target.value);
+  const handleSearch = useCallback((value) => {
+    setSearchTerm(value);
   }, []);
   
   const favoriteIds = useMemo(
@@ -169,16 +166,13 @@ const Recipes = ({ sidebarCollapsed = false }) => {
           
           {/* Search Bar */}
           <div className="mt-4">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-              <Input
-                type="text"
-                placeholder="Search recipes..."
-                value={searchTerm}
-                onChange={handleSearch}
-                className="pl-10"
-              />
-            </div>
+            <SearchInput
+            value={searchTerm}
+            onChange={handleSearch}
+            placeholder="Search recipes..."
+            debounceMs={300}
+            inputClassName="pl-10"
+          />
             {totalCount > 0 && (
               <p className="text-sm text-muted-foreground mt-2">
                 Showing {allRecipes.length} of {totalCount} recipes

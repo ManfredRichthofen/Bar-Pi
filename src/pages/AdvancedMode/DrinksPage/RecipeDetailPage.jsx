@@ -106,7 +106,7 @@ const RecipeDetailPage = () => {
     <div className="min-h-screen bg-background">
       {/* Header */}
       <div className="sticky top-16 z-40 bg-background/95 backdrop-blur-sm border-b shadow-sm">
-        <div className="container mx-auto px-4 py-4">
+        <div className="container mx-auto px-3 sm:px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <Button
@@ -164,7 +164,7 @@ const RecipeDetailPage = () => {
       </div>
 
       {/* Content */}
-      <div className="container mx-auto px-4 py-4 sm:py-6">
+      <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-6">
         <div className="grid grid-cols-1 xl:grid-cols-4 gap-4 sm:gap-6">
           {/* Image and Stats Column */}
           <div className="xl:col-span-1 space-y-4">

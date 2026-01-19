@@ -7,7 +7,6 @@ import {
   Image as ImageIcon,
   Loader2,
   PlusCircle,
-  Search,
   Trash2,
   X,
 } from 'lucide-react';
@@ -34,6 +33,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import SearchInput from '@/components/ui/search-input.jsx';
 import ingredientService, {
   ingredientDtoMapper,
 } from '../../../services/ingredient.service';
@@ -209,8 +209,8 @@ const Ingredients = () => {
     }
   };
   
-  const handleSearch = useCallback((e) => {
-    setSearchTerm(e.target.value);
+  const handleSearch = useCallback((value) => {
+    setSearchTerm(value);
   }, []);
   
   // Window virtualizer setup
@@ -309,16 +309,13 @@ const Ingredients = () => {
           
           {/* Search Bar */}
           <div className="mt-4">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-              <Input
-                type="text"
-                placeholder="Search ingredients..."
-                value={searchTerm}
-                onChange={handleSearch}
-                className="pl-10"
-              />
-            </div>
+            <SearchInput
+            value={searchTerm}
+            onChange={handleSearch}
+            placeholder="Search ingredients..."
+            debounceMs={300}
+            inputClassName="pl-10"
+          />
             {data && data.length > 0 && (
               <p className="text-sm text-muted-foreground mt-2">
                 Showing {ingredients.length} of {data.length} ingredients

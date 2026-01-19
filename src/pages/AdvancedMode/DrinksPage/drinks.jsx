@@ -1,13 +1,14 @@
 import { Navigate } from '@tanstack/react-router';
 import debounce from 'lodash/debounce';
-import { ArrowUp, Filter, Search } from 'lucide-react';
+import { ArrowUp, Filter } from 'lucide-react';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import CocktailService from '@/services/cocktail.service.js';
-import useAuthStore from '@/store/authStore.js';
-import useFilterStore from '@/store/filterStore.js';
-import { filterRecipes } from '@/utils/recipeFilters.js';
+import FilterPanel from '@/components/ui/filter-panel.jsx';
+import SearchInput from '@/components/ui/search-input.jsx';
+import CocktailService from '../../../services/cocktail.service.js';
+import useAuthStore from '../../../store/authStore.js';
+import useFilterStore from '../../../store/filterStore.js';
+import { filterRecipes } from '../../../utils/recipeFilters.js';
 import VirtualDrinksGrid from './components/drinks/VirtualDrinksGrid.jsx';
 
 const Drinks = ({ sidebarCollapsed = false }) => {
@@ -16,6 +17,8 @@ const Drinks = ({ sidebarCollapsed = false }) => {
   const [searchLoading, setSearchLoading] = useState(false);
   const [error, setError] = useState(null);
   const [isFilterPanelOpen, setIsFilterPanelOpen] = useState(false);
+  const [isHeaderVisible, setIsHeaderVisible] = useState(true);
+  const [lastScrollY, setLastScrollY] = useState(0);
   const { filters, updateFilter, clearFilters } = useFilterStore();
   const [fabricableRecipes, setFabricableRecipes] = useState(new Set());
   const [showScrollTop, setShowScrollTop] = useState(false);
@@ -92,11 +95,20 @@ const Drinks = ({ sidebarCollapsed = false }) => {
     debouncedSearch(value);
   };
 
-  const handleSearchInput = (e) => {
-    const value = e.target.value;
+  const handleSearchInput = (value) => {
     setSearchValue(value);
     setSearchLoading(true);
     debouncedSearch(value);
+  };
+
+  const handleFilterToggle = (e) => {
+    e?.stopPropagation();
+    console.log('Filter toggle clicked, current state:', isFilterPanelOpen);
+    setIsFilterPanelOpen(!isFilterPanelOpen);
+    // Make sure header is visible when opening filters
+    if (!isFilterPanelOpen) {
+      setIsHeaderVisible(true);
+    }
   };
 
   const scrollToTop = () => {
@@ -105,12 +117,30 @@ const Drinks = ({ sidebarCollapsed = false }) => {
 
   useEffect(() => {
     const handleScroll = () => {
-      setShowScrollTop(window.scrollY > 400);
+      const currentScrollY = window.scrollY;
+      
+      // Don't hide header if filter panel is open
+      if (isFilterPanelOpen) {
+        setIsHeaderVisible(true);
+        setLastScrollY(currentScrollY);
+        setShowScrollTop(currentScrollY > 400);
+        return;
+      }
+      
+      // Hide header when scrolling down, show when scrolling up
+      if (currentScrollY > lastScrollY && currentScrollY > 100) {
+        setIsHeaderVisible(false);
+      } else {
+        setIsHeaderVisible(true);
+      }
+      
+      setLastScrollY(currentScrollY);
+      setShowScrollTop(currentScrollY > 400);
     };
 
-    window.addEventListener('scroll', handleScroll);
+    window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+  }, [lastScrollY, isFilterPanelOpen]);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -134,83 +164,51 @@ const Drinks = ({ sidebarCollapsed = false }) => {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="sticky top-16 z-40 bg-background border-b shadow-sm">
-        <div className="container mx-auto px-4 py-4 space-y-4">
+      <div className={`sticky top-16 z-40 bg-background/95 backdrop-blur-sm border-b shadow-sm transition-all duration-300 ${
+        isHeaderVisible ? 'translate-y-0 opacity-100' : '-translate-y-full opacity-0'
+      }`}>
+        <div className="px-3 sm:px-4 py-3 sm:py-4 space-y-4">
+          {/* Header Section */}
           <div className="flex items-center justify-between">
-            <h1 className="text-2xl font-bold">Available Drinks</h1>
+            <h1 className="text-xl sm:text-2xl font-bold">Available Drinks</h1>
             <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setIsFilterPanelOpen(!isFilterPanelOpen)}
-              className="flex items-center gap-2"
+              variant={isFilterPanelOpen ? "default" : "ghost"}
+              size="icon"
+              onClick={handleFilterToggle}
+              className="rounded-lg transition-all duration-200"
             >
-              <Filter className="h-4 w-4" />
-              Filters
+              <Filter className="h-4 w-4 sm:h-5 sm:w-5" />
               {Object.values(filters).some(Boolean) && (
-                <span className="bg-primary text-primary-foreground rounded-full px-2 py-0.5 text-xs">
+                <span className="absolute -top-1 -right-1 bg-primary text-primary-foreground rounded-full w-4 h-4 text-xs font-medium flex items-center justify-center">
                   {Object.values(filters).filter(Boolean).length}
                 </span>
               )}
             </Button>
           </div>
 
-          <form onSubmit={handleSearch} className="max-w-md mx-auto">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-              <Input
-                name="search"
-                value={searchValue}
-                onChange={handleSearchInput}
-                placeholder="Search drinks..."
-                className="pl-10 pr-4"
-              />
-            </div>
-          </form>
+          {/* Search Bar */}
+          <SearchInput
+            value={searchValue}
+            onChange={handleSearchInput}
+            onSubmit={handleSearch}
+            loading={searchLoading}
+            placeholder="Search drinks..."
+            debounceMs={500}
+            className="max-w-2xl mx-auto"
+            inputClassName="rounded-lg border-2 focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all duration-200"
+            buttonClassName="rounded-lg"
+          />
 
           {/* Filter Panel */}
           {isFilterPanelOpen && (
-            <div ref={filterPanelRef} className="bg-card border rounded-lg p-4 space-y-3">
-              <div className="flex items-center justify-between">
-                <h3 className="font-medium">Filter Drinks</h3>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => handleFilterChange('clear')}
-                >
-                  Clear All
-                </Button>
-              </div>
-              <div className="flex flex-wrap gap-2">
-                <Button
-                  variant={filters.alcoholic ? 'default' : 'outline'}
-                  size="sm"
-                  onClick={() => handleFilterChange('alcoholic')}
-                >
-                  Alcoholic
-                </Button>
-                <Button
-                  variant={filters.nonAlcoholic ? 'default' : 'outline'}
-                  size="sm"
-                  onClick={() => handleFilterChange('nonAlcoholic')}
-                >
-                  Non-Alcoholic
-                </Button>
-                <Button
-                  variant={filters.favorited ? 'default' : 'outline'}
-                  size="sm"
-                  onClick={() => handleFilterChange('favorited')}
-                >
-                  Favorited
-                </Button>
-                <Button
-                  variant={filters.fabricable ? 'default' : 'outline'}
-                  size="sm"
-                  onClick={() => handleFilterChange('fabricable')}
-                >
-                  Can Make
-                </Button>
-              </div>
-            </div>
+            <FilterPanel
+            filters={filters}
+            onFilterChange={handleFilterChange}
+            onTogglePanel={() => setIsFilterPanelOpen(false)}
+            isOpen={isFilterPanelOpen}
+            variant="advanced"
+            showCloseButton={true}
+          />
           )}
         </div>
       </div>

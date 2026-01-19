@@ -8,8 +8,8 @@ import useAuthStore from '../../../store/authStore.js';
 import useFilterStore from '../../../store/filterStore.js';
 import { filterRecipes } from '../../../utils/recipeFilters.js';
 import ErrorMessage from './ErrorMessage.jsx';
-import FilterButtons from './FilterButtons.jsx';
-import SearchForm from './SearchForm.jsx';
+import FilterPanel from '@/components/ui/filter-panel.jsx';
+import SearchInput from '@/components/ui/search-input.jsx';
 import VirtualGrid from './VirtualGrid.jsx';
 
 function SimpleDrinks() {
@@ -18,6 +18,8 @@ function SimpleDrinks() {
   const [searchLoading, setSearchLoading] = useState(false);
   const [error, setError] = useState(null);
   const [isFilterPanelOpen, setIsFilterPanelOpen] = useState(false);
+  const [isHeaderVisible, setIsHeaderVisible] = useState(true);
+  const [lastScrollY, setLastScrollY] = useState(0);
   const { filters, updateFilter, clearFilters } = useFilterStore();
   const [fabricableRecipes, setFabricableRecipes] = useState(new Set());
 
@@ -146,7 +148,7 @@ function SimpleDrinks() {
   const debouncedSearch = useCallback(
     debounce((value) => {
       setSearchTerm(value);
-    }, 500), // Increased debounce time to reduce API calls
+    }, 500),
     [],
   );
 
@@ -157,10 +159,18 @@ function SimpleDrinks() {
     debouncedSearch(value);
   };
 
-  const handleSearchInput = (e) => {
-    const value = e.target.value;
+  const handleSearchInput = (value) => {
     setSearchValue(value);
     debouncedSearch(value);
+  };
+
+  const handleFilterToggle = (e) => {
+    e?.stopPropagation();
+    setIsFilterPanelOpen(!isFilterPanelOpen);
+    // Make sure header is visible when opening filters
+    if (!isFilterPanelOpen) {
+      setIsHeaderVisible(true);
+    }
   };
 
   const handleCardClick = (recipe) => {
@@ -189,16 +199,33 @@ function SimpleDrinks() {
     };
   }, [isFilterPanelOpen]);
 
-  // Handle scroll to show/hide scroll top button
+  // Handle scroll to show/hide scroll top button and header
   useEffect(() => {
     const handleScroll = () => {
-      const scrollTop = window.scrollY || document.documentElement.scrollTop;
-      setShowScrollTop(scrollTop > 300); // Show button after 300px scroll
+      const currentScrollY = window.scrollY || document.documentElement.scrollTop;
+      
+      // Don't hide header if filter panel is open
+      if (isFilterPanelOpen) {
+        setIsHeaderVisible(true);
+        setLastScrollY(currentScrollY);
+        setShowScrollTop(currentScrollY > 300);
+        return;
+      }
+      
+      // Hide header when scrolling down, show when scrolling up
+      if (currentScrollY > lastScrollY && currentScrollY > 100) {
+        setIsHeaderVisible(false);
+      } else {
+        setIsHeaderVisible(true);
+      }
+      
+      setLastScrollY(currentScrollY);
+      setShowScrollTop(currentScrollY > 300); // Show button after 300px scroll
     };
 
-    window.addEventListener('scroll', handleScroll);
+    window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+  }, [lastScrollY, isFilterPanelOpen]);
 
   const scrollToTop = useCallback(() => {
     window.scrollTo({
@@ -214,12 +241,14 @@ function SimpleDrinks() {
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <div className="sticky top-0 z-20 bg-background border-b border-border shadow-sm pt-2">
-        <div className="p-4 space-y-4">
+      <div className={`sticky top-0 z-20 bg-background/95 backdrop-blur-sm border-b border-border shadow-sm pt-2 transition-all duration-300 ${
+        isHeaderVisible ? 'translate-y-0 opacity-100' : '-translate-y-full opacity-0'
+      }`}>
+        <div className="px-3 sm:px-4 space-y-4">
           <div className="flex items-center justify-between">
             <h1 className="text-xl font-bold">Available Drinks</h1>
             <Button
-              onClick={() => setIsFilterPanelOpen(!isFilterPanelOpen)}
+              onClick={handleFilterToggle}
               variant={isFilterPanelOpen ? 'default' : 'ghost'}
               size="icon"
               className="rounded-lg transition-all duration-200"
@@ -228,21 +257,24 @@ function SimpleDrinks() {
             </Button>
           </div>
 
-          <SearchForm
-            onSubmit={handleSearch}
-            onInput={handleSearchInput}
-            loading={searchLoading}
+          <SearchInput
             value={searchValue}
+            onChange={handleSearchInput}
+            onSubmit={handleSearch}
+            loading={searchLoading}
+            placeholder="Search drinks..."
+            debounceMs={500}
           />
         </div>
       </div>
 
       {/* Filter Panel */}
       {isFilterPanelOpen && (
-        <div className="bg-muted/50 border-b border-border p-4">
-          <FilterButtons
+        <div className="bg-muted/50 border-b border-border px-3 sm:px-4 py-4">
+          <FilterPanel
             filters={filters}
             onFilterChange={handleFilterChange}
+            variant="simple"
           />
           {error && (
             <ErrorMessage error={error} onDismiss={() => setError(null)} />
