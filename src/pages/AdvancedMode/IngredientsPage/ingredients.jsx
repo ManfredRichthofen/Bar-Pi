@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useWindowVirtualizer } from '@tanstack/react-virtual';
 import {
   AlertCircle,
+  ArrowUp,
   Edit,
   Image as ImageIcon,
   Loader2,
@@ -41,6 +42,9 @@ import useAuthStore from '../../../store/authStore';
 
 const Ingredients = () => {
   const [searchTerm, setSearchTerm] = useState('');
+  const [isHeaderVisible, setIsHeaderVisible] = useState(true);
+  const [lastScrollY, setLastScrollY] = useState(0);
+  const [showScrollTop, setShowScrollTop] = useState(false);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [editingIngredient, setEditingIngredient] = useState(null);
   const { register, handleSubmit, setValue, watch, reset } = useForm({
@@ -212,6 +216,29 @@ const Ingredients = () => {
   const handleSearch = useCallback((value) => {
     setSearchTerm(value);
   }, []);
+
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+      
+      // Hide header when scrolling down, show when scrolling up
+      if (currentScrollY > lastScrollY && currentScrollY > 100) {
+        setIsHeaderVisible(false);
+      } else {
+        setIsHeaderVisible(true);
+      }
+      
+      setLastScrollY(currentScrollY);
+      setShowScrollTop(currentScrollY > 400);
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [lastScrollY]);
   
   // Window virtualizer setup
   const virtualizer = useWindowVirtualizer({
@@ -286,7 +313,9 @@ const Ingredients = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="sticky top-16 z-40 bg-background border-b shadow-sm">
+      <div className={`sticky top-16 z-40 bg-background/95 backdrop-blur-sm border-b shadow-sm transition-all duration-300 ${
+        isHeaderVisible ? 'translate-y-0 opacity-100' : '-translate-y-full opacity-0'
+      }`}>
         <div className="container mx-auto px-4 py-4">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <h1 className="text-2xl font-bold">Ingredients</h1>
@@ -787,6 +816,18 @@ const Ingredients = () => {
           </form>
         </DialogContent>
       </Dialog>
+      
+      {/* Scroll to top button */}
+      {showScrollTop && (
+        <Button
+          onClick={scrollToTop}
+          size="icon"
+          className="fixed bottom-24 right-4 z-[100] rounded-full shadow-lg hover:shadow-xl transition-all duration-200"
+          aria-label="Scroll to top"
+        >
+          <ArrowUp className="w-5 h-5" />
+        </Button>
+      )}
     </div>
   );
 };

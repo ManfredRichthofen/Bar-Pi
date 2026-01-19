@@ -22,11 +22,11 @@ function SimpleDrinks() {
   const [lastScrollY, setLastScrollY] = useState(0);
   const { filters, updateFilter, clearFilters } = useFilterStore();
   const [fabricableRecipes, setFabricableRecipes] = useState(new Set());
+  const token = useAuthStore((state) => state.token);
+  const navigate = useNavigate({ from: '/simple/drinks' });
+  const [showScrollTop, setShowScrollTop] = useState(false);
 
   const filterPanelRef = useRef(null);
-  const navigate = useNavigate({ from: '/simple/drinks' });
-  const token = useAuthStore((state) => state.token);
-  const [showScrollTop, setShowScrollTop] = useState(false);
 
   const handleFilterChange = useCallback(
     (filterName) => {
@@ -173,6 +173,53 @@ function SimpleDrinks() {
     }
   };
 
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+      
+      // Don't hide header if filter panel is open
+      if (isFilterPanelOpen) {
+        setIsHeaderVisible(true);
+        setLastScrollY(currentScrollY);
+        setShowScrollTop(currentScrollY > 400);
+        return;
+      }
+      
+      // Hide header when scrolling down, show when scrolling up
+      if (currentScrollY > lastScrollY && currentScrollY > 100) {
+        setIsHeaderVisible(false);
+      } else {
+        setIsHeaderVisible(true);
+      }
+      
+      setLastScrollY(currentScrollY);
+      setShowScrollTop(currentScrollY > 400);
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [lastScrollY, isFilterPanelOpen]);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (filterPanelRef.current && !filterPanelRef.current.contains(event.target)) {
+        setIsFilterPanelOpen(false);
+      }
+    };
+
+    if (isFilterPanelOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isFilterPanelOpen]);
+
   const handleCardClick = (recipe) => {
     navigate({
       to: '/simple/drink/$id',
@@ -227,13 +274,6 @@ function SimpleDrinks() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, [lastScrollY, isFilterPanelOpen]);
 
-  const scrollToTop = useCallback(() => {
-    window.scrollTo({
-      top: 0,
-      behavior: 'smooth',
-    });
-  }, []);
-
   if (!token) {
     return <Navigate to="/login" replace />;
   }
@@ -244,19 +284,26 @@ function SimpleDrinks() {
       <div className={`sticky top-0 z-20 bg-background/95 backdrop-blur-sm border-b border-border shadow-sm pt-2 transition-all duration-300 ${
         isHeaderVisible ? 'translate-y-0 opacity-100' : '-translate-y-full opacity-0'
       }`}>
-        <div className="px-3 sm:px-4 space-y-4">
+        <div className="px-3 sm:px-4 py-3 sm:py-4 space-y-4">
+          {/* Header Section */}
           <div className="flex items-center justify-between">
-            <h1 className="text-xl font-bold">Available Drinks</h1>
+            <h1 className="text-xl sm:text-2xl font-bold">Available Drinks</h1>
             <Button
-              onClick={handleFilterToggle}
-              variant={isFilterPanelOpen ? 'default' : 'ghost'}
+              variant={isFilterPanelOpen ? "default" : "ghost"}
               size="icon"
+              onClick={handleFilterToggle}
               className="rounded-lg transition-all duration-200"
             >
-              <Filter className="w-5 h-5" />
+              <Filter className="h-4 w-4 sm:h-5 sm:w-5" />
+              {Object.values(filters).some(Boolean) && (
+                <span className="absolute -top-1 -right-1 bg-primary text-primary-foreground rounded-full w-4 h-4 text-xs font-medium flex items-center justify-center">
+                  {Object.values(filters).filter(Boolean).length}
+                </span>
+              )}
             </Button>
           </div>
 
+          {/* Search Bar */}
           <SearchInput
             value={searchValue}
             onChange={handleSearchInput}
@@ -265,22 +312,20 @@ function SimpleDrinks() {
             placeholder="Search drinks..."
             debounceMs={500}
           />
-        </div>
-      </div>
 
-      {/* Filter Panel */}
-      {isFilterPanelOpen && (
-        <div className="bg-muted/50 border-b border-border px-3 sm:px-4 py-4">
-          <FilterPanel
-            filters={filters}
-            onFilterChange={handleFilterChange}
-            variant="simple"
-          />
+          {/* Filter Panel */}
+          {isFilterPanelOpen && (
+            <FilterPanel
+              filters={filters}
+              onFilterChange={handleFilterChange}
+              variant="simple"
+            />
+          )}
           {error && (
             <ErrorMessage error={error} onDismiss={() => setError(null)} />
           )}
         </div>
-      )}
+      </div>
 
       {/* Main Content */}
       <VirtualGrid
