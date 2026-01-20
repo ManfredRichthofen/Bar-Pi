@@ -13,6 +13,7 @@ import cocktailService from '../../../services/cocktail.service';
 import glassService from '../../../services/glass.service';
 import ingredientService from '../../../services/ingredient.service';
 import useAuthStore from '../../../store/authStore';
+import { areAllIngredientsAvailable, checkFeasibility, orderDrink, createAdvancedOrderConfig } from '../../../utils/orderUtils';
 import DrinkCustomizer from './components/DrinkCustomizer';
 import GlassSelector from './components/GlassSelector';
 import IngredientRequirements from './components/IngredientRequirements';
@@ -57,7 +58,7 @@ const Order = () => {
 
       // Debounce feasibility check to prevent UI jumping
       feasibilityCheckTimeout.current = setTimeout(() => {
-        checkFeasibility(recipe.id, getOrderConfig());
+        checkFeasibilityLocal(recipe.id, getOrderConfig());
       }, 300);
     }
 
@@ -68,78 +69,35 @@ const Order = () => {
     };
   }, [recipe, amountToProduce, selectedGlass, customizations.boost, customizations.additionalIngredients, token]);
 
-  const getOrderConfig = () => {
-    const config = {
-      amountOrderedInMl: amountToProduce || 250,
-      customisations: {
-        boost: customizations.boost,
-        additionalIngredients: customizations.additionalIngredients
-          .filter((ing) => ing.amount > 0)
-          .map((ing) => ({
-            ingredientId: ing.ingredient.id,
-            amount: ing.amount,
-          })),
-      },
-      productionStepReplacements: [],
-    };
-    console.log('Generated order config:', config);
-    return config;
+  const getOrderConfig = () => createAdvancedOrderConfig(
+    amountToProduce,
+    customizations
+  );
+
+  const checkFeasibilityLocal = async (recipeId, orderConfig) => {
+    return await checkFeasibility(
+      recipeId,
+      orderConfig,
+      token,
+      setChecking,
+      setFeasibilityResult
+    );
   };
 
-  const checkFeasibility = async (recipeId, orderConfig) => {
-    console.log('Checking feasibility:', { recipeId, orderConfig });
-    setChecking(true);
-    try {
-      const result = await cocktailService.checkFeasibility(
-        recipeId,
-        orderConfig,
-        false,
-        token,
-      );
-      console.log('Feasibility result:', result);
-      setFeasibilityResult(result);
-      return result;
-    } catch (error) {
-      console.error('Feasibility check error:', error);
-      toast.error('Failed to check drink feasibility');
-      return false;
-    } finally {
-      setChecking(false);
-    }
-  };
-
-  const areAllIngredientsAvailable = (requiredIngredients) => {
-    if (!requiredIngredients) return false;
-    return !requiredIngredients.some((item) => item.amountMissing > 0);
-  };
-
-  const orderDrink = async (recipeId, orderConfig) => {
-    setLoading(true);
-    try {
-      const isFeasible = await checkFeasibility(recipeId, orderConfig);
-      if (!isFeasible?.feasible) {
-        toast.error('This drink cannot be made at the moment');
-        return;
-      }
-
-      if (!areAllIngredientsAvailable(isFeasible.requiredIngredients)) {
-        toast.error('Some ingredients are missing or insufficient');
-        return;
-      }
-
-      await cocktailService.order(recipeId, orderConfig, false, token);
-      toast.success('Drink ordered successfully');
-      navigate({ to: '/drinks' });
-    } catch (error) {
-      toast.error('Failed to order drink');
-    } finally {
-      setLoading(false);
-    }
+  const orderDrinkLocal = async (recipeId, orderConfig) => {
+    await orderDrink(
+      recipeId,
+      orderConfig,
+      token,
+      setLoading,
+      navigate,
+      '/drinks'
+    );
   };
 
   const handleMakeDrink = () => {
     const orderConfig = getOrderConfig();
-    orderDrink(recipe.id, orderConfig);
+    orderDrinkLocal(recipe.id, orderConfig);
   };
 
   const cancelOrder = async () => {
@@ -375,9 +333,7 @@ const Order = () => {
                   customizations={customizations}
                   onCustomizationsChange={setCustomizations}
                   availableIngredients={
-                    feasibilityResult?.requiredIngredients
-                      ?.map((item) => item.ingredient)
-                      ?.filter((ing) => ing.type === 'automated') || []
+                    availableIngredients.filter((ing) => ing.type === 'automated') || []
                   }
                 />
 

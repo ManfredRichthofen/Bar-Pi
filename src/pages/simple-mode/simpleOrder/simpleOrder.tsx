@@ -1,13 +1,12 @@
 import { useLocation, useNavigate } from '@tanstack/react-router';
 import { ArrowLeft, BeakerIcon, Info } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { toast } from 'sonner';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Spinner } from '@/components/ui/spinner';
-import cocktailService from '../../../services/cocktail.service';
 import useAuthStore from '../../../store/authStore';
+import { areAllIngredientsAvailable, checkFeasibility, orderDrink, createSimpleOrderConfig } from '../../../utils/orderUtils';
 import DrinkCustomizer from './components/DrinkCustomizer';
 import GlassSelector from './components/GlassSelector';
 import IngredientRequirements from './components/IngredientRequirements';
@@ -72,7 +71,7 @@ const SimpleOrder = () => {
 
       // Debounce feasibility check to prevent slider jumping
       feasibilityCheckTimeout.current = setTimeout(() => {
-        checkFeasibility(recipe.id, getOrderConfig());
+        checkFeasibilityLocal(recipe.id, getOrderConfig());
       }, 300);
     }
 
@@ -83,93 +82,42 @@ const SimpleOrder = () => {
     };
   }, [recipe, amountToProduce, boost]);
 
-  const getOrderConfig = () => ({
-    amountOrderedInMl:
-      amountToProduce ||
+  const getOrderConfig = () => createSimpleOrderConfig(
+    amountToProduce ||
       (recipe?.defaultGlass as any)?.size ||
       recipe?.defaultGlass?.sizeInMl ||
       250,
-    customisations: {
-      boost: parseInt(boost.toString()) || 100,
-      additionalIngredients: additionalIngredients || [],
-    },
-    productionStepReplacements: [],
-    ingredientGroupReplacements: [],
-    useAutomaticIngredients: true,
-    skipMissingIngredients: false,
-  });
+    boost,
+    additionalIngredients
+  );
 
-  const checkFeasibility = async (recipeId: string, orderConfig: any) => {
-    setChecking(true);
-    try {
-      const result = await cocktailService.checkFeasibility(
-        recipeId,
-        orderConfig,
-        false,
-        token,
-      );
-      setFeasibilityResult(result);
-      return result;
-    } catch (error: any) {
-      console.error('Feasibility check failed:', error.response?.data || error);
-      toast.error('Failed to check drink feasibility');
-      return false;
-    } finally {
-      setChecking(false);
-    }
+  const checkFeasibilityLocal = async (recipeId: string, orderConfig: any) => {
+    return await checkFeasibility(
+      recipeId,
+      orderConfig,
+      token,
+      setChecking,
+      setFeasibilityResult
+    );
   };
 
-  const areAllIngredientsAvailable = (requiredIngredients: any[]) => {
-    if (!requiredIngredients) return false;
-    return !requiredIngredients.some((item) => item.amountMissing > 0);
-  };
-
-  const orderDrink = async (recipeId: string, orderConfig: any) => {
-    setLoading(true);
-    try {
-      const isFeasible = await checkFeasibility(recipeId, orderConfig);
-      if (!isFeasible?.feasible) {
-        toast.error('This drink cannot be made at the moment');
-        return;
-      }
-
-      if (!areAllIngredientsAvailable(isFeasible.requiredIngredients)) {
-        toast.error('Some ingredients are missing or insufficient');
-        return;
-      }
-
-      await cocktailService.order(recipeId, orderConfig, false, token);
-      toast.success('Drink ordered successfully');
-
-      // Set flag to prevent redirect
-      setHasOrdered(true);
-
-      // Navigate to order status page
-      navigate({ to: '/simple/order-status' });
-    } catch (error: any) {
-      if (error.response?.data?.message) {
-        console.error('Order failed:', error.response.data);
-        if (
-          error.response.data.message.includes('pumps are currently occupied')
-        ) {
-          toast.error(
-            'Some pumps are currently occupied - please wait for the current drink to finish',
-          );
-        } else {
-          toast.error(error.response.data.message);
-        }
-      } else {
-        toast.error('Failed to order drink');
-      }
-    } finally {
-      setLoading(false);
-    }
+  const orderDrinkLocal = async (recipeId: string, orderConfig: any) => {
+    await orderDrink(
+      recipeId,
+      orderConfig,
+      token,
+      setLoading,
+      navigate,
+      '/simple/order-status'
+    );
+    // Set flag to prevent redirect
+    setHasOrdered(true);
   };
 
   const handleMakeDrink = useCallback(() => {
     if (!recipe) return;
     const orderConfig = getOrderConfig();
-    orderDrink(recipe.id, orderConfig);
+    orderDrinkLocal(recipe.id, orderConfig);
   }, [recipe, amountToProduce, boost, additionalIngredients, token]);
 
   // Handle redirects in useEffect to prevent infinite loops tanstack router is weird
