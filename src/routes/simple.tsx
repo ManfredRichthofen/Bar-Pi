@@ -7,14 +7,14 @@ export const Route = createFileRoute('/simple')({
   component: SimpleModeLayout,
   beforeLoad: () => {
     // Check authentication
-    const token = useAuthStore.getState().token;
-    if (!token) {
+    const authStore = useAuthStore.getState();
+    if (!authStore.token) {
       throw redirect({ to: '/login' });
     }
 
     // Check if user is in advanced mode
-    const { isAdvancedMode } = useUIModeStore.getState();
-    if (isAdvancedMode) {
+    const uiModeStore = useUIModeStore.getState();
+    if (uiModeStore.isAdvancedMode) {
       throw redirect({ to: '/drinks' });
     }
   },

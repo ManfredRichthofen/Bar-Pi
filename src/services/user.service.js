@@ -33,8 +33,9 @@ class UserService extends BaseService {
     return this.get(API_PATH + String(userId));
   }
 
-  getMe() {
-    return this.get(API_PATH + 'current');
+  getMe(headers = {}) {
+    const token = localStorage.getItem('token');
+    return this.get(API_PATH + 'current', token || undefined);
   }
 
   updateMe(updateRequest) {

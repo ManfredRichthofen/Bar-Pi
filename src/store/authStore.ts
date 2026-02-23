@@ -6,8 +6,23 @@ import useConfigStore from './configStore';
 import useFilterStore from './filterStore';
 import { usePumpStore } from './pumpStore';
 
-const useAuthStore = create((set) => ({
+interface AuthState {
+  token: string | null;
+  tokenExpiration: string | null;
+  user: any;
+  error: string | null;
+  loading: boolean;
+  loginUser: (credentials: any, apiBaseUrl: string) => Promise<boolean>;
+  logoutUser: () => void;
+  reinitializeAuthState: () => void;
+  setToken: (token: string | null) => void;
+  setUser: (user: any) => void;
+  logout: () => void;
+}
+
+const useAuthStore = create<AuthState>((set) => ({
   token: null,
+  tokenExpiration: null,
   user: null,
   setToken: (token) => set({ token }),
   setUser: (user) => set({ user }),
@@ -20,7 +35,8 @@ const useAuthStore = create((set) => ({
 
     try {
       if (apiBaseUrl) {
-        useConfigStore.getState().setApiBaseUrl(apiBaseUrl);
+        const configStore = useConfigStore.getState();
+        configStore.setApiBaseUrl(apiBaseUrl);
       }
 
       const response = await AuthService.login(credentials, apiBaseUrl);
@@ -36,7 +52,7 @@ const useAuthStore = create((set) => ({
       });
 
       return true;
-    } catch (error) {
+    } catch (error: any) {
       console.error('Login error:', error);
       set({
         error: error.message || 'Failed to connect to server',
@@ -63,7 +79,8 @@ const useAuthStore = create((set) => ({
       });
 
       // Clear other stores
-      useConfigStore.getState().resetApiUrl();
+      const configStore = useConfigStore.getState();
+      configStore.resetApiUrl();
       useCocktailProgressStore.getState().clearProgress();
       useCocktailProgressStore.getState().setShowProgressDialog(false);
       useFilterStore.getState().clearFilters();
@@ -73,7 +90,7 @@ const useAuthStore = create((set) => ({
 
       // Disconnect websocket
       websocketService.disconnectWebsocket();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Logout error:', error);
       throw error;
     }
