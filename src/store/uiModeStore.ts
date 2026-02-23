@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
 
 interface UIModeState {
   isAdvancedMode: boolean;
@@ -6,21 +7,19 @@ interface UIModeState {
   setAdvancedMode: (isAdvanced: boolean) => void;
 }
 
-const useUIModeStore = create<UIModeState>((set) => {
-  // Initialize localStorage with 'simple' if no value exists
-  const storedMode = localStorage.getItem('uiMode');
-  if (!storedMode) {
-    localStorage.setItem('uiMode', 'simple');
-  }
-
-  return {
-    isAdvancedMode: storedMode === 'advanced',
-    isInitialized: true,
-    setAdvancedMode: (isAdvanced: boolean) => {
-      localStorage.setItem('uiMode', isAdvanced ? 'advanced' : 'simple');
-      set({ isAdvancedMode: isAdvanced });
-    },
-  };
-});
+const useUIModeStore = create<UIModeState>()(
+  persist(
+    (set) => ({
+      isAdvancedMode: false, // Default to simple mode
+      isInitialized: true,
+      setAdvancedMode: (isAdvanced: boolean) => {
+        set({ isAdvancedMode: isAdvanced });
+      },
+    }),
+    {
+      name: 'ui-mode-storage',
+    }
+  )
+);
 
 export default useUIModeStore;
