@@ -1,3 +1,4 @@
+import axios from 'axios';
 import { BaseService } from './base.service';
 import { API_PATHS, ERROR_MESSAGES } from '../constants';
 import JsUtils from './JsUtils.js';
@@ -34,8 +35,6 @@ class RecipeService extends BaseService {
     token,
     includeImage = false,
   ) {
-    validateApiUrl(); // Add validation check
-
     const inCategory = inCategoryId;
     let params = {
       page,

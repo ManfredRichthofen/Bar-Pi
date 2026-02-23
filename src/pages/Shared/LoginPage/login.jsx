@@ -22,20 +22,33 @@ const Login = () => {
   const { apiBaseUrl, setApiBaseUrl } = useConfigStore();
   const [showAdvanced, setShowAdvanced] = useState(false);
 
-  const formatUrl = (url) => {
-    const trimmedUrl = url.trim();
-    return trimmedUrl.startsWith('http') ? trimmedUrl : `https://${trimmedUrl}`;
+  const formatUrlForSubmit = (url) => {
+    if (!url || url.trim() === '') {
+      return 'http://localhost:80';
+    }
+
+    let formattedUrl = url.trim().replace(/\/+$/, '');
+
+    // Don't add protocol if it already has one
+    if (!/^https?:\/\//i.test(formattedUrl)) {
+      // Special handling for localhost
+      if (formattedUrl.includes('localhost')) {
+        formattedUrl = 'http://' + formattedUrl;
+      } else {
+        formattedUrl = 'https://' + formattedUrl;
+      }
+    }
+
+    return formattedUrl;
   };
 
   const onSubmit = async (values) => {
-    const currentApiUrl = apiBaseUrl.trim() || 'http://localhost:80';
-
     try {
-      // Format and save the API URL first
-      const formattedUrl = formatUrl(currentApiUrl);
-      if (formattedUrl) {
-        setApiBaseUrl(formattedUrl);
-      }
+      // Format the URL only on submit
+      const formattedUrl = formatUrlForSubmit(apiBaseUrl);
+      
+      // Save the formatted URL
+      setApiBaseUrl(formattedUrl);
 
       // Use the formatted URL for login
       const success = await loginUser(values, formattedUrl);
