@@ -6,10 +6,10 @@ import useAuthStore from './store/authStore';
 const testStores = () => {
   const configStore = useConfigStore.getState();
   const authStore = useAuthStore.getState();
-  
+
   console.log('Config store:', configStore);
   console.log('Auth store:', authStore);
-  
+
   return { configStore, authStore };
 };
 

@@ -11,7 +11,13 @@ import {
   Trash2,
   X,
 } from 'lucide-react';
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { Badge } from '@/components/ui/badge';
@@ -60,15 +66,15 @@ const Ingredients = () => {
     },
   });
   const token = useAuthStore((state) => state.token);
-  
+
   const listRef = useRef();
   const parentOffsetRef = useRef(0);
   const [rowHeight, setRowHeight] = React.useState(100);
-  
+
   React.useLayoutEffect(() => {
     parentOffsetRef.current = listRef.current?.offsetTop || 0;
   }, []);
-  
+
   // Query for all ingredients
   const { status, data, error, isFetching } = useQuery({
     queryKey: ['ingredients'],
@@ -82,15 +88,15 @@ const Ingredients = () => {
     refetchOnMount: false,
     retry: 2,
   });
-  
+
   // Client-side filtering for search
   const ingredients = useMemo(() => {
     if (!data) return [];
     if (!searchTerm) return data;
-    
+
     const searchLower = searchTerm.toLowerCase();
-    return data.filter(ingredient => 
-      ingredient.name.toLowerCase().includes(searchLower)
+    return data.filter((ingredient) =>
+      ingredient.name.toLowerCase().includes(searchLower),
     );
   }, [data, searchTerm]);
 
@@ -212,7 +218,7 @@ const Ingredients = () => {
       toast.error('Failed to delete ingredient');
     }
   };
-  
+
   const handleSearch = useCallback((value) => {
     setSearchTerm(value);
   }, []);
@@ -224,14 +230,14 @@ const Ingredients = () => {
   useEffect(() => {
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
-      
+
       // Hide header when scrolling down, show when scrolling up
       if (currentScrollY > lastScrollY && currentScrollY > 100) {
         setIsHeaderVisible(false);
       } else {
         setIsHeaderVisible(true);
       }
-      
+
       setLastScrollY(currentScrollY);
       setShowScrollTop(currentScrollY > 400);
     };
@@ -239,7 +245,7 @@ const Ingredients = () => {
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, [lastScrollY]);
-  
+
   // Window virtualizer setup
   const virtualizer = useWindowVirtualizer({
     count: ingredients.length,
@@ -247,7 +253,7 @@ const Ingredients = () => {
     overscan: 5,
     scrollMargin: parentOffsetRef.current,
   });
-  
+
   const virtualItems = virtualizer.getVirtualItems();
 
   const columns = [
@@ -313,9 +319,13 @@ const Ingredients = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className={`sticky top-16 z-40 bg-background/95 backdrop-blur-sm border-b shadow-sm transition-all duration-300 ${
-        isHeaderVisible ? 'translate-y-0 opacity-100' : '-translate-y-full opacity-0'
-      }`}>
+      <div
+        className={`sticky top-16 z-40 bg-background/95 backdrop-blur-sm border-b shadow-sm transition-all duration-300 ${
+          isHeaderVisible
+            ? 'translate-y-0 opacity-100'
+            : '-translate-y-full opacity-0'
+        }`}
+      >
         <div className="container mx-auto px-4 py-4">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <h1 className="text-2xl font-bold">Ingredients</h1>
@@ -335,16 +345,16 @@ const Ingredients = () => {
               Add Ingredient
             </Button>
           </div>
-          
+
           {/* Search Bar */}
           <div className="mt-4">
             <SearchInput
-            value={searchTerm}
-            onChange={handleSearch}
-            placeholder="Search ingredients..."
-            debounceMs={300}
-            inputClassName="pl-10"
-          />
+              value={searchTerm}
+              onChange={handleSearch}
+              placeholder="Search ingredients..."
+              debounceMs={300}
+              inputClassName="pl-10"
+            />
             {data && data.length > 0 && (
               <p className="text-sm text-muted-foreground mt-2">
                 Showing {ingredients.length} of {data.length} ingredients
@@ -362,7 +372,9 @@ const Ingredients = () => {
         ) : status === 'error' ? (
           <div className="flex flex-col items-center justify-center py-16 px-4 min-h-[400px]">
             <AlertCircle className="h-16 w-16 text-destructive mb-4" />
-            <h3 className="text-xl font-semibold mb-2">Error Loading Ingredients</h3>
+            <h3 className="text-xl font-semibold mb-2">
+              Error Loading Ingredients
+            </h3>
             <p className="text-muted-foreground text-center mb-6 max-w-sm">
               {error?.message || 'Failed to load ingredients'}
             </p>
@@ -374,10 +386,9 @@ const Ingredients = () => {
               {searchTerm ? 'No Ingredients Found' : 'No Ingredients Found'}
             </h3>
             <p className="text-muted-foreground text-center mb-6 max-w-sm">
-              {searchTerm 
+              {searchTerm
                 ? `No ingredients found matching "${searchTerm}"`
-                : 'Get started by adding your first ingredient to begin managing your inventory'
-              }
+                : 'Get started by adding your first ingredient to begin managing your inventory'}
             </p>
             {!searchTerm && (
               <Button
@@ -421,9 +432,11 @@ const Ingredients = () => {
                   {virtualItems.map((virtualItem) => {
                     const ingredient = ingredients[virtualItem.index];
                     if (!ingredient) return null;
-                    
+
                     const parentGroup = ingredient.parentGroupId
-                      ? ingredients.find((ing) => ing.id === ingredient.parentGroupId)
+                      ? ingredients.find(
+                          (ing) => ing.id === ingredient.parentGroupId,
+                        )
                       : null;
 
                     return (
@@ -476,9 +489,11 @@ const Ingredients = () => {
                               size="icon"
                               onClick={() => {
                                 setEditingIngredient(ingredient);
-                                Object.entries(ingredient).forEach(([key, value]) => {
-                                  setValue(key, value);
-                                });
+                                Object.entries(ingredient).forEach(
+                                  ([key, value]) => {
+                                    setValue(key, value);
+                                  },
+                                );
                                 setValue('type', ingredient.type || 'manual');
                                 setIsModalVisible(true);
                               }}
@@ -500,7 +515,7 @@ const Ingredients = () => {
                 </div>
               </div>
             </div>
-            
+
             {!isFetching && ingredients.length > 0 && (
               <div className="flex items-center justify-center py-8">
                 <p className="text-center text-muted-foreground text-sm">
@@ -816,7 +831,7 @@ const Ingredients = () => {
           </form>
         </DialogContent>
       </Dialog>
-      
+
       {/* Scroll to top button */}
       {showScrollTop && (
         <Button

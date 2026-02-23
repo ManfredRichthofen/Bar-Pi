@@ -51,22 +51,28 @@ const Drinks = ({ sidebarCollapsed = false }) => {
           batch.map(async (recipe) => {
             if (fabricableSet.has(recipe.id)) return recipe.id;
             try {
-              const isFabricable = await CocktailService.checkFabricability(recipe.id, token);
+              const isFabricable = await CocktailService.checkFabricability(
+                recipe.id,
+                token,
+              );
               if (isFabricable) {
                 fabricableSet.add(recipe.id);
               }
               return recipe.id;
             } catch (error) {
-              console.error(`Failed to check fabricability for recipe ${recipe.id}:`, error);
+              console.error(
+                `Failed to check fabricability for recipe ${recipe.id}:`,
+                error,
+              );
               return recipe.id;
             }
-          })
+          }),
         );
-        
+
         // Update state after each batch to show progress
         setFabricableRecipes(new Set(fabricableSet));
       }
-      
+
       return fabricableSet;
     },
     [token, fabricableRecipes],
@@ -118,7 +124,7 @@ const Drinks = ({ sidebarCollapsed = false }) => {
   useEffect(() => {
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
-      
+
       // Don't hide header if filter panel is open
       if (isFilterPanelOpen) {
         setIsHeaderVisible(true);
@@ -126,14 +132,14 @@ const Drinks = ({ sidebarCollapsed = false }) => {
         setShowScrollTop(currentScrollY > 400);
         return;
       }
-      
+
       // Hide header when scrolling down, show when scrolling up
       if (currentScrollY > lastScrollY && currentScrollY > 100) {
         setIsHeaderVisible(false);
       } else {
         setIsHeaderVisible(true);
       }
-      
+
       setLastScrollY(currentScrollY);
       setShowScrollTop(currentScrollY > 400);
     };
@@ -144,7 +150,10 @@ const Drinks = ({ sidebarCollapsed = false }) => {
 
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (filterPanelRef.current && !filterPanelRef.current.contains(event.target)) {
+      if (
+        filterPanelRef.current &&
+        !filterPanelRef.current.contains(event.target)
+      ) {
         setIsFilterPanelOpen(false);
       }
     };
@@ -164,15 +173,19 @@ const Drinks = ({ sidebarCollapsed = false }) => {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className={`sticky top-16 z-40 bg-background/95 backdrop-blur-sm border-b shadow-sm transition-all duration-300 ${
-        isHeaderVisible ? 'translate-y-0 opacity-100' : '-translate-y-full opacity-0'
-      }`}>
+      <div
+        className={`sticky top-16 z-40 bg-background/95 backdrop-blur-sm border-b shadow-sm transition-all duration-300 ${
+          isHeaderVisible
+            ? 'translate-y-0 opacity-100'
+            : '-translate-y-full opacity-0'
+        }`}
+      >
         <div className="px-3 sm:px-4 py-3 sm:py-4 space-y-4">
           {/* Header Section */}
           <div className="flex items-center justify-between">
             <h1 className="text-xl sm:text-2xl font-bold">Available Drinks</h1>
             <Button
-              variant={isFilterPanelOpen ? "default" : "ghost"}
+              variant={isFilterPanelOpen ? 'default' : 'ghost'}
               size="icon"
               onClick={handleFilterToggle}
               className="rounded-lg transition-all duration-200"
@@ -202,13 +215,13 @@ const Drinks = ({ sidebarCollapsed = false }) => {
           {/* Filter Panel */}
           {isFilterPanelOpen && (
             <FilterPanel
-            filters={filters}
-            onFilterChange={handleFilterChange}
-            onTogglePanel={() => setIsFilterPanelOpen(false)}
-            isOpen={isFilterPanelOpen}
-            variant="advanced"
-            showCloseButton={true}
-          />
+              filters={filters}
+              onFilterChange={handleFilterChange}
+              onTogglePanel={() => setIsFilterPanelOpen(false)}
+              isOpen={isFilterPanelOpen}
+              variant="advanced"
+              showCloseButton={true}
+            />
           )}
         </div>
       </div>
@@ -223,7 +236,7 @@ const Drinks = ({ sidebarCollapsed = false }) => {
         onCheckFabricability={checkFabricability}
         onFilterRecipes={handleFilterRecipes}
       />
-      
+
       {/* Scroll to Top Button */}
       {showScrollTop && (
         <Button

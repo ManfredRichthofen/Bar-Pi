@@ -1,4 +1,10 @@
-import { AlertTriangle, PlusCircle, Sliders, Beaker, Trash2 } from 'lucide-react';
+import {
+  AlertTriangle,
+  PlusCircle,
+  Sliders,
+  Beaker,
+  Trash2,
+} from 'lucide-react';
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -101,14 +107,18 @@ const DrinkCustomizer = ({
             <Alert>
               <AlertTriangle className="h-4 w-4" />
               <AlertDescription className="text-sm">
-                This drink's strength cannot be adjusted as it contains no boostable ingredients.
+                This drink's strength cannot be adjusted as it contains no
+                boostable ingredients.
               </AlertDescription>
             </Alert>
           ) : (
             <div className="space-y-3 sm:space-y-4">
               <div className="flex items-center justify-between">
                 <Label className="text-sm sm:text-base">Alcohol Strength</Label>
-                <Badge variant="secondary" className="min-w-16 sm:min-w-20 justify-center text-xs sm:text-sm">
+                <Badge
+                  variant="secondary"
+                  className="min-w-16 sm:min-w-20 justify-center text-xs sm:text-sm"
+                >
                   {getBoostLabel(customizations.boost)}
                 </Badge>
               </div>
@@ -121,7 +131,9 @@ const DrinkCustomizer = ({
                 disabled={disableBoosting}
                 className={`w-full ${disableBoosting ? 'opacity-50' : ''}`}
               />
-              <div className={`w-full flex justify-between text-xs sm:text-sm px-1 sm:px-2 text-muted-foreground ${disableBoosting ? 'opacity-50' : ''}`}>
+              <div
+                className={`w-full flex justify-between text-xs sm:text-sm px-1 sm:px-2 text-muted-foreground ${disableBoosting ? 'opacity-50' : ''}`}
+              >
                 <span>No Alcohol</span>
                 <span>Normal</span>
                 <span>Double</span>
@@ -145,16 +157,24 @@ const DrinkCustomizer = ({
         <CardContent>
           <Tabs defaultValue="current" className="w-full">
             <TabsList className="grid w-full grid-cols-2 h-9 sm:h-10">
-              <TabsTrigger value="current" className="text-xs sm:text-sm">Current Ingredients</TabsTrigger>
-              <TabsTrigger value="add" className="text-xs sm:text-sm">Add Ingredients</TabsTrigger>
+              <TabsTrigger value="current" className="text-xs sm:text-sm">
+                Current Ingredients
+              </TabsTrigger>
+              <TabsTrigger value="add" className="text-xs sm:text-sm">
+                Add Ingredients
+              </TabsTrigger>
             </TabsList>
-            
+
             <TabsContent value="current" className="space-y-3 sm:space-y-4">
               {customizations.additionalIngredients.length === 0 ? (
                 <div className="text-center py-6 sm:py-8 text-muted-foreground border-2 border-dashed rounded-lg">
                   <Beaker className="w-10 h-10 sm:w-12 sm:h-12 mx-auto mb-3 sm:mb-4 opacity-50" />
-                  <p className="text-sm sm:text-base">No additional ingredients added</p>
-                  <p className="text-xs sm:text-sm">Add ingredients to customize your drink</p>
+                  <p className="text-sm sm:text-base">
+                    No additional ingredients added
+                  </p>
+                  <p className="text-xs sm:text-sm">
+                    Add ingredients to customize your drink
+                  </p>
                 </div>
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
@@ -164,22 +184,33 @@ const DrinkCustomizer = ({
                         <CardContent className="p-3 sm:p-4">
                           <div className="flex items-start justify-between mb-2 sm:mb-3">
                             <div className="flex-1 min-w-0">
-                              <h4 className="font-semibold text-sm sm:text-base truncate">{ingredient.name}</h4>
+                              <h4 className="font-semibold text-sm sm:text-base truncate">
+                                {ingredient.name}
+                              </h4>
                               <p className="text-xs sm:text-sm text-muted-foreground">
-                                {ingredient.type === 'automated' ? 'Automated' : 'Manual'}
+                                {ingredient.type === 'automated'
+                                  ? 'Automated'
+                                  : 'Manual'}
                               </p>
                             </div>
                             <Button
                               variant="ghost"
                               size="sm"
-                              onClick={() => handleRemoveIngredient(ingredient.id)}
+                              onClick={() =>
+                                handleRemoveIngredient(ingredient.id)
+                              }
                               className="text-destructive hover:text-destructive shrink-0 h-8 w-8 p-0"
                             >
                               <Trash2 className="w-4 h-4" />
                             </Button>
                           </div>
                           <div className="space-y-1.5 sm:space-y-2">
-                            <Label htmlFor={`amount-${ingredient.id}`} className="text-xs sm:text-sm">Amount (ml)</Label>
+                            <Label
+                              htmlFor={`amount-${ingredient.id}`}
+                              className="text-xs sm:text-sm"
+                            >
+                              Amount (ml)
+                            </Label>
                             <div className="flex items-center gap-2">
                               <Input
                                 id={`amount-${ingredient.id}`}
@@ -195,7 +226,9 @@ const DrinkCustomizer = ({
                                 }
                                 className="flex-1 h-9 sm:h-10 text-sm"
                               />
-                              <span className="text-xs sm:text-sm text-muted-foreground shrink-0">ml</span>
+                              <span className="text-xs sm:text-sm text-muted-foreground shrink-0">
+                                ml
+                              </span>
                             </div>
                           </div>
                         </CardContent>
@@ -205,7 +238,7 @@ const DrinkCustomizer = ({
                 </div>
               )}
             </TabsContent>
-            
+
             <TabsContent value="add" className="space-y-3 sm:space-y-4">
               {availableIngredients.length === 0 ? (
                 <Alert>
@@ -217,7 +250,9 @@ const DrinkCustomizer = ({
               ) : (
                 <div className="space-y-3 sm:space-y-4">
                   <div className="space-y-1.5 sm:space-y-2">
-                    <Label className="text-sm sm:text-base">Select Ingredient</Label>
+                    <Label className="text-sm sm:text-base">
+                      Select Ingredient
+                    </Label>
                     <Select
                       value={selectedIngredient?.id || ''}
                       onValueChange={(value) => {
@@ -228,7 +263,10 @@ const DrinkCustomizer = ({
                       }}
                     >
                       <SelectTrigger className="h-10 sm:h-11">
-                        <SelectValue placeholder="Select ingredient to add" className="text-sm" />
+                        <SelectValue
+                          placeholder="Select ingredient to add"
+                          className="text-sm"
+                        />
                       </SelectTrigger>
                       <SelectContent>
                         {availableIngredients
@@ -239,13 +277,26 @@ const DrinkCustomizer = ({
                               ),
                           )
                           .map((ing) => (
-                            <SelectItem key={ing.id} value={ing.id} className="py-2.5">
+                            <SelectItem
+                              key={ing.id}
+                              value={ing.id}
+                              className="py-2.5"
+                            >
                               <div className="flex items-center gap-2">
-                                <div className={`w-2 h-2 rounded-full shrink-0 ${
-                                  ing.type === 'automated' ? 'bg-blue-500' : 'bg-gray-500'
-                                }`} />
-                                <span className="text-sm flex-1 truncate">{ing.name}</span>
-                                <Badge variant="outline" className="ml-auto shrink-0 text-xs">
+                                <div
+                                  className={`w-2 h-2 rounded-full shrink-0 ${
+                                    ing.type === 'automated'
+                                      ? 'bg-blue-500'
+                                      : 'bg-gray-500'
+                                  }`}
+                                />
+                                <span className="text-sm flex-1 truncate">
+                                  {ing.name}
+                                </span>
+                                <Badge
+                                  variant="outline"
+                                  className="ml-auto shrink-0 text-xs"
+                                >
                                   {ing.type}
                                 </Badge>
                               </div>
@@ -254,7 +305,7 @@ const DrinkCustomizer = ({
                       </SelectContent>
                     </Select>
                   </div>
-                  
+
                   <div className="flex gap-2">
                     <Button
                       onClick={handleAddIngredient}
@@ -275,12 +326,13 @@ const DrinkCustomizer = ({
                       Clear
                     </Button>
                   </div>
-                  
+
                   {selectedIngredient && (
                     <div className="p-3 bg-muted rounded-lg">
                       <p className="text-xs sm:text-sm">
-                        <strong>{selectedIngredient.name}</strong> will be added to your drink.
-                        You can adjust the amount after adding it.
+                        <strong>{selectedIngredient.name}</strong> will be added
+                        to your drink. You can adjust the amount after adding
+                        it.
                       </p>
                     </div>
                   )}

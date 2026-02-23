@@ -64,12 +64,12 @@ const useConfigStore = create<ConfigState>()(
       loading: false as boolean,
       error: null as string | null,
       apiBaseUrl: DEFAULT_VALUES.API_URL,
-      
+
       // Standard actions
       setLoading: (loading: boolean) => set({ loading }),
       setError: (error: string | null) => set({ error }),
       clearError: () => set({ error: null }),
-      
+
       // Custom actions
       setApiBaseUrl: (newUrl: string) => {
         // During editing, use raw value for display
@@ -82,17 +82,20 @@ const useConfigStore = create<ConfigState>()(
           set({ apiBaseUrl: formattedUrl });
         }
       },
-      
+
       resetApiUrl: () => set({ apiBaseUrl: DEFAULT_VALUES.API_URL }),
     }),
     {
       name: 'config-storage',
       // Only persist non-default values
       partialize: (state: any) => ({
-        apiBaseUrl: state.apiBaseUrl === DEFAULT_VALUES.API_URL ? undefined : state.apiBaseUrl,
+        apiBaseUrl:
+          state.apiBaseUrl === DEFAULT_VALUES.API_URL
+            ? undefined
+            : state.apiBaseUrl,
       }),
-    }
-  )
+    },
+  ),
 );
 
 export default useConfigStore;

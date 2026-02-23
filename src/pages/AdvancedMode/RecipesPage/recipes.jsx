@@ -9,7 +9,13 @@ import {
   PlusCircle,
   Trash2,
 } from 'lucide-react';
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { useNavigate } from '@tanstack/react-router';
 import { Button } from '@/components/ui/button';
 import SearchInput from '@/components/ui/search-input.jsx';
@@ -27,11 +33,11 @@ const Recipes = ({ sidebarCollapsed = false }) => {
   const [isHeaderVisible, setIsHeaderVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
   const [showScrollTop, setShowScrollTop] = useState(false);
-  
+
   const listRef = useRef();
   const parentOffsetRef = useRef(0);
   const [rowHeight, setRowHeight] = React.useState(120);
-  
+
   React.useLayoutEffect(() => {
     parentOffsetRef.current = listRef.current?.offsetTop || 0;
   }, []);
@@ -58,7 +64,7 @@ const Recipes = ({ sidebarCollapsed = false }) => {
         null,
         token,
       );
-      
+
       return {
         content: response.content || [],
         last: response.last,
@@ -74,7 +80,7 @@ const Recipes = ({ sidebarCollapsed = false }) => {
     refetchOnMount: false,
     retry: 2,
   });
-  
+
   const allRecipes = data ? data.pages.flatMap((d) => d.content) : [];
   const totalCount = data ? data.pages[0]?.totalElements || 0 : 0;
 
@@ -91,21 +97,18 @@ const Recipes = ({ sidebarCollapsed = false }) => {
     [navigate],
   );
 
-  const handleDelete = useCallback(
-    async (id) => {
-      if (window.confirm('Are you sure you want to delete this recipe?')) {
-        try {
-          await RecipeService.deleteRecipe(id);
-          toast.success('Recipe deleted successfully');
-          // Refetch the first page to refresh the list
-          window.location.reload();
-        } catch (error) {
-          toast.error('Failed to delete recipe');
-        }
+  const handleDelete = useCallback(async (id) => {
+    if (window.confirm('Are you sure you want to delete this recipe?')) {
+      try {
+        await RecipeService.deleteRecipe(id);
+        toast.success('Recipe deleted successfully');
+        // Refetch the first page to refresh the list
+        window.location.reload();
+      } catch (error) {
+        toast.error('Failed to delete recipe');
       }
-    },
-    [],
-  );
+    }
+  }, []);
 
   const handleToggleFavorite = useCallback(
     async (recipe) => {
@@ -123,7 +126,7 @@ const Recipes = ({ sidebarCollapsed = false }) => {
       fetchNextPage();
     }
   }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
-  
+
   const handleSearch = useCallback((value) => {
     setSearchTerm(value);
   }, []);
@@ -135,14 +138,14 @@ const Recipes = ({ sidebarCollapsed = false }) => {
   useEffect(() => {
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
-      
+
       // Hide header when scrolling down, show when scrolling up
       if (currentScrollY > lastScrollY && currentScrollY > 100) {
         setIsHeaderVisible(false);
       } else {
         setIsHeaderVisible(true);
       }
-      
+
       setLastScrollY(currentScrollY);
       setShowScrollTop(currentScrollY > 400);
     };
@@ -150,12 +153,12 @@ const Recipes = ({ sidebarCollapsed = false }) => {
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, [lastScrollY]);
-  
+
   const favoriteIds = useMemo(
     () => new Set((favorites || []).map((fav) => fav.id)),
     [favorites],
   );
-  
+
   // Window virtualizer setup
   const virtualizer = useWindowVirtualizer({
     count: allRecipes.length,
@@ -163,18 +166,28 @@ const Recipes = ({ sidebarCollapsed = false }) => {
     overscan: 5,
     scrollMargin: parentOffsetRef.current,
   });
-  
+
   const virtualItems = virtualizer.getVirtualItems();
-  
+
   // Auto-load more when scrolling near end
   useEffect(() => {
     const [lastItem] = [...virtualizer.getVirtualItems()].reverse();
     if (!lastItem) return;
 
-    if (lastItem.index >= allRecipes.length - 5 && hasNextPage && !isFetchingNextPage) {
+    if (
+      lastItem.index >= allRecipes.length - 5 &&
+      hasNextPage &&
+      !isFetchingNextPage
+    ) {
       fetchNextPage();
     }
-  }, [hasNextPage, fetchNextPage, allRecipes.length, isFetchingNextPage, virtualizer.getVirtualItems()]);
+  }, [
+    hasNextPage,
+    fetchNextPage,
+    allRecipes.length,
+    isFetchingNextPage,
+    virtualizer.getVirtualItems(),
+  ]);
 
   if (!token) {
     return <Navigate to="/login" />;
@@ -182,9 +195,13 @@ const Recipes = ({ sidebarCollapsed = false }) => {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className={`sticky top-16 z-40 bg-background/95 backdrop-blur-sm border-b shadow-sm transition-all duration-300 ${
-        isHeaderVisible ? 'translate-y-0 opacity-100' : '-translate-y-full opacity-0'
-      }`}>
+      <div
+        className={`sticky top-16 z-40 bg-background/95 backdrop-blur-sm border-b shadow-sm transition-all duration-300 ${
+          isHeaderVisible
+            ? 'translate-y-0 opacity-100'
+            : '-translate-y-full opacity-0'
+        }`}
+      >
         <div className="container mx-auto px-4 py-4">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <h1 className="text-2xl font-bold">Recipes</h1>
@@ -193,16 +210,16 @@ const Recipes = ({ sidebarCollapsed = false }) => {
               Add Recipe
             </Button>
           </div>
-          
+
           {/* Search Bar */}
           <div className="mt-4">
             <SearchInput
-            value={searchTerm}
-            onChange={handleSearch}
-            placeholder="Search recipes..."
-            debounceMs={300}
-            inputClassName="pl-10"
-          />
+              value={searchTerm}
+              onChange={handleSearch}
+              placeholder="Search recipes..."
+              debounceMs={300}
+              inputClassName="pl-10"
+            />
             {totalCount > 0 && (
               <p className="text-sm text-muted-foreground mt-2">
                 Showing {allRecipes.length} of {totalCount} recipes
@@ -220,7 +237,9 @@ const Recipes = ({ sidebarCollapsed = false }) => {
         ) : status === 'error' ? (
           <div className="flex flex-col items-center justify-center py-16 px-4 min-h-[400px]">
             <AlertCircle className="h-16 w-16 text-destructive mb-4" />
-            <h3 className="text-xl font-semibold mb-2">Error Loading Recipes</h3>
+            <h3 className="text-xl font-semibold mb-2">
+              Error Loading Recipes
+            </h3>
             <p className="text-muted-foreground text-center mb-6 max-w-sm">
               {error?.message || 'Failed to load recipes'}
             </p>
@@ -232,10 +251,9 @@ const Recipes = ({ sidebarCollapsed = false }) => {
               {searchTerm ? 'No Recipes Found' : 'No Recipes Found'}
             </h3>
             <p className="text-muted-foreground text-center mb-6 max-w-sm">
-              {searchTerm 
+              {searchTerm
                 ? `No recipes found matching "${searchTerm}"`
-                : 'Get started by creating your first recipe to begin mixing drinks'
-              }
+                : 'Get started by creating your first recipe to begin mixing drinks'}
             </p>
             {!searchTerm && (
               <Button size="lg" onClick={handleAdd}>
@@ -267,7 +285,7 @@ const Recipes = ({ sidebarCollapsed = false }) => {
                   {virtualItems.map((virtualItem) => {
                     const recipe = allRecipes[virtualItem.index];
                     if (!recipe) return null;
-                    
+
                     const isFavorite = favoriteIds.has(recipe.id);
                     const ingredientCount =
                       recipe.productionSteps?.reduce(
@@ -322,7 +340,9 @@ const Recipes = ({ sidebarCollapsed = false }) => {
                             >
                               <Heart
                                 className={`h-4 w-4 ${
-                                  isFavorite ? 'fill-destructive text-destructive' : ''
+                                  isFavorite
+                                    ? 'fill-destructive text-destructive'
+                                    : ''
                                 }`}
                               />
                             </Button>
@@ -348,14 +368,14 @@ const Recipes = ({ sidebarCollapsed = false }) => {
                 </div>
               </div>
             </div>
-            
+
             {/* Loading indicator at bottom */}
             {isFetchingNextPage && hasNextPage && (
               <div className="flex justify-center py-4">
                 <Loader2 className="h-6 w-6 animate-spin" />
               </div>
             )}
-            
+
             {!hasNextPage && !isFetching && allRecipes.length > 0 && (
               <div className="flex items-center justify-center py-8">
                 <p className="text-center text-muted-foreground text-sm">
@@ -366,7 +386,7 @@ const Recipes = ({ sidebarCollapsed = false }) => {
           </div>
         )}
       </div>
-      
+
       {/* Scroll to top button */}
       {showScrollTop && (
         <Button

@@ -7,9 +7,7 @@ export const Route = createFileRoute('/_advanced/drinks')({
 
 function AdvancedDrinksRoute() {
   const matches = useMatches();
-  const isChildRoute = matches.some(
-    (match) => match.id.includes('/$recipeId'),
-  );
+  const isChildRoute = matches.some((match) => match.id.includes('/$recipeId'));
 
   if (isChildRoute) {
     return <Outlet />;

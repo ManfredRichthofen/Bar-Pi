@@ -180,7 +180,7 @@ function SimpleDrinks() {
   useEffect(() => {
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
-      
+
       // Don't hide header if filter panel is open
       if (isFilterPanelOpen) {
         setIsHeaderVisible(true);
@@ -188,14 +188,14 @@ function SimpleDrinks() {
         setShowScrollTop(currentScrollY > 400);
         return;
       }
-      
+
       // Hide header when scrolling down, show when scrolling up
       if (currentScrollY > lastScrollY && currentScrollY > 100) {
         setIsHeaderVisible(false);
       } else {
         setIsHeaderVisible(true);
       }
-      
+
       setLastScrollY(currentScrollY);
       setShowScrollTop(currentScrollY > 400);
     };
@@ -206,7 +206,10 @@ function SimpleDrinks() {
 
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (filterPanelRef.current && !filterPanelRef.current.contains(event.target)) {
+      if (
+        filterPanelRef.current &&
+        !filterPanelRef.current.contains(event.target)
+      ) {
         setIsFilterPanelOpen(false);
       }
     };
@@ -249,8 +252,9 @@ function SimpleDrinks() {
   // Handle scroll to show/hide scroll top button and header
   useEffect(() => {
     const handleScroll = () => {
-      const currentScrollY = window.scrollY || document.documentElement.scrollTop;
-      
+      const currentScrollY =
+        window.scrollY || document.documentElement.scrollTop;
+
       // Don't hide header if filter panel is open
       if (isFilterPanelOpen) {
         setIsHeaderVisible(true);
@@ -258,14 +262,14 @@ function SimpleDrinks() {
         setShowScrollTop(currentScrollY > 300);
         return;
       }
-      
+
       // Hide header when scrolling down, show when scrolling up
       if (currentScrollY > lastScrollY && currentScrollY > 100) {
         setIsHeaderVisible(false);
       } else {
         setIsHeaderVisible(true);
       }
-      
+
       setLastScrollY(currentScrollY);
       setShowScrollTop(currentScrollY > 300); // Show button after 300px scroll
     };
@@ -281,15 +285,19 @@ function SimpleDrinks() {
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <div className={`sticky top-0 z-20 bg-background/95 backdrop-blur-sm border-b border-border shadow-sm pt-2 transition-all duration-300 ${
-        isHeaderVisible ? 'translate-y-0 opacity-100' : '-translate-y-full opacity-0'
-      }`}>
+      <div
+        className={`sticky top-0 z-20 bg-background/95 backdrop-blur-sm border-b border-border shadow-sm pt-2 transition-all duration-300 ${
+          isHeaderVisible
+            ? 'translate-y-0 opacity-100'
+            : '-translate-y-full opacity-0'
+        }`}
+      >
         <div className="px-3 sm:px-4 py-3 sm:py-4 space-y-4">
           {/* Header Section */}
           <div className="flex items-center justify-between">
             <h1 className="text-xl sm:text-2xl font-bold">Available Drinks</h1>
             <Button
-              variant={isFilterPanelOpen ? "default" : "ghost"}
+              variant={isFilterPanelOpen ? 'default' : 'ghost'}
               size="icon"
               onClick={handleFilterToggle}
               className="rounded-lg transition-all duration-200"

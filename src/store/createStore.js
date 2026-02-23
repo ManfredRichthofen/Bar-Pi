@@ -9,7 +9,12 @@ import { persist } from 'zustand/middleware';
  * @param {object} options - Additional persist options
  * @returns {Function} Zustand store hook
  */
-export const createPersistedStore = (name, initialState, actions, options = {}) => {
+export const createPersistedStore = (
+  name,
+  initialState,
+  actions,
+  options = {},
+) => {
   return create()(
     persist(
       (set, get) => ({
@@ -17,20 +22,20 @@ export const createPersistedStore = (name, initialState, actions, options = {}) 
         loading: false,
         error: null,
         ...initialState,
-        
+
         // Standard actions
         setLoading: (loading) => set({ loading }),
         setError: (error) => set({ error }),
         clearError: () => set({ error: null }),
-        
+
         // Custom actions
-        ...actions(set, get)
+        ...actions(set, get),
       }),
       {
         name: `${name}-storage`,
-        ...options
-      }
-    )
+        ...options,
+      },
+    ),
   );
 };
 
@@ -46,14 +51,14 @@ export const createSessionStore = (initialState, actions) => {
     loading: false,
     error: null,
     ...initialState,
-    
+
     // Standard actions
     setLoading: (loading) => set({ loading }),
     setError: (error) => set({ error }),
     clearError: () => set({ error: null }),
-    
+
     // Custom actions
-    ...actions(set, get)
+    ...actions(set, get),
   }));
 };
 
@@ -62,11 +67,11 @@ export const createSessionStore = (initialState, actions) => {
  */
 export const standardActions = {
   // Reset to initial state
-  reset: (initialState) => set => set(initialState),
-  
+  reset: (initialState) => (set) => set(initialState),
+
   // Update multiple properties
-  updateMany: (updates) => set => set(updates),
-  
+  updateMany: (updates) => (set) => set(updates),
+
   // Async wrapper for loading states
   withLoading: async (action, set) => {
     set({ loading: true, error: null });
@@ -78,11 +83,11 @@ export const standardActions = {
       set({ loading: false, error: error.message });
       throw error;
     }
-  }
+  },
 };
 
 export default {
   createPersistedStore,
   createSessionStore,
-  standardActions
+  standardActions,
 };

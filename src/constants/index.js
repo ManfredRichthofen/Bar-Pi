@@ -11,7 +11,7 @@ export const API_PATHS = {
   PUMP_SETTINGS: 'api/pump/settings/',
   GLASS: 'api/glass/',
   GPIO: 'api/gpio/',
-  WEBSOCKET: '/websocket'
+  WEBSOCKET: '/websocket',
 };
 
 /**
@@ -22,7 +22,7 @@ export const DEFAULT_VALUES = {
   THEME: 'light',
   UI_MODE: 'simple',
   PAGE_SIZE: 20,
-  TIMEOUT: 10000
+  TIMEOUT: 10000,
 };
 
 /**
@@ -32,7 +32,7 @@ export const STORAGE_KEYS = {
   TOKEN: 'token',
   TOKEN_EXPIRATION: 'tokenExpiration',
   LAST_ROUTE: 'lastRoute',
-  LANGUAGE: 'i18nextLng'
+  LANGUAGE: 'i18nextLng',
 };
 
 /**
@@ -45,9 +45,10 @@ export const ERROR_MESSAGES = {
   NOT_FOUND: 'The requested resource was not found.',
   SERVER_ERROR: 'Server error. Please try again later.',
   VALIDATION_ERROR: 'Please check your input and try again.',
-  API_URL_NOT_CONFIGURED: 'API URL is not configured. Please configure it in settings.',
+  API_URL_NOT_CONFIGURED:
+    'API URL is not configured. Please configure it in settings.',
   INVALID_CREDENTIALS: 'Invalid username or password.',
-  SESSION_EXPIRED: 'Your session has expired. Please log in again.'
+  SESSION_EXPIRED: 'Your session has expired. Please log in again.',
 };
 
 /**
@@ -59,7 +60,7 @@ export const SUCCESS_MESSAGES = {
   SAVED_SUCCESS: 'Changes saved successfully',
   DELETED_SUCCESS: 'Item deleted successfully',
   UPDATED_SUCCESS: 'Item updated successfully',
-  CREATED_SUCCESS: 'Item created successfully'
+  CREATED_SUCCESS: 'Item created successfully',
 };
 
 /**
@@ -67,7 +68,7 @@ export const SUCCESS_MESSAGES = {
  */
 export const UI_MODES = {
   SIMPLE: 'simple',
-  ADVANCED: 'advanced'
+  ADVANCED: 'advanced',
 };
 
 /**
@@ -76,7 +77,7 @@ export const UI_MODES = {
 export const THEMES = {
   LIGHT: 'light',
   DARK: 'dark',
-  SYSTEM: 'system'
+  SYSTEM: 'system',
 };
 
 /**
@@ -85,7 +86,7 @@ export const THEMES = {
 export const ADMIN_LEVELS = {
   USER: 0,
   ADMIN: 1,
-  SUPER_ADMIN: 2
+  SUPER_ADMIN: 2,
 };
 
 /**
@@ -93,7 +94,7 @@ export const ADMIN_LEVELS = {
  */
 export const PUMP_TYPES = {
   CONTINUOUS: 'continuous',
-  DISCRETE: 'discrete'
+  DISCRETE: 'discrete',
 };
 
 /**
@@ -102,7 +103,7 @@ export const PUMP_TYPES = {
 export const VALIDATION_PATTERNS = {
   EMAIL: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
   PASSWORD_MIN_LENGTH: 6,
-  USERNAME_MIN_LENGTH: 3
+  USERNAME_MIN_LENGTH: 3,
 };
 
 export default {
@@ -115,5 +116,5 @@ export default {
   THEMES,
   ADMIN_LEVELS,
   PUMP_TYPES,
-  VALIDATION_PATTERNS
+  VALIDATION_PATTERNS,
 };

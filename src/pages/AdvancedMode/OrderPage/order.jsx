@@ -1,5 +1,14 @@
 import { useLocation, useNavigate } from '@tanstack/react-router';
-import { BeakerIcon, PlayCircle, XCircle, Loader2, Clock, CheckCircle, AlertTriangle, Beaker } from 'lucide-react';
+import {
+  BeakerIcon,
+  PlayCircle,
+  XCircle,
+  Loader2,
+  Clock,
+  CheckCircle,
+  AlertTriangle,
+  Beaker,
+} from 'lucide-react';
 import React, { useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -13,7 +22,12 @@ import cocktailService from '../../../services/cocktail.service';
 import glassService from '../../../services/glass.service';
 import ingredientService from '../../../services/ingredient.service';
 import useAuthStore from '../../../store/authStore';
-import { areAllIngredientsAvailable, checkFeasibility, orderDrink, createAdvancedOrderConfig } from '../../../utils/orderUtils';
+import {
+  areAllIngredientsAvailable,
+  checkFeasibility,
+  orderDrink,
+  createAdvancedOrderConfig,
+} from '../../../utils/orderUtils';
 import DrinkCustomizer from './components/DrinkCustomizer';
 import GlassSelector from './components/GlassSelector';
 import IngredientRequirements from './components/IngredientRequirements';
@@ -67,12 +81,17 @@ const Order = () => {
         clearTimeout(feasibilityCheckTimeout.current);
       }
     };
-  }, [recipe, amountToProduce, selectedGlass, customizations.boost, customizations.additionalIngredients, token]);
-
-  const getOrderConfig = () => createAdvancedOrderConfig(
+  }, [
+    recipe,
     amountToProduce,
-    customizations
-  );
+    selectedGlass,
+    customizations.boost,
+    customizations.additionalIngredients,
+    token,
+  ]);
+
+  const getOrderConfig = () =>
+    createAdvancedOrderConfig(amountToProduce, customizations);
 
   const checkFeasibilityLocal = async (recipeId, orderConfig) => {
     return await checkFeasibility(
@@ -80,7 +99,7 @@ const Order = () => {
       orderConfig,
       token,
       setChecking,
-      setFeasibilityResult
+      setFeasibilityResult,
     );
   };
 
@@ -91,7 +110,7 @@ const Order = () => {
       token,
       setLoading,
       navigate,
-      '/drinks'
+      '/drinks',
     );
   };
 
@@ -182,8 +201,12 @@ const Order = () => {
         {/* Header */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4 mb-4 sm:mb-6">
           <div>
-            <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold">Drink Production</h2>
-            <p className="text-sm sm:text-base text-muted-foreground">Customize and prepare your drink</p>
+            <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold">
+              Drink Production
+            </h2>
+            <p className="text-sm sm:text-base text-muted-foreground">
+              Customize and prepare your drink
+            </p>
           </div>
           <Button
             variant="outline"
@@ -214,7 +237,9 @@ const Order = () => {
                     </div>
                   )}
                   <div className="flex-1">
-                    <CardTitle className="text-lg sm:text-xl mb-2">{recipe.name}</CardTitle>
+                    <CardTitle className="text-lg sm:text-xl mb-2">
+                      {recipe.name}
+                    </CardTitle>
                     {recipe.description && (
                       <p className="text-muted-foreground text-sm mb-3 sm:mb-4">
                         {recipe.description}
@@ -253,7 +278,9 @@ const Order = () => {
                   </div>
                 ) : feasibilityResult ? (
                   <Alert
-                    variant={feasibilityResult.feasible ? 'default' : 'destructive'}
+                    variant={
+                      feasibilityResult.feasible ? 'default' : 'destructive'
+                    }
                   >
                     <AlertDescription>
                       <div className="space-y-1.5 sm:space-y-2">
@@ -264,21 +291,27 @@ const Order = () => {
                             <AlertTriangle className="w-4 h-4" />
                           )}
                           <span className="font-medium text-sm sm:text-base">
-                            {feasibilityResult.feasible ? 'Ready to make' : 'Cannot make'}
+                            {feasibilityResult.feasible
+                              ? 'Ready to make'
+                              : 'Cannot make'}
                           </span>
                         </div>
                         <div className="text-xs sm:text-sm">
                           Total amount: {feasibilityResult.totalAmountInMl}ml
                         </div>
                         {!feasibilityResult.feasible && (
-                          <div className="text-xs sm:text-sm">{feasibilityResult.reason}</div>
+                          <div className="text-xs sm:text-sm">
+                            {feasibilityResult.reason}
+                          </div>
                         )}
                       </div>
                     </AlertDescription>
                   </Alert>
                 ) : (
                   <div className="text-center py-3 sm:py-4 text-sm text-muted-foreground">
-                    {selectedGlass ? 'Checking feasibility...' : 'Select a glass to continue'}
+                    {selectedGlass
+                      ? 'Checking feasibility...'
+                      : 'Select a glass to continue'}
                   </div>
                 )}
 
@@ -304,24 +337,29 @@ const Order = () => {
                     )}
                   </Button>
                 </div>
-                {!canOrderDrink && !loading && !checking && feasibilityResult && (
-                  <p className="text-xs sm:text-sm text-center text-muted-foreground">
-                    {!selectedGlass
-                      ? '🥃 Select a glass to continue'
-                      : feasibilityResult?.requiredIngredients?.some(
-                          (item) => item.amountMissing > 0,
-                        )
-                      ? '⚠️ Missing ingredients'
-                      : 'Cannot make this drink'}
-                  </p>
-                )}
+                {!canOrderDrink &&
+                  !loading &&
+                  !checking &&
+                  feasibilityResult && (
+                    <p className="text-xs sm:text-sm text-center text-muted-foreground">
+                      {!selectedGlass
+                        ? '🥃 Select a glass to continue'
+                        : feasibilityResult?.requiredIngredients?.some(
+                              (item) => item.amountMissing > 0,
+                            )
+                          ? '⚠️ Missing ingredients'
+                          : 'Cannot make this drink'}
+                    </p>
+                  )}
               </CardContent>
             </Card>
 
             {/* Customization Section */}
             <Card>
               <CardHeader className="pb-3 sm:pb-4">
-                <CardTitle className="text-base sm:text-lg">Customization</CardTitle>
+                <CardTitle className="text-base sm:text-lg">
+                  Customization
+                </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4 sm:space-y-6">
                 <DrinkCustomizer
@@ -333,7 +371,9 @@ const Order = () => {
                   customizations={customizations}
                   onCustomizationsChange={setCustomizations}
                   availableIngredients={
-                    availableIngredients.filter((ing) => ing.type === 'automated') || []
+                    availableIngredients.filter(
+                      (ing) => ing.type === 'automated',
+                    ) || []
                   }
                 />
 
@@ -352,7 +392,9 @@ const Order = () => {
                   />
                 ) : (
                   <div className="text-center py-6 sm:py-8 text-sm text-muted-foreground">
-                    {selectedGlass ? 'Loading ingredient data...' : 'Select a glass to view ingredients'}
+                    {selectedGlass
+                      ? 'Loading ingredient data...'
+                      : 'Select a glass to view ingredients'}
                   </div>
                 )}
               </CardContent>
@@ -365,7 +407,9 @@ const Order = () => {
             {feasibilityResult?.requiredIngredients && (
               <Card>
                 <CardHeader className="pb-3 sm:pb-4">
-                  <CardTitle className="text-base sm:text-lg">Quick Stats</CardTitle>
+                  <CardTitle className="text-base sm:text-lg">
+                    Quick Stats
+                  </CardTitle>
                 </CardHeader>
                 <CardContent>
                   {(() => {

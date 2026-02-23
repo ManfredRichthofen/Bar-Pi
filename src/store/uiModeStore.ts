@@ -19,8 +19,8 @@ const useUIModeStore = create<UIModeState>()(
     }),
     {
       name: 'ui-mode-storage',
-    }
-  )
+    },
+  ),
 );
 
 export default useUIModeStore;

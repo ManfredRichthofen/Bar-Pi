@@ -27,10 +27,12 @@ export class BaseService {
    * @returns {Promise} Axios response
    */
   get(path, token = null, config = {}) {
-    return axios.get(path, { 
-      headers: this.getAuthHeader(token),
-      ...config 
-    }).then(response => response.data);
+    return axios
+      .get(path, {
+        headers: this.getAuthHeader(token),
+        ...config,
+      })
+      .then((response) => response.data);
   }
 
   /**
@@ -42,10 +44,12 @@ export class BaseService {
    * @returns {Promise} Axios response
    */
   post(path, data = {}, token = null, config = {}) {
-    return axios.post(path, data, { 
-      headers: this.getAuthHeader(token),
-      ...config 
-    }).then(response => response.data);
+    return axios
+      .post(path, data, {
+        headers: this.getAuthHeader(token),
+        ...config,
+      })
+      .then((response) => response.data);
   }
 
   /**
@@ -57,10 +61,12 @@ export class BaseService {
    * @returns {Promise} Axios response
    */
   put(path, data = {}, token = null, config = {}) {
-    return axios.put(path, data, { 
-      headers: this.getAuthHeader(token),
-      ...config 
-    }).then(response => response.data);
+    return axios
+      .put(path, data, {
+        headers: this.getAuthHeader(token),
+        ...config,
+      })
+      .then((response) => response.data);
   }
 
   /**
@@ -71,10 +77,12 @@ export class BaseService {
    * @returns {Promise} Axios response
    */
   delete(path, token = null, config = {}) {
-    return axios.delete(path, { 
-      headers: this.getAuthHeader(token),
-      ...config 
-    }).then(response => response.data);
+    return axios
+      .delete(path, {
+        headers: this.getAuthHeader(token),
+        ...config,
+      })
+      .then((response) => response.data);
   }
 
   /**
@@ -83,7 +91,8 @@ export class BaseService {
    * @throws {Error} Formatted error
    */
   handleError(error) {
-    const message = error.response?.data?.message || error.message || 'An error occurred';
+    const message =
+      error.response?.data?.message || error.message || 'An error occurred';
     console.error('API Error:', error);
     throw new Error(message);
   }
