@@ -1,6 +1,7 @@
 import { Navigate, useNavigate } from '@tanstack/react-router';
 import debounce from 'lodash/debounce';
 import { ArrowUp, Filter } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import CocktailService from '../../../services/cocktail.service.js';
@@ -204,25 +205,6 @@ function SimpleDrinks() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, [lastScrollY, isFilterPanelOpen]);
 
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (
-        filterPanelRef.current &&
-        !filterPanelRef.current.contains(event.target)
-      ) {
-        setIsFilterPanelOpen(false);
-      }
-    };
-
-    if (isFilterPanelOpen) {
-      document.addEventListener('mousedown', handleClickOutside);
-    }
-
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, [isFilterPanelOpen]);
-
   const handleCardClick = (recipe) => {
     navigate({
       to: '/simple/drink/$id',
@@ -248,35 +230,6 @@ function SimpleDrinks() {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, [isFilterPanelOpen]);
-
-  // Handle scroll to show/hide scroll top button and header
-  useEffect(() => {
-    const handleScroll = () => {
-      const currentScrollY =
-        window.scrollY || document.documentElement.scrollTop;
-
-      // Don't hide header if filter panel is open
-      if (isFilterPanelOpen) {
-        setIsHeaderVisible(true);
-        setLastScrollY(currentScrollY);
-        setShowScrollTop(currentScrollY > 300);
-        return;
-      }
-
-      // Hide header when scrolling down, show when scrolling up
-      if (currentScrollY > lastScrollY && currentScrollY > 100) {
-        setIsHeaderVisible(false);
-      } else {
-        setIsHeaderVisible(true);
-      }
-
-      setLastScrollY(currentScrollY);
-      setShowScrollTop(currentScrollY > 300); // Show button after 300px scroll
-    };
-
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, [lastScrollY, isFilterPanelOpen]);
 
   if (!token) {
     return <Navigate to="/login" replace />;
@@ -344,19 +297,30 @@ function SimpleDrinks() {
         filters={filters}
         onCheckFabricability={checkFabricability}
         onFilterRecipes={filterRecipesMemo}
+        onClearFilters={clearFilters}
       />
 
       {/* Scroll to top button */}
-      {showScrollTop && (
-        <Button
-          onClick={scrollToTop}
-          size="icon"
-          className="fixed bottom-24 right-4 z-[100] rounded-full shadow-lg hover:shadow-xl transition-all duration-200"
-          aria-label="Scroll to top"
-        >
-          <ArrowUp className="w-5 h-5" />
-        </Button>
-      )}
+      <AnimatePresence>
+        {showScrollTop && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.8, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.8, y: 20 }}
+            transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+            className="fixed bottom-24 right-4 z-[100]"
+          >
+            <Button
+              onClick={scrollToTop}
+              size="icon"
+              className="rounded-full shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-110 active:scale-95"
+              aria-label="Scroll to top"
+            >
+              <ArrowUp className="w-5 h-5" />
+            </Button>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
