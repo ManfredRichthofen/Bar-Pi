@@ -1,5 +1,4 @@
 import axios from 'axios';
-import config from './config';
 
 class AuthService {
   login(credentials, apiBaseUrl) {

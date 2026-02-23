@@ -1,23 +1,22 @@
-import { Navigate, useNavigate } from '@tanstack/react-router';
 import { useInfiniteQuery } from '@tanstack/react-query';
 import { useWindowVirtualizer } from '@tanstack/react-virtual';
 import {
   AlertCircle,
+  ArrowUp,
   Edit,
   Heart,
   Loader2,
   PlusCircle,
-  Search,
   Trash2,
 } from 'lucide-react';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { toast } from 'sonner';
-import { Badge } from '@/components/ui/badge';
+import { useNavigate } from '@tanstack/react-router';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import RecipeService from '@/services/recipe.service';
-import useAuthStore from '@/store/authStore';
-import useFavoritesStore from '@/store/favoritesStore';
+import SearchInput from '@/components/ui/search-input.jsx';
+import RecipeService from '../../../services/recipe.service.js';
+import useAuthStore from '../../../store/authStore.js';
+import useFavoritesStore from '../../../store/favoritesStore.js';
+import RecipeCard from './components/RecipeCard.jsx';
 
 const Recipes = ({ sidebarCollapsed = false }) => {
   const token = useAuthStore((state) => state.token);
@@ -25,6 +24,9 @@ const Recipes = ({ sidebarCollapsed = false }) => {
   const favorites = useFavoritesStore((state) => state.favorites);
   const { toggleFavorite } = useFavoritesStore();
   const [searchTerm, setSearchTerm] = useState('');
+  const [isHeaderVisible, setIsHeaderVisible] = useState(true);
+  const [lastScrollY, setLastScrollY] = useState(0);
+  const [showScrollTop, setShowScrollTop] = useState(false);
   
   const listRef = useRef();
   const parentOffsetRef = useRef(0);
@@ -122,9 +124,32 @@ const Recipes = ({ sidebarCollapsed = false }) => {
     }
   }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
   
-  const handleSearch = useCallback((e) => {
-    setSearchTerm(e.target.value);
+  const handleSearch = useCallback((value) => {
+    setSearchTerm(value);
   }, []);
+
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+      
+      // Hide header when scrolling down, show when scrolling up
+      if (currentScrollY > lastScrollY && currentScrollY > 100) {
+        setIsHeaderVisible(false);
+      } else {
+        setIsHeaderVisible(true);
+      }
+      
+      setLastScrollY(currentScrollY);
+      setShowScrollTop(currentScrollY > 400);
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [lastScrollY]);
   
   const favoriteIds = useMemo(
     () => new Set((favorites || []).map((fav) => fav.id)),
@@ -157,7 +182,9 @@ const Recipes = ({ sidebarCollapsed = false }) => {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="sticky top-16 z-40 bg-background border-b shadow-sm">
+      <div className={`sticky top-16 z-40 bg-background/95 backdrop-blur-sm border-b shadow-sm transition-all duration-300 ${
+        isHeaderVisible ? 'translate-y-0 opacity-100' : '-translate-y-full opacity-0'
+      }`}>
         <div className="container mx-auto px-4 py-4">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <h1 className="text-2xl font-bold">Recipes</h1>
@@ -169,16 +196,13 @@ const Recipes = ({ sidebarCollapsed = false }) => {
           
           {/* Search Bar */}
           <div className="mt-4">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-              <Input
-                type="text"
-                placeholder="Search recipes..."
-                value={searchTerm}
-                onChange={handleSearch}
-                className="pl-10"
-              />
-            </div>
+            <SearchInput
+            value={searchTerm}
+            onChange={handleSearch}
+            placeholder="Search recipes..."
+            debounceMs={300}
+            inputClassName="pl-10"
+          />
             {totalCount > 0 && (
               <p className="text-sm text-muted-foreground mt-2">
                 Showing {allRecipes.length} of {totalCount} recipes
@@ -342,6 +366,18 @@ const Recipes = ({ sidebarCollapsed = false }) => {
           </div>
         )}
       </div>
+      
+      {/* Scroll to top button */}
+      {showScrollTop && (
+        <Button
+          onClick={scrollToTop}
+          size="icon"
+          className="fixed bottom-24 right-4 z-[100] rounded-full shadow-lg hover:shadow-xl transition-all duration-200"
+          aria-label="Scroll to top"
+        >
+          <ArrowUp className="w-5 h-5" />
+        </Button>
+      )}
     </div>
   );
 };

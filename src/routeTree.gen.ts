@@ -30,6 +30,7 @@ import { Route as AdvancedDrinksRouteImport } from './routes/_advanced.drinks'
 import { Route as AdvancedCategoriesRouteImport } from './routes/_advanced.categories'
 import { Route as SimpleDrinkIdRouteImport } from './routes/simple.drink.$id'
 import { Route as AdvancedRecipesNewRouteImport } from './routes/_advanced.recipes.new'
+import { Route as AdvancedDrinksRecipeIdRouteImport } from './routes/_advanced.drinks.$recipeId'
 import { Route as AdvancedRecipesRecipeIdEditRouteImport } from './routes/_advanced.recipes.$recipeId.edit'
 import { Route as AdvancedPumpsPumpIdEditRouteImport } from './routes/_advanced.pumps.$pumpId.edit'
 
@@ -137,6 +138,11 @@ const AdvancedRecipesNewRoute = AdvancedRecipesNewRouteImport.update({
   path: '/new',
   getParentRoute: () => AdvancedRecipesRoute,
 } as any)
+const AdvancedDrinksRecipeIdRoute = AdvancedDrinksRecipeIdRouteImport.update({
+  id: '/$recipeId',
+  path: '/$recipeId',
+  getParentRoute: () => AdvancedDrinksRoute,
+} as any)
 const AdvancedRecipesRecipeIdEditRoute =
   AdvancedRecipesRecipeIdEditRouteImport.update({
     id: '/$recipeId/edit',
@@ -155,7 +161,7 @@ export interface FileRoutesByFullPath {
   '/reversepumpsettings': typeof ReversepumpsettingsRoute
   '/simple': typeof SimpleRouteWithChildren
   '/categories': typeof AdvancedCategoriesRoute
-  '/drinks': typeof AdvancedDrinksRoute
+  '/drinks': typeof AdvancedDrinksRouteWithChildren
   '/favorites': typeof AdvancedFavoritesRoute
   '/glasses': typeof AdvancedGlassesRoute
   '/ingredients': typeof AdvancedIngredientsRoute
@@ -168,6 +174,7 @@ export interface FileRoutesByFullPath {
   '/simple/order': typeof SimpleOrderRoute
   '/simple/order-status': typeof SimpleOrderStatusRoute
   '/simple/settings': typeof SimpleSettingsRoute
+  '/drinks/$recipeId': typeof AdvancedDrinksRecipeIdRoute
   '/recipes/new': typeof AdvancedRecipesNewRoute
   '/simple/drink/$id': typeof SimpleDrinkIdRoute
   '/pumps/$pumpId/edit': typeof AdvancedPumpsPumpIdEditRoute
@@ -179,7 +186,7 @@ export interface FileRoutesByTo {
   '/reversepumpsettings': typeof ReversepumpsettingsRoute
   '/simple': typeof SimpleRouteWithChildren
   '/categories': typeof AdvancedCategoriesRoute
-  '/drinks': typeof AdvancedDrinksRoute
+  '/drinks': typeof AdvancedDrinksRouteWithChildren
   '/favorites': typeof AdvancedFavoritesRoute
   '/glasses': typeof AdvancedGlassesRoute
   '/ingredients': typeof AdvancedIngredientsRoute
@@ -192,6 +199,7 @@ export interface FileRoutesByTo {
   '/simple/order': typeof SimpleOrderRoute
   '/simple/order-status': typeof SimpleOrderStatusRoute
   '/simple/settings': typeof SimpleSettingsRoute
+  '/drinks/$recipeId': typeof AdvancedDrinksRecipeIdRoute
   '/recipes/new': typeof AdvancedRecipesNewRoute
   '/simple/drink/$id': typeof SimpleDrinkIdRoute
   '/pumps/$pumpId/edit': typeof AdvancedPumpsPumpIdEditRoute
@@ -205,7 +213,7 @@ export interface FileRoutesById {
   '/reversepumpsettings': typeof ReversepumpsettingsRoute
   '/simple': typeof SimpleRouteWithChildren
   '/_advanced/categories': typeof AdvancedCategoriesRoute
-  '/_advanced/drinks': typeof AdvancedDrinksRoute
+  '/_advanced/drinks': typeof AdvancedDrinksRouteWithChildren
   '/_advanced/favorites': typeof AdvancedFavoritesRoute
   '/_advanced/glasses': typeof AdvancedGlassesRoute
   '/_advanced/ingredients': typeof AdvancedIngredientsRoute
@@ -218,6 +226,7 @@ export interface FileRoutesById {
   '/simple/order': typeof SimpleOrderRoute
   '/simple/order-status': typeof SimpleOrderStatusRoute
   '/simple/settings': typeof SimpleSettingsRoute
+  '/_advanced/drinks/$recipeId': typeof AdvancedDrinksRecipeIdRoute
   '/_advanced/recipes/new': typeof AdvancedRecipesNewRoute
   '/simple/drink/$id': typeof SimpleDrinkIdRoute
   '/_advanced/pumps/$pumpId/edit': typeof AdvancedPumpsPumpIdEditRoute
@@ -244,6 +253,7 @@ export interface FileRouteTypes {
     | '/simple/order'
     | '/simple/order-status'
     | '/simple/settings'
+    | '/drinks/$recipeId'
     | '/recipes/new'
     | '/simple/drink/$id'
     | '/pumps/$pumpId/edit'
@@ -268,6 +278,7 @@ export interface FileRouteTypes {
     | '/simple/order'
     | '/simple/order-status'
     | '/simple/settings'
+    | '/drinks/$recipeId'
     | '/recipes/new'
     | '/simple/drink/$id'
     | '/pumps/$pumpId/edit'
@@ -293,6 +304,7 @@ export interface FileRouteTypes {
     | '/simple/order'
     | '/simple/order-status'
     | '/simple/settings'
+    | '/_advanced/drinks/$recipeId'
     | '/_advanced/recipes/new'
     | '/simple/drink/$id'
     | '/_advanced/pumps/$pumpId/edit'
@@ -456,6 +468,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdvancedRecipesNewRouteImport
       parentRoute: typeof AdvancedRecipesRoute
     }
+    '/_advanced/drinks/$recipeId': {
+      id: '/_advanced/drinks/$recipeId'
+      path: '/$recipeId'
+      fullPath: '/drinks/$recipeId'
+      preLoaderRoute: typeof AdvancedDrinksRecipeIdRouteImport
+      parentRoute: typeof AdvancedDrinksRoute
+    }
     '/_advanced/recipes/$recipeId/edit': {
       id: '/_advanced/recipes/$recipeId/edit'
       path: '/$recipeId/edit'
@@ -472,6 +491,18 @@ declare module '@tanstack/react-router' {
     }
   }
 }
+
+interface AdvancedDrinksRouteChildren {
+  AdvancedDrinksRecipeIdRoute: typeof AdvancedDrinksRecipeIdRoute
+}
+
+const AdvancedDrinksRouteChildren: AdvancedDrinksRouteChildren = {
+  AdvancedDrinksRecipeIdRoute: AdvancedDrinksRecipeIdRoute,
+}
+
+const AdvancedDrinksRouteWithChildren = AdvancedDrinksRoute._addFileChildren(
+  AdvancedDrinksRouteChildren,
+)
 
 interface AdvancedPumpsRouteChildren {
   AdvancedPumpsPumpIdEditRoute: typeof AdvancedPumpsPumpIdEditRoute
@@ -501,7 +532,7 @@ const AdvancedRecipesRouteWithChildren = AdvancedRecipesRoute._addFileChildren(
 
 interface AdvancedRouteChildren {
   AdvancedCategoriesRoute: typeof AdvancedCategoriesRoute
-  AdvancedDrinksRoute: typeof AdvancedDrinksRoute
+  AdvancedDrinksRoute: typeof AdvancedDrinksRouteWithChildren
   AdvancedFavoritesRoute: typeof AdvancedFavoritesRoute
   AdvancedGlassesRoute: typeof AdvancedGlassesRoute
   AdvancedIngredientsRoute: typeof AdvancedIngredientsRoute
@@ -514,7 +545,7 @@ interface AdvancedRouteChildren {
 
 const AdvancedRouteChildren: AdvancedRouteChildren = {
   AdvancedCategoriesRoute: AdvancedCategoriesRoute,
-  AdvancedDrinksRoute: AdvancedDrinksRoute,
+  AdvancedDrinksRoute: AdvancedDrinksRouteWithChildren,
   AdvancedFavoritesRoute: AdvancedFavoritesRoute,
   AdvancedGlassesRoute: AdvancedGlassesRoute,
   AdvancedIngredientsRoute: AdvancedIngredientsRoute,

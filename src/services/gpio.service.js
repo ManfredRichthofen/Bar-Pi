@@ -1,8 +1,9 @@
 import axios from 'axios';
 import authHeader from './auth-header';
-import config from './config';
+import useConfigStore from '../store/configStore';
 
-axios.defaults.baseURL = config.API_BASE_URL;
+// Set initial base URL from store
+axios.defaults.baseURL = useConfigStore.getState().apiBaseUrl;
 
 const API_PATH = 'api/gpio/';
 

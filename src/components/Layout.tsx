@@ -39,7 +39,7 @@ const Layout: React.FC<MainLayoutProps> = ({ children }) => {
           collapsed ? 'ml-0' : 'ml-72'
         }`}
       >
-        <div className="p-6 pt-24">{childrenWithProps}</div>
+        <div className="p-4 sm:p-6 pt-24">{childrenWithProps}</div>
       </main>
     </div>
   );

@@ -1,10 +1,10 @@
 import axios from 'axios';
 import qs from 'qs';
-import config from './config';
+import useConfigStore from '../store/configStore';
 
 // Validate API URL before making requests
 const validateApiUrl = () => {
-  const url = config.API_BASE_URL;
+  const url = useConfigStore.getState().apiBaseUrl;
   if (!url) {
     throw new Error(
       'API URL is not configured. Please configure it in settings.',
@@ -14,8 +14,8 @@ const validateApiUrl = () => {
   axios.defaults.baseURL = url;
 };
 
-// Set initial base URL
-axios.defaults.baseURL = config.API_BASE_URL;
+// Set initial base URL from store
+axios.defaults.baseURL = useConfigStore.getState().apiBaseUrl;
 
 import JsUtils from './JsUtils.js';
 

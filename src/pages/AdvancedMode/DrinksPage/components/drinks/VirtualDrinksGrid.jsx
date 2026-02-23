@@ -9,7 +9,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import RecipeService from '@/services/recipe.service.js';
 import DrinkCard from './DrinkCard.jsx';
 
-function VirtualDrinksGrid({ token, searchTerm, collapsed = false }) {
+function VirtualDrinksGrid({ token, searchTerm, collapsed = false, filters, fabricableRecipes, onCheckFabricability, onFilterRecipes }) {
   const { t } = useTranslation();
   const listRef = React.useRef(null);
   const [itemsPerRow, setItemsPerRow] = React.useState(2);
@@ -73,7 +73,7 @@ function VirtualDrinksGrid({ token, searchTerm, collapsed = false }) {
     fetchNextPage,
     hasNextPage,
   } = useInfiniteQuery({
-    queryKey: ['recipes', searchTerm],
+    queryKey: ['recipes', searchTerm, filters],
     queryFn: async ({ pageParam = 0 }) => {
       const response = await RecipeService.getRecipes(
         pageParam,
@@ -87,6 +87,21 @@ function VirtualDrinksGrid({ token, searchTerm, collapsed = false }) {
         token, // token
         false, // includeImage - load images lazily instead
       );
+
+      if (response.content) {
+        // Only check fabricability for new recipes
+        const newRecipes = response.content.filter(
+          (recipe) => !fabricableRecipes.has(recipe.id),
+        );
+        if (newRecipes.length > 0) {
+          await onCheckFabricability(newRecipes);
+        }
+        response.content = onFilterRecipes(
+          response.content,
+          filters,
+          fabricableRecipes,
+        );
+      }
 
       return {
         content: response.content || [],
@@ -103,6 +118,10 @@ function VirtualDrinksGrid({ token, searchTerm, collapsed = false }) {
     refetchOnMount: false, // Don't refetch when component mounts
     retry: 2, // Retry failed requests twice
     retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000), // Exponential backoff
+    select: (data) => ({
+      pages: data.pages,
+      pageParams: data.pageParams,
+    }),
   });
 
   const allRecipes = data ? data.pages.flatMap((d) => d.content) : [];

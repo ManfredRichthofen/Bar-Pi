@@ -2,13 +2,15 @@ import { Stomp } from '@stomp/stompjs';
 import axios from 'axios';
 import SockJS from 'sockjs-client/dist/sockjs';
 import useAuthStore from '../store/authStore';
+import useConfigStore from '../store/configStore';
 import authHeader from './auth-header';
-import config from './config';
 
-axios.defaults.baseURL = config.API_BASE_URL;
+// Get initial API URL from store
+const configStore = useConfigStore.getState();
+axios.defaults.baseURL = configStore.apiBaseUrl;
 
 const getFormattedServerAddress = () => {
-  return config.API_BASE_URL;
+  return useConfigStore.getState().apiBaseUrl;
 };
 
 const isDevelopment = () => {
@@ -39,7 +41,7 @@ class WebsocketService {
 
   async connectWebsocket(token) {
     // Remove trailing slash from API_BASE_URL to prevent double slashes
-    const baseUrl = config.API_BASE_URL.replace(/\/$/, '');
+    const baseUrl = useConfigStore.getState().apiBaseUrl.replace(/\/$/, '');
 
     this.stompClient = Stomp.over(
       () =>
