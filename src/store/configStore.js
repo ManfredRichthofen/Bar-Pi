@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import config from '../services/config';
+import { persist } from 'zustand/middleware';
 
 const isValidUrl = (url) => {
   try {
@@ -45,19 +45,31 @@ const formatUrl = (url, validate = false) => {
   }
 };
 
-const useConfigStore = create((set) => ({
-  apiBaseUrl: config.getStoredApiUrl() || '',
-  setApiBaseUrl: (newUrl) => {
-    // During editing, use raw value for display
-    const rawUrl = formatUrl(newUrl, false);
-    set({ apiBaseUrl: rawUrl });
+const useConfigStore = create(
+  persist(
+    (set) => ({
+      apiBaseUrl: 'http://localhost:80',
+      setApiBaseUrl: (newUrl) => {
+        // During editing, use raw value for display
+        const rawUrl = formatUrl(newUrl, false);
+        set({ apiBaseUrl: rawUrl });
 
-    // Only format and store if it's a complete, valid URL
-    const formattedUrl = formatUrl(rawUrl, true);
-    if (formattedUrl && isValidUrl(formattedUrl)) {
-      config.setApiBaseUrl(formattedUrl);
+        // Only format and store if it's a complete, valid URL
+        const formattedUrl = formatUrl(rawUrl, true);
+        if (formattedUrl && isValidUrl(formattedUrl)) {
+          set({ apiBaseUrl: formattedUrl });
+        }
+      },
+      resetApiUrl: () => set({ apiBaseUrl: 'http://localhost:80' }),
+    }),
+    {
+      name: 'config-storage',
+      // Only persist non-default values
+      partialize: (state) => ({
+        apiBaseUrl: state.apiBaseUrl === 'http://localhost:80' ? undefined : state.apiBaseUrl,
+      }),
     }
-  },
-}));
+  )
+);
 
 export default useConfigStore;

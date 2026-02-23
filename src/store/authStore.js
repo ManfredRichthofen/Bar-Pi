@@ -1,6 +1,5 @@
 import { create } from 'zustand';
 import AuthService from '../services/auth.service.js';
-import config from '../services/config';
 import websocketService from '../services/websocket.service';
 import useCocktailProgressStore from './cocktailProgressStore';
 import useConfigStore from './configStore';
@@ -21,7 +20,7 @@ const useAuthStore = create((set) => ({
 
     try {
       if (apiBaseUrl) {
-        config.setApiBaseUrl(apiBaseUrl);
+        useConfigStore.getState().setApiBaseUrl(apiBaseUrl);
       }
 
       const response = await AuthService.login(credentials, apiBaseUrl);
@@ -64,7 +63,7 @@ const useAuthStore = create((set) => ({
       });
 
       // Clear other stores
-      useConfigStore.getState().setApiBaseUrl('');
+      useConfigStore.getState().resetApiUrl();
       useCocktailProgressStore.getState().clearProgress();
       useCocktailProgressStore.getState().setShowProgressDialog(false);
       useFilterStore.getState().clearFilters();

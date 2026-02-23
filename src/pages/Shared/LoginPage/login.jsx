@@ -28,7 +28,7 @@ const Login = () => {
   };
 
   const onSubmit = async (values) => {
-    const currentApiUrl = apiBaseUrl.trim();
+    const currentApiUrl = apiBaseUrl.trim() || 'http://localhost:80';
 
     try {
       // Format and save the API URL first
@@ -177,7 +177,7 @@ const Login = () => {
                       e.stopPropagation();
                     }
                   }}
-                  placeholder={`${t('login.api_url')} (${t('common.optional') || 'optional'})`}
+                  placeholder={`${t('login.api_url')} (${t('common.optional') || 'optional'}) - Default: localhost:80`}
                   className="bg-transparent placeholder:text-muted-foreground outline-none text-sm w-full h-full pr-6"
                   autoComplete="url"
                   inputMode="url"
