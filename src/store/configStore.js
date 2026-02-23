@@ -1,5 +1,5 @@
-import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
+import { createPersistedStore } from './createStore';
+import { DEFAULT_VALUES } from '../constants';
 
 const isValidUrl = (url) => {
   try {
@@ -45,31 +45,30 @@ const formatUrl = (url, validate = false) => {
   }
 };
 
-const useConfigStore = create(
-  persist(
-    (set) => ({
-      apiBaseUrl: 'http://localhost:80',
-      setApiBaseUrl: (newUrl) => {
-        // During editing, use raw value for display
-        const rawUrl = formatUrl(newUrl, false);
-        set({ apiBaseUrl: rawUrl });
+const useConfigStore = createPersistedStore(
+  'config',
+  { apiBaseUrl: DEFAULT_VALUES.API_URL },
+  (set, get) => ({
+    setApiBaseUrl: (newUrl) => {
+      // During editing, use raw value for display
+      const rawUrl = formatUrl(newUrl, false);
+      set({ apiBaseUrl: rawUrl });
 
-        // Only format and store if it's a complete, valid URL
-        const formattedUrl = formatUrl(rawUrl, true);
-        if (formattedUrl && isValidUrl(formattedUrl)) {
-          set({ apiBaseUrl: formattedUrl });
-        }
-      },
-      resetApiUrl: () => set({ apiBaseUrl: 'http://localhost:80' }),
+      // Only format and store if it's a complete, valid URL
+      const formattedUrl = formatUrl(rawUrl, true);
+      if (formattedUrl && isValidUrl(formattedUrl)) {
+        set({ apiBaseUrl: formattedUrl });
+      }
+    },
+    
+    resetApiUrl: () => set({ apiBaseUrl: DEFAULT_VALUES.API_URL }),
+  }),
+  {
+    // Only persist non-default values
+    partialize: (state) => ({
+      apiBaseUrl: state.apiBaseUrl === DEFAULT_VALUES.API_URL ? undefined : state.apiBaseUrl,
     }),
-    {
-      name: 'config-storage',
-      // Only persist non-default values
-      partialize: (state) => ({
-        apiBaseUrl: state.apiBaseUrl === 'http://localhost:80' ? undefined : state.apiBaseUrl,
-      }),
-    }
-  )
+  }
 );
 
 export default useConfigStore;

@@ -1,16 +1,9 @@
-import axios from 'axios';
-import useConfigStore from '../store/configStore';
+import { BaseService } from './base.service';
+import { API_PATHS } from '../constants';
 
-// Set initial base URL from store
-axios.defaults.baseURL = useConfigStore.getState().apiBaseUrl;
+const API_PATH = API_PATHS.USER;
 
-const API_PATH = 'api/user/';
-
-class UserService {
-  getAuthHeaders(token = null) {
-    return token ? { Authorization: `Bearer ${token}` } : {};
-  }
-
+class UserService extends BaseService {
   validateUserData(userData, requirePassword = false) {
     if (!userData || !userData.username) {
       throw new Error('Username is required');
@@ -33,33 +26,28 @@ class UserService {
 
   getAllUsers() {
     const token = localStorage.getItem('token');
-    const headers = this.getAuthHeaders(token);
-    return axios.get(API_PATH, { headers }).then((response) => response.data);
+    return this.get(API_PATH, token);
   }
 
   getUser(userId) {
-    return axios
-      .get(API_PATH + String(userId))
-      .then((response) => response.data);
+    return this.get(API_PATH + String(userId));
   }
 
-  getMe(headers = {}) {
-    return axios
-      .get(API_PATH + 'current', { headers })
-      .then((response) => response.data);
+  getMe() {
+    return this.get(API_PATH + 'current');
   }
 
   updateMe(updateRequest) {
-    return axios.put(API_PATH + 'current', updateRequest);
+    return this.put(API_PATH + 'current', updateRequest);
   }
 
   deleteUser(userId, token = null) {
-    const headers = this.getAuthHeaders(token);
-    return axios.delete(API_PATH + String(userId), { headers });
+    const authToken = token || localStorage.getItem('token');
+    return this.delete(API_PATH + String(userId), authToken);
   }
 
   updateUser(userId, updateRequest, token = null) {
-    const headers = this.getAuthHeaders(token);
+    const authToken = token || localStorage.getItem('token');
 
     this.validateUserData(updateRequest, false);
 
@@ -77,12 +65,11 @@ class UserService {
       userDto,
     };
 
-    return axios.put(API_PATH + String(userId), requestBody, { headers });
+    return this.put(API_PATH + String(userId), requestBody, authToken);
   }
 
-  // CREATE user
   createUser(createUser, token = null) {
-    const headers = this.getAuthHeaders(token);
+    const authToken = token || localStorage.getItem('token');
 
     this.validateUserData(createUser, true);
 
@@ -91,7 +78,7 @@ class UserService {
       password: createUser.password,
     };
 
-    return axios.post(API_PATH, { userDto }, { headers });
+    return this.post(API_PATH, { userDto }, authToken);
   }
 }
 

@@ -1,27 +1,10 @@
-import axios from 'axios';
-import qs from 'qs';
-import useConfigStore from '../store/configStore';
-
-// Validate API URL before making requests
-const validateApiUrl = () => {
-  const url = useConfigStore.getState().apiBaseUrl;
-  if (!url) {
-    throw new Error(
-      'API URL is not configured. Please configure it in settings.',
-    );
-  }
-  // Update axios base URL in case it changed
-  axios.defaults.baseURL = url;
-};
-
-// Set initial base URL from store
-axios.defaults.baseURL = useConfigStore.getState().apiBaseUrl;
-
+import { BaseService } from './base.service';
+import { API_PATHS, ERROR_MESSAGES } from '../constants';
 import JsUtils from './JsUtils.js';
 
-const API_PATH = 'api/recipe/';
+const API_PATH = API_PATHS.RECIPE;
 
-class RecipeService {
+class RecipeService extends BaseService {
   createRecipe(createRecipe, image) {
     const uploadData = new FormData();
     const stringRecipe = JSON.stringify(createRecipe);
