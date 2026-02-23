@@ -12,7 +12,7 @@ export const checkFeasibility = async (
   orderConfig,
   token,
   setChecking,
-  setFeasibilityResult
+  setFeasibilityResult,
 ) => {
   setChecking(true);
   try {
@@ -20,7 +20,7 @@ export const checkFeasibility = async (
       recipeId,
       orderConfig,
       false,
-      token
+      token,
     );
     setFeasibilityResult(result);
     return result;
@@ -39,7 +39,7 @@ export const orderDrink = async (
   token,
   setLoading,
   navigate,
-  successRoute
+  successRoute,
 ) => {
   setLoading(true);
   try {
@@ -48,9 +48,9 @@ export const orderDrink = async (
       orderConfig,
       token,
       setLoading,
-      () => {}
+      () => {},
     );
-    
+
     if (!isFeasible?.feasible) {
       toast.error('This drink cannot be made at the moment');
       return;
@@ -67,9 +67,11 @@ export const orderDrink = async (
   } catch (error) {
     if (error.response?.data?.message) {
       console.error('Order failed:', error.response.data);
-      if (error.response.data.message.includes('pumps are currently occupied')) {
+      if (
+        error.response.data.message.includes('pumps are currently occupied')
+      ) {
         toast.error(
-          'Some pumps are currently occupied - please wait for the current drink to finish'
+          'Some pumps are currently occupied - please wait for the current drink to finish',
         );
       } else {
         toast.error(error.response.data.message);
@@ -85,7 +87,7 @@ export const orderDrink = async (
 export const createSimpleOrderConfig = (
   amountToProduce,
   boost,
-  additionalIngredients
+  additionalIngredients,
 ) => ({
   amountOrderedInMl: amountToProduce || 250,
   customisations: {
@@ -98,10 +100,7 @@ export const createSimpleOrderConfig = (
   skipMissingIngredients: false,
 });
 
-export const createAdvancedOrderConfig = (
-  amountToProduce,
-  customizations
-) => {
+export const createAdvancedOrderConfig = (amountToProduce, customizations) => {
   const config = {
     amountOrderedInMl: amountToProduce || 250,
     customisations: {

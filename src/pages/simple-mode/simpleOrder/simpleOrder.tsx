@@ -6,7 +6,12 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Spinner } from '@/components/ui/spinner';
 import useAuthStore from '../../../store/authStore';
-import { areAllIngredientsAvailable, checkFeasibility, orderDrink, createSimpleOrderConfig } from '../../../utils/orderUtils';
+import {
+  areAllIngredientsAvailable,
+  checkFeasibility,
+  orderDrink,
+  createSimpleOrderConfig,
+} from '../../../utils/orderUtils';
 import DrinkCustomizer from './components/DrinkCustomizer';
 import GlassSelector from './components/GlassSelector';
 import IngredientRequirements from './components/IngredientRequirements';
@@ -82,14 +87,15 @@ const SimpleOrder = () => {
     };
   }, [recipe, amountToProduce, boost]);
 
-  const getOrderConfig = () => createSimpleOrderConfig(
-    amountToProduce ||
-      (recipe?.defaultGlass as any)?.size ||
-      recipe?.defaultGlass?.sizeInMl ||
-      250,
-    boost,
-    additionalIngredients
-  );
+  const getOrderConfig = () =>
+    createSimpleOrderConfig(
+      amountToProduce ||
+        (recipe?.defaultGlass as any)?.size ||
+        recipe?.defaultGlass?.sizeInMl ||
+        250,
+      boost,
+      additionalIngredients,
+    );
 
   const checkFeasibilityLocal = async (recipeId: string, orderConfig: any) => {
     return await checkFeasibility(
@@ -97,7 +103,7 @@ const SimpleOrder = () => {
       orderConfig,
       token,
       setChecking,
-      setFeasibilityResult
+      setFeasibilityResult,
     );
   };
 
@@ -108,7 +114,7 @@ const SimpleOrder = () => {
       token,
       setLoading,
       navigate,
-      '/simple/order-status'
+      '/simple/order-status',
     );
     // Set flag to prevent redirect
     setHasOrdered(true);

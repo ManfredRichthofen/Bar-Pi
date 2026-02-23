@@ -9,15 +9,17 @@ export const calculateRecipeStats = (recipe) => {
       automatedIngredients: 0,
       manualIngredients: 0,
       estimatedABV: '0.0',
-      totalVolume: 0
+      totalVolume: 0,
     };
   }
 
   console.log('Recipe ingredients data:', recipe.ingredients);
 
-  const automatedIngredients = recipe.ingredients.filter(ing => ing.type === 'automated').length || 0;
-  const manualIngredients = recipe.ingredients.filter(ing => ing.type === 'manual').length || 0;
-  
+  const automatedIngredients =
+    recipe.ingredients.filter((ing) => ing.type === 'automated').length || 0;
+  const manualIngredients =
+    recipe.ingredients.filter((ing) => ing.type === 'manual').length || 0;
+
   // Calculate total volume by summing all ingredient amounts
   const totalVolume = recipe.ingredients.reduce((sum, ing) => {
     console.log('Processing ingredient:', ing);
@@ -27,37 +29,42 @@ export const calculateRecipeStats = (recipe) => {
     }
     // Convert to ml: cl to ml (multiply by 10), ml stays the same
     const amountMl = ing.unit === 'cl' ? ing.amount * 10 : ing.amount;
-    console.log(`Ingredient ${ing.name}: ${ing.amount} ${ing.unit} = ${amountMl}ml`);
+    console.log(
+      `Ingredient ${ing.name}: ${ing.amount} ${ing.unit} = ${amountMl}ml`,
+    );
     return sum + amountMl;
   }, 0);
-  
+
   // Calculate total alcohol content (pure alcohol volume in ml)
   const totalAlcoholContent = recipe.ingredients.reduce((sum, ing) => {
     if (ing.alcoholContent && ing.amount) {
       const amountMl = ing.unit === 'cl' ? ing.amount * 10 : ing.amount;
       // Pure alcohol volume = ingredient volume * (ABV / 100)
-      const alcoholVolume = amountMl * ing.alcoholContent / 100;
-      console.log(`Alcohol content for ${ing.name}: ${amountMl}ml × ${ing.alcoholContent}% = ${alcoholVolume}ml pure alcohol`);
+      const alcoholVolume = (amountMl * ing.alcoholContent) / 100;
+      console.log(
+        `Alcohol content for ${ing.name}: ${amountMl}ml × ${ing.alcoholContent}% = ${alcoholVolume}ml pure alcohol`,
+      );
       return sum + alcoholVolume;
     }
     return sum;
   }, 0);
-  
+
   // Calculate ABV: (total alcohol volume / total drink volume) * 100
-  const estimatedABV = totalVolume > 0 ? (totalAlcoholContent / totalVolume) * 100 : 0;
-  
+  const estimatedABV =
+    totalVolume > 0 ? (totalAlcoholContent / totalVolume) * 100 : 0;
+
   console.log('Final calculation:', {
     totalVolume,
     totalAlcoholContent,
     estimatedABV,
     automatedIngredients,
-    manualIngredients
+    manualIngredients,
   });
-  
+
   return {
     automatedIngredients,
     manualIngredients,
     estimatedABV: estimatedABV.toFixed(1),
-    totalVolume: Math.round(totalVolume)
+    totalVolume: Math.round(totalVolume),
   };
 };

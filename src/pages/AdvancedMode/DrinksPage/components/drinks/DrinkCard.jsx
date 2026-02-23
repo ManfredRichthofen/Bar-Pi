@@ -1,9 +1,5 @@
 import { useNavigate } from '@tanstack/react-router';
-import {
-  GlassWater,
-  Heart,
-  Loader2,
-} from 'lucide-react';
+import { GlassWater, Heart, Loader2 } from 'lucide-react';
 import { motion } from 'motion/react';
 import React from 'react';
 import { Badge } from '@/components/ui/badge';
@@ -26,10 +22,10 @@ const DrinkCard = ({ recipe }) => {
   } = useLazyImage(recipe.id, recipe.hasImage);
 
   const handleCardClick = () => {
-    navigate({ 
-      to: '/drinks/$recipeId', 
+    navigate({
+      to: '/drinks/$recipeId',
       params: { recipeId: recipe.id },
-      state: { recipe }
+      state: { recipe },
     });
   };
 

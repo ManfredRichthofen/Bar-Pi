@@ -56,8 +56,8 @@ const UpdateChecker: React.FC = () => {
       if (headerLine.startsWith('#')) {
         const title = headerLine.replace(/^#+\s+/, '');
         const content = contentLines
-          .filter(line => line.trim())
-          .map(line => {
+          .filter((line) => line.trim())
+          .map((line) => {
             // Convert markdown lists to bullet points
             if (line.trim().startsWith('- ')) {
               return `• ${line.trim().substring(2)}`;
@@ -70,11 +70,23 @@ const UpdateChecker: React.FC = () => {
         let type: 'feature' | 'bug' | 'improvement' | 'other' = 'other';
 
         const titleLower = title.toLowerCase();
-        if (titleLower.includes('feature') || titleLower.includes('new') || titleLower.includes('add')) {
+        if (
+          titleLower.includes('feature') ||
+          titleLower.includes('new') ||
+          titleLower.includes('add')
+        ) {
           type = 'feature';
-        } else if (titleLower.includes('fix') || titleLower.includes('bug') || titleLower.includes('issue')) {
+        } else if (
+          titleLower.includes('fix') ||
+          titleLower.includes('bug') ||
+          titleLower.includes('issue')
+        ) {
           type = 'bug';
-        } else if (titleLower.includes('improve') || titleLower.includes('update') || titleLower.includes('enhance')) {
+        } else if (
+          titleLower.includes('improve') ||
+          titleLower.includes('update') ||
+          titleLower.includes('enhance')
+        ) {
           type = 'improvement';
         }
 
@@ -90,7 +102,7 @@ const UpdateChecker: React.FC = () => {
     const now = new Date();
     const diff = now.getTime() - lastChecked.getTime();
     const minutes = Math.floor(diff / 60000);
-    
+
     if (minutes < 1) return 'Just now';
     if (minutes < 60) return `${minutes} minute${minutes > 1 ? 's' : ''} ago`;
     const hours = Math.floor(minutes / 60);
@@ -126,7 +138,10 @@ const UpdateChecker: React.FC = () => {
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
             {updateInfo?.hasUpdate && (
               <Badge variant="default" className="w-fit">
-                {t('settings.updates.new_version_available', 'Update Available')}
+                {t(
+                  'settings.updates.new_version_available',
+                  'Update Available',
+                )}
               </Badge>
             )}
             {lastChecked && (
@@ -184,20 +199,25 @@ const UpdateChecker: React.FC = () => {
                   {t('settings.updates.release_notes', 'Release Notes')}
                 </h3>
                 <div className="bg-muted rounded-lg p-4 space-y-4">
-                  {parseReleaseNotes(updateInfo.releaseNotes).map((section, index) => (
-                    <div key={index} className="space-y-2">
-                      <h4 className="font-semibold text-sm text-primary">
-                        {section.title}
-                      </h4>
-                      <div className="space-y-1 ml-4">
-                        {section.content.map((line, lineIndex) => (
-                          <div key={lineIndex} className="text-sm text-muted-foreground">
-                            {line}
-                          </div>
-                        ))}
+                  {parseReleaseNotes(updateInfo.releaseNotes).map(
+                    (section, index) => (
+                      <div key={index} className="space-y-2">
+                        <h4 className="font-semibold text-sm text-primary">
+                          {section.title}
+                        </h4>
+                        <div className="space-y-1 ml-4">
+                          {section.content.map((line, lineIndex) => (
+                            <div
+                              key={lineIndex}
+                              className="text-sm text-muted-foreground"
+                            >
+                              {line}
+                            </div>
+                          ))}
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    ),
+                  )}
                 </div>
               </div>
               <div className="flex flex-col sm:flex-row justify-end gap-2">

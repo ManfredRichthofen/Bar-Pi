@@ -1,12 +1,10 @@
 import axios from 'axios';
-import useConfigStore from '../store/configStore';
+import { BaseService } from './base.service';
+import { API_PATHS } from '../constants';
 
-// Set initial base URL from store
-axios.defaults.baseURL = useConfigStore.getState().apiBaseUrl;
+const API_PATH = API_PATHS.GLASS;
 
-const API_PATH = 'api/glass/';
-
-class GlassService {
+class GlassService extends BaseService {
   getAuthHeader(token) {
     return {
       headers: {

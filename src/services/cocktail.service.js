@@ -1,14 +1,11 @@
 import axios from 'axios';
-import useConfigStore from '../store/configStore';
-
-// Set initial base URL from store
-axios.defaults.baseURL = useConfigStore.getState().apiBaseUrl;
-
+import { BaseService } from './base.service';
+import { API_PATHS } from '../constants';
 import JsUtils from './JsUtils.js';
 
-const API_PATH = 'api/cocktail/';
+const API_PATH = API_PATHS.COCKTAIL;
 
-class CocktailService {
+class CocktailService extends BaseService {
   getAuthHeader(token) {
     return {
       headers: {

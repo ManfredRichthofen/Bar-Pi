@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import { DEFAULT_VALUES, UI_MODES } from '../constants';
 
 interface UIModeState {
   isAdvancedMode: boolean;
@@ -10,7 +11,7 @@ interface UIModeState {
 const useUIModeStore = create<UIModeState>()(
   persist(
     (set) => ({
-      isAdvancedMode: false, // Default to simple mode
+      isAdvancedMode: DEFAULT_VALUES.UI_MODE === UI_MODES.ADVANCED,
       isInitialized: true,
       setAdvancedMode: (isAdvanced: boolean) => {
         set({ isAdvancedMode: isAdvanced });
@@ -18,8 +19,8 @@ const useUIModeStore = create<UIModeState>()(
     }),
     {
       name: 'ui-mode-storage',
-    }
-  )
+    },
+  ),
 );
 
 export default useUIModeStore;

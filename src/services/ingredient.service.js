@@ -23,7 +23,7 @@ class IngredientService {
   }
 
   async getBoostableIngredients(token) {
-    const response = await axios.get(`${API_URL}/ingredients/boostable`, {
+    const response = await axios.get(`${API_PATH}boostable`, {
       headers: { Authorization: `Bearer ${token}` },
     });
     return response.data;

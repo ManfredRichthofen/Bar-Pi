@@ -29,7 +29,7 @@ const Favorites = ({ sidebarCollapsed = false }) => {
   // Load images for favorites
   const loadImagesForFavorites = useCallback(async () => {
     if (!token || favorites.length === 0) return;
-    
+
     setLoadingImages(true);
     try {
       const updatedFavorites = await Promise.all(
@@ -37,15 +37,22 @@ const Favorites = ({ sidebarCollapsed = false }) => {
           // Only load image if recipe hasImage but no image data
           if (recipe.hasImage && !recipe.image) {
             try {
-              const recipeWithImage = await RecipeService.getRecipe(recipe.id, false, token);
+              const recipeWithImage = await RecipeService.getRecipe(
+                recipe.id,
+                false,
+                token,
+              );
               return { ...recipe, image: recipeWithImage.image };
             } catch (error) {
-              console.error(`Failed to load image for recipe ${recipe.id}:`, error);
+              console.error(
+                `Failed to load image for recipe ${recipe.id}:`,
+                error,
+              );
               return recipe;
             }
           }
           return recipe;
-        })
+        }),
       );
       setFavoritesWithImages(updatedFavorites);
     } catch (error) {
@@ -55,7 +62,7 @@ const Favorites = ({ sidebarCollapsed = false }) => {
       setLoadingImages(false);
     }
   }, [token, favorites]);
-  
+
   useEffect(() => {
     loadImagesForFavorites();
   }, [loadImagesForFavorites]);
@@ -63,9 +70,10 @@ const Favorites = ({ sidebarCollapsed = false }) => {
   if (!token) {
     return <Navigate to="/login" />;
   }
-  
+
   // Use favorites with images for rendering
-  const displayFavorites = favoritesWithImages.length > 0 ? favoritesWithImages : favorites;
+  const displayFavorites =
+    favoritesWithImages.length > 0 ? favoritesWithImages : favorites;
 
   const handleCardClick = (recipe) => {
     navigate({ to: '/order', state: { recipe } });
