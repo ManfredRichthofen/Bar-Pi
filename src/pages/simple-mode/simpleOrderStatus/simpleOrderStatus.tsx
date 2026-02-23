@@ -147,7 +147,7 @@ const SimpleOrderStatus = () => {
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 overflow-y-auto pb-20">
+      <div className="flex-1 overflow-y-auto pb-32">
         <div className="p-4 max-w-2xl mx-auto space-y-4">
           {/* Status Card */}
           <Card className="border-2">

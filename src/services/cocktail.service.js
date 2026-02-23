@@ -1,5 +1,7 @@
+import axios from 'axios';
 import { BaseService } from './base.service';
 import { API_PATHS } from '../constants';
+import JsUtils from './JsUtils.js';
 
 const API_PATH = API_PATHS.COCKTAIL;
 
