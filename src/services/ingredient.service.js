@@ -1,10 +1,10 @@
-import config from './config';
+import axios from 'axios';
+import useConfigStore from '../store/configStore';
+
+// Set initial base URL from store
+axios.defaults.baseURL = useConfigStore.getState().apiBaseUrl;
 
 const API_PATH = 'api/ingredient/';
-
-import axios from 'axios';
-
-axios.defaults.baseURL = config.API_BASE_URL;
 
 class IngredientService {
   getAuthHeader(token) {
