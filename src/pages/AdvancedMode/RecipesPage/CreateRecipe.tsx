@@ -1,5 +1,5 @@
 import { useNavigate } from '@tanstack/react-router';
-import { Loader2, Plus } from 'lucide-react';
+import { Loader2, Plus, Download } from 'lucide-react';
 import type React from 'react';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
@@ -8,11 +8,13 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import glassService from '@/services/glass.service';
 import ingredientService from '@/services/ingredient.service';
 import RecipeService from '@/services/recipe.service';
+import cocktailDBService from '@/services/cocktaildb.service';
 import useAuthStore from '@/store/authStore';
 import { ProductionStepEditor } from './components/ProductionStepEditor';
 import { RecipeBasicInfo } from './components/RecipeBasicInfo';
 import { RecipeFormHeader } from './components/RecipeFormHeader';
 import { RecipeImageUpload } from './components/RecipeImageUpload';
+import { CocktailDBImportDialog } from './components/CocktailDBImportDialog';
 
 // Types
 interface Ingredient {
@@ -47,6 +49,7 @@ export const NewRecipePage: React.FC = () => {
   const [saving, setSaving] = useState(false);
   const [ingredients, setIngredients] = useState<Ingredient[]>([]);
   const [glasses, setGlasses] = useState<Glass[]>([]);
+  const [showImportDialog, setShowImportDialog] = useState(false);
 
   const [formData, setFormData] = useState({
     name: '',
@@ -158,9 +161,9 @@ export const NewRecipePage: React.FC = () => {
       step.stepIngredients = [
         ...(step.stepIngredients || []),
         {
-          ingredient: ingredients[0],
+          ingredient: ingredients.length > 0 ? ingredients[0] : null,
           amount: 30,
-          scale: 'ml',
+          scale: 'milliliter',
           boostable: false,
         },
       ];
@@ -199,6 +202,75 @@ export const NewRecipePage: React.FC = () => {
     }
   };
 
+  const handleImportFromCocktailDB = (cocktailData: any) => {
+    // Set basic info
+    setFormData((prev) => ({
+      ...prev,
+      name: cocktailData.name || '',
+      description: cocktailData.instructions || cocktailData.description || '',
+    }));
+
+    // Set image if available
+    if (cocktailData.imageFile) {
+      setFormData((prev) => ({
+        ...prev,
+        image: cocktailData.imageFile,
+        imagePreview: URL.createObjectURL(cocktailData.imageFile),
+      }));
+    }
+
+    // Convert ingredients to production steps
+    if (cocktailData.ingredients && cocktailData.ingredients.length > 0) {
+      const stepIngredients = cocktailData.ingredients.map((ing: any) => {
+        // Try to find matching ingredient in our system
+        const matchedIngredient = ingredients.find(
+          (i) => i.name.toLowerCase() === ing.name.toLowerCase(),
+        );
+
+        // Parse measurement - CocktailDB provides the unit (tsp, piece, oz, etc.)
+        const measurement = cocktailDBService.parseMeasurement(ing.measure) as {
+          amount: number;
+          unit: string;
+        };
+
+        return {
+          ingredient: matchedIngredient || null,
+          amount: measurement.amount,
+          scale: measurement.unit,
+          boostable: false,
+        };
+      });
+
+      const productionStep = {
+        type: 'addIngredients',
+        stepIngredients: stepIngredients,
+      };
+
+      // Only set the production steps we need - remove any extras
+      setFormData((prev) => ({
+        ...prev,
+        productionSteps: [productionStep],
+      }));
+    }
+
+    // Find matching glass
+    if (cocktailData.glass && glasses.length > 0) {
+      const matchedGlass = glasses.find(
+        (g) =>
+          g.name.toLowerCase().includes(cocktailData.glass.toLowerCase()) ||
+          cocktailData.glass.toLowerCase().includes(g.name.toLowerCase()),
+      );
+      if (matchedGlass) {
+        setFormData((prev) => ({
+          ...prev,
+          defaultGlass: matchedGlass,
+        }));
+      }
+    }
+
+    toast.success('Recipe imported! Review and adjust ingredients as needed.');
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-full">
@@ -209,31 +281,67 @@ export const NewRecipePage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <RecipeFormHeader
-        title="Create New Recipe"
-        onSave={handleSubmit}
-        saving={saving}
-        saveText="Create Recipe"
+      <RecipeFormHeader title="Create Recipe" />
+
+      <CocktailDBImportDialog
+        open={showImportDialog}
+        onOpenChange={setShowImportDialog}
+        onImport={handleImportFromCocktailDB}
       />
 
-      <div className="container mx-auto px-4 py-6 max-w-5xl">
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <RecipeBasicInfo
-            name={formData.name}
-            description={formData.description}
-            defaultGlass={formData.defaultGlass}
-            defaultAmountToFill={formData.defaultAmountToFill}
-            glasses={glasses}
-            onUpdate={(field, value) =>
-              setFormData({ ...formData, [field]: value })
-            }
-          />
-
+      <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-6 max-w-5xl">
+        {/* Import Option */}
+        <div className="mb-4 sm:mb-6">
           <Card>
-            <CardHeader>
-              <CardTitle>Recipe Image</CardTitle>
+            <CardContent className="pt-4 sm:pt-6 px-4 sm:px-6">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
+                <div className="flex-1">
+                  <h3 className="text-base sm:text-lg font-semibold mb-1">
+                    Import from CocktailDB
+                  </h3>
+                  <p className="text-xs sm:text-sm text-muted-foreground">
+                    Search and import cocktail recipes with ingredients,
+                    instructions, and images from TheCocktailDB
+                  </p>
+                </div>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setShowImportDialog(true)}
+                  className="w-full sm:w-auto shrink-0"
+                >
+                  <Download className="mr-2 h-4 w-4" />
+                  Import Recipe
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        <form
+          onSubmit={handleSubmit}
+          className="space-y-4 sm:space-y-6 pb-20 sm:pb-0"
+        >
+          <div id="basic-info">
+            <RecipeBasicInfo
+              name={formData.name}
+              description={formData.description}
+              defaultGlass={formData.defaultGlass}
+              defaultAmountToFill={formData.defaultAmountToFill}
+              glasses={glasses}
+              onUpdate={(field, value) =>
+                setFormData({ ...formData, [field]: value })
+              }
+            />
+          </div>
+
+          <Card id="recipe-image">
+            <CardHeader className="px-4 sm:px-6 py-4 sm:py-6">
+              <CardTitle className="text-base sm:text-lg">
+                Recipe Image
+              </CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="px-4 sm:px-6 pb-4 sm:pb-6">
               <RecipeImageUpload
                 imagePreview={formData.imagePreview}
                 onImageChange={(file) =>
@@ -250,19 +358,26 @@ export const NewRecipePage: React.FC = () => {
             </CardContent>
           </Card>
 
-          <Card>
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <CardTitle>Production Steps</CardTitle>
-                <Button type="button" onClick={addProductionStep} size="sm">
+          <Card id="production-steps">
+            <CardHeader className="px-4 sm:px-6 py-4 sm:py-6">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0">
+                <CardTitle className="text-base sm:text-lg">
+                  Production Steps
+                </CardTitle>
+                <Button
+                  type="button"
+                  onClick={addProductionStep}
+                  size="sm"
+                  className="w-full sm:w-auto"
+                >
                   <Plus className="mr-2 h-4 w-4" />
                   Add Step
                 </Button>
               </div>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-3 sm:space-y-4 px-4 sm:px-6">
               {formData.productionSteps.length === 0 ? (
-                <p className="text-muted-foreground text-center py-4">
+                <p className="text-sm text-muted-foreground text-center py-6 sm:py-4">
                   No production steps added yet. Click "Add Step" to begin.
                 </p>
               ) : (
@@ -296,8 +411,13 @@ export const NewRecipePage: React.FC = () => {
             </CardContent>
           </Card>
 
-          <div className="flex gap-4">
-            <Button type="submit" disabled={saving} className="flex-1">
+          {/* Desktop action buttons */}
+          <div className="hidden sm:flex flex-row gap-4 pb-0">
+            <Button
+              type="submit"
+              disabled={saving}
+              className="flex-1 h-12 sm:h-10 text-base sm:text-sm"
+            >
               {saving ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -311,9 +431,38 @@ export const NewRecipePage: React.FC = () => {
               type="button"
               variant="outline"
               onClick={() => navigate({ to: '/recipes' })}
+              className="h-12 sm:h-10 sm:w-auto text-base sm:text-sm"
             >
               Cancel
             </Button>
+          </div>
+
+          {/* Mobile sticky action bar */}
+          <div className="sm:hidden fixed bottom-0 left-0 right-0 bg-background/95 backdrop-blur-sm border-t shadow-lg z-50 p-3">
+            <div className="flex gap-3">
+              <Button
+                type="submit"
+                disabled={saving}
+                className="flex-1 h-12 text-base"
+              >
+                {saving ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Creating...
+                  </>
+                ) : (
+                  <>Save</>
+                )}
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => navigate({ to: '/recipes' })}
+                className="h-12 w-auto text-base px-6"
+              >
+                Cancel
+              </Button>
+            </div>
           </div>
         </form>
       </div>

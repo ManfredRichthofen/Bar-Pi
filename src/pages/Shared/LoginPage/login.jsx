@@ -46,7 +46,7 @@ const Login = () => {
     try {
       // Format the URL only on submit
       const formattedUrl = formatUrlForSubmit(apiBaseUrl);
-      
+
       // Save the formatted URL
       setApiBaseUrl(formattedUrl);
 

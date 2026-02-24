@@ -28,9 +28,9 @@ export const RecipeImageUpload: React.FC<RecipeImageUploadProps> = ({
 
   return (
     <div className="space-y-2">
-      <div className="flex flex-wrap items-center gap-4">
+      <div className="flex flex-col sm:flex-row sm:flex-wrap items-start sm:items-center gap-3 sm:gap-4">
         {imagePreview && !removeImage ? (
-          <div className="relative w-40 h-40 rounded-lg overflow-hidden shadow-sm border-2 border-border">
+          <div className="relative w-full max-w-[220px] sm:w-40 sm:h-40 aspect-square rounded-lg overflow-hidden shadow-sm border-2 border-border">
             <img
               src={imagePreview}
               alt="Recipe preview"
@@ -47,10 +47,10 @@ export const RecipeImageUpload: React.FC<RecipeImageUploadProps> = ({
             </Button>
           </div>
         ) : (
-          <label className="flex flex-col items-center justify-center w-40 h-40 border-2 border-dashed rounded-lg cursor-pointer hover:bg-accent hover:border-primary transition-all">
+          <label className="flex flex-col items-center justify-center w-full max-w-[220px] sm:w-40 sm:h-40 aspect-square border-2 border-dashed rounded-lg cursor-pointer hover:bg-accent hover:border-primary transition-all">
             <div className="flex flex-col items-center justify-center p-4">
               <ImageIcon size={32} className="mb-2 text-muted-foreground" />
-              <p className="text-xs text-center text-muted-foreground">
+              <p className="text-xs text-center text-muted-foreground leading-5">
                 <span className="font-semibold">Click to upload</span>
                 <br />
                 PNG, JPG (max 5MB)
@@ -67,7 +67,7 @@ export const RecipeImageUpload: React.FC<RecipeImageUploadProps> = ({
         )}
 
         {showRemoveToggle && !imagePreview && (
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 pt-1">
             <input
               type="checkbox"
               className="h-4 w-4"

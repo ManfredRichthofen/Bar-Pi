@@ -13,25 +13,6 @@ import { RecipeBasicInfo } from './components/RecipeBasicInfo';
 import { RecipeFormHeader } from './components/RecipeFormHeader';
 import { RecipeImageUpload } from './components/RecipeImageUpload';
 
-// Types
-const Ingredient = {
-  id: 0,
-  name: '',
-};
-
-const StepIngredient = {
-  ingredient: null,
-  amount: 0,
-  scale: '',
-  boostable: false,
-};
-
-const ProductionStep = {
-  type: '',
-  stepIngredients: [],
-  message: '',
-};
-
 const RecipeEditPage = () => {
   const navigate = useNavigate({ from: '/recipes/$recipeId/edit' });
   const params = useParams({ strict: false });
@@ -78,6 +59,19 @@ const RecipeEditPage = () => {
           token,
         );
 
+        // Map old unit names to new compatible units
+        const mapUnit = (unit) => {
+          const unitMap = {
+            ml: 'milliliter',
+            cl: 'milliliter',
+            oz: 'milliliter',
+            g: 'grams',
+            tsp: 'teaspoons',
+            tbsp: 'tablespoons',
+          };
+          return unitMap[unit] || unit || 'milliliter';
+        };
+
         const productionSteps =
           fullRecipe.productionSteps?.map((step) => {
             if (step.type === 'addIngredients') {
@@ -93,7 +87,7 @@ const RecipeEditPage = () => {
                         ...ingredient,
                       },
                       amount: si.amount || 0,
-                      scale: si.scale || 'ml',
+                      scale: mapUnit(ingredient.unit),
                       boostable: si.boostable || false,
                     };
                   }) || [],
@@ -209,7 +203,12 @@ const RecipeEditPage = () => {
           ...step,
           stepIngredients: [
             ...step.stepIngredients,
-            { ingredient: null, amount: 30, scale: 'ml', boostable: false },
+            {
+              ingredient: null,
+              amount: 30,
+              scale: 'milliliter',
+              boostable: false,
+            },
           ],
         };
         updateProductionStep(stepIndex, updatedStep);
@@ -260,28 +259,25 @@ const RecipeEditPage = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <RecipeFormHeader
-        title={recipeId ? 'Edit Recipe' : 'Create Recipe'}
-        onSave={handleSave}
-        saving={saving}
-        saveText="Save"
-      />
+      <RecipeFormHeader title={recipeId ? 'Edit Recipe' : 'Create Recipe'} />
 
-      <div className="container mx-auto px-4 py-6 max-w-5xl">
-        <div className="space-y-6">
-          <RecipeBasicInfo
-            name={formData.name}
-            description={formData.description}
-            defaultGlass={formData.defaultGlass}
-            defaultAmountToFill={formData.defaultAmountToFill}
-            glasses={glasses}
-            onUpdate={(field, value) =>
-              setFormData((prev) => ({ ...prev, [field]: value }))
-            }
-          />
+      <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-6 max-w-5xl pb-20 sm:pb-0">
+        <div className="space-y-4 sm:space-y-6">
+          <div id="basic-info">
+            <RecipeBasicInfo
+              name={formData.name}
+              description={formData.description}
+              defaultGlass={formData.defaultGlass}
+              defaultAmountToFill={formData.defaultAmountToFill}
+              glasses={glasses}
+              onUpdate={(field, value) =>
+                setFormData((prev) => ({ ...prev, [field]: value }))
+              }
+            />
+          </div>
 
-          <Card>
-            <CardContent className="pt-6">
+          <Card id="recipe-image">
+            <CardContent className="pt-4 sm:pt-6 px-4 sm:px-6">
               <RecipeImageUpload
                 imagePreview={formData.imagePreview}
                 onImageChange={handleImageChange}
@@ -301,21 +297,24 @@ const RecipeEditPage = () => {
             </CardContent>
           </Card>
 
-          <Card>
-            <CardContent className="pt-6">
-              <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
+          <Card id="production-steps">
+            <CardContent className="pt-4 sm:pt-6 px-4 sm:px-6">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
                 <div>
-                  <h3 className="font-semibold text-lg">Production Steps</h3>
-                  <p className="text-sm text-muted-foreground mt-1">
+                  <h3 className="font-semibold text-base sm:text-lg">
+                    Production Steps
+                  </h3>
+                  <p className="text-xs sm:text-sm text-muted-foreground mt-1">
                     Build the drink using ingredient steps and written
                     instructions
                   </p>
                 </div>
-                <div className="flex gap-2">
+                <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
                   <Button
                     type="button"
                     variant="outline"
                     size="sm"
+                    className="w-full sm:w-auto h-10"
                     onClick={() => addProductionStep('addIngredients')}
                   >
                     + Add Ingredients
@@ -324,6 +323,7 @@ const RecipeEditPage = () => {
                     type="button"
                     variant="outline"
                     size="sm"
+                    className="w-full sm:w-auto h-10"
                     onClick={() => addProductionStep('writtenInstruction')}
                   >
                     + Add Instruction
@@ -331,7 +331,7 @@ const RecipeEditPage = () => {
                 </div>
               </div>
 
-              <div className="space-y-4">
+              <div className="space-y-3 sm:space-y-4">
                 {formData.productionSteps.map((step, stepIndex) => (
                   <ProductionStepEditor
                     key={stepIndex}
@@ -359,6 +359,34 @@ const RecipeEditPage = () => {
               </div>
             </CardContent>
           </Card>
+        </div>
+
+        {/* Mobile sticky action bar */}
+        <div className="sm:hidden fixed bottom-0 left-0 right-0 bg-background/95 backdrop-blur-sm border-t shadow-lg z-50 p-3">
+          <div className="flex gap-3">
+            <Button
+              onClick={handleSave}
+              disabled={saving}
+              className="flex-1 h-12 text-base"
+            >
+              {saving ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Saving...
+                </>
+              ) : (
+                <>Save</>
+              )}
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => navigate({ to: '/recipes' })}
+              className="h-12 w-auto text-base px-6"
+            >
+              Cancel
+            </Button>
+          </div>
         </div>
       </div>
     </div>
