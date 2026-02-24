@@ -55,14 +55,18 @@ export const IngredientSelector: React.FC<IngredientSelectorProps> = ({
   };
 
   return (
-    <div className="flex gap-2 items-end">
-      <div className="flex-1">
-        <Label>Ingredient</Label>
+    <div className={`grid grid-cols-1 gap-2 sm:gap-3 items-end ${
+      showBoostable 
+        ? 'sm:grid-cols-[1fr_96px_80px_auto_auto]' 
+        : 'sm:grid-cols-[1fr_96px_80px_auto]'
+    }`}>
+      <div>
+        <Label className="text-xs sm:text-sm">Ingredient</Label>
         <Select
           value={stepIngredient.ingredient?.id?.toString() || ''}
           onValueChange={updateIngredient}
         >
-          <SelectTrigger>
+          <SelectTrigger className="h-10 sm:h-11">
             <SelectValue>
               {stepIngredient.ingredient
                 ? stepIngredient.ingredient.name
@@ -79,20 +83,21 @@ export const IngredientSelector: React.FC<IngredientSelectorProps> = ({
         </Select>
       </div>
 
-      <div className="w-24">
-        <Label>Amount</Label>
+      <div>
+        <Label className="text-xs sm:text-sm">Amount</Label>
         <Input
           type="number"
           value={stepIngredient.amount}
           onChange={(e) => updateAmount(e.target.value)}
           min="0"
+          className="h-10 sm:h-11"
         />
       </div>
 
-      <div className="w-20">
-        <Label>Unit</Label>
+      <div>
+        <Label className="text-xs sm:text-sm">Unit</Label>
         <Select value={stepIngredient.scale} onValueChange={updateScale}>
-          <SelectTrigger>
+          <SelectTrigger className="h-10 sm:h-11">
             <SelectValue>{stepIngredient.scale || 'ml'}</SelectValue>
           </SelectTrigger>
           <SelectContent>
@@ -105,7 +110,7 @@ export const IngredientSelector: React.FC<IngredientSelectorProps> = ({
       </div>
 
       {showBoostable && (
-        <div className="flex items-center gap-2 pb-2">
+        <div className="flex items-center gap-2 h-10 sm:h-11">
           <input
             type="checkbox"
             className="h-4 w-4"
@@ -116,7 +121,13 @@ export const IngredientSelector: React.FC<IngredientSelectorProps> = ({
         </div>
       )}
 
-      <Button type="button" variant="ghost" size="icon" onClick={onRemove}>
+      <Button
+        type="button"
+        variant="ghost"
+        size="icon"
+        className="h-10 w-10 sm:h-11 sm:w-11"
+        onClick={onRemove}
+      >
         <X className="h-4 w-4" />
       </Button>
     </div>

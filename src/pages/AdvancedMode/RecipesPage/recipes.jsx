@@ -1,4 +1,5 @@
-import { useInfiniteQuery } from '@tanstack/react-query';
+import { useInfiniteQuery, useQueryClient } from '@tanstack/react-query';
+import { Navigate, useNavigate } from '@tanstack/react-router';
 import { useWindowVirtualizer } from '@tanstack/react-virtual';
 import {
   AlertCircle,
@@ -16,27 +17,31 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import { useNavigate } from '@tanstack/react-router';
+import { useTranslation } from 'react-i18next';
+import { toast } from 'sonner';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import SearchInput from '@/components/ui/search-input.jsx';
 import RecipeService from '../../../services/recipe.service.js';
 import useAuthStore from '../../../store/authStore.js';
 import useFavoritesStore from '../../../store/favoritesStore.js';
-import RecipeCard from './components/RecipeCard.jsx';
 
 const Recipes = ({ sidebarCollapsed = false }) => {
+  const { t } = useTranslation();
+  const queryClient = useQueryClient();
   const token = useAuthStore((state) => state.token);
   const navigate = useNavigate({ from: '/recipes' });
   const favorites = useFavoritesStore((state) => state.favorites);
   const { toggleFavorite } = useFavoritesStore();
   const [searchTerm, setSearchTerm] = useState('');
   const [isHeaderVisible, setIsHeaderVisible] = useState(true);
-  const [lastScrollY, setLastScrollY] = useState(0);
+  const lastScrollYRef = useRef(0);
   const [showScrollTop, setShowScrollTop] = useState(false);
 
   const listRef = useRef();
   const parentOffsetRef = useRef(0);
-  const [rowHeight, setRowHeight] = React.useState(120);
+  const rowHeight = 120;
 
   React.useLayoutEffect(() => {
     parentOffsetRef.current = listRef.current?.offsetTop || 0;
@@ -98,17 +103,17 @@ const Recipes = ({ sidebarCollapsed = false }) => {
   );
 
   const handleDelete = useCallback(async (id) => {
-    if (window.confirm('Are you sure you want to delete this recipe?')) {
+    if (window.confirm(t('recipes.delete_confirm', 'Are you sure you want to delete this recipe?'))) {
       try {
-        await RecipeService.deleteRecipe(id);
-        toast.success('Recipe deleted successfully');
-        // Refetch the first page to refresh the list
-        window.location.reload();
+        await RecipeService.deleteRecipe(id, token);
+        toast.success(t('recipes.delete_success', 'Recipe deleted successfully'));
+        // Invalidate and refetch the recipes query
+        queryClient.invalidateQueries({ queryKey: ['recipes'] });
       } catch (error) {
-        toast.error('Failed to delete recipe');
+        toast.error(t('recipes.delete_error', 'Failed to delete recipe'));
       }
     }
-  }, []);
+  }, [t, token, queryClient]);
 
   const handleToggleFavorite = useCallback(
     async (recipe) => {
@@ -121,12 +126,6 @@ const Recipes = ({ sidebarCollapsed = false }) => {
     [toggleFavorite],
   );
 
-  const handleLoadMore = useCallback(() => {
-    if (hasNextPage && !isFetchingNextPage) {
-      fetchNextPage();
-    }
-  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
-
   const handleSearch = useCallback((value) => {
     setSearchTerm(value);
   }, []);
@@ -138,21 +137,22 @@ const Recipes = ({ sidebarCollapsed = false }) => {
   useEffect(() => {
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
+      const lastY = lastScrollYRef.current;
 
       // Hide header when scrolling down, show when scrolling up
-      if (currentScrollY > lastScrollY && currentScrollY > 100) {
+      if (currentScrollY > lastY && currentScrollY > 100) {
         setIsHeaderVisible(false);
       } else {
         setIsHeaderVisible(true);
       }
 
-      setLastScrollY(currentScrollY);
+      lastScrollYRef.current = currentScrollY;
       setShowScrollTop(currentScrollY > 400);
     };
 
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
-  }, [lastScrollY]);
+  }, []);
 
   const favoriteIds = useMemo(
     () => new Set((favorites || []).map((fav) => fav.id)),
@@ -202,26 +202,26 @@ const Recipes = ({ sidebarCollapsed = false }) => {
             : '-translate-y-full opacity-0'
         }`}
       >
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-            <h1 className="text-2xl font-bold">Recipes</h1>
-            <Button onClick={handleAdd}>
-              <PlusCircle />
+        <div className="container mx-auto px-3 sm:px-4 py-3 sm:py-4">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">
+            <h1 className="text-xl sm:text-2xl font-bold">Recipes</h1>
+            <Button onClick={handleAdd} className="w-full sm:w-auto" size="default">
+              <PlusCircle className="mr-2 h-4 w-4" />
               Add Recipe
             </Button>
           </div>
 
           {/* Search Bar */}
-          <div className="mt-4">
+          <div className="mt-3 sm:mt-4">
             <SearchInput
               value={searchTerm}
               onChange={handleSearch}
               placeholder="Search recipes..."
               debounceMs={300}
-              inputClassName="pl-10"
+              inputClassName="pl-10 h-10 sm:h-11"
             />
             {totalCount > 0 && (
-              <p className="text-sm text-muted-foreground mt-2">
+              <p className="text-xs sm:text-sm text-muted-foreground mt-2">
                 Showing {allRecipes.length} of {totalCount} recipes
               </p>
             )}
@@ -229,7 +229,7 @@ const Recipes = ({ sidebarCollapsed = false }) => {
         </div>
       </div>
 
-      <div className="container mx-auto px-4 py-6 sm:py-8">
+      <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-6 md:py-8">
         {status === 'pending' ? (
           <div className="flex justify-center items-center py-12">
             <Loader2 className="h-8 w-8 animate-spin" />
@@ -248,19 +248,26 @@ const Recipes = ({ sidebarCollapsed = false }) => {
           <div className="flex flex-col items-center justify-center py-16 px-4 min-h-[400px]">
             <AlertCircle className="h-16 w-16 text-muted-foreground mb-4" />
             <h3 className="text-xl font-semibold mb-2">
-              {searchTerm ? 'No Recipes Found' : 'No Recipes Found'}
+              {searchTerm ? t('recipes.no_results', 'No Recipes Found') : t('recipes.empty_title', 'No Recipes Found')}
             </h3>
             <p className="text-muted-foreground text-center mb-6 max-w-sm">
               {searchTerm
-                ? `No recipes found matching "${searchTerm}"`
-                : 'Get started by creating your first recipe to begin mixing drinks'}
+                ? t('recipes.no_results_message', `No recipes found matching "{{searchTerm}}"`, { searchTerm })
+                : t('recipes.empty_message', 'Get started by creating your first recipe to begin mixing drinks')}
             </p>
-            {!searchTerm && (
-              <Button size="lg" onClick={handleAdd}>
-                <PlusCircle className="mr-2" />
-                Add First Recipe
-              </Button>
-            )}
+            <div className="flex flex-col sm:flex-row gap-3">
+              {searchTerm && (
+                <Button size="lg" variant="outline" onClick={() => setSearchTerm('')}>
+                  {t('recipes.clear_search', 'Clear Search')}
+                </Button>
+              )}
+              {!searchTerm && (
+                <Button size="lg" onClick={handleAdd}>
+                  <PlusCircle className="mr-2" />
+                  {t('recipes.add_first', 'Add First Recipe')}
+                </Button>
+              )}
+            </div>
           </div>
         ) : (
           <div className="space-y-2">
@@ -301,66 +308,95 @@ const Recipes = ({ sidebarCollapsed = false }) => {
                         key={recipe.id}
                         data-index={virtualItem.index}
                         ref={virtualizer.measureElement}
-                        className="px-4 py-2"
+                        className="px-2 sm:px-4 py-1.5 sm:py-2"
                       >
-                        <div className="flex items-center justify-between p-4 bg-card border rounded-lg hover:shadow-md transition-all duration-200">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between p-3 sm:p-4 bg-card border rounded-lg hover:shadow-md transition-all duration-200 gap-3 sm:gap-0">
                           <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-3">
-                              <h3 className="font-semibold text-base truncate">
+                            <div className="flex items-center gap-2 sm:gap-3">
+                              <h3 className="font-semibold text-sm sm:text-base truncate">
                                 {recipe.name}
                               </h3>
                               {isFavorite && (
-                                <Heart className="h-4 w-4 fill-destructive text-destructive flex-shrink-0" />
+                                <Heart className="h-3.5 w-3.5 sm:h-4 sm:w-4 fill-destructive text-destructive flex-shrink-0" />
                               )}
                             </div>
                             {recipe.description && (
-                              <p className="text-sm text-muted-foreground line-clamp-1 mt-1">
+                              <p className="text-xs sm:text-sm text-muted-foreground line-clamp-1 mt-1">
                                 {recipe.description}
                               </p>
                             )}
-                            <div className="flex items-center gap-2 mt-2">
+                            <div className="flex items-center gap-1.5 sm:gap-2 mt-2 flex-wrap">
                               {ingredientCount > 0 && (
-                                <Badge variant="secondary" className="text-xs">
+                                <Badge variant="secondary" className="text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5">
                                   {ingredientCount} ingredient
                                   {ingredientCount !== 1 ? 's' : ''}
                                 </Badge>
                               )}
                               {recipe.defaultGlass && (
-                                <Badge variant="outline" className="text-xs">
+                                <Badge variant="outline" className="text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5">
                                   {recipe.defaultGlass.name}
                                 </Badge>
                               )}
                             </div>
                           </div>
-                          <div className="flex items-center gap-2 ml-4">
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              onClick={() => handleToggleFavorite(recipe)}
-                            >
-                              <Heart
-                                className={`h-4 w-4 ${
-                                  isFavorite
-                                    ? 'fill-destructive text-destructive'
-                                    : ''
-                                }`}
-                              />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              onClick={() => handleEdit(recipe)}
-                            >
-                              <Edit className="h-4 w-4" />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              onClick={() => handleDelete(recipe.id)}
-                            >
-                              <Trash2 className="h-4 w-4 text-destructive" />
-                            </Button>
-                          </div>
+                          <TooltipProvider>
+                            <div className="flex items-center gap-1 sm:gap-2 sm:ml-4 justify-end sm:justify-start">
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    onClick={() => handleToggleFavorite(recipe)}
+                                    className="h-9 w-9 sm:h-10 sm:w-10"
+                                    aria-label={isFavorite ? t('recipes.remove_favorite', 'Remove from favorites') : t('recipes.add_favorite', 'Add to favorites')}
+                                  >
+                                    <Heart
+                                      className={`h-4 w-4 ${
+                                        isFavorite
+                                          ? 'fill-destructive text-destructive'
+                                          : ''
+                                      }`}
+                                    />
+                                  </Button>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  <p>{isFavorite ? t('recipes.remove_favorite', 'Remove from favorites') : t('recipes.add_favorite', 'Add to favorites')}</p>
+                                </TooltipContent>
+                              </Tooltip>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    onClick={() => handleEdit(recipe)}
+                                    className="h-9 w-9 sm:h-10 sm:w-10"
+                                    aria-label={t('recipes.edit', 'Edit recipe')}
+                                  >
+                                    <Edit className="h-4 w-4" />
+                                  </Button>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  <p>{t('recipes.edit', 'Edit recipe')}</p>
+                                </TooltipContent>
+                              </Tooltip>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    onClick={() => handleDelete(recipe.id)}
+                                    className="h-9 w-9 sm:h-10 sm:w-10"
+                                    aria-label={t('recipes.delete', 'Delete recipe')}
+                                  >
+                                    <Trash2 className="h-4 w-4 text-destructive" />
+                                  </Button>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  <p>{t('recipes.delete', 'Delete recipe')}</p>
+                                </TooltipContent>
+                              </Tooltip>
+                            </div>
+                          </TooltipProvider>
                         </div>
                       </div>
                     );
@@ -392,10 +428,10 @@ const Recipes = ({ sidebarCollapsed = false }) => {
         <Button
           onClick={scrollToTop}
           size="icon"
-          className="fixed bottom-24 right-4 z-[100] rounded-full shadow-lg hover:shadow-xl transition-all duration-200"
+          className="fixed bottom-20 sm:bottom-24 right-3 sm:right-4 z-[100] rounded-full shadow-lg hover:shadow-xl transition-all duration-200 h-11 w-11 sm:h-12 sm:w-12"
           aria-label="Scroll to top"
         >
-          <ArrowUp className="w-5 h-5" />
+          <ArrowUp className="w-4 h-4 sm:w-5 sm:h-5" />
         </Button>
       )}
     </div>
