@@ -49,7 +49,7 @@
     "react-i18next": "^16.5.1",
     "react-lazy-load-image-component": "^1.6.3",
     "react-resizable-panels": "^4.3.3",
-    "recharts": "^2.15.4",
+    "recharts": "^3.0.0",
     "sockjs-client": "^1.6.1",
     "solid-js": "^1.9.10",
     "sonner": "^2.0.7",
