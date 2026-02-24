@@ -1,6 +1,7 @@
 import { X } from 'lucide-react';
 import type React from 'react';
 import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
@@ -114,13 +115,11 @@ export const IngredientSelector: React.FC<IngredientSelectorProps> = ({
 
       {showBoostable && (
         <div className="flex items-center gap-2 h-10 sm:h-11">
-          <input
-            type="checkbox"
-            className="h-4 w-4"
+          <Checkbox
             checked={stepIngredient.boostable || false}
-            onChange={(e) => onUpdate('boostable', e.target.checked)}
+            onCheckedChange={(checked) => onUpdate('boostable', checked)}
           />
-          <span className="text-xs">Boostable</span>
+          <Label className="text-xs cursor-pointer">Boostable</Label>
         </div>
       )}
 
