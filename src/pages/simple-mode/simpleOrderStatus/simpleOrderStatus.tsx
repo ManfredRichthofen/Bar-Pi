@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
+import { ConfirmationDialog } from '@/components/ui/confirmation-dialog';
 import { useWebSocket } from '../../../hooks/useWebSocket';
 import CocktailService from '../../../services/cocktail.service';
 import useAuthStore from '../../../store/authStore';
@@ -13,6 +14,7 @@ const SimpleOrderStatus = () => {
   const [confirming, setConfirming] = useState(false);
   const [canceling, setCanceling] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [showCancelDialog, setShowCancelDialog] = useState(false);
   const navigate = useNavigate();
 
   const progress = useCocktailProgressStore((state) => state.progress);
@@ -35,8 +37,13 @@ const SimpleOrderStatus = () => {
     return () => clearTimeout(timer);
   }, [progress]);
 
-  const handleCancel = useCallback(async () => {
+  const handleCancelClick = useCallback(() => {
+    setShowCancelDialog(true);
+  }, []);
+
+  const handleCancelConfirm = useCallback(async () => {
     if (!token) return;
+    setShowCancelDialog(false);
     setCanceling(true);
     try {
       await CocktailService.cancelCocktail(token);
@@ -259,7 +266,7 @@ const SimpleOrderStatus = () => {
                 progress.state !== 'CANCELLED' && (
                   <Button
                     variant="destructive"
-                    onClick={handleCancel}
+                    onClick={handleCancelClick}
                     disabled={canceling}
                     className="w-full mt-4"
                     size="lg"
@@ -278,6 +285,18 @@ const SimpleOrderStatus = () => {
           </Card>
         </div>
       </div>
+
+      {/* Confirmation Dialog */}
+      <ConfirmationDialog
+        open={showCancelDialog}
+        onOpenChange={setShowCancelDialog}
+        title="Cancel Order?"
+        description="Are you sure you want to cancel this drink order? This action cannot be undone."
+        confirmText="Yes, Cancel Order"
+        cancelText="Keep Order"
+        onConfirm={handleCancelConfirm}
+        variant="destructive"
+      />
     </div>
   );
 };

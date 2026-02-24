@@ -8,6 +8,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import RecipeService from '../../../services/recipe.service.js';
 import SimpleDrinkCard from './simpleDrinkCard.jsx';
 import SimpleDrinkCardSkeleton from './simpleDrinkCardSkeleton.jsx';
+import EmptyState from './EmptyState.jsx';
 
 function VirtualGrid({
   fabricableRecipes,
@@ -17,6 +18,7 @@ function VirtualGrid({
   filters,
   onCheckFabricability,
   onFilterRecipes,
+  onClearFilters,
 }) {
   const listRef = React.useRef(null);
   const [itemsPerRow, setItemsPerRow] = React.useState(2);
@@ -322,15 +324,10 @@ function VirtualGrid({
         </div>
       )}
       {allRecipes.length === 0 && !isFetching && (
-        <div className="flex flex-col items-center justify-center py-12 px-4">
-          <div className="text-muted-foreground/40 mb-4">
-            <Search className="w-16 h-16" />
-          </div>
-          <h3 className="text-lg font-semibold mb-2">No drinks found</h3>
-          <p className="text-muted-foreground text-center text-sm">
-            Try adjusting your search or filters
-          </p>
-        </div>
+        <EmptyState 
+          type={searchTerm || Object.values(filters).some(Boolean) ? 'no-results' : 'no-drinks'}
+          onClearFilters={onClearFilters}
+        />
       )}
     </div>
   );
