@@ -96,15 +96,18 @@ export const IngredientSelector: React.FC<IngredientSelectorProps> = ({
 
       <div>
         <Label className="text-xs sm:text-sm">Unit</Label>
-        <Select value={stepIngredient.scale} onValueChange={updateScale}>
+        <Select value={stepIngredient.scale || ''} onValueChange={updateScale}>
           <SelectTrigger className="h-10 sm:h-11">
-            <SelectValue>{stepIngredient.scale || 'ml'}</SelectValue>
+            <SelectValue>
+              {stepIngredient.scale || 'Select unit'}
+            </SelectValue>
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="ml">ml</SelectItem>
-            <SelectItem value="cl">cl</SelectItem>
-            <SelectItem value="oz">oz</SelectItem>
-            <SelectItem value="dash">dash</SelectItem>
+            <SelectItem value="grams">grams</SelectItem>
+            <SelectItem value="pieces">pieces</SelectItem>
+            <SelectItem value="milliliter">milliliter</SelectItem>
+            <SelectItem value="teaspoons">teaspoons</SelectItem>
+            <SelectItem value="tablespoons">tablespoons</SelectItem>
           </SelectContent>
         </Select>
       </div>

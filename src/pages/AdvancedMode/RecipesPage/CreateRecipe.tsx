@@ -163,7 +163,7 @@ export const NewRecipePage: React.FC = () => {
         {
           ingredient: ingredients.length > 0 ? ingredients[0] : null,
           amount: 30,
-          scale: 'ml',
+          scale: 'milliliter',
           boostable: false,
         },
       ];
@@ -227,7 +227,7 @@ export const NewRecipePage: React.FC = () => {
           (i) => i.name.toLowerCase() === ing.name.toLowerCase(),
         );
 
-        // Parse measurement
+        // Parse measurement - CocktailDB provides the unit (tsp, piece, oz, etc.)
         const measurement = cocktailDBService.parseMeasurement(ing.measure) as { amount: number; unit: string };
 
         return {
@@ -243,6 +243,7 @@ export const NewRecipePage: React.FC = () => {
         stepIngredients: stepIngredients,
       };
 
+      // Only set the production steps we need - remove any extras
       setFormData((prev) => ({
         ...prev,
         productionSteps: [productionStep],
@@ -277,10 +278,7 @@ export const NewRecipePage: React.FC = () => {
   return (
     <div className="min-h-screen bg-background">
       <RecipeFormHeader
-        title="Create New Recipe"
-        onSave={handleSubmit}
-        saving={saving}
-        saveText="Create Recipe"
+        title="Create Recipe"
       />
 
       <CocktailDBImportDialog

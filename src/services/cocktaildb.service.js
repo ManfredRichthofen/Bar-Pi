@@ -83,7 +83,6 @@ class CocktailDBService {
       ingredients: ingredients,
       instructions: cocktail.strInstructions,
       tags: cocktail.strTags ? cocktail.strTags.split(',').map(t => t.trim()) : [],
-      // Additional metadata
       cocktailDbId: cocktail.idDrink,
       dateModified: cocktail.strModified,
     };
@@ -108,37 +107,62 @@ class CocktailDBService {
 
   /**
    * Parse measurement string to amount and unit
-   * @param {string} measure - Measurement string (e.g., "1 oz", "2 cl", "1/2 cup")
+   * @param {string} measure - Measurement string (e.g., "1 oz", "2 cl", "1/2 tsp")
    * @returns {Object} { amount: number, unit: string }
    */
   parseMeasurement(measure) {
     if (!measure || measure.trim() === '') {
-      return { amount: 30, unit: 'ml' };
+      return { amount: 30, unit: 'milliliter' };
     }
 
     const cleaned = measure.trim().toLowerCase();
     
-    // Common conversions
-    const conversions = {
-      'oz': 30,      // 1 oz = 30ml
-      'cl': 10,      // 1 cl = 10ml
-      'shot': 45,    // 1 shot = 45ml
-      'jigger': 45,  // 1 jigger = 45ml
-      'dash': 1,     // 1 dash = 1ml
-      'splash': 5,   // 1 splash = 5ml
-      'tsp': 5,      // 1 tsp = 5ml
-      'tbsp': 15,    // 1 tbsp = 15ml
-      'cup': 240,    // 1 cup = 240ml
+
+    const unitMapping = {
+
+      'tsp': 'teaspoons',
+      'teaspoon': 'teaspoons',
+      'teaspoons': 'teaspoons',
+      'tbsp': 'tablespoons',
+      'tablespoon': 'tablespoons',
+      'tablespoons': 'tablespoons',
+      'piece': 'pieces',
+      'pieces': 'pieces',
+      'g': 'grams',
+      'gram': 'grams',
+      'grams': 'grams',
+      
+      'oz': 'milliliter',
+      'cl': 'milliliter',
+      'ml': 'milliliter',
+      'milliliter': 'milliliter',
+      'shot': 'milliliter',
+      'jigger': 'milliliter',
+      'dash': 'milliliter',
+      'splash': 'milliliter',
+      'cup': 'milliliter',
+    };
+    
+    const mlConversions = {
+      'oz': 30,
+      'cl': 10,
+      'ml': 1,
+      'milliliter': 1,
+      'shot': 45,
+      'jigger': 45,
+      'dash': 1,
+      'splash': 5,
+      'cup': 240,
     };
 
-    // Try to extract number and unit
+
     const match = cleaned.match(/(\d+(?:\/\d+)?(?:\.\d+)?)\s*([a-z]+)?/);
     
     if (match) {
       let amount = match[1];
-      const unit = match[2] || 'ml';
+      let unit = match[2] || 'ml';
       
-      // Handle fractions (e.g., "1/2")
+
       if (amount.includes('/')) {
         const [num, den] = amount.split('/').map(Number);
         amount = num / den;
@@ -146,15 +170,19 @@ class CocktailDBService {
         amount = parseFloat(amount);
       }
       
-      // Convert to ml if needed
-      const multiplier = conversions[unit] || 1;
-      const amountInMl = amount * multiplier;
+
+      const mappedUnit = unitMapping[unit] || 'milliliter';
       
-      return { amount: Math.round(amountInMl), unit: 'ml' };
+
+      if (mappedUnit === 'milliliter' && mlConversions[unit]) {
+        amount = amount * mlConversions[unit];
+      }
+      
+      return { amount: Math.round(amount * 100) / 100, unit: mappedUnit };
     }
     
-    // Default fallback
-    return { amount: 30, unit: 'ml' };
+
+    return { amount: 30, unit: 'milliliter' };
   }
 }
 

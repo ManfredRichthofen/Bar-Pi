@@ -59,6 +59,19 @@ const RecipeEditPage = () => {
           token,
         );
 
+        // Map old unit names to new compatible units
+        const mapUnit = (unit) => {
+          const unitMap = {
+            'ml': 'milliliter',
+            'cl': 'milliliter',
+            'oz': 'milliliter',
+            'g': 'grams',
+            'tsp': 'teaspoons',
+            'tbsp': 'tablespoons',
+          };
+          return unitMap[unit] || unit || 'milliliter';
+        };
+
         const productionSteps =
           fullRecipe.productionSteps?.map((step) => {
             if (step.type === 'addIngredients') {
@@ -74,7 +87,7 @@ const RecipeEditPage = () => {
                         ...ingredient,
                       },
                       amount: si.amount || 0,
-                      scale: si.scale || 'ml',
+                      scale: mapUnit(ingredient.unit),
                       boostable: si.boostable || false,
                     };
                   }) || [],
@@ -190,7 +203,7 @@ const RecipeEditPage = () => {
           ...step,
           stepIngredients: [
             ...step.stepIngredients,
-            { ingredient: null, amount: 30, scale: 'ml', boostable: false },
+            { ingredient: null, amount: 30, scale: 'milliliter', boostable: false },
           ],
         };
         updateProductionStep(stepIndex, updatedStep);
@@ -243,9 +256,6 @@ const RecipeEditPage = () => {
     <div className="min-h-screen bg-background">
       <RecipeFormHeader
         title={recipeId ? 'Edit Recipe' : 'Create Recipe'}
-        onSave={handleSave}
-        saving={saving}
-        saveText="Save"
       />
 
       <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-6 max-w-5xl pb-20 sm:pb-0">
