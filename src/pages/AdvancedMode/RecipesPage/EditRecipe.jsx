@@ -62,12 +62,12 @@ const RecipeEditPage = () => {
         // Map old unit names to new compatible units
         const mapUnit = (unit) => {
           const unitMap = {
-            'ml': 'milliliter',
-            'cl': 'milliliter',
-            'oz': 'milliliter',
-            'g': 'grams',
-            'tsp': 'teaspoons',
-            'tbsp': 'tablespoons',
+            ml: 'milliliter',
+            cl: 'milliliter',
+            oz: 'milliliter',
+            g: 'grams',
+            tsp: 'teaspoons',
+            tbsp: 'tablespoons',
           };
           return unitMap[unit] || unit || 'milliliter';
         };
@@ -203,7 +203,12 @@ const RecipeEditPage = () => {
           ...step,
           stepIngredients: [
             ...step.stepIngredients,
-            { ingredient: null, amount: 30, scale: 'milliliter', boostable: false },
+            {
+              ingredient: null,
+              amount: 30,
+              scale: 'milliliter',
+              boostable: false,
+            },
           ],
         };
         updateProductionStep(stepIndex, updatedStep);
@@ -254,23 +259,21 @@ const RecipeEditPage = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <RecipeFormHeader
-        title={recipeId ? 'Edit Recipe' : 'Create Recipe'}
-      />
+      <RecipeFormHeader title={recipeId ? 'Edit Recipe' : 'Create Recipe'} />
 
       <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-6 max-w-5xl pb-20 sm:pb-0">
         <div className="space-y-4 sm:space-y-6">
           <div id="basic-info">
             <RecipeBasicInfo
-            name={formData.name}
-            description={formData.description}
-            defaultGlass={formData.defaultGlass}
-            defaultAmountToFill={formData.defaultAmountToFill}
-            glasses={glasses}
-            onUpdate={(field, value) =>
-              setFormData((prev) => ({ ...prev, [field]: value }))
-            }
-          />
+              name={formData.name}
+              description={formData.description}
+              defaultGlass={formData.defaultGlass}
+              defaultAmountToFill={formData.defaultAmountToFill}
+              glasses={glasses}
+              onUpdate={(field, value) =>
+                setFormData((prev) => ({ ...prev, [field]: value }))
+              }
+            />
           </div>
 
           <Card id="recipe-image">
@@ -298,7 +301,9 @@ const RecipeEditPage = () => {
             <CardContent className="pt-4 sm:pt-6 px-4 sm:px-6">
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
                 <div>
-                  <h3 className="font-semibold text-base sm:text-lg">Production Steps</h3>
+                  <h3 className="font-semibold text-base sm:text-lg">
+                    Production Steps
+                  </h3>
                   <p className="text-xs sm:text-sm text-muted-foreground mt-1">
                     Build the drink using ingredient steps and written
                     instructions

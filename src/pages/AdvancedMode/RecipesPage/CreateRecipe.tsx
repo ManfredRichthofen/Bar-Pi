@@ -228,7 +228,10 @@ export const NewRecipePage: React.FC = () => {
         );
 
         // Parse measurement - CocktailDB provides the unit (tsp, piece, oz, etc.)
-        const measurement = cocktailDBService.parseMeasurement(ing.measure) as { amount: number; unit: string };
+        const measurement = cocktailDBService.parseMeasurement(ing.measure) as {
+          amount: number;
+          unit: string;
+        };
 
         return {
           ingredient: matchedIngredient || null,
@@ -253,8 +256,9 @@ export const NewRecipePage: React.FC = () => {
     // Find matching glass
     if (cocktailData.glass && glasses.length > 0) {
       const matchedGlass = glasses.find(
-        (g) => g.name.toLowerCase().includes(cocktailData.glass.toLowerCase()) ||
-               cocktailData.glass.toLowerCase().includes(g.name.toLowerCase()),
+        (g) =>
+          g.name.toLowerCase().includes(cocktailData.glass.toLowerCase()) ||
+          cocktailData.glass.toLowerCase().includes(g.name.toLowerCase()),
       );
       if (matchedGlass) {
         setFormData((prev) => ({
@@ -277,9 +281,7 @@ export const NewRecipePage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <RecipeFormHeader
-        title="Create Recipe"
-      />
+      <RecipeFormHeader title="Create Recipe" />
 
       <CocktailDBImportDialog
         open={showImportDialog}
@@ -294,9 +296,12 @@ export const NewRecipePage: React.FC = () => {
             <CardContent className="pt-4 sm:pt-6 px-4 sm:px-6">
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
                 <div className="flex-1">
-                  <h3 className="text-base sm:text-lg font-semibold mb-1">Import from CocktailDB</h3>
+                  <h3 className="text-base sm:text-lg font-semibold mb-1">
+                    Import from CocktailDB
+                  </h3>
                   <p className="text-xs sm:text-sm text-muted-foreground">
-                    Search and import cocktail recipes with ingredients, instructions, and images from TheCocktailDB
+                    Search and import cocktail recipes with ingredients,
+                    instructions, and images from TheCocktailDB
                   </p>
                 </div>
                 <Button
@@ -313,23 +318,28 @@ export const NewRecipePage: React.FC = () => {
           </Card>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6 pb-20 sm:pb-0">
+        <form
+          onSubmit={handleSubmit}
+          className="space-y-4 sm:space-y-6 pb-20 sm:pb-0"
+        >
           <div id="basic-info">
             <RecipeBasicInfo
-            name={formData.name}
-            description={formData.description}
-            defaultGlass={formData.defaultGlass}
-            defaultAmountToFill={formData.defaultAmountToFill}
-            glasses={glasses}
-            onUpdate={(field, value) =>
-              setFormData({ ...formData, [field]: value })
-            }
-          />
+              name={formData.name}
+              description={formData.description}
+              defaultGlass={formData.defaultGlass}
+              defaultAmountToFill={formData.defaultAmountToFill}
+              glasses={glasses}
+              onUpdate={(field, value) =>
+                setFormData({ ...formData, [field]: value })
+              }
+            />
           </div>
 
           <Card id="recipe-image">
             <CardHeader className="px-4 sm:px-6 py-4 sm:py-6">
-              <CardTitle className="text-base sm:text-lg">Recipe Image</CardTitle>
+              <CardTitle className="text-base sm:text-lg">
+                Recipe Image
+              </CardTitle>
             </CardHeader>
             <CardContent className="px-4 sm:px-6 pb-4 sm:pb-6">
               <RecipeImageUpload
@@ -351,8 +361,15 @@ export const NewRecipePage: React.FC = () => {
           <Card id="production-steps">
             <CardHeader className="px-4 sm:px-6 py-4 sm:py-6">
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0">
-                <CardTitle className="text-base sm:text-lg">Production Steps</CardTitle>
-                <Button type="button" onClick={addProductionStep} size="sm" className="w-full sm:w-auto">
+                <CardTitle className="text-base sm:text-lg">
+                  Production Steps
+                </CardTitle>
+                <Button
+                  type="button"
+                  onClick={addProductionStep}
+                  size="sm"
+                  className="w-full sm:w-auto"
+                >
                   <Plus className="mr-2 h-4 w-4" />
                   Add Step
                 </Button>

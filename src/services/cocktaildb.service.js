@@ -64,7 +64,7 @@ class CocktailDBService {
     for (let i = 1; i <= 15; i++) {
       const ingredient = cocktail[`strIngredient${i}`];
       const measure = cocktail[`strMeasure${i}`];
-      
+
       if (ingredient && ingredient.trim()) {
         ingredients.push({
           name: ingredient.trim(),
@@ -82,7 +82,9 @@ class CocktailDBService {
       imageUrl: cocktail.strDrinkThumb,
       ingredients: ingredients,
       instructions: cocktail.strInstructions,
-      tags: cocktail.strTags ? cocktail.strTags.split(',').map(t => t.trim()) : [],
+      tags: cocktail.strTags
+        ? cocktail.strTags.split(',').map((t) => t.trim())
+        : [],
       cocktailDbId: cocktail.idDrink,
       dateModified: cocktail.strModified,
     };
@@ -116,52 +118,48 @@ class CocktailDBService {
     }
 
     const cleaned = measure.trim().toLowerCase();
-    
 
     const unitMapping = {
+      tsp: 'teaspoons',
+      teaspoon: 'teaspoons',
+      teaspoons: 'teaspoons',
+      tbsp: 'tablespoons',
+      tablespoon: 'tablespoons',
+      tablespoons: 'tablespoons',
+      piece: 'pieces',
+      pieces: 'pieces',
+      g: 'grams',
+      gram: 'grams',
+      grams: 'grams',
 
-      'tsp': 'teaspoons',
-      'teaspoon': 'teaspoons',
-      'teaspoons': 'teaspoons',
-      'tbsp': 'tablespoons',
-      'tablespoon': 'tablespoons',
-      'tablespoons': 'tablespoons',
-      'piece': 'pieces',
-      'pieces': 'pieces',
-      'g': 'grams',
-      'gram': 'grams',
-      'grams': 'grams',
-      
-      'oz': 'milliliter',
-      'cl': 'milliliter',
-      'ml': 'milliliter',
-      'milliliter': 'milliliter',
-      'shot': 'milliliter',
-      'jigger': 'milliliter',
-      'dash': 'milliliter',
-      'splash': 'milliliter',
-      'cup': 'milliliter',
+      oz: 'milliliter',
+      cl: 'milliliter',
+      ml: 'milliliter',
+      milliliter: 'milliliter',
+      shot: 'milliliter',
+      jigger: 'milliliter',
+      dash: 'milliliter',
+      splash: 'milliliter',
+      cup: 'milliliter',
     };
-    
+
     const mlConversions = {
-      'oz': 30,
-      'cl': 10,
-      'ml': 1,
-      'milliliter': 1,
-      'shot': 45,
-      'jigger': 45,
-      'dash': 1,
-      'splash': 5,
-      'cup': 240,
+      oz: 30,
+      cl: 10,
+      ml: 1,
+      milliliter: 1,
+      shot: 45,
+      jigger: 45,
+      dash: 1,
+      splash: 5,
+      cup: 240,
     };
-
 
     const match = cleaned.match(/(\d+(?:\/\d+)?(?:\.\d+)?)\s*([a-z]+)?/);
-    
+
     if (match) {
       let amount = match[1];
-      let unit = match[2] || 'ml';
-      
+      const unit = match[2] || 'ml';
 
       if (amount.includes('/')) {
         const [num, den] = amount.split('/').map(Number);
@@ -169,18 +167,15 @@ class CocktailDBService {
       } else {
         amount = parseFloat(amount);
       }
-      
 
       const mappedUnit = unitMapping[unit] || 'milliliter';
-      
 
       if (mappedUnit === 'milliliter' && mlConversions[unit]) {
         amount = amount * mlConversions[unit];
       }
-      
+
       return { amount: Math.round(amount * 100) / 100, unit: mappedUnit };
     }
-    
 
     return { amount: 30, unit: 'milliliter' };
   }

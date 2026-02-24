@@ -21,7 +21,12 @@ import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 import SearchInput from '@/components/ui/search-input.jsx';
 import RecipeService from '../../../services/recipe.service.js';
 import useAuthStore from '../../../store/authStore.js';
@@ -102,18 +107,30 @@ const Recipes = ({ sidebarCollapsed = false }) => {
     [navigate],
   );
 
-  const handleDelete = useCallback(async (id) => {
-    if (window.confirm(t('recipes.delete_confirm', 'Are you sure you want to delete this recipe?'))) {
-      try {
-        await RecipeService.deleteRecipe(id, token);
-        toast.success(t('recipes.delete_success', 'Recipe deleted successfully'));
-        // Invalidate and refetch the recipes query
-        queryClient.invalidateQueries({ queryKey: ['recipes'] });
-      } catch (error) {
-        toast.error(t('recipes.delete_error', 'Failed to delete recipe'));
+  const handleDelete = useCallback(
+    async (id) => {
+      if (
+        window.confirm(
+          t(
+            'recipes.delete_confirm',
+            'Are you sure you want to delete this recipe?',
+          ),
+        )
+      ) {
+        try {
+          await RecipeService.deleteRecipe(id, token);
+          toast.success(
+            t('recipes.delete_success', 'Recipe deleted successfully'),
+          );
+          // Invalidate and refetch the recipes query
+          queryClient.invalidateQueries({ queryKey: ['recipes'] });
+        } catch (error) {
+          toast.error(t('recipes.delete_error', 'Failed to delete recipe'));
+        }
       }
-    }
-  }, [t, token, queryClient]);
+    },
+    [t, token, queryClient],
+  );
 
   const handleToggleFavorite = useCallback(
     async (recipe) => {
@@ -205,7 +222,11 @@ const Recipes = ({ sidebarCollapsed = false }) => {
         <div className="container mx-auto px-3 sm:px-4 py-3 sm:py-4">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">
             <h1 className="text-xl sm:text-2xl font-bold">Recipes</h1>
-            <Button onClick={handleAdd} className="w-full sm:w-auto" size="default">
+            <Button
+              onClick={handleAdd}
+              className="w-full sm:w-auto"
+              size="default"
+            >
               <PlusCircle className="mr-2 h-4 w-4" />
               Add Recipe
             </Button>
@@ -248,16 +269,29 @@ const Recipes = ({ sidebarCollapsed = false }) => {
           <div className="flex flex-col items-center justify-center py-16 px-4 min-h-[400px]">
             <AlertCircle className="h-16 w-16 text-muted-foreground mb-4" />
             <h3 className="text-xl font-semibold mb-2">
-              {searchTerm ? t('recipes.no_results', 'No Recipes Found') : t('recipes.empty_title', 'No Recipes Found')}
+              {searchTerm
+                ? t('recipes.no_results', 'No Recipes Found')
+                : t('recipes.empty_title', 'No Recipes Found')}
             </h3>
             <p className="text-muted-foreground text-center mb-6 max-w-sm">
               {searchTerm
-                ? t('recipes.no_results_message', `No recipes found matching "{{searchTerm}}"`, { searchTerm })
-                : t('recipes.empty_message', 'Get started by creating your first recipe to begin mixing drinks')}
+                ? t(
+                    'recipes.no_results_message',
+                    `No recipes found matching "{{searchTerm}}"`,
+                    { searchTerm },
+                  )
+                : t(
+                    'recipes.empty_message',
+                    'Get started by creating your first recipe to begin mixing drinks',
+                  )}
             </p>
             <div className="flex flex-col sm:flex-row gap-3">
               {searchTerm && (
-                <Button size="lg" variant="outline" onClick={() => setSearchTerm('')}>
+                <Button
+                  size="lg"
+                  variant="outline"
+                  onClick={() => setSearchTerm('')}
+                >
                   {t('recipes.clear_search', 'Clear Search')}
                 </Button>
               )}
@@ -327,13 +361,19 @@ const Recipes = ({ sidebarCollapsed = false }) => {
                             )}
                             <div className="flex items-center gap-1.5 sm:gap-2 mt-2 flex-wrap">
                               {ingredientCount > 0 && (
-                                <Badge variant="secondary" className="text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5">
+                                <Badge
+                                  variant="secondary"
+                                  className="text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5"
+                                >
                                   {ingredientCount} ingredient
                                   {ingredientCount !== 1 ? 's' : ''}
                                 </Badge>
                               )}
                               {recipe.defaultGlass && (
-                                <Badge variant="outline" className="text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5">
+                                <Badge
+                                  variant="outline"
+                                  className="text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5"
+                                >
                                   {recipe.defaultGlass.name}
                                 </Badge>
                               )}
@@ -348,7 +388,17 @@ const Recipes = ({ sidebarCollapsed = false }) => {
                                     size="icon"
                                     onClick={() => handleToggleFavorite(recipe)}
                                     className="h-9 w-9 sm:h-10 sm:w-10"
-                                    aria-label={isFavorite ? t('recipes.remove_favorite', 'Remove from favorites') : t('recipes.add_favorite', 'Add to favorites')}
+                                    aria-label={
+                                      isFavorite
+                                        ? t(
+                                            'recipes.remove_favorite',
+                                            'Remove from favorites',
+                                          )
+                                        : t(
+                                            'recipes.add_favorite',
+                                            'Add to favorites',
+                                          )
+                                    }
                                   >
                                     <Heart
                                       className={`h-4 w-4 ${
@@ -360,7 +410,17 @@ const Recipes = ({ sidebarCollapsed = false }) => {
                                   </Button>
                                 </TooltipTrigger>
                                 <TooltipContent>
-                                  <p>{isFavorite ? t('recipes.remove_favorite', 'Remove from favorites') : t('recipes.add_favorite', 'Add to favorites')}</p>
+                                  <p>
+                                    {isFavorite
+                                      ? t(
+                                          'recipes.remove_favorite',
+                                          'Remove from favorites',
+                                        )
+                                      : t(
+                                          'recipes.add_favorite',
+                                          'Add to favorites',
+                                        )}
+                                  </p>
                                 </TooltipContent>
                               </Tooltip>
                               <Tooltip>
@@ -370,7 +430,10 @@ const Recipes = ({ sidebarCollapsed = false }) => {
                                     size="icon"
                                     onClick={() => handleEdit(recipe)}
                                     className="h-9 w-9 sm:h-10 sm:w-10"
-                                    aria-label={t('recipes.edit', 'Edit recipe')}
+                                    aria-label={t(
+                                      'recipes.edit',
+                                      'Edit recipe',
+                                    )}
                                   >
                                     <Edit className="h-4 w-4" />
                                   </Button>
@@ -386,7 +449,10 @@ const Recipes = ({ sidebarCollapsed = false }) => {
                                     size="icon"
                                     onClick={() => handleDelete(recipe.id)}
                                     className="h-9 w-9 sm:h-10 sm:w-10"
-                                    aria-label={t('recipes.delete', 'Delete recipe')}
+                                    aria-label={t(
+                                      'recipes.delete',
+                                      'Delete recipe',
+                                    )}
                                   >
                                     <Trash2 className="h-4 w-4 text-destructive" />
                                   </Button>

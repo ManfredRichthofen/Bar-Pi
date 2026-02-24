@@ -41,11 +41,15 @@ export const RecipeBasicInfo: React.FC<RecipeBasicInfoProps> = ({
   return (
     <Card>
       <CardHeader className="px-4 sm:px-6 py-4 sm:py-6">
-        <CardTitle className="text-base sm:text-lg">Basic Information</CardTitle>
+        <CardTitle className="text-base sm:text-lg">
+          Basic Information
+        </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4 px-4 sm:px-6 pb-4 sm:pb-6">
         <div>
-          <Label htmlFor="name" className="text-sm">Recipe Name *</Label>
+          <Label htmlFor="name" className="text-sm">
+            Recipe Name *
+          </Label>
           <Input
             id="name"
             value={name}
@@ -57,7 +61,9 @@ export const RecipeBasicInfo: React.FC<RecipeBasicInfoProps> = ({
         </div>
 
         <div>
-          <Label htmlFor="description" className="text-sm">Description</Label>
+          <Label htmlFor="description" className="text-sm">
+            Description
+          </Label>
           <Textarea
             id="description"
             value={description}
@@ -70,7 +76,9 @@ export const RecipeBasicInfo: React.FC<RecipeBasicInfoProps> = ({
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <Label htmlFor="glass" className="text-sm">Default Glass</Label>
+            <Label htmlFor="glass" className="text-sm">
+              Default Glass
+            </Label>
             <Select
               value={defaultGlass?.id?.toString() || ''}
               onValueChange={(value) => {
@@ -96,7 +104,9 @@ export const RecipeBasicInfo: React.FC<RecipeBasicInfoProps> = ({
           </div>
 
           <div>
-            <Label htmlFor="fillAmount" className="text-sm">Fill Amount (ml)</Label>
+            <Label htmlFor="fillAmount" className="text-sm">
+              Fill Amount (ml)
+            </Label>
             <Input
               id="fillAmount"
               type="number"

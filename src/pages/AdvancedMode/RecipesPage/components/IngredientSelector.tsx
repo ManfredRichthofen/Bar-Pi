@@ -55,11 +55,13 @@ export const IngredientSelector: React.FC<IngredientSelectorProps> = ({
   };
 
   return (
-    <div className={`grid grid-cols-1 gap-2 sm:gap-3 items-end ${
-      showBoostable 
-        ? 'sm:grid-cols-[1fr_96px_80px_auto_auto]' 
-        : 'sm:grid-cols-[1fr_96px_80px_auto]'
-    }`}>
+    <div
+      className={`grid grid-cols-1 gap-2 sm:gap-3 items-end ${
+        showBoostable
+          ? 'sm:grid-cols-[1fr_96px_80px_auto_auto]'
+          : 'sm:grid-cols-[1fr_96px_80px_auto]'
+      }`}
+    >
       <div>
         <Label className="text-xs sm:text-sm">Ingredient</Label>
         <Select
@@ -98,9 +100,7 @@ export const IngredientSelector: React.FC<IngredientSelectorProps> = ({
         <Label className="text-xs sm:text-sm">Unit</Label>
         <Select value={stepIngredient.scale || ''} onValueChange={updateScale}>
           <SelectTrigger className="h-10 sm:h-11">
-            <SelectValue>
-              {stepIngredient.scale || 'Select unit'}
-            </SelectValue>
+            <SelectValue>{stepIngredient.scale || 'Select unit'}</SelectValue>
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="grams">grams</SelectItem>
