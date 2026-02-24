@@ -324,8 +324,12 @@ function VirtualGrid({
         </div>
       )}
       {allRecipes.length === 0 && !isFetching && (
-        <EmptyState 
-          type={searchTerm || Object.values(filters).some(Boolean) ? 'no-results' : 'no-drinks'}
+        <EmptyState
+          type={
+            searchTerm || Object.values(filters).some(Boolean)
+              ? 'no-results'
+              : 'no-drinks'
+          }
           onClearFilters={onClearFilters}
         />
       )}

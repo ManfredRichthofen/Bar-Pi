@@ -8,7 +8,8 @@ const EmptyState = ({ type = 'no-results', onClearFilters }) => {
     'no-results': {
       icon: Search,
       title: 'No Drinks Found',
-      description: 'Try adjusting your search or filters to find what you\'re looking for.',
+      description:
+        "Try adjusting your search or filters to find what you're looking for.",
       action: onClearFilters ? (
         <Button onClick={onClearFilters} variant="outline" size="lg">
           Clear Filters
@@ -18,13 +19,15 @@ const EmptyState = ({ type = 'no-results', onClearFilters }) => {
     'no-drinks': {
       icon: GlassWater,
       title: 'No Drinks Available',
-      description: 'There are no drinks in the system yet. Please add some drinks to get started.',
+      description:
+        'There are no drinks in the system yet. Please add some drinks to get started.',
       action: null,
     },
     'filtered-out': {
       icon: Filter,
       title: 'All Drinks Filtered Out',
-      description: 'Your current filters have hidden all available drinks. Try adjusting your filters.',
+      description:
+        'Your current filters have hidden all available drinks. Try adjusting your filters.',
       action: onClearFilters ? (
         <Button onClick={onClearFilters} variant="outline" size="lg">
           Clear All Filters
@@ -49,11 +52,11 @@ const EmptyState = ({ type = 'no-results', onClearFilters }) => {
             <motion.div
               initial={{ scale: 0.8 }}
               animate={{ scale: 1 }}
-              transition={{ 
-                delay: 0.2, 
-                type: 'spring', 
+              transition={{
+                delay: 0.2,
+                type: 'spring',
                 stiffness: 200,
-                damping: 15 
+                damping: 15,
               }}
               className="mb-6"
             >
@@ -61,7 +64,7 @@ const EmptyState = ({ type = 'no-results', onClearFilters }) => {
                 <Icon className="w-10 h-10 text-muted-foreground/60" />
               </div>
             </motion.div>
-            
+
             <motion.h3
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -70,7 +73,7 @@ const EmptyState = ({ type = 'no-results', onClearFilters }) => {
             >
               {state.title}
             </motion.h3>
-            
+
             <motion.p
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -79,7 +82,7 @@ const EmptyState = ({ type = 'no-results', onClearFilters }) => {
             >
               {state.description}
             </motion.p>
-            
+
             {state.action && (
               <motion.div
                 initial={{ opacity: 0 }}
