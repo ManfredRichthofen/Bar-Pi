@@ -6,6 +6,22 @@ import { DEFAULT_VALUES } from '../constants';
 axios.defaults.baseURL = useConfigStore.getState().apiBaseUrl;
 axios.defaults.timeout = DEFAULT_VALUES.TIMEOUT;
 
+// Add request interceptor to dynamically update baseURL from config store
+axios.interceptors.request.use(
+  (config) => {
+    // Get the current API base URL from the store
+    const currentBaseUrl = useConfigStore.getState().apiBaseUrl;
+    
+    // Update the baseURL for this request
+    config.baseURL = currentBaseUrl;
+    
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
+
 /**
  * Base service class with common functionality for all API services
  */
