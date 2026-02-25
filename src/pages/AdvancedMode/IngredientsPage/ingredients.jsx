@@ -1,12 +1,8 @@
 import { Navigate } from '@tanstack/react-router';
 import { useQuery } from '@tanstack/react-query';
-import { useWindowVirtualizer } from '@tanstack/react-virtual';
 import {
-  AlertCircle,
-  ArrowUp,
   Edit,
   Image as ImageIcon,
-  Loader2,
   PlusCircle,
   Trash2,
   X,
@@ -41,6 +37,15 @@ import {
 } from '@/components/ui/select';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import SearchInput from '@/components/ui/search-input.jsx';
+import {
+  PageHeader,
+  EmptyState,
+  ListCard,
+  ActionButtons,
+  ScrollToTopButton,
+  LoadingState,
+  VirtualizedList,
+} from '@/components/AdvancedMode';
 import ingredientService, {
   ingredientDtoMapper,
 } from '../../../services/ingredient.service';
@@ -49,8 +54,7 @@ import useAuthStore from '../../../store/authStore';
 const Ingredients = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [isHeaderVisible, setIsHeaderVisible] = useState(true);
-  const [lastScrollY, setLastScrollY] = useState(0);
-  const [showScrollTop, setShowScrollTop] = useState(false);
+  const lastScrollYRef = useRef(0);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [editingIngredient, setEditingIngredient] = useState(null);
   const { register, handleSubmit, setValue, watch, reset } = useForm({
@@ -66,14 +70,6 @@ const Ingredients = () => {
     },
   });
   const token = useAuthStore((state) => state.token);
-
-  const listRef = useRef();
-  const parentOffsetRef = useRef(0);
-  const [rowHeight, setRowHeight] = React.useState(100);
-
-  React.useLayoutEffect(() => {
-    parentOffsetRef.current = listRef.current?.offsetTop || 0;
-  }, []);
 
   // Query for all ingredients
   const { status, data, error, isFetching } = useQuery({
@@ -223,38 +219,23 @@ const Ingredients = () => {
     setSearchTerm(value);
   }, []);
 
-  const scrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
-
   useEffect(() => {
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
+      const lastY = lastScrollYRef.current;
 
-      // Hide header when scrolling down, show when scrolling up
-      if (currentScrollY > lastScrollY && currentScrollY > 100) {
+      if (currentScrollY > lastY && currentScrollY > 100) {
         setIsHeaderVisible(false);
       } else {
         setIsHeaderVisible(true);
       }
 
-      setLastScrollY(currentScrollY);
-      setShowScrollTop(currentScrollY > 400);
+      lastScrollYRef.current = currentScrollY;
     };
 
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
-  }, [lastScrollY]);
-
-  // Window virtualizer setup
-  const virtualizer = useWindowVirtualizer({
-    count: ingredients.length,
-    estimateSize: () => rowHeight,
-    overscan: 5,
-    scrollMargin: parentOffsetRef.current,
-  });
-
-  const virtualItems = virtualizer.getVirtualItems();
+  }, []);
 
   const columns = [
     {
@@ -319,175 +300,153 @@ const Ingredients = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <div
-        className={`sticky top-16 z-40 bg-background/95 backdrop-blur-sm border-b shadow-sm transition-all duration-300 ${
-          isHeaderVisible
-            ? 'translate-y-0 opacity-100'
-            : '-translate-y-full opacity-0'
-        }`}
-      >
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-            <h1 className="text-2xl font-bold">Ingredients</h1>
-            <Button
-              onClick={() => {
-                setEditingIngredient(null);
-                reset({
-                  type: 'manual',
-                  alcoholContent: 0,
-                  bottleSize: 0,
-                  pumpTimeMultiplier: 1,
-                });
-                setIsModalVisible(true);
-              }}
-            >
-              <PlusCircle />
-              Add Ingredient
-            </Button>
-          </div>
-
-          {/* Search Bar */}
-          <div className="mt-4">
+      <PageHeader
+        title="Ingredients"
+        isVisible={isHeaderVisible}
+        action={
+          <Button
+            onClick={() => {
+              setEditingIngredient(null);
+              reset({
+                type: 'manual',
+                alcoholContent: 0,
+                bottleSize: 0,
+                pumpTimeMultiplier: 1,
+              });
+              setIsModalVisible(true);
+            }}
+            className="w-full sm:w-auto"
+            size="default"
+          >
+            <PlusCircle className="mr-2 h-4 w-4" />
+            Add Ingredient
+          </Button>
+        }
+        searchComponent={
+          <>
             <SearchInput
               value={searchTerm}
               onChange={handleSearch}
               placeholder="Search ingredients..."
               debounceMs={300}
-              inputClassName="pl-10"
+              inputClassName="pl-10 h-10 sm:h-11"
             />
             {data && data.length > 0 && (
-              <p className="text-sm text-muted-foreground mt-2">
+              <p className="text-xs sm:text-sm text-muted-foreground mt-2">
                 Showing {ingredients.length} of {data.length} ingredients
               </p>
             )}
-          </div>
-        </div>
-      </div>
+          </>
+        }
+      />
 
-      <div className="container mx-auto px-4 py-6 sm:py-8">
+      <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-6 md:py-8">
         {status === 'pending' ? (
-          <div className="flex justify-center items-center py-12">
-            <Loader2 className="h-8 w-8 animate-spin" />
-          </div>
+          <LoadingState />
         ) : status === 'error' ? (
-          <div className="flex flex-col items-center justify-center py-16 px-4 min-h-[400px]">
-            <AlertCircle className="h-16 w-16 text-destructive mb-4" />
-            <h3 className="text-xl font-semibold mb-2">
-              Error Loading Ingredients
-            </h3>
-            <p className="text-muted-foreground text-center mb-6 max-w-sm">
-              {error?.message || 'Failed to load ingredients'}
-            </p>
-          </div>
+          <EmptyState
+            title="Error Loading Ingredients"
+            description={error?.message || 'Failed to load ingredients'}
+            variant="error"
+          />
         ) : ingredients.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-16 px-4 min-h-[400px]">
-            <AlertCircle className="h-16 w-16 text-muted-foreground mb-4" />
-            <h3 className="text-xl font-semibold mb-2">
-              {searchTerm ? 'No Ingredients Found' : 'No Ingredients Found'}
-            </h3>
-            <p className="text-muted-foreground text-center mb-6 max-w-sm">
-              {searchTerm
+          <EmptyState
+            title={searchTerm ? 'No Ingredients Found' : 'No Ingredients Found'}
+            description={
+              searchTerm
                 ? `No ingredients found matching "${searchTerm}"`
-                : 'Get started by adding your first ingredient to begin managing your inventory'}
-            </p>
-            {!searchTerm && (
-              <Button
-                size="lg"
-                onClick={() => {
-                  setEditingIngredient(null);
-                  reset({
-                    type: 'manual',
-                    alcoholContent: 0,
-                    bottleSize: 0,
-                    pumpTimeMultiplier: 1,
-                  });
-                  setIsModalVisible(true);
-                }}
-              >
-                <PlusCircle className="mr-2" />
-                Add First Ingredient
-              </Button>
-            )}
-          </div>
+                : 'Get started by adding your first ingredient to begin managing your inventory'
+            }
+            variant={searchTerm ? 'search' : 'info'}
+            actions={
+              <>
+                {searchTerm && (
+                  <Button
+                    size="lg"
+                    variant="outline"
+                    onClick={() => setSearchTerm('')}
+                  >
+                    Clear Search
+                  </Button>
+                )}
+                {!searchTerm && (
+                  <Button
+                    size="lg"
+                    onClick={() => {
+                      setEditingIngredient(null);
+                      reset({
+                        type: 'manual',
+                        alcoholContent: 0,
+                        bottleSize: 0,
+                        pumpTimeMultiplier: 1,
+                      });
+                      setIsModalVisible(true);
+                    }}
+                  >
+                    <PlusCircle className="mr-2" />
+                    Add First Ingredient
+                  </Button>
+                )}
+              </>
+            }
+          />
         ) : (
           <div className="space-y-2">
-            {/* Virtual List Container */}
-            <div ref={listRef} className="relative">
-              <div
-                style={{
-                  height: `${virtualizer.getTotalSize()}px`,
-                  width: '100%',
-                  position: 'relative',
-                }}
-              >
-                <div
-                  style={{
-                    position: 'absolute',
-                    top: 0,
-                    left: 0,
-                    width: '100%',
-                    transform: `translateY(${(virtualItems[0]?.start ?? 0) - virtualizer.options.scrollMargin}px)`,
-                  }}
-                >
-                  {virtualItems.map((virtualItem) => {
-                    const ingredient = ingredients[virtualItem.index];
-                    if (!ingredient) return null;
+            <VirtualizedList
+              items={ingredients}
+              estimatedSize={100}
+              renderItem={(ingredient) => {
+                const parentGroup = ingredient.parentGroupId
+                  ? ingredients.find(
+                      (ing) => ing.id === ingredient.parentGroupId,
+                    )
+                  : null;
 
-                    const parentGroup = ingredient.parentGroupId
-                      ? ingredients.find(
-                          (ing) => ing.id === ingredient.parentGroupId,
+                return (
+                  <div className="px-2 sm:px-4 py-1.5 sm:py-2">
+                    <ListCard
+                      title={ingredient.name}
+                      badges={
+                        ingredient.inBar && (
+                          <Badge variant="default" className="text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5 flex-shrink-0">
+                            In Bar
+                          </Badge>
                         )
-                      : null;
-
-                    return (
-                      <div
-                        key={ingredient.id}
-                        data-index={virtualItem.index}
-                        ref={virtualizer.measureElement}
-                        className="px-4 py-2"
-                      >
-                        <div className="flex items-center justify-between p-4 bg-card border rounded-lg hover:shadow-md transition-all duration-200">
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-2 mb-2">
-                              <h3 className="font-semibold text-base">
-                                {ingredient.name}
-                              </h3>
-                              {ingredient.inBar && (
-                                <Badge variant="default" className="text-xs">
-                                  In Bar
-                                </Badge>
-                              )}
-                            </div>
-                            <div className="flex flex-wrap items-center gap-2">
-                              <Badge
-                                variant={
-                                  ingredient.type === 'automated'
-                                    ? 'default'
-                                    : 'secondary'
-                                }
-                                className="text-xs"
-                              >
-                                {ingredient.type === 'automated'
-                                  ? 'Automated'
-                                  : 'Manual'}
-                              </Badge>
-                              {parentGroup && (
-                                <Badge variant="outline" className="text-xs">
-                                  {parentGroup.name}
-                                </Badge>
-                              )}
-                              {ingredient.alcoholContent > 0 && (
-                                <span className="text-xs text-muted-foreground">
-                                  {ingredient.alcoholContent}% ABV
-                                </span>
-                              )}
-                            </div>
-                          </div>
-                          <div className="flex items-center gap-2 ml-4">
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              onClick={() => {
+                      }
+                      metadata={
+                        <>
+                          <Badge
+                            variant={
+                              ingredient.type === 'automated'
+                                ? 'default'
+                                : 'secondary'
+                            }
+                            className="text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5"
+                          >
+                            {ingredient.type === 'automated'
+                              ? 'Automated'
+                              : 'Manual'}
+                          </Badge>
+                          {parentGroup && (
+                            <Badge variant="outline" className="text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5">
+                              {parentGroup.name}
+                            </Badge>
+                          )}
+                          {ingredient.alcoholContent > 0 && (
+                            <span className="text-xs text-muted-foreground">
+                              {ingredient.alcoholContent}% ABV
+                            </span>
+                          )}
+                        </>
+                      }
+                      actions={
+                        <ActionButtons
+                          actions={[
+                            {
+                              icon: <Edit className="h-4 w-4" />,
+                              label: 'Edit ingredient',
+                              onClick: (e) => {
+                                e.stopPropagation();
                                 setEditingIngredient(ingredient);
                                 Object.entries(ingredient).forEach(
                                   ([key, value]) => {
@@ -496,25 +455,24 @@ const Ingredients = () => {
                                 );
                                 setValue('type', ingredient.type || 'manual');
                                 setIsModalVisible(true);
-                              }}
-                            >
-                              <Edit className="h-4 w-4" />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              onClick={() => handleDelete(ingredient.id)}
-                            >
-                              <Trash2 className="h-4 w-4 text-destructive" />
-                            </Button>
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            </div>
+                              },
+                            },
+                            {
+                              icon: <Trash2 className="h-4 w-4 text-destructive" />,
+                              label: 'Delete ingredient',
+                              onClick: (e) => {
+                                e.stopPropagation();
+                                handleDelete(ingredient.id);
+                              },
+                            },
+                          ]}
+                        />
+                      }
+                    />
+                  </div>
+                );
+              }}
+            />
 
             {!isFetching && ingredients.length > 0 && (
               <div className="flex items-center justify-center py-8">
@@ -832,17 +790,7 @@ const Ingredients = () => {
         </DialogContent>
       </Dialog>
 
-      {/* Scroll to top button */}
-      {showScrollTop && (
-        <Button
-          onClick={scrollToTop}
-          size="icon"
-          className="fixed bottom-24 right-4 z-[100] rounded-full shadow-lg hover:shadow-xl transition-all duration-200"
-          aria-label="Scroll to top"
-        >
-          <ArrowUp className="w-5 h-5" />
-        </Button>
-      )}
+      <ScrollToTopButton />
     </div>
   );
 };
