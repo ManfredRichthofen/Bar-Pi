@@ -142,6 +142,7 @@ const Recipes = ({ sidebarCollapsed = false }) => {
       const currentScrollY = window.scrollY;
       const lastY = lastScrollYRef.current;
 
+      // Hide/show header based on scroll direction
       if (currentScrollY > lastY && currentScrollY > 100) {
         setIsHeaderVisible(false);
       } else {
@@ -149,11 +150,23 @@ const Recipes = ({ sidebarCollapsed = false }) => {
       }
 
       lastScrollYRef.current = currentScrollY;
+
+      // Infinite scroll: Load more when near bottom
+      const scrollHeight = document.documentElement.scrollHeight;
+      const scrollTop = document.documentElement.scrollTop;
+      const clientHeight = document.documentElement.clientHeight;
+      
+      // Trigger when 500px from bottom
+      if (scrollHeight - scrollTop - clientHeight < 500) {
+        if (hasNextPage && !isFetchingNextPage) {
+          fetchNextPage();
+        }
+      }
     };
 
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   const favoriteIds = useMemo(
     () => new Set((favorites || []).map((fav) => fav.id)),

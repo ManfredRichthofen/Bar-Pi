@@ -1,12 +1,13 @@
 import { useNavigate } from '@tanstack/react-router';
-import { UserPlus } from 'lucide-react';
+import { Check, Crown, Edit, Lock, Shield, Trash2, UserPlus, Wrench } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { PageHeader, EmptyState, ListCard, ActionButtons } from '@/components/AdvancedMode';
 import UserService from '@/services/user.service';
+import { getRoleDisplayName, mapAdminLevelToRole } from '@/utils/roleAccess';
 import { DeleteUserDialog } from './components/DeleteUserDialog';
-import { EmptyUserState } from './components/EmptyUserState';
-import { UserCard } from './components/UserCard';
 import { UserFormModal } from './components/UserFormModal';
 
 const UserPage = () => {
@@ -34,6 +35,19 @@ const UserPage = () => {
       setUsers(data);
     } catch (err) {
       setError('Failed to load users');
+    }
+  };
+
+  const getRoleIcon = (adminLevel) => {
+    switch (adminLevel) {
+      case 4:
+        return <Crown className="h-4 w-4 text-yellow-500" />;
+      case 3:
+        return <Shield className="h-4 w-4 text-purple-500" />;
+      case 2:
+        return <Wrench className="h-4 w-4 text-orange-500" />;
+      default:
+        return null;
     }
   };
 
@@ -131,21 +145,17 @@ const UserPage = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
-      <div className="sticky top-0 z-20 bg-background border-b shadow-sm">
-        <div className="p-4 space-y-4">
-          <div className="flex items-center justify-between">
-            <h1 className="text-xl font-bold">User Management</h1>
-            <Button onClick={() => setIsModalOpen(true)} size="sm">
-              <UserPlus size={16} className="mr-2" />
-              Add User
-            </Button>
-          </div>
-        </div>
-      </div>
+      <PageHeader
+        title="User Management"
+        action={
+          <Button onClick={() => setIsModalOpen(true)} className="w-full sm:w-auto">
+            <UserPlus className="mr-2 h-4 w-4" />
+            Add User
+          </Button>
+        }
+      />
 
-      {/* Main Content */}
-      <div className="p-4 sm:p-6 lg:p-8">
+      <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-6 md:py-8">
         <div className="max-w-screen-2xl mx-auto">
           {error && (
             <Alert variant="destructive" className="mb-6">
@@ -154,16 +164,76 @@ const UserPage = () => {
           )}
 
           {users.length === 0 ? (
-            <EmptyUserState onAddUser={() => setIsModalOpen(true)} />
+            <EmptyState
+              icon={<UserPlus className="h-16 w-16" />}
+              title="No users found"
+              description="Get started by creating your first user"
+              actions={
+                <Button size="lg" onClick={() => setIsModalOpen(true)}>
+                  <UserPlus className="mr-2" />
+                  Add User
+                </Button>
+              }
+            />
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-5 lg:gap-6">
+            <div className="space-y-2">
               {users.map((user) => (
-                <UserCard
-                  key={user.id}
-                  user={user}
-                  onEdit={handleEditUser}
-                  onDelete={handleDeleteUser}
-                />
+                <div key={user.id} className="px-2 sm:px-4 py-1.5 sm:py-2">
+                  <ListCard
+                    title={user.username}
+                    badges={
+                      <>
+                        {getRoleIcon(user.adminLevel)}
+                        <Badge
+                          variant="default"
+                          className="text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5"
+                        >
+                          {getRoleDisplayName(mapAdminLevelToRole(user.adminLevel))}
+                        </Badge>
+                      </>
+                    }
+                    metadata={
+                      <>
+                        {user.accountNonLocked === false ? (
+                          <Badge variant="destructive" className="text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5">
+                            <Lock className="h-3 w-3 mr-1" />
+                            Locked
+                          </Badge>
+                        ) : (
+                          <Badge
+                            variant="default"
+                            className="text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5 bg-green-100 text-green-800 hover:bg-green-200"
+                          >
+                            <Check className="h-3 w-3 mr-1" />
+                            Active
+                          </Badge>
+                        )}
+                      </>
+                    }
+                    actions={
+                      <ActionButtons
+                        actions={[
+                          {
+                            icon: <Edit className="h-4 w-4" />,
+                            label: 'Edit user',
+                            onClick: (e) => {
+                              e.stopPropagation();
+                              handleEditUser(user);
+                            },
+                          },
+                          {
+                            icon: <Trash2 className="h-4 w-4 text-destructive" />,
+                            label: 'Delete user',
+                            onClick: (e) => {
+                              e.stopPropagation();
+                              handleDeleteUser(user);
+                            },
+                          },
+                        ]}
+                      />
+                    }
+                  />
+                </div>
               ))}
             </div>
           )}

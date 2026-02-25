@@ -1,47 +1,205 @@
 import { Navigate } from '@tanstack/react-router';
-import React from 'react';
+import { Edit, FolderOpen, PlusCircle, Trash2 } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { toast } from 'sonner';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import {
+  PageHeader,
+  EmptyState,
+  ListCard,
+  ActionButtons,
+  LoadingState,
+} from '@/components/AdvancedMode';
+import CategoryService from '@/services/category.service';
 import useAuthStore from '../../../store/authStore';
+import { CategoryFormModal } from './components/CategoryFormModal';
+import { DeleteCategoryDialog } from './components/DeleteCategoryDialog';
 
 const Categories = ({ sidebarCollapsed = false }) => {
   const token = useAuthStore((state) => state.token);
+  const [categories, setCategories] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingCategory, setEditingCategory] = useState(null);
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [categoryToDelete, setCategoryToDelete] = useState(null);
+
+  useEffect(() => {
+    loadCategories();
+  }, []);
+
+  const loadCategories = async () => {
+    try {
+      setLoading(true);
+      setError('');
+      const data = await CategoryService.getAllCategories(token);
+      setCategories(data || []);
+    } catch (err) {
+      setError('Failed to load categories');
+      toast.error('Failed to load categories');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleCreate = () => {
+    setEditingCategory(null);
+    setIsModalOpen(true);
+  };
+
+  const handleEdit = (category) => {
+    setEditingCategory(category);
+    setIsModalOpen(true);
+  };
+
+  const handleDelete = (category) => {
+    setCategoryToDelete(category);
+    setDeleteConfirmOpen(true);
+  };
+
+  const handleSubmit = async (name) => {
+    try {
+      setError('');
+      if (editingCategory) {
+        await CategoryService.updateCategory({
+          id: editingCategory.id,
+          name: name,
+        }, token);
+        toast.success('Category updated successfully');
+      } else {
+        await CategoryService.createCategory(name, token);
+        toast.success('Category created successfully');
+      }
+      setIsModalOpen(false);
+      setEditingCategory(null);
+      await loadCategories();
+    } catch (err) {
+      const errorMsg = err.response?.data?.message || 
+        `Failed to ${editingCategory ? 'update' : 'create'} category`;
+      setError(errorMsg);
+      toast.error(errorMsg);
+    }
+  };
+
+  const confirmDelete = async () => {
+    if (!categoryToDelete) return;
+
+    try {
+      setError('');
+      await CategoryService.deleteCategory(categoryToDelete.id, token);
+      toast.success('Category deleted successfully');
+      setDeleteConfirmOpen(false);
+      setCategoryToDelete(null);
+      await loadCategories();
+    } catch (err) {
+      const errorMsg = err.response?.data?.message || 'Failed to delete category';
+      setError(errorMsg);
+      toast.error(errorMsg);
+    }
+  };
 
   if (!token) {
     return <Navigate to="/login" />;
   }
 
   return (
-    <div className="min-h-screen bg-base-100">
-      {/* Header */}
-      <div className="sticky top-0 z-20 bg-base-100/95 backdrop-blur-md border-b border-base-200 shadow-sm">
-        <div className="p-4 space-y-4">
-          <div className="flex items-center justify-between">
-            <h1 className="text-xl font-bold">Categories</h1>
+    <div className="min-h-screen bg-background">
+      <PageHeader
+        title="Categories"
+        action={
+          <Button onClick={handleCreate} className="w-full sm:w-auto">
+            <PlusCircle className="mr-2 h-4 w-4" />
+            Add Category
+          </Button>
+        }
+      />
+
+      <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-6 md:py-8">
+        {error && (
+          <Alert variant="destructive" className="mb-6">
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+        )}
+
+        {loading ? (
+          <LoadingState message="Loading categories..." />
+        ) : categories.length === 0 ? (
+          <EmptyState
+            icon={<FolderOpen className="h-16 w-16" />}
+            title="No Categories Found"
+            description="Get started by creating your first category to organize your drinks"
+            actions={
+              <Button size="lg" onClick={handleCreate}>
+                <PlusCircle className="mr-2" />
+                Add First Category
+              </Button>
+            }
+          />
+        ) : (
+          <div className="space-y-2">
+            {categories.map((category) => (
+              <div key={category.id} className="px-2 sm:px-4 py-1.5 sm:py-2">
+                <ListCard
+                  title={category.name}
+                  badges={
+                    <Badge variant="secondary" className="text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5">
+                      ID: {category.id}
+                    </Badge>
+                  }
+                  actions={
+                    <ActionButtons
+                      actions={[
+                        {
+                          icon: <Edit className="h-4 w-4" />,
+                          label: 'Edit category',
+                          onClick: (e) => {
+                            e.stopPropagation();
+                            handleEdit(category);
+                          },
+                        },
+                        {
+                          icon: <Trash2 className="h-4 w-4 text-destructive" />,
+                          label: 'Delete category',
+                          onClick: (e) => {
+                            e.stopPropagation();
+                            handleDelete(category);
+                          },
+                        },
+                      ]}
+                    />
+                  }
+                />
+              </div>
+            ))}
           </div>
-        </div>
+        )}
       </div>
 
-      {/* Main Content */}
-      <div className="p-4 sm:p-6 lg:p-8">
-        <div className="max-w-screen-2xl mx-auto">
-          <div className="flex flex-col items-center justify-center py-12 px-4">
-            <div className="text-base-content/40 mb-4">
-              <svg
-                className="w-16 h-16"
-                fill="currentColor"
-                viewBox="0 0 20 20"
-                aria-labelledby="categories-title"
-              >
-                <title id="categories-title">Categories icon</title>
-                <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z" />
-              </svg>
-            </div>
-            <h3 className="text-lg font-semibold mb-2">Drink Categories</h3>
-            <p className="text-base-content/60 text-center text-sm">
-              Manage drink categories and classifications
-            </p>
-          </div>
-        </div>
-      </div>
+      <CategoryFormModal
+        isOpen={isModalOpen}
+        onClose={() => {
+          setIsModalOpen(false);
+          setEditingCategory(null);
+        }}
+        onSubmit={handleSubmit}
+        category={editingCategory}
+        isEditing={!!editingCategory}
+      />
+
+      <DeleteCategoryDialog
+        isOpen={deleteConfirmOpen}
+        onClose={() => {
+          setDeleteConfirmOpen(false);
+          setCategoryToDelete(null);
+          setError('');
+        }}
+        onConfirm={confirmDelete}
+        category={categoryToDelete}
+        error={error}
+      />
     </div>
   );
 };
