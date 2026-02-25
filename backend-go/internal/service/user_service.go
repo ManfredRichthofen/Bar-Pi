@@ -110,10 +110,14 @@ func (s *UserService) EnsureDefaultAdmin() error {
 	}
 
 	if count == 0 {
+		fmt.Println("No users found, creating default admin user (username: admin, password: admin)")
 		_, err := s.Create("admin", "admin", models.RoleAdmin)
 		if err != nil {
 			return fmt.Errorf("failed to create default admin: %w", err)
 		}
+		fmt.Println("Default admin user created successfully")
+	} else {
+		fmt.Printf("Found %d existing user(s), skipping default admin creation\n", count)
 	}
 
 	return nil

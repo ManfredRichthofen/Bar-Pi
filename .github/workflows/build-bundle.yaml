@@ -1,0 +1,172 @@
+name: Build Bundle (Frontend + Backend)
+
+on:
+  push:
+    branches: ['main']
+  pull_request:
+    branches: ['main']
+  workflow_dispatch:
+
+jobs:
+  build-bundle:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.23'
+          cache-dependency-path: backend-go/go.sum
+
+      - name: Cache npm dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-20-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-20-
+
+      - name: Cache Go modules
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/go-build
+            ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ hashFiles('backend-go/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
+
+      - name: Install frontend dependencies
+        run: npm ci
+
+      - name: Build frontend
+        run: npm run build
+
+      - name: Copy frontend to backend static folder
+        run: |
+          mkdir -p backend-go/internal/static/dist
+          cp -r dist/* backend-go/internal/static/dist/
+
+      - name: Install backend dependencies
+        working-directory: backend-go
+        run: |
+          go mod download
+          go mod tidy
+
+      - name: Run backend tests
+        working-directory: backend-go
+        run: go test -v ./...
+
+      - name: Build for Linux AMD64 with embedded frontend
+        working-directory: backend-go
+        env:
+          GOOS: linux
+          GOARCH: amd64
+          CGO_ENABLED: 0
+        run: |
+          go build -tags=bundle -ldflags="-s -w" -o ../dist-backend/bar-pi-bundle-linux-amd64 ./cmd/server/main.go
+
+      - name: Build for Linux ARM64 with embedded frontend
+        working-directory: backend-go
+        env:
+          GOOS: linux
+          GOARCH: arm64
+          CGO_ENABLED: 0
+        run: |
+          go build -tags=bundle -ldflags="-s -w" -o ../dist-backend/bar-pi-bundle-linux-arm64 ./cmd/server/main.go
+
+      - name: Build for Linux ARM with embedded frontend
+        working-directory: backend-go
+        env:
+          GOOS: linux
+          GOARCH: arm
+          GOARM: 7
+          CGO_ENABLED: 0
+        run: |
+          go build -tags=bundle -ldflags="-s -w" -o ../dist-backend/bar-pi-bundle-linux-arm ./cmd/server/main.go
+
+      - name: Clean up embedded frontend
+        run: rm -rf backend-go/internal/static/dist
+
+      - name: Upload bundle artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: bundle-binaries
+          path: dist-backend/
+          retention-days: 30
+
+      - name: Get version from package.json
+        if: github.event_name == 'workflow_dispatch'
+        id: get_version
+        run: |
+          version=$(node -p "require('./package.json').version")
+          echo "version=$version" >> $GITHUB_OUTPUT
+
+      - name: Generate Release Notes
+        if: github.event_name == 'workflow_dispatch'
+        id: release_notes
+        run: |
+          previous_tag=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
+          
+          if [ -z "$previous_tag" ]; then
+            git log --pretty=format:"* %s (%h)" > release_notes.txt
+          else
+            git log --pretty=format:"* %s (%h)" $previous_tag..HEAD > release_notes.txt
+          fi
+          
+          notes=$(cat release_notes.txt)
+          echo "notes<<EOF" >> $GITHUB_OUTPUT
+          echo "$notes" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Zip wait-for-app-html folder
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          cd scripts/wait-for-app-html
+          zip -r ../../wait-for-app-html.zip .
+
+      - name: Create Release
+        if: github.event_name == 'workflow_dispatch'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: 'v${{ steps.get_version.outputs.version }}'
+          name: 'Release ${{ steps.get_version.outputs.version }}'
+          body: |
+            ## Bar-Pi Complete Bundle
+            
+            Single-binary deployment with embedded frontend.
+            
+            ### Binaries
+            - `bar-pi-bundle-linux-amd64` - Linux x86_64 (complete)
+            - `bar-pi-bundle-linux-arm64` - Raspberry Pi 64-bit (complete)
+            - `bar-pi-bundle-linux-arm` - Raspberry Pi 32-bit (complete)
+            
+            ### Changes
+            ${{ steps.release_notes.outputs.notes }}
+            
+            ### Usage
+            Just run the binary - frontend is embedded!
+            ```bash
+            chmod +x bar-pi-bundle-linux-arm64
+            ./bar-pi-bundle-linux-arm64
+            ```
+          files: |
+            dist-backend/bar-pi-bundle-linux-amd64
+            dist-backend/bar-pi-bundle-linux-arm64
+            dist-backend/bar-pi-bundle-linux-arm
+            wait-for-app-html.zip
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

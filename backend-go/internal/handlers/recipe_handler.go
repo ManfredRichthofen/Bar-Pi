@@ -11,15 +11,19 @@ import (
 )
 
 type RecipeHandler struct {
-	recipeService *service.RecipeService
+	service      *service.RecipeService
+	imageService *service.ImageService
 }
 
-func NewRecipeHandler(recipeService *service.RecipeService) *RecipeHandler {
-	return &RecipeHandler{recipeService: recipeService}
+func NewRecipeHandler(service *service.RecipeService, imageService *service.ImageService) *RecipeHandler {
+	return &RecipeHandler{
+		service:      service,
+		imageService: imageService,
+	}
 }
 
 func (h *RecipeHandler) GetAll(c *gin.Context) {
-	recipes, err := h.recipeService.GetAll()
+	recipes, err := h.service.GetAll()
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch recipes"})
 		return
@@ -35,7 +39,7 @@ func (h *RecipeHandler) GetByID(c *gin.Context) {
 		return
 	}
 
-	recipe, err := h.recipeService.GetByID(id)
+	recipe, err := h.service.GetByID(id)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch recipe"})
 		return
@@ -58,7 +62,7 @@ func (h *RecipeHandler) Create(c *gin.Context) {
 	claims, _ := middleware.GetClaims(c)
 	recipe.OwnerID = claims.UserID
 
-	if err := h.recipeService.Create(&recipe); err != nil {
+	if err := h.service.Create(&recipe); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
@@ -82,7 +86,7 @@ func (h *RecipeHandler) Update(c *gin.Context) {
 	recipe.ID = id
 
 	claims, _ := middleware.GetClaims(c)
-	existing, err := h.recipeService.GetByID(id)
+	existing, err := h.service.GetByID(id)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch recipe"})
 		return
@@ -97,7 +101,7 @@ func (h *RecipeHandler) Update(c *gin.Context) {
 		return
 	}
 
-	if err := h.recipeService.Update(&recipe); err != nil {
+	if err := h.service.Update(&recipe); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update recipe"})
 		return
 	}
@@ -115,7 +119,7 @@ func (h *RecipeHandler) Delete(c *gin.Context) {
 	claims, _ := middleware.GetClaims(c)
 	isAdmin := claims.Role == models.RoleAdmin
 
-	if err := h.recipeService.Delete(id, claims.UserID, isAdmin); err != nil {
+	if err := h.service.Delete(id, claims.UserID, isAdmin); err != nil {
 		c.JSON(http.StatusForbidden, gin.H{"error": err.Error()})
 		return
 	}
@@ -130,7 +134,7 @@ func (h *RecipeHandler) Search(c *gin.Context) {
 		return
 	}
 
-	recipes, err := h.recipeService.Search(query)
+	recipes, err := h.service.Search(query)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to search recipes"})
 		return

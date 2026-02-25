@@ -9,8 +9,8 @@ type Collection struct {
 	OwnerID     int64     `gorm:"not null" json:"ownerId"`
 	Owner       *User     `gorm:"foreignKey:OwnerID" json:"owner,omitempty"`
 	Recipes     []Recipe  `gorm:"many2many:collection_recipes" json:"recipes,omitempty"`
-	CreatedAt   time.Time `gorm:"autoCreateTime:nano" json:"createdAt"`
-	UpdatedAt   time.Time `gorm:"autoUpdateTime:nano" json:"updatedAt"`
+	CreatedAt   time.Time `gorm:"autoCreateTime" json:"createdAt"`
+	UpdatedAt   time.Time `gorm:"autoUpdateTime" json:"updatedAt"`
 }
 
 func (Collection) TableName() string {

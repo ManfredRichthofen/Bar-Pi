@@ -7,3 +7,4 @@
 *.exe
 *.log
 .DS_Store
+/internal/static/dist/

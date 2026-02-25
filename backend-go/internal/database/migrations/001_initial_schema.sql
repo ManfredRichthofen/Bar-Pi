@@ -6,8 +6,8 @@ CREATE TABLE users (
     password TEXT NOT NULL,
     role TEXT NOT NULL,
     is_account_non_locked BOOLEAN NOT NULL DEFAULT 1,
-    created_at INTEGER NOT NULL DEFAULT (strftime('%s', 'now')),
-    updated_at INTEGER NOT NULL DEFAULT (strftime('%s', 'now'))
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE gpio_boards (
@@ -37,8 +37,8 @@ CREATE TABLE ingredients (
     in_bar BOOLEAN,
     pump_time_multiplier REAL,
     has_image BOOLEAN NOT NULL DEFAULT 0,
-    created_at INTEGER NOT NULL DEFAULT (strftime('%s', 'now')),
-    updated_at INTEGER NOT NULL DEFAULT (strftime('%s', 'now')),
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CHECK (dtype != 'AutomatedIngredient' OR bottle_size IS NOT NULL),
     CHECK (alcohol_content BETWEEN 0 AND 100 OR alcohol_content IS NULL),
     CHECK (dtype != 'AutomatedIngredient' OR pump_time_multiplier IS NOT NULL),
@@ -90,8 +90,8 @@ CREATE TABLE recipes (
     has_image BOOLEAN NOT NULL DEFAULT 0,
     owner_id INTEGER NOT NULL REFERENCES users ON DELETE CASCADE,
     glass_id INTEGER REFERENCES glasses ON DELETE SET NULL,
-    last_update INTEGER NOT NULL DEFAULT (strftime('%s', 'now')),
-    created_at INTEGER NOT NULL DEFAULT (strftime('%s', 'now'))
+    last_update DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE production_steps (
@@ -130,8 +130,8 @@ CREATE TABLE collections (
     name TEXT NOT NULL,
     description TEXT,
     owner_id INTEGER NOT NULL REFERENCES users ON DELETE CASCADE,
-    created_at INTEGER NOT NULL DEFAULT (strftime('%s', 'now')),
-    updated_at INTEGER NOT NULL DEFAULT (strftime('%s', 'now'))
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE collection_recipes (

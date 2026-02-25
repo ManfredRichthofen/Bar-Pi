@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/ManfredRichthofen/Bar-Pi/backend-go/internal/auth"
@@ -28,9 +29,10 @@ type LoginRequest struct {
 }
 
 type LoginResponse struct {
-	Token      string `json:"token"`
-	ExpiresAt  string `json:"expiresAt"`
-	User       UserResponse `json:"user"`
+	AccessToken     string       `json:"accessToken"`
+	TokenExpiration int64        `json:"tokenExpiration"`
+	TokenType       string       `json:"tokenType"`
+	User            UserResponse `json:"user"`
 }
 
 type UserResponse struct {
@@ -46,8 +48,11 @@ func (h *AuthHandler) Login(c *gin.Context) {
 		return
 	}
 
+	fmt.Printf("Login attempt - Username: '%s', Password length: %d\n", req.Username, len(req.Password))
+
 	user, err := h.userService.Authenticate(req.Username, req.Password)
 	if err != nil {
+		fmt.Printf("Authentication failed for user '%s': %v\n", req.Username, err)
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid credentials"})
 		return
 	}
@@ -59,8 +64,9 @@ func (h *AuthHandler) Login(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, LoginResponse{
-		Token:     token,
-		ExpiresAt: expiresAt.Format("2006-01-02T15:04:05Z07:00"),
+		AccessToken:     token,
+		TokenExpiration: expiresAt.UnixMilli(),
+		TokenType:       "Bearer",
 		User: UserResponse{
 			ID:       user.ID,
 			Username: user.Username,
@@ -85,8 +91,9 @@ func (h *AuthHandler) RefreshToken(c *gin.Context) {
 
 	claims, _ := middleware.GetClaims(c)
 	c.JSON(http.StatusOK, LoginResponse{
-		Token:     newToken,
-		ExpiresAt: expiresAt.Format("2006-01-02T15:04:05Z07:00"),
+		AccessToken:     newToken,
+		TokenExpiration: expiresAt.UnixMilli(),
+		TokenType:       "Bearer",
 		User: UserResponse{
 			ID:       claims.UserID,
 			Username: claims.Username,

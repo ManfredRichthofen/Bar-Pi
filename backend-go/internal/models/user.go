@@ -26,8 +26,8 @@ type User struct {
 	Password           string    `gorm:"not null" json:"-"`
 	Role               Role      `gorm:"not null" json:"role"`
 	IsAccountNonLocked bool      `gorm:"not null;default:true" json:"isAccountNonLocked"`
-	CreatedAt          time.Time `gorm:"autoCreateTime:nano" json:"createdAt"`
-	UpdatedAt          time.Time `gorm:"autoUpdateTime:nano" json:"updatedAt"`
+	CreatedAt          time.Time `gorm:"autoCreateTime" json:"createdAt"`
+	UpdatedAt          time.Time `gorm:"autoUpdateTime" json:"updatedAt"`
 }
 
 func (User) TableName() string {
