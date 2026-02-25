@@ -53,9 +53,15 @@ jobs:
       - name: Build frontend
         run: npm run build
 
+      - name: Prepare build directories
+        run: |
+          rm -rf dist-backend
+          mkdir -p dist-backend
+          rm -rf backend-go/internal/static/dist
+          mkdir -p backend-go/internal/static/dist
+
       - name: Copy frontend to backend static folder
         run: |
-          mkdir -p backend-go/internal/static/dist
           cp -r dist/* backend-go/internal/static/dist/
 
       - name: Install backend dependencies

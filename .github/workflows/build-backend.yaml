@@ -46,6 +46,11 @@ jobs:
         working-directory: backend-go
         run: go test -v ./...
 
+      - name: Prepare build directory
+        run: |
+          rm -rf dist-backend
+          mkdir -p dist-backend
+
       - name: Build for Linux AMD64
         working-directory: backend-go
         env:
