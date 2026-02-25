@@ -1,0 +1,261 @@
+name: Create Release
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+          cache: 'npm'
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.23'
+          cache-dependency-path: backend-go/go.sum
+
+      - name: Setup Java JDK
+        uses: actions/setup-java@v5
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Get version from package.json
+        id: get_version
+        run: |
+          version=$(node -p "require('./package.json').version")
+          echo "version=$version" >> $GITHUB_OUTPUT
+          echo "Building version: $version"
+
+      - name: Generate Release Notes
+        id: release_notes
+        run: |
+          previous_tag=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
+          
+          if [ -z "$previous_tag" ]; then
+            git log --pretty=format:"* %s (%h)" > release_notes.txt
+          else
+            git log --pretty=format:"* %s (%h)" $previous_tag..HEAD > release_notes.txt
+          fi
+          
+          notes=$(cat release_notes.txt)
+          echo "notes<<EOF" >> $GITHUB_OUTPUT
+          echo "$notes" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      # ===== BUILD FRONTEND =====
+      - name: Install frontend dependencies
+        run: npm ci
+
+      - name: Build frontend
+        run: npm run build
+
+      - name: Zip frontend
+        run: |
+          cd dist
+          zip -r ../frontend-${{ steps.get_version.outputs.version }}.zip .
+
+      - name: Zip wait-for-app-html
+        run: |
+          cd scripts/wait-for-app-html
+          zip -r ../../wait-for-app-html.zip .
+
+      # ===== BUILD BACKEND BINARIES =====
+      - name: Prepare backend build directory
+        run: |
+          rm -rf dist-backend
+          mkdir -p dist-backend
+
+      - name: Install backend dependencies
+        working-directory: backend-go
+        run: |
+          go mod download
+          go mod tidy
+
+      - name: Build backend - Linux AMD64
+        working-directory: backend-go
+        env:
+          GOOS: linux
+          GOARCH: amd64
+          CGO_ENABLED: 0
+        run: |
+          go build -ldflags="-s -w" -o ../dist-backend/bar-pi-server-linux-amd64 ./cmd/server/main.go
+
+      - name: Build backend - Linux ARM64
+        working-directory: backend-go
+        env:
+          GOOS: linux
+          GOARCH: arm64
+          CGO_ENABLED: 0
+        run: |
+          go build -ldflags="-s -w" -o ../dist-backend/bar-pi-server-linux-arm64 ./cmd/server/main.go
+
+      - name: Build backend - Linux ARM
+        working-directory: backend-go
+        env:
+          GOOS: linux
+          GOARCH: arm
+          GOARM: 7
+          CGO_ENABLED: 0
+        run: |
+          go build -ldflags="-s -w" -o ../dist-backend/bar-pi-server-linux-arm ./cmd/server/main.go
+
+      # ===== BUILD BUNDLE BINARIES =====
+      - name: Prepare bundle build
+        run: |
+          rm -rf backend-go/internal/static/dist
+          mkdir -p backend-go/internal/static/dist
+          cp -r dist/* backend-go/internal/static/dist/
+
+      - name: Build bundle - Linux AMD64
+        working-directory: backend-go
+        env:
+          GOOS: linux
+          GOARCH: amd64
+          CGO_ENABLED: 0
+        run: |
+          go build -tags=bundle -ldflags="-s -w" -o ../dist-backend/bar-pi-bundle-linux-amd64 ./cmd/server/main.go
+
+      - name: Build bundle - Linux ARM64
+        working-directory: backend-go
+        env:
+          GOOS: linux
+          GOARCH: arm64
+          CGO_ENABLED: 0
+        run: |
+          go build -tags=bundle -ldflags="-s -w" -o ../dist-backend/bar-pi-bundle-linux-arm64 ./cmd/server/main.go
+
+      - name: Build bundle - Linux ARM
+        working-directory: backend-go
+        env:
+          GOOS: linux
+          GOARCH: arm
+          GOARM: 7
+          CGO_ENABLED: 0
+        run: |
+          go build -tags=bundle -ldflags="-s -w" -o ../dist-backend/bar-pi-bundle-linux-arm ./cmd/server/main.go
+
+      - name: Clean up embedded frontend
+        run: rm -rf backend-go/internal/static/dist
+
+      # ===== BUILD ANDROID APK =====
+      - name: Generate Capacitor assets
+        run: npx @capacitor/assets generate
+
+      - name: Sync Capacitor
+        run: npx cap sync android
+
+      - name: Make gradlew executable
+        run: chmod +x android/gradlew
+
+      - name: Decode Keystore
+        run: |
+          echo "${{ secrets.ANDROID_KEYSTORE_FILE }}" | tr -d '\n\r\t ' | base64 -d > android/app/release.keystore
+          ls -lh android/app/release.keystore
+
+      - name: Build Android Release APK
+        run: |
+          cd android
+          ./gradlew assembleRelease --no-daemon --stacktrace
+        env:
+          RELEASE_STORE_FILE: ${{ github.workspace }}/android/app/release.keystore
+          RELEASE_STORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          RELEASE_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          RELEASE_KEY_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+
+      # ===== VERIFY FILES =====
+      - name: Verify release files
+        run: |
+          echo "=== Backend Binaries ==="
+          ls -lh dist-backend/
+          echo ""
+          echo "=== Frontend Archives ==="
+          ls -lh frontend-${{ steps.get_version.outputs.version }}.zip
+          ls -lh wait-for-app-html.zip
+          echo ""
+          echo "=== Android APK ==="
+          ls -lh android/app/build/outputs/apk/release/app-release.apk
+          echo ""
+          echo "All files verified!"
+
+      # ===== CREATE GITHUB RELEASE =====
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ steps.get_version.outputs.version }}
+          name: Release v${{ steps.get_version.outputs.version }}
+          body: |
+            ## Bar-Pi Release v${{ steps.get_version.outputs.version }}
+            
+            Complete release with all deployment options.
+            
+            ### 📱 Android App
+            - `app-release.apk` - Android application (signed)
+            
+            ### 🎯 Complete Bundle (Recommended)
+            Single binary with embedded frontend - just download and run!
+            - `bar-pi-bundle-linux-amd64` - Linux x86_64
+            - `bar-pi-bundle-linux-arm64` - Raspberry Pi 64-bit
+            - `bar-pi-bundle-linux-arm` - Raspberry Pi 32-bit
+            
+            ### 🔧 Backend Only
+            API server without embedded frontend (deploy frontend separately)
+            - `bar-pi-server-linux-amd64` - Linux x86_64
+            - `bar-pi-server-linux-arm64` - Raspberry Pi 64-bit
+            - `bar-pi-server-linux-arm` - Raspberry Pi 32-bit
+            
+            ### 🌐 Frontend Only
+            - `frontend-${{ steps.get_version.outputs.version }}.zip` - Web application files
+            - `wait-for-app-html.zip` - Loading screen
+            
+            ### 📝 Changes
+            ${{ steps.release_notes.outputs.notes }}
+            
+            ### 🚀 Quick Start - Bundle
+            ```bash
+            # Download
+            curl -L -o bar-pi-bundle https://github.com/ManfredRichthofen/Bar-Pi/releases/download/v${{ steps.get_version.outputs.version }}/bar-pi-bundle-linux-arm64
+            
+            # Run
+            chmod +x bar-pi-bundle
+            ./bar-pi-bundle
+            ```
+            
+            ### 🚀 Quick Start - Backend Only
+            ```bash
+            # Download
+            curl -L -o bar-pi-server https://github.com/ManfredRichthofen/Bar-Pi/releases/download/v${{ steps.get_version.outputs.version }}/bar-pi-server-linux-arm64
+            
+            # Run
+            chmod +x bar-pi-server
+            ./bar-pi-server
+            ```
+          files: |
+            android/app/build/outputs/apk/release/app-release.apk
+            dist-backend/bar-pi-bundle-linux-amd64
+            dist-backend/bar-pi-bundle-linux-arm64
+            dist-backend/bar-pi-bundle-linux-arm
+            dist-backend/bar-pi-server-linux-amd64
+            dist-backend/bar-pi-server-linux-arm64
+            dist-backend/bar-pi-server-linux-arm
+            frontend-${{ steps.get_version.outputs.version }}.zip
+            wait-for-app-html.zip
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
