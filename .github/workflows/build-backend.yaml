@@ -88,6 +88,23 @@ jobs:
           version=$(node -p "require('./package.json').version")
           echo "version=$version" >> $GITHUB_OUTPUT
 
+      - name: Generate Release Notes
+        if: github.event_name == 'workflow_dispatch'
+        id: release_notes
+        run: |
+          previous_tag=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
+          
+          if [ -z "$previous_tag" ]; then
+            git log --pretty=format:"* %s (%h)" > release_notes.txt
+          else
+            git log --pretty=format:"* %s (%h)" $previous_tag..HEAD > release_notes.txt
+          fi
+          
+          notes=$(cat release_notes.txt)
+          echo "notes<<EOF" >> $GITHUB_OUTPUT
+          echo "$notes" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
       - name: Create Release
         if: github.event_name == 'workflow_dispatch'
         uses: softprops/action-gh-release@v2
@@ -95,15 +112,25 @@ jobs:
           tag_name: 'backend-v${{ steps.get_version.outputs.version }}'
           name: 'Backend Release ${{ steps.get_version.outputs.version }}'
           body: |
-            Backend-only build (no embedded frontend)
+            ## Backend-only Build
             
-            ## Binaries
+            Backend server without embedded frontend. Deploy frontend separately.
+            
+            ### Binaries
             - `bar-pi-server-linux-amd64` - Linux x86_64
             - `bar-pi-server-linux-arm64` - Linux ARM64 (Raspberry Pi 64-bit)
             - `bar-pi-server-linux-arm` - Linux ARM (Raspberry Pi 32-bit)
             
-            ## Usage
-            Deploy the frontend separately and configure the backend to serve it.
+            ### Changes
+            ${{ steps.release_notes.outputs.notes }}
+            
+            ### Usage
+            ```bash
+            # Download and run
+            curl -L -o bar-pi-server https://github.com/ManfredRichthofen/Bar-Pi/releases/download/backend-v${{ steps.get_version.outputs.version }}/bar-pi-server-linux-arm64
+            chmod +x bar-pi-server
+            ./bar-pi-server
+            ```
           files: |
             dist-backend/bar-pi-server-linux-amd64
             dist-backend/bar-pi-server-linux-arm64
