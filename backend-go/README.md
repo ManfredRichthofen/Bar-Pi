@@ -206,7 +206,7 @@ Configuration is managed through environment variables. See `.env.example` for a
 | `APP_NAME` | `CocktailPi` | Application name |
 | `APP_VERSION` | `2.0.0` | Application version |
 
-**Note:** The CORS middleware is configured to allow all origins by default. For production, consider restricting to specific domains.
+**Note:** The CORS middleware is configured to allow all origins by default. For security reasons, consider restricting to specific domains in production.
 
 ## API Endpoints
 
@@ -298,8 +298,6 @@ Configuration is managed through environment variables. See `.env.example` for a
 ### Health Check
 - `GET /health` - Server health status
 
-**Total: 61 fully implemented endpoints**
-
 ## Database
 
 ### Schema
@@ -329,15 +327,6 @@ To create a new migration:
 # Follow the naming convention: XXX_description.sql
 # Use Goose syntax with -- +goose Up and -- +goose Down
 ```
-
-### Database Features
-
-- **Pure Go SQLite** - No CGO required, cross-platform
-- **Automatic Migrations** - Schema versioning and updates
-- **Foreign Keys** - Referential integrity enforced
-- **Indexes** - Optimized query performance
-- **Constraints** - Data validation at database level
-- **DATETIME Columns** - Proper time handling
 
 ## Development
 
@@ -415,24 +404,6 @@ air
 - **Range Validation** - Numeric ranges enforced
 - **SQL Injection Prevention** - GORM parameterized queries
 - **XSS Prevention** - Proper output encoding
-
-## Performance
-
-### Optimizations
-
-- **Connection Pooling** - Database connection reuse
-- **Preloading** - Prevents N+1 query problems
-- **Indexes** - Strategic database indexing
-- **Concurrent Operations** - Goroutines for background tasks
-- **Efficient Queries** - Conditional query building
-
-### Benchmarks
-
-Compared to the original Java backend:
-- **~10x faster startup time**
-- **~50% lower memory footprint**
-- **Single binary deployment** (vs JAR + JVM)
-- **Minimal dependencies**
 
 ## Deployment
 
@@ -552,9 +523,6 @@ See the main project LICENSE file.
 
 ## Support
 
-For detailed implementation information, see:
-- `IMPLEMENTATION_STATUS.md` - Architecture and design decisions
-- `FINAL_STATUS.md` - Complete feature status
 - GitHub Issues - Bug reports and feature requests
 
 ## Acknowledgments
