@@ -80,7 +80,7 @@ jobs:
           go build -ldflags="-s -w" -o ../dist-backend/bar-pi-server-linux-arm ./cmd/server/main.go
 
       - name: Upload artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: backend-binaries
           path: dist-backend/
