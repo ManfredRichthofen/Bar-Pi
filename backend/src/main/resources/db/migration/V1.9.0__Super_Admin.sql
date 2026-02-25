@@ -1,0 +1,1 @@
+UPDATE users SET role = 'ROLE_SUPER_ADMIN' WHERE role = 'ROLE_ADMIN';

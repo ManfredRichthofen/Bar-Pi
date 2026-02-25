@@ -1,0 +1,9 @@
+*.db
+*.db-shm
+*.db-wal
+.env
+/bin/
+/dist/
+*.exe
+*.log
+.DS_Store
