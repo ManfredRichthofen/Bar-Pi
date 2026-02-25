@@ -214,7 +214,7 @@ jobs:
             - `bar-pi-bundle-linux-arm` - Raspberry Pi 32-bit
             
             ### 🔧 Backend Only
-            API server without embedded frontend (deploy frontend separately)
+            API server without embedded frontend (deploy frontend separately use the apk or host else where)
             - `bar-pi-server-linux-amd64` - Linux x86_64
             - `bar-pi-server-linux-arm64` - Raspberry Pi 64-bit
             - `bar-pi-server-linux-arm` - Raspberry Pi 32-bit
@@ -227,24 +227,8 @@ jobs:
             ${{ steps.release_notes.outputs.notes }}
             
             ### 🚀 Quick Start - Bundle
-            ```bash
-            # Download
-            curl -L -o bar-pi-bundle https://github.com/ManfredRichthofen/Bar-Pi/releases/download/v${{ steps.get_version.outputs.version }}/bar-pi-bundle-linux-arm64
-            
-            # Run
-            chmod +x bar-pi-bundle
-            ./bar-pi-bundle
-            ```
-            
-            ### 🚀 Quick Start - Backend Only
-            ```bash
-            # Download
-            curl -L -o bar-pi-server https://github.com/ManfredRichthofen/Bar-Pi/releases/download/v${{ steps.get_version.outputs.version }}/bar-pi-server-linux-arm64
-            
-            # Run
-            chmod +x bar-pi-server
-            ./bar-pi-server
-            ```
+            See the [INSTALL_GUIDE.md](INSTALL_GUIDE.md) for detailed installation instructions.
+
           files: |
             android/app/build/outputs/apk/release/app-release.apk
             dist-backend/bar-pi-bundle-linux-amd64

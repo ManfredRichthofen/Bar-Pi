@@ -15,12 +15,72 @@ A high-performance, production-ready Go backend for the Bar-Pi cocktail mixing s
 
 ## Quick Start
 
-### Prerequisites
+### Automated Installation (Raspberry Pi)
+
+For Raspberry Pi users, we provide an automated installation script that handles everything:
+
+```bash
+# Download the installation script
+curl -L https://raw.githubusercontent.com/ManfredRichthofen/Bar-Pi/main/scripts/install/install-go.sh -o install-go.sh
+
+# Make it executable
+chmod +x install-go.sh
+
+# Run the installer
+sudo ./install-go.sh
+```
+
+The installer will guide you through:
+
+1. **Build Type Selection**
+   - **Standalone Backend** - API-only server (smaller binary, deploy frontend separately)
+   - **Complete Bundle** - Backend + embedded frontend in a single binary
+
+2. **Touchscreen UI Setup** (Bundle only)
+   - No touchscreen - API access only
+   - Touchscreen without keyboard - Basic kiosk mode
+   - Touchscreen with keyboard - Full kiosk mode with on-screen keyboard
+
+3. **Installation Source**
+   - Latest release from GitHub
+   - Specific version tag
+   - Local binary file
+
+4. **Service Configuration**
+   - Automatic systemd service creation
+   - Auto-start on boot
+   - Service management commands
+
+**What the installer does:**
+- Downloads the appropriate binary for your architecture (ARM, ARM64, or AMD64)
+- Installs to `/opt/bar-pi/`
+- Creates configuration file at `/opt/bar-pi/.env`
+- Sets up systemd service for automatic startup
+- Optionally configures touchscreen UI with Chromium kiosk mode
+- Installs Wayfire compositor and on-screen keyboard (if selected)
+
+**After installation:**
+- Web UI: `http://localhost:8080` (bundle only)
+- API: `http://localhost:8080/api/`
+- Default credentials: `admin` / `admin` (change immediately!)
+
+**Service management:**
+```bash
+sudo systemctl start bar-pi      # Start the service
+sudo systemctl stop bar-pi       # Stop the service
+sudo systemctl restart bar-pi    # Restart the service
+sudo systemctl status bar-pi     # Check status
+sudo journalctl -u bar-pi -f     # View logs
+```
+
+### Manual Installation
+
+#### Prerequisites
 
 - Go 1.23 or higher
 - Make (optional, for using Makefile commands)
 
-### Installation
+#### Installation Steps
 
 ```bash
 # Clone and navigate to backend directory

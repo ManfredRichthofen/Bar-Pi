@@ -92,6 +92,43 @@ done
 BINARY_NAME="${BINARY_PREFIX}-linux-${ARCH_SUFFIX}"
 echo ""
 
+# Check if touchscreen UI should be installed (only for bundle)
+INSTALL_TOUCHSCREEN=false
+INSTALL_KEYBOARD=false
+
+if [ "$BUILD_TYPE" = "bundle" ]; then
+    echo ""
+    echo -e "${BLUE}Setup touchscreen UI?${NC}"
+    echo "  1) No touchscreen (API only)"
+    echo "  2) Touchscreen without on-screen keyboard"
+    echo "  3) Touchscreen with on-screen keyboard"
+    echo ""
+
+    while true; do
+        read -p "Enter your choice (1, 2, or 3): " UI_CHOICE
+        case $UI_CHOICE in
+            1|2|3)
+                break
+                ;;
+            *)
+                echo -e "${RED}Invalid choice. Please enter 1, 2, or 3.${NC}"
+                ;;
+        esac
+    done
+
+    if [ "$UI_CHOICE" = "2" ] || [ "$UI_CHOICE" = "3" ]; then
+        INSTALL_TOUCHSCREEN=true
+        
+        if [ "$UI_CHOICE" = "3" ]; then
+            INSTALL_KEYBOARD=true
+            echo ""
+            echo -e "${YELLOW}⚠ A screen must be connected to the device during installation!${NC}"
+            read -p "Press Enter to confirm a screen is connected and continue..."
+        fi
+    fi
+fi
+echo ""
+
 # Get latest release or specific version
 echo -e "${BLUE}Select installation source:${NC}"
 echo "  1) Latest release from GitHub"
@@ -181,6 +218,7 @@ fi
 echo ""
 
 # Setup autostart
+echo ""
 echo -e "${BLUE}Setup autostart on boot?${NC}"
 read -p "Enable systemd service? (y/n): " ENABLE_SERVICE
 
@@ -235,6 +273,106 @@ EOF
             echo -e "${RED}✗ Failed to start service. Check logs with: sudo journalctl -u $SERVICE_NAME${NC}"
         fi
     fi
+fi
+
+# Install touchscreen UI if requested
+if [ "$INSTALL_TOUCHSCREEN" = true ]; then
+    echo ""
+    echo -e "${YELLOW}Installing touchscreen dependencies...${NC}"
+    
+    # Determine the home directory
+    if [ "$USER" = "root" ]; then
+        HOME_DIR="/root"
+    else
+        HOME_DIR="/home/$USER"
+    fi
+    
+    # Install required packages
+    sudo apt-get update
+    sudo apt-get install --no-install-recommends -y chromium rpi-chromium-mods wayfire seatd xdg-user-dirs jq
+    
+    # Configure auto-login
+    sudo raspi-config nonint do_boot_behaviour B2
+    
+    # Enable Wayland
+    sudo raspi-config nonint do_wayland W2
+    
+    # Create wayfire config directory
+    mkdir -p "$HOME_DIR/.config"
+    
+    # Install on-screen keyboard if requested
+    if [ "$INSTALL_KEYBOARD" = true ]; then
+        echo -e "${YELLOW}Setting up on-screen keyboard...${NC}"
+        echo -e "${BLUE}A browser will open to install the Chrome keyboard extension.${NC}"
+        echo -e "${BLUE}You have 100 seconds to add the extension to Chrome.${NC}"
+        echo ""
+        read -p "Press Enter to continue..."
+        
+        # Create temporary wayfire config for keyboard installation
+        cat > "$HOME_DIR/.config/wayfire.ini" << 'EOFWAY'
+[core]
+plugins = \
+        autostart
+
+[autostart]
+chromium = chromium https://chromewebstore.google.com/detail/chrome-simple-keyboard-a/cjabmkimbcmhhepelfhjhbhonnapiipj --kiosk --noerrdialogs --enable-extensions --disable-component-update --check-for-update-interval=31536000 --disable-infobars --no-first-run --ozone-platform=wayland --enable-features=OverlayScrollbar --disable-features=OverscrollHistoryNavigation --start-maximized --user-data-dir=$HOME/.config/chromium-profile
+screensaver = false
+dpms = false
+EOFWAY
+        
+        # Replace $HOME with actual home directory
+        sed -i "s|\$HOME|$HOME_DIR|g" "$HOME_DIR/.config/wayfire.ini"
+        
+        # Start wayfire to install keyboard extension
+        USER_ID=$(id -u $USER)
+        sudo -u $USER XDG_RUNTIME_DIR=/run/user/$USER_ID \
+            nohup wayfire -c "$HOME_DIR/.config/wayfire.ini" > /dev/null 2>&1 < /dev/null & disown
+        
+        sleep 100
+        pkill -f wayfire
+    fi
+    
+    # Determine the URL to display
+    if [ "$BUILD_TYPE" = "bundle" ]; then
+        APP_URL="http://localhost:8080"
+    else
+        # For standalone backend, show a waiting page or localhost
+        APP_URL="http://localhost:8080"
+    fi
+    
+    # Create final wayfire config
+    echo -e "${YELLOW}Creating touchscreen autostart configuration...${NC}"
+    cat > "$HOME_DIR/.config/wayfire.ini" << EOFWAY
+[core]
+plugins = \\
+        autostart
+
+[autostart]
+chromium = chromium $APP_URL --kiosk --noerrdialogs --enable-extensions --disable-component-update --check-for-update-interval=31536000 --disable-infobars --no-first-run --ozone-platform=wayland --enable-features=OverlayScrollbar --disable-features=OverscrollHistoryNavigation --start-maximized --user-data-dir=$HOME_DIR/.config/chromium-profile
+screensaver = false
+dpms = false
+EOFWAY
+    
+    # Add wayfire autostart to .bashrc if not already present
+    if ! grep -q "wayfire -c ~/.config/wayfire.ini" "$HOME_DIR/.bashrc"; then
+        cat >> "$HOME_DIR/.bashrc" << 'EOFBASH'
+
+# Start wayfire on tty1
+if [ "$(tty)" = "/dev/tty1" ]; then
+    wayfire -c ~/.config/wayfire.ini
+fi
+EOFBASH
+    fi
+    
+    # Start wayfire now if on a display
+    if [ -n "$DISPLAY" ] || [[ $(tty) =~ ^/dev/tty[0-9]$ ]]; then
+        echo -e "${YELLOW}Starting touchscreen UI...${NC}"
+        USER_ID=$(id -u $USER)
+        sudo -u $USER XDG_RUNTIME_DIR=/run/user/$USER_ID \
+            nohup wayfire -c "$HOME_DIR/.config/wayfire.ini" > /dev/null 2>&1 < /dev/null & disown
+    fi
+    
+    echo -e "${GREEN}✓ Touchscreen UI configured${NC}"
 fi
 
 echo ""
