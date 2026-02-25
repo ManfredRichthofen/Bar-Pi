@@ -1,5 +1,5 @@
 import { Loader2, Search } from 'lucide-react';
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 
@@ -18,19 +18,14 @@ const SearchInput = React.memo(
     size = 'default',
     variant = 'default',
   }) => {
-    // Debounced onChange handler
-    const debouncedOnChange = useMemo(() => {
-      if (!onChange) return undefined;
+    // Internal state for immediate UI updates
+    const [internalValue, setInternalValue] = useState(value || '');
+    const timeoutRef = useRef(null);
 
-      let timeoutId;
-      return (e) => {
-        const newValue = e.target.value;
-        clearTimeout(timeoutId);
-        timeoutId = setTimeout(() => {
-          onChange(newValue);
-        }, debounceMs);
-      };
-    }, [onChange, debounceMs]);
+    // Sync internal value when prop changes externally
+    useEffect(() => {
+      setInternalValue(value || '');
+    }, [value]);
 
     const handleSubmit = useCallback(
       (e) => {
@@ -44,12 +39,34 @@ const SearchInput = React.memo(
 
     const handleInputChange = useCallback(
       (e) => {
-        if (debouncedOnChange) {
-          debouncedOnChange(e);
+        const newValue = e.target.value;
+        
+        // Update internal state immediately for responsive UI
+        setInternalValue(newValue);
+
+        // Clear existing timeout
+        if (timeoutRef.current) {
+          clearTimeout(timeoutRef.current);
+        }
+
+        // Debounce the callback to parent
+        if (onChange) {
+          timeoutRef.current = setTimeout(() => {
+            onChange(newValue);
+          }, debounceMs);
         }
       },
-      [debouncedOnChange],
+      [onChange, debounceMs],
     );
+
+    // Cleanup timeout on unmount
+    useEffect(() => {
+      return () => {
+        if (timeoutRef.current) {
+          clearTimeout(timeoutRef.current);
+        }
+      };
+    }, []);
 
     const sizeClasses = {
       sm: 'h-9 text-sm',
@@ -77,7 +94,7 @@ const SearchInput = React.memo(
         <div className="relative">
           <Input
             name="search"
-            value={value}
+            value={internalValue}
             className={baseInputClassName}
             placeholder={placeholder}
             onChange={handleInputChange}

@@ -10,6 +10,7 @@ export const API_PATHS = {
   PUMP: 'api/pump/',
   PUMP_SETTINGS: 'api/pump/settings/',
   GLASS: 'api/glass/',
+  CATEGORY: 'api/category/',
   GPIO: 'api/gpio/',
   WEBSOCKET: '/websocket',
 };
