@@ -1,6 +1,6 @@
 import { AlertCircle } from 'lucide-react';
 import type React from 'react';
-import { ReactNode } from 'react';
+import type { ReactNode } from 'react';
 
 interface EmptyStateProps {
   icon?: ReactNode;

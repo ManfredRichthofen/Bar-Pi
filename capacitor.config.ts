@@ -12,17 +12,17 @@ const config: CapacitorConfig = {
       '127.0.0.1',
       '192.168.*.*',
       '10.*.*.*',
-      '172.16.*.*'
-    ]
+      '172.16.*.*',
+    ],
   },
   android: {
-    allowMixedContent: true
+    allowMixedContent: true,
   },
   plugins: {
     CapacitorHttp: {
-      enabled: true
-    }
-  }
+      enabled: true,
+    },
+  },
 };
 
 export default config;

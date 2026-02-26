@@ -1,10 +1,24 @@
 import { useNavigate } from '@tanstack/react-router';
-import { Check, Crown, Edit, Lock, Shield, Trash2, UserPlus, Wrench } from 'lucide-react';
+import {
+  Check,
+  Crown,
+  Edit,
+  Lock,
+  Shield,
+  Trash2,
+  UserPlus,
+  Wrench,
+} from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { PageHeader, EmptyState, ListCard, ActionButtons } from '@/components/AdvancedMode';
+import {
+  PageHeader,
+  EmptyState,
+  ListCard,
+  ActionButtons,
+} from '@/components/AdvancedMode';
 import UserService from '@/services/user.service';
 import { getRoleDisplayName, mapAdminLevelToRole } from '@/utils/roleAccess';
 import { DeleteUserDialog } from './components/DeleteUserDialog';
@@ -148,7 +162,10 @@ const UserPage = () => {
       <PageHeader
         title="User Management"
         action={
-          <Button onClick={() => setIsModalOpen(true)} className="w-full sm:w-auto">
+          <Button
+            onClick={() => setIsModalOpen(true)}
+            className="w-full sm:w-auto"
+          >
             <UserPlus className="mr-2 h-4 w-4" />
             Add User
           </Button>
@@ -188,14 +205,19 @@ const UserPage = () => {
                           variant="default"
                           className="text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5"
                         >
-                          {getRoleDisplayName(mapAdminLevelToRole(user.adminLevel))}
+                          {getRoleDisplayName(
+                            mapAdminLevelToRole(user.adminLevel),
+                          )}
                         </Badge>
                       </>
                     }
                     metadata={
                       <>
                         {user.accountNonLocked === false ? (
-                          <Badge variant="destructive" className="text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5">
+                          <Badge
+                            variant="destructive"
+                            className="text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5"
+                          >
                             <Lock className="h-3 w-3 mr-1" />
                             Locked
                           </Badge>
@@ -222,7 +244,9 @@ const UserPage = () => {
                             },
                           },
                           {
-                            icon: <Trash2 className="h-4 w-4 text-destructive" />,
+                            icon: (
+                              <Trash2 className="h-4 w-4 text-destructive" />
+                            ),
                             label: 'Delete user',
                             onClick: (e) => {
                               e.stopPropagation();

@@ -29,7 +29,7 @@ class CategoryService extends BaseService {
     return axios.post(
       API_PATH,
       { name: categoryName },
-      this.getAuthHeader(token)
+      this.getAuthHeader(token),
     );
   }
 
@@ -37,14 +37,14 @@ class CategoryService extends BaseService {
     return axios.put(
       API_PATH + String(category.id),
       category,
-      this.getAuthHeader(token)
+      this.getAuthHeader(token),
     );
   }
 
   deleteCategory(categoryId, token) {
     return axios.delete(
       API_PATH + String(categoryId),
-      this.getAuthHeader(token)
+      this.getAuthHeader(token),
     );
   }
 }

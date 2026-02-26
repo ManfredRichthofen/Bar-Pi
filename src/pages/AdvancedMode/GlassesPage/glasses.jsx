@@ -103,7 +103,10 @@ function Glasses() {
                   description={glass.description}
                   badges={
                     glass.sizeInMl && (
-                      <Badge variant="secondary" className="text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5">
+                      <Badge
+                        variant="secondary"
+                        className="text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5"
+                      >
                         {glass.sizeInMl}ml
                       </Badge>
                     )
@@ -111,7 +114,10 @@ function Glasses() {
                   metadata={
                     <>
                       {glass.type && (
-                        <Badge variant="outline" className="text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5">
+                        <Badge
+                          variant="outline"
+                          className="text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5"
+                        >
                           {glass.type}
                         </Badge>
                       )}

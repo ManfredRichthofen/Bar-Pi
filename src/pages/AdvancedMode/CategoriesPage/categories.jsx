@@ -64,10 +64,13 @@ const Categories = ({ sidebarCollapsed = false }) => {
     try {
       setError('');
       if (editingCategory) {
-        await CategoryService.updateCategory({
-          id: editingCategory.id,
-          name: name,
-        }, token);
+        await CategoryService.updateCategory(
+          {
+            id: editingCategory.id,
+            name: name,
+          },
+          token,
+        );
         toast.success('Category updated successfully');
       } else {
         await CategoryService.createCategory(name, token);
@@ -77,7 +80,8 @@ const Categories = ({ sidebarCollapsed = false }) => {
       setEditingCategory(null);
       await loadCategories();
     } catch (err) {
-      const errorMsg = err.response?.data?.message || 
+      const errorMsg =
+        err.response?.data?.message ||
         `Failed to ${editingCategory ? 'update' : 'create'} category`;
       setError(errorMsg);
       toast.error(errorMsg);
@@ -95,7 +99,8 @@ const Categories = ({ sidebarCollapsed = false }) => {
       setCategoryToDelete(null);
       await loadCategories();
     } catch (err) {
-      const errorMsg = err.response?.data?.message || 'Failed to delete category';
+      const errorMsg =
+        err.response?.data?.message || 'Failed to delete category';
       setError(errorMsg);
       toast.error(errorMsg);
     }
@@ -145,7 +150,10 @@ const Categories = ({ sidebarCollapsed = false }) => {
                 <ListCard
                   title={category.name}
                   badges={
-                    <Badge variant="secondary" className="text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5">
+                    <Badge
+                      variant="secondary"
+                      className="text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5"
+                    >
                       ID: {category.id}
                     </Badge>
                   }

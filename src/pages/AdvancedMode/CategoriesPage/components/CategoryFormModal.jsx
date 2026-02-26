@@ -30,7 +30,7 @@ export const CategoryFormModal = ({
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!name.trim()) return;
-    
+
     onSubmit(name.trim());
   };
 

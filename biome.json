@@ -23,7 +23,8 @@
       "!**/android*",
       "!**/ios*",
       "!**/keys*",
-      "!**/public/locales*"
+      "!**/public/locales*",
+      "!**/backend-go"
     ]
   },
   "linter": {

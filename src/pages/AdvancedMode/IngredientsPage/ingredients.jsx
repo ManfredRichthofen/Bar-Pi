@@ -1,12 +1,6 @@
 import { Navigate } from '@tanstack/react-router';
 import { useQuery } from '@tanstack/react-query';
-import {
-  Edit,
-  Image as ImageIcon,
-  PlusCircle,
-  Trash2,
-  X,
-} from 'lucide-react';
+import { Edit, Image as ImageIcon, PlusCircle, Trash2, X } from 'lucide-react';
 import React, {
   useCallback,
   useEffect,
@@ -408,7 +402,10 @@ const Ingredients = () => {
                       title={ingredient.name}
                       badges={
                         ingredient.inBar && (
-                          <Badge variant="default" className="text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5 flex-shrink-0">
+                          <Badge
+                            variant="default"
+                            className="text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5 flex-shrink-0"
+                          >
                             In Bar
                           </Badge>
                         )
@@ -428,7 +425,10 @@ const Ingredients = () => {
                               : 'Manual'}
                           </Badge>
                           {parentGroup && (
-                            <Badge variant="outline" className="text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5">
+                            <Badge
+                              variant="outline"
+                              className="text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5"
+                            >
                               {parentGroup.name}
                             </Badge>
                           )}
@@ -458,7 +458,9 @@ const Ingredients = () => {
                               },
                             },
                             {
-                              icon: <Trash2 className="h-4 w-4 text-destructive" />,
+                              icon: (
+                                <Trash2 className="h-4 w-4 text-destructive" />
+                              ),
                               label: 'Delete ingredient',
                               onClick: (e) => {
                                 e.stopPropagation();

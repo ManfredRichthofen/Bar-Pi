@@ -1,5 +1,5 @@
 import type React from 'react';
-import { ReactNode } from 'react';
+import type { ReactNode } from 'react';
 
 interface PageHeaderProps {
   title: string;
@@ -21,9 +21,7 @@ export const PageHeader: React.FC<PageHeaderProps> = ({
   return (
     <div
       className={`sticky top-16 z-40 bg-background/95 backdrop-blur-sm border-b shadow-sm transition-all duration-300 ${
-        isVisible
-          ? 'translate-y-0 opacity-100'
-          : '-translate-y-full opacity-0'
+        isVisible ? 'translate-y-0 opacity-100' : '-translate-y-full opacity-0'
       } ${className}`}
     >
       <div className="container mx-auto px-3 sm:px-4 py-3 sm:py-4">

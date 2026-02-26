@@ -48,7 +48,7 @@ func (r *PumpRepository) Update(pump *models.Pump) error {
 }
 
 // UpdateFields updates specific fields of a pump
-func (r *PumpRepository) UpdateFields(id int64, fields map[string]interface{}) error {
+func (r *PumpRepository) UpdateFields(id int64, fields map[string]any) error {
 	return r.db.Model(&models.Pump{}).Where("id = ?", id).Updates(fields).Error
 }
 

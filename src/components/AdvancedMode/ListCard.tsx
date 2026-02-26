@@ -1,5 +1,5 @@
 import type React from 'react';
-import { ReactNode } from 'react';
+import type { ReactNode } from 'react';
 
 interface ListCardProps {
   title: string;

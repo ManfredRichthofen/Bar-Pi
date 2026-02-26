@@ -306,7 +306,7 @@ func (s *StompServer) BroadcastToUser(username string, destination string, messa
 }
 
 // BroadcastToAll sends a message to all connected clients on a destination
-func (s *StompServer) BroadcastToAll(destination string, message interface{}) {
+func (s *StompServer) BroadcastToAll(destination string, message any) {
 	var body string
 	switch v := message.(type) {
 	case string:
@@ -435,7 +435,7 @@ func (s *StompServer) handleSockJSInfo(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Access-Control-Allow-Credentials", "true")
 
-	info := map[string]interface{}{
+	info := map[string]any{
 		"websocket":     true,
 		"origins":       []string{"*:*"},
 		"cookie_needed": false,

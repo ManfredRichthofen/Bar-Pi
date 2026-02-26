@@ -11,15 +11,15 @@ axios.interceptors.request.use(
   (config) => {
     // Get the current API base URL from the store
     const currentBaseUrl = useConfigStore.getState().apiBaseUrl;
-    
+
     // Update the baseURL for this request
     config.baseURL = currentBaseUrl;
-    
+
     return config;
   },
   (error) => {
     return Promise.reject(error);
-  }
+  },
 );
 
 /**

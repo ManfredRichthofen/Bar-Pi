@@ -1,11 +1,6 @@
 import { useInfiniteQuery, useQueryClient } from '@tanstack/react-query';
 import { Navigate, useNavigate } from '@tanstack/react-router';
-import {
-  Edit,
-  Heart,
-  PlusCircle,
-  Trash2,
-} from 'lucide-react';
+import { Edit, Heart, PlusCircle, Trash2 } from 'lucide-react';
 import React, {
   useCallback,
   useEffect,
@@ -155,7 +150,7 @@ const Recipes = ({ sidebarCollapsed = false }) => {
       const scrollHeight = document.documentElement.scrollHeight;
       const scrollTop = document.documentElement.scrollTop;
       const clientHeight = document.documentElement.clientHeight;
-      
+
       // Trigger when 500px from bottom
       if (scrollHeight - scrollTop - clientHeight < 500) {
         if (hasNextPage && !isFetchingNextPage) {
@@ -324,10 +319,7 @@ const Recipes = ({ sidebarCollapsed = false }) => {
                                     'recipes.remove_favorite',
                                     'Remove from favorites',
                                   )
-                                : t(
-                                    'recipes.add_favorite',
-                                    'Add to favorites',
-                                  ),
+                                : t('recipes.add_favorite', 'Add to favorites'),
                               onClick: (e) => {
                                 e.stopPropagation();
                                 handleToggleFavorite(recipe);
@@ -342,7 +334,9 @@ const Recipes = ({ sidebarCollapsed = false }) => {
                               },
                             },
                             {
-                              icon: <Trash2 className="h-4 w-4 text-destructive" />,
+                              icon: (
+                                <Trash2 className="h-4 w-4 text-destructive" />
+                              ),
                               label: t('recipes.delete', 'Delete recipe'),
                               onClick: (e) => {
                                 e.stopPropagation();

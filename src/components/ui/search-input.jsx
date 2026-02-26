@@ -40,7 +40,7 @@ const SearchInput = React.memo(
     const handleInputChange = useCallback(
       (e) => {
         const newValue = e.target.value;
-        
+
         // Update internal state immediately for responsive UI
         setInternalValue(newValue);
 

@@ -1,5 +1,4 @@
 //go:build bundle
-// +build bundle
 
 package static
 

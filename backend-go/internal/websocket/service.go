@@ -29,43 +29,43 @@ func NewService(stompServer *StompServer) *Service {
 }
 
 // BroadcastCocktailProgress broadcasts cocktail progress to all subscribers
-func (s *Service) BroadcastCocktailProgress(progress interface{}) {
+func (s *Service) BroadcastCocktailProgress(progress any) {
 	s.broadcastJSON(WS_COCKTAIL_DESTINATION, progress)
 }
 
 // SendCocktailProgressToUser sends cocktail progress to a specific user
-func (s *Service) SendCocktailProgressToUser(progress interface{}, username string) {
+func (s *Service) SendCocktailProgressToUser(progress any, username string) {
 	s.sendJSONToUser(username, WS_COCKTAIL_DESTINATION, progress)
 }
 
 // BroadcastPumpLayout broadcasts pump layout to all subscribers
-func (s *Service) BroadcastPumpLayout(pumps interface{}) {
+func (s *Service) BroadcastPumpLayout(pumps any) {
 	s.broadcastJSON(WS_PUMP_LAYOUT_DESTINATION, pumps)
 }
 
 // SendPumpLayoutToUser sends pump layout to a specific user
-func (s *Service) SendPumpLayoutToUser(pumps interface{}, username string) {
+func (s *Service) SendPumpLayoutToUser(pumps any, username string) {
 	s.sendJSONToUser(username, WS_PUMP_LAYOUT_DESTINATION, pumps)
 }
 
 // BroadcastRunningEventActionsStatus broadcasts event action status
-func (s *Service) BroadcastRunningEventActionsStatus(status interface{}) {
+func (s *Service) BroadcastRunningEventActionsStatus(status any) {
 	s.broadcastJSON(WS_ACTIONS_STATUS_DESTINATION, status)
 }
 
 // SendRunningEventActionsStatusToUser sends event action status to a specific user
-func (s *Service) SendRunningEventActionsStatusToUser(status interface{}, username string) {
+func (s *Service) SendRunningEventActionsStatusToUser(status any, username string) {
 	s.sendJSONToUser(username, WS_ACTIONS_STATUS_DESTINATION, status)
 }
 
 // BroadcastEventActionLog broadcasts event action log
-func (s *Service) BroadcastEventActionLog(actionID int64, logEntries interface{}) {
+func (s *Service) BroadcastEventActionLog(actionID int64, logEntries any) {
 	destination := WS_ACTIONS_LOG_DESTINATION + "/" + string(rune(actionID))
 	s.broadcastJSON(destination, logEntries)
 }
 
 // SendEventActionLogToUser sends event action log to a specific user
-func (s *Service) SendEventActionLogToUser(actionID int64, logEntries interface{}, username string) {
+func (s *Service) SendEventActionLogToUser(actionID int64, logEntries any, username string) {
 	destination := WS_ACTIONS_LOG_DESTINATION + "/" + string(rune(actionID))
 	s.sendJSONToUser(username, destination, logEntries)
 }
@@ -77,24 +77,24 @@ func (s *Service) BroadcastClearEventActionLog(actionID int64) {
 }
 
 // BroadcastPumpRunningState broadcasts pump running state
-func (s *Service) BroadcastPumpRunningState(pumpID int64, state interface{}) {
+func (s *Service) BroadcastPumpRunningState(pumpID int64, state any) {
 	destination := WS_PUMP_RUNNING_STATE_DESTINATION + "/" + string(rune(pumpID))
 	s.broadcastJSON(destination, state)
 }
 
 // SendPumpRunningStateToUser sends pump running state to a specific user
-func (s *Service) SendPumpRunningStateToUser(pumpID int64, state interface{}, username string) {
+func (s *Service) SendPumpRunningStateToUser(pumpID int64, state any, username string) {
 	destination := WS_PUMP_RUNNING_STATE_DESTINATION + "/" + string(rune(pumpID))
 	s.sendJSONToUser(username, destination, state)
 }
 
 // BroadcastDetectedGlass broadcasts detected glass state
-func (s *Service) BroadcastDetectedGlass(state interface{}) {
+func (s *Service) BroadcastDetectedGlass(state any) {
 	s.broadcastJSON(WS_DISPENSING_AREA, state)
 }
 
 // SendDetectedGlassToUser sends detected glass state to a specific user
-func (s *Service) SendDetectedGlassToUser(state interface{}, username string) {
+func (s *Service) SendDetectedGlassToUser(state any, username string) {
 	s.sendJSONToUser(username, WS_DISPENSING_AREA, state)
 }
 
@@ -105,7 +105,7 @@ func (s *Service) InvalidateRecipeScrollCaches() {
 
 // Helper methods
 
-func (s *Service) broadcastJSON(destination string, data interface{}) {
+func (s *Service) broadcastJSON(destination string, data any) {
 	jsonData, err := json.Marshal(data)
 	if err != nil {
 		log.Printf("Error marshaling data for broadcast: %v", err)
@@ -114,7 +114,7 @@ func (s *Service) broadcastJSON(destination string, data interface{}) {
 	s.stompServer.Broadcast(destination, string(jsonData))
 }
 
-func (s *Service) sendJSONToUser(username string, destination string, data interface{}) {
+func (s *Service) sendJSONToUser(username string, destination string, data any) {
 	jsonData, err := json.Marshal(data)
 	if err != nil {
 		log.Printf("Error marshaling data for user send: %v", err)
