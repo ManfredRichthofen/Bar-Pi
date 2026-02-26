@@ -106,7 +106,7 @@ jobs:
         run: rm -rf backend-go/internal/static/dist
 
       - name: Upload bundle artifacts
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: bundle-binaries
           path: dist-backend/

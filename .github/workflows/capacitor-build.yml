@@ -52,7 +52,7 @@ jobs:
           ./gradlew assembleDebug --no-daemon
 
       - name: Upload Debug APK artifact
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: app-debug
           path: android/app/build/outputs/apk/debug/app-debug.apk
