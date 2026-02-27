@@ -204,29 +204,29 @@ jobs:
             
             Complete release with all deployment options.
             
-            ### 📱 Android App
-            - `app-release.apk` - Android application (signed)
+            ### Android App
+            - `app-release.apk` - Android application to run with the backend server
             
-            ### 🎯 Complete Bundle (Recommended)
+            ### Complete Bundle (Recommended)
             Single binary with embedded frontend - just download and run!
             - `bar-pi-bundle-linux-amd64` - Linux x86_64
-            - `bar-pi-bundle-linux-arm64` - Raspberry Pi 64-bit
-            - `bar-pi-bundle-linux-arm` - Raspberry Pi 32-bit
+            - `bar-pi-bundle-linux-arm64` - Raspberry(Arm64) Pi 64-bit
+            - `bar-pi-bundle-linux-arm` - Raspberry(Arm) Pi 32-bit
             
-            ### 🔧 Backend Only
+            ### Backend Only
             API server without embedded frontend (deploy frontend separately use the apk or host else where)
             - `bar-pi-server-linux-amd64` - Linux x86_64
-            - `bar-pi-server-linux-arm64` - Raspberry Pi 64-bit
-            - `bar-pi-server-linux-arm` - Raspberry Pi 32-bit
+            - `bar-pi-server-linux-arm64` - Raspberry(Arm64) Pi 64-bit
+            - `bar-pi-server-linux-arm` - Raspberry(Arm) Pi 32-bit
             
-            ### 🌐 Frontend Only
+            ### Frontend Only
             - `frontend-${{ steps.get_version.outputs.version }}.zip` - Web application files
             - `wait-for-app-html.zip` - Loading screen
             
-            ### 📝 Changes
+            ### Changes
             ${{ steps.release_notes.outputs.notes }}
             
-            ### 🚀 Quick Start - Bundle
+            ### Quick Start - Bundle
             See the [INSTALL_GUIDE.md](INSTALL_GUIDE.md) for detailed installation instructions.
 
           files: |

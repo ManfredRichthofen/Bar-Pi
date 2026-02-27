@@ -1,6 +1,5 @@
-import { Stomp } from '@stomp/stompjs';
+import { Client } from '@stomp/stompjs';
 import axios from 'axios';
-import SockJS from 'sockjs-client/dist/sockjs';
 import useAuthStore from '../store/authStore';
 import useConfigStore from '../store/configStore';
 import authHeader from './auth-header';
@@ -42,17 +41,21 @@ class WebsocketService {
   async connectWebsocket(token) {
     // Remove trailing slash from API_BASE_URL to prevent double slashes
     const baseUrl = useConfigStore.getState().apiBaseUrl.replace(/\/$/, '');
+    
+    // Convert http/https to ws/wss for WebSocket URL
+    const wsUrl = baseUrl.replace(/^http/, 'ws') + '/websocket';
 
-    this.stompClient = Stomp.over(
-      () =>
-        new SockJS(`${baseUrl}/websocket`, null, {
-          transports: ['websocket', 'xhr-streaming', 'xhr-polling'],
-        }),
-    );
+    this.stompClient = new Client({
+      brokerURL: wsUrl,
+      connectHeaders: {
+        Authorization: `Bearer ${token}`,
+      },
+      debug: () => {}, // Disable debug logging
+      reconnectDelay: 5000,
+      heartbeatIncoming: 4000,
+      heartbeatOutgoing: 4000,
+    });
 
-    this.stompClient.connectHeaders = {
-      Authorization: `Bearer ${token}`,
-    };
     this.stompClient.onConnect = async () => {
       this.reconnectThrottleInSeconds = 5;
       this.showReconnectDialog = false;
@@ -63,8 +66,6 @@ class WebsocketService {
       }
       this.connected = true;
     };
-
-    this.stompClient.debug = () => {};
 
     for (const id of this.reconnectTasks) {
       clearTimeout(id);

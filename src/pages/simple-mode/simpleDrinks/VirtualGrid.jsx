@@ -1,6 +1,6 @@
 import { useInfiniteQuery } from '@tanstack/react-query';
 import { useWindowVirtualizer } from '@tanstack/react-virtual';
-import debounce from 'lodash/debounce';
+import { debounce } from 'es-toolkit';
 import { AlertCircle, Loader2, Search } from 'lucide-react';
 import React, { useEffect } from 'react';
 import { Alert, AlertDescription } from '@/components/ui/alert';

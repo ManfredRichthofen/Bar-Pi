@@ -1,7 +1,21 @@
 {
-  "$schema": "https://biomejs.dev/schemas/2.2.2/schema.json",
+  "$schema": "https://biomejs.dev/schemas/2.4.4/schema.json",
   "vcs": { "enabled": false, "clientKind": "git", "useIgnoreFile": false },
-  "files": { "ignoreUnknown": false },
+  "files": {
+    "ignoreUnknown": false,
+    "includes": [
+      "**",
+      "!**/node_modules",
+      "!**/dist",
+      "!**/*.html",
+      "!**/android*",
+      "!**/ios*",
+      "!**/keys*",
+      "!**/public/locales*",
+      "!**/backend-go",
+      "!**/components/ui"
+    ]
+  },
   "formatter": {
     "enabled": true,
     "formatWithErrors": false,
@@ -13,34 +27,11 @@
     "bracketSameLine": false,
     "bracketSpacing": true,
     "expand": "auto",
-    "useEditorconfig": true,
-    "includes": [
-      "**",
-      "!**/node_modules",
-      "!**/dist",
-      "!src-tauri/target",
-      "!**/*.html",
-      "!**/android*",
-      "!**/ios*",
-      "!**/keys*",
-      "!**/public/locales*",
-      "!**/backend-go"
-    ]
+    "useEditorconfig": true
   },
   "linter": {
     "enabled": true,
-    "rules": { "recommended": true },
-    "includes": [
-      "**",
-      "!**/node_modules",
-      "!**/dist",
-      "!src-tauri/target",
-      "!**/*.html",
-      "!**/android*",
-      "!**/ios*",
-      "!**/keys*",
-      "!**/public/locales*"
-    ]
+    "rules": { "recommended": true }
   },
   "css": {
     "parser": {
