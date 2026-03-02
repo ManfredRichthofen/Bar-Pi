@@ -1,10 +1,10 @@
 import { Client } from '@stomp/stompjs';
+import SockJS from 'sockjs-client';
 import axios from 'axios';
 import useAuthStore from '../store/authStore';
 import useConfigStore from '../store/configStore';
 import authHeader from './auth-header';
 
-// Get initial API URL from store
 const configStore = useConfigStore.getState();
 axios.defaults.baseURL = configStore.apiBaseUrl;
 
@@ -39,18 +39,16 @@ class WebsocketService {
   }
 
   async connectWebsocket(token) {
-    // Remove trailing slash from API_BASE_URL to prevent double slashes
     const baseUrl = useConfigStore.getState().apiBaseUrl.replace(/\/$/, '');
     
-    // Convert http/https to ws/wss for WebSocket URL
-    const wsUrl = baseUrl.replace(/^http/, 'ws') + '/websocket';
+    const sockJsUrl = baseUrl + '/websocket';
 
     this.stompClient = new Client({
-      brokerURL: wsUrl,
+      webSocketFactory: () => new SockJS(sockJsUrl),
       connectHeaders: {
         Authorization: `Bearer ${token}`,
       },
-      debug: () => {}, // Disable debug logging
+      debug: () => {},
       reconnectDelay: 5000,
       heartbeatIncoming: 4000,
       heartbeatOutgoing: 4000,
