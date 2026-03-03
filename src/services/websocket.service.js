@@ -1,7 +1,6 @@
 import { Client } from '@stomp/stompjs';
 import SockJS from 'sockjs-client';
 import axios from 'axios';
-import SockJS from 'sockjs-client/dist/sockjs';
 import useAuthStore from '../store/authStore';
 import useConfigStore from '../store/configStore';
 import authHeader from './auth-header';
