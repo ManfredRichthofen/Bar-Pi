@@ -1,11 +1,10 @@
-import { Stomp } from '@stomp/stompjs';
+import { Client } from '@stomp/stompjs';
+import SockJS from 'sockjs-client';
 import axios from 'axios';
-import SockJS from 'sockjs-client/dist/sockjs';
 import useAuthStore from '../store/authStore';
 import useConfigStore from '../store/configStore';
 import authHeader from './auth-header';
 
-// Get initial API URL from store
 const configStore = useConfigStore.getState();
 axios.defaults.baseURL = configStore.apiBaseUrl;
 
@@ -40,8 +39,20 @@ class WebsocketService {
   }
 
   async connectWebsocket(token) {
-    // Remove trailing slash from API_BASE_URL to prevent double slashes
     const baseUrl = useConfigStore.getState().apiBaseUrl.replace(/\/$/, '');
+    
+    const sockJsUrl = baseUrl + '/websocket';
+
+    this.stompClient = new Client({
+      webSocketFactory: () => new SockJS(sockJsUrl),
+      connectHeaders: {
+        Authorization: `Bearer ${token}`,
+      },
+      debug: () => {},
+      reconnectDelay: 5000,
+      heartbeatIncoming: 4000,
+      heartbeatOutgoing: 4000,
+    });
 
     this.stompClient = Stomp.over(
       () =>

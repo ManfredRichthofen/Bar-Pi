@@ -1,7 +1,7 @@
 {
   "name": "bar-pi",
   "private": true,
-  "version": "0.4.1",
+  "version": "0.5.0",
   "type": "module",
   "scripts": {
     "dev": "vite --host",
@@ -50,7 +50,6 @@
     "react-lazy-load-image-component": "^1.6.3",
     "react-resizable-panels": "^4.3.3",
     "sockjs-client": "^1.6.1",
-    "solid-js": "^1.9.10",
     "sonner": "^2.0.7",
     "tailwindcss": "^4.1.17",
     "vaul": "^1.1.2",
