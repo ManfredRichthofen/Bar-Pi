@@ -1,90 +1,178 @@
 # Bar Pi
 
-Bar Pi is a bar management system built on top of the [CocktailPi project](https://github.com/alex9849/CocktailPi/). THe backend (Beta) is written in Go and the frontend is written in React. If you find this useful, consider supporting the original CocktailPi project that made it possible.
+Bar Pi is a bar management system that allows you to manage your bar's inventory, craft orders, and more. It is a rewritten frontend for the [CocktailPi project](https://github.com/alex9849/CocktailPi/). If you like this project, please consider donating to the original project.
 
-## What It Does
+## Features
 
-Bar Pi helps you run an automated cocktail bar. Track your ingredients, manage recipes, and process drink orders through a clean web interface. Whether you're building a home bar setup or something more ambitious, Bar Pi gives you the tools to make it happen.
+- **Inventory Management**: Track and manage your bar's ingredients and supplies
+- **Order Management**: Process and track drink orders efficiently
+- **Recipe Management**: Create, edit, and manage drink recipes
+- **Simple Mode**: Easy-to-use interface for quick drink ordering
+- **Glass Selection**: Choose appropriate glassware for each drink
+- **Customization**: Adjust drink ingredients and proportions
 
-The system includes inventory tracking, recipe management, and a simplified ordering interface. You can adjust drink proportions, select appropriate glassware, and keep everything organized in one place.
+## RoadMap
 
-## Current Status
+- [ ] Shadcn UI Migration
+  - [ ] Category Page
+  - [X] Ingredient Page
+  - [X] Recipe Page
+  - [ ] Order Page
+  - [X] Glasses Page
+  - [X] Pumps Page
+  - [X] Settings Page
+- [ ] Add Mobile Support
+- [ ] Add Dark Mode
 
-## Getting Started
+## File Structure:
 
-### For Developers
+- `src/` - Source code
+   - `pages/`
+      - `AdvancedMode/`
+         - `Page Name` - Page Folder
+            - `index.jsx` - Page
+            - `components/` - Page Specific Components
+   - `components/` - Shared Components
+   - `services/` - API services
+   - `store/` - Zustand store
+   - `translations/` - i18next translations
+- `public/` - Static files
+- `dist/` - Production build
+- `android/` - Android app
+- `ios/` - iOS app
 
-You'll need Node.js (v16+) and Git installed. Then:
+## Tech Stack
+
+Bar Pi is built with:
+
+- [React](https://reactjs.org/)
+- [Tailwind CSS](https://tailwindcss.com/)
+- [Vite](https://vitejs.dev/)
+- [Zustand](https://github.com/pmndrs/zustand)
+- [Capacitor](https://capacitorjs.com/)
+- [React-i18next](https://react.i18next.com/)
+- [Shadcn](https://ui.shadcn.com/)
+
+## Development
+
+### Prerequisites
+
+- [Node.js](https://nodejs.org/) (v16 or higher)
+- [Git](https://git-scm.com/)
+
+### Getting Started
+
+1. Clone the repository:
+
+   ```bash
+   git clone https://github.com/ManfredRichthofen/Bar-Pi.git
+   cd bar-pi
+   ```
+
+2. Install dependencies:
+
+   ```bash
+   npm install
+   ```
+
+3. Start the development server:
+
+   ```bash
+   npm run dev
+   ```
+
+### Quick Installation (Raspberry Pi)
+
+For Raspberry Pi users, we provide a simple installation script that automates the setup process:
+
+1. Download the install script:
+
+   ```bash
+   curl -L https://raw.githubusercontent.com/ManfredRichthofen/Bar-Pi/main/scripts/install/install.sh -o install.sh
+   ```
+
+2. Make the install script executable:
+
+   ```bash
+   chmod +x install.sh
+   ```
+
+3. Run the installation script:
+   ```bash
+   ./install.sh
+   ```
+
+The script will:
+
+- Install Node.js if not present
+- Download the latest release from GitHub
+- Set up a systemd service for automatic startup
+- Configure the web server to run on port 5000
+
+After installation, the app will be available at `http://localhost:5000` and will start automatically on boot.
+
+You can manage the service using these commands:
 
 ```bash
-git clone https://github.com/ManfredRichthofen/Bar-Pi.git
-cd bar-pi
-npm install
-npm run dev
+# Start the service
+sudo systemctl start barpi
+
+# Stop the service
+sudo systemctl stop barpi
+
+# Restart the service
+sudo systemctl restart barpi
+
+# Check service status
+sudo systemctl status barpi
 ```
 
-The development server will start, and you can begin making changes immediately.
+### Building for Production
 
-### For Raspberry Pi Users
-
-We've built an automated installer that handles everything. Download and run it:
+To create a production build:
 
 ```bash
-curl -L https://raw.githubusercontent.com/ManfredRichthofen/Bar-Pi/main/scripts/install/install.sh -o install.sh
-chmod +x install.sh
-./install.sh
+npm run build
+npm run cap:build (Android Apk)
 ```
 
-The installer will set up Node.js, download the latest release, and configure a systemd service that starts on boot. Once finished, access the interface at `http://localhost:5000`.
+### Contributing
 
-Manage the service with standard systemd commands:
+We welcome contributions! Please follow these steps:
 
-```bash
-sudo systemctl start barpi    # Start
-sudo systemctl stop barpi     # Stop
-sudo systemctl restart barpi  # Restart
-sudo systemctl status barpi   # Check status
-```
+1. Fork the repository
 
-For detailed installation options and troubleshooting, see `INSTALL_GUIDE.md`.
+2. Create a new branch:
 
-## Building for Production
+   ```bash
+   git checkout -b feature/your-feature-name
+   ```
 
-Create production builds with:
+3. Make your changes and commit them:
 
-```bash
-npm run build              # Web version
-npm run cap:build          # Android APK
-```
+   ```bash
+   git commit -m "Add your commit message"
+   ```
 
-## Project Structure
+4. Format and lint your code:
 
-The codebase is organized for clarity:
+   ```bash
+   npm run pretty
+   npm run lint
+   ```
 
-- `src/` contains all source code
-  - `pages/AdvancedMode/` holds page components with their specific logic
-  - `components/` contains shared UI components
-  - `services/` manages API communication
-  - `store/` handles state with Zustand
-  - `translations/` provides i18next language files
-- `backend-go/` contains the Go backend server
-- `android/` and `ios/` hold mobile app configurations
-- `public/` stores static assets
+5. Push to your fork:
 
-## Technology Stack
+   ```bash
+   git push origin feature/your-feature-name
+   ```
 
-- React for the UI
-- Tailwind CSS and Shadcn for styling and components
-- Vite for building
-- Zustand for state management
-- Capacitor for mobile deployment
-- React-i18next for internationalization
-- Go for the backend API
+6. Create a pull request from your fork to our main repository
 
-## Contributing
+## License
 
-Contributions are welcome. Fork the repository, create a feature branch, make your changes, and submit a pull request. Please run `npm run format` and `npm run lint` before submitting to maintain code consistency.
+[Add later]
 
 ## Acknowledgments
 
-This project builds directly on [CocktailPi](https://github.com/alex9849/CocktailPi/) by alex9849. Without that foundation, Bar Pi wouldn't exist.
+- [CocktailPi](https://github.com/alex9849/CocktailPi/) - The original project that inspired Bar Pi

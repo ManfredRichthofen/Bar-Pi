@@ -1,6 +1,7 @@
 import { Client } from '@stomp/stompjs';
 import SockJS from 'sockjs-client';
 import axios from 'axios';
+import SockJS from 'sockjs-client/dist/sockjs';
 import useAuthStore from '../store/authStore';
 import useConfigStore from '../store/configStore';
 import authHeader from './auth-header';
@@ -54,6 +55,16 @@ class WebsocketService {
       heartbeatOutgoing: 4000,
     });
 
+    this.stompClient = Stomp.over(
+      () =>
+        new SockJS(`${baseUrl}/websocket`, null, {
+          transports: ['websocket', 'xhr-streaming', 'xhr-polling'],
+        }),
+    );
+
+    this.stompClient.connectHeaders = {
+      Authorization: `Bearer ${token}`,
+    };
     this.stompClient.onConnect = async () => {
       this.reconnectThrottleInSeconds = 5;
       this.showReconnectDialog = false;
@@ -64,6 +75,8 @@ class WebsocketService {
       }
       this.connected = true;
     };
+
+    this.stompClient.debug = () => {};
 
     for (const id of this.reconnectTasks) {
       clearTimeout(id);

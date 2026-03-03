@@ -8,232 +8,232 @@
 // You should NOT make any changes in this file as it will be overwritten.
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
-import { Route as rootRouteImport } from './routes/__root'
-import { Route as SimpleRouteImport } from './routes/simple'
-import { Route as ReversepumpsettingsRouteImport } from './routes/reversepumpsettings'
-import { Route as LoginRouteImport } from './routes/login'
-import { Route as AdvancedRouteImport } from './routes/_advanced'
-import { Route as IndexRouteImport } from './routes/index'
-import { Route as SimpleSettingsRouteImport } from './routes/simple.settings'
-import { Route as SimpleOrderStatusRouteImport } from './routes/simple.order-status'
-import { Route as SimpleOrderRouteImport } from './routes/simple.order'
-import { Route as SimpleDrinksRouteImport } from './routes/simple.drinks'
-import { Route as AdvancedUsersRouteImport } from './routes/_advanced.users'
-import { Route as AdvancedSettingsRouteImport } from './routes/_advanced.settings'
-import { Route as AdvancedRecipesRouteImport } from './routes/_advanced.recipes'
-import { Route as AdvancedPumpsRouteImport } from './routes/_advanced.pumps'
-import { Route as AdvancedOrderRouteImport } from './routes/_advanced.order'
-import { Route as AdvancedIngredientsRouteImport } from './routes/_advanced.ingredients'
-import { Route as AdvancedGlassesRouteImport } from './routes/_advanced.glasses'
-import { Route as AdvancedFavoritesRouteImport } from './routes/_advanced.favorites'
-import { Route as AdvancedDrinksRouteImport } from './routes/_advanced.drinks'
-import { Route as AdvancedCategoriesRouteImport } from './routes/_advanced.categories'
-import { Route as SimpleDrinkIdRouteImport } from './routes/simple.drink.$id'
-import { Route as AdvancedRecipesNewRouteImport } from './routes/_advanced.recipes.new'
-import { Route as AdvancedDrinksRecipeIdRouteImport } from './routes/_advanced.drinks.$recipeId'
-import { Route as AdvancedRecipesRecipeIdEditRouteImport } from './routes/_advanced.recipes.$recipeId.edit'
-import { Route as AdvancedPumpsPumpIdEditRouteImport } from './routes/_advanced.pumps.$pumpId.edit'
+import { Route as rootRouteImport } from './routes/__root';
+import { Route as SimpleRouteImport } from './routes/simple';
+import { Route as ReversepumpsettingsRouteImport } from './routes/reversepumpsettings';
+import { Route as LoginRouteImport } from './routes/login';
+import { Route as AdvancedRouteImport } from './routes/_advanced';
+import { Route as IndexRouteImport } from './routes/index';
+import { Route as SimpleSettingsRouteImport } from './routes/simple.settings';
+import { Route as SimpleOrderStatusRouteImport } from './routes/simple.order-status';
+import { Route as SimpleOrderRouteImport } from './routes/simple.order';
+import { Route as SimpleDrinksRouteImport } from './routes/simple.drinks';
+import { Route as AdvancedUsersRouteImport } from './routes/_advanced.users';
+import { Route as AdvancedSettingsRouteImport } from './routes/_advanced.settings';
+import { Route as AdvancedRecipesRouteImport } from './routes/_advanced.recipes';
+import { Route as AdvancedPumpsRouteImport } from './routes/_advanced.pumps';
+import { Route as AdvancedOrderRouteImport } from './routes/_advanced.order';
+import { Route as AdvancedIngredientsRouteImport } from './routes/_advanced.ingredients';
+import { Route as AdvancedGlassesRouteImport } from './routes/_advanced.glasses';
+import { Route as AdvancedFavoritesRouteImport } from './routes/_advanced.favorites';
+import { Route as AdvancedDrinksRouteImport } from './routes/_advanced.drinks';
+import { Route as AdvancedCategoriesRouteImport } from './routes/_advanced.categories';
+import { Route as SimpleDrinkIdRouteImport } from './routes/simple.drink.$id';
+import { Route as AdvancedRecipesNewRouteImport } from './routes/_advanced.recipes.new';
+import { Route as AdvancedDrinksRecipeIdRouteImport } from './routes/_advanced.drinks.$recipeId';
+import { Route as AdvancedRecipesRecipeIdEditRouteImport } from './routes/_advanced.recipes.$recipeId.edit';
+import { Route as AdvancedPumpsPumpIdEditRouteImport } from './routes/_advanced.pumps.$pumpId.edit';
 
 const SimpleRoute = SimpleRouteImport.update({
   id: '/simple',
   path: '/simple',
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any);
 const ReversepumpsettingsRoute = ReversepumpsettingsRouteImport.update({
   id: '/reversepumpsettings',
   path: '/reversepumpsettings',
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any);
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any);
 const AdvancedRoute = AdvancedRouteImport.update({
   id: '/_advanced',
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any);
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any);
 const SimpleSettingsRoute = SimpleSettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
   getParentRoute: () => SimpleRoute,
-} as any)
+} as any);
 const SimpleOrderStatusRoute = SimpleOrderStatusRouteImport.update({
   id: '/order-status',
   path: '/order-status',
   getParentRoute: () => SimpleRoute,
-} as any)
+} as any);
 const SimpleOrderRoute = SimpleOrderRouteImport.update({
   id: '/order',
   path: '/order',
   getParentRoute: () => SimpleRoute,
-} as any)
+} as any);
 const SimpleDrinksRoute = SimpleDrinksRouteImport.update({
   id: '/drinks',
   path: '/drinks',
   getParentRoute: () => SimpleRoute,
-} as any)
+} as any);
 const AdvancedUsersRoute = AdvancedUsersRouteImport.update({
   id: '/users',
   path: '/users',
   getParentRoute: () => AdvancedRoute,
-} as any)
+} as any);
 const AdvancedSettingsRoute = AdvancedSettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
   getParentRoute: () => AdvancedRoute,
-} as any)
+} as any);
 const AdvancedRecipesRoute = AdvancedRecipesRouteImport.update({
   id: '/recipes',
   path: '/recipes',
   getParentRoute: () => AdvancedRoute,
-} as any)
+} as any);
 const AdvancedPumpsRoute = AdvancedPumpsRouteImport.update({
   id: '/pumps',
   path: '/pumps',
   getParentRoute: () => AdvancedRoute,
-} as any)
+} as any);
 const AdvancedOrderRoute = AdvancedOrderRouteImport.update({
   id: '/order',
   path: '/order',
   getParentRoute: () => AdvancedRoute,
-} as any)
+} as any);
 const AdvancedIngredientsRoute = AdvancedIngredientsRouteImport.update({
   id: '/ingredients',
   path: '/ingredients',
   getParentRoute: () => AdvancedRoute,
-} as any)
+} as any);
 const AdvancedGlassesRoute = AdvancedGlassesRouteImport.update({
   id: '/glasses',
   path: '/glasses',
   getParentRoute: () => AdvancedRoute,
-} as any)
+} as any);
 const AdvancedFavoritesRoute = AdvancedFavoritesRouteImport.update({
   id: '/favorites',
   path: '/favorites',
   getParentRoute: () => AdvancedRoute,
-} as any)
+} as any);
 const AdvancedDrinksRoute = AdvancedDrinksRouteImport.update({
   id: '/drinks',
   path: '/drinks',
   getParentRoute: () => AdvancedRoute,
-} as any)
+} as any);
 const AdvancedCategoriesRoute = AdvancedCategoriesRouteImport.update({
   id: '/categories',
   path: '/categories',
   getParentRoute: () => AdvancedRoute,
-} as any)
+} as any);
 const SimpleDrinkIdRoute = SimpleDrinkIdRouteImport.update({
   id: '/drink/$id',
   path: '/drink/$id',
   getParentRoute: () => SimpleRoute,
-} as any)
+} as any);
 const AdvancedRecipesNewRoute = AdvancedRecipesNewRouteImport.update({
   id: '/new',
   path: '/new',
   getParentRoute: () => AdvancedRecipesRoute,
-} as any)
+} as any);
 const AdvancedDrinksRecipeIdRoute = AdvancedDrinksRecipeIdRouteImport.update({
   id: '/$recipeId',
   path: '/$recipeId',
   getParentRoute: () => AdvancedDrinksRoute,
-} as any)
+} as any);
 const AdvancedRecipesRecipeIdEditRoute =
   AdvancedRecipesRecipeIdEditRouteImport.update({
     id: '/$recipeId/edit',
     path: '/$recipeId/edit',
     getParentRoute: () => AdvancedRecipesRoute,
-  } as any)
+  } as any);
 const AdvancedPumpsPumpIdEditRoute = AdvancedPumpsPumpIdEditRouteImport.update({
   id: '/$pumpId/edit',
   path: '/$pumpId/edit',
   getParentRoute: () => AdvancedPumpsRoute,
-} as any)
+} as any);
 
 export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
-  '/login': typeof LoginRoute
-  '/reversepumpsettings': typeof ReversepumpsettingsRoute
-  '/simple': typeof SimpleRouteWithChildren
-  '/categories': typeof AdvancedCategoriesRoute
-  '/drinks': typeof AdvancedDrinksRouteWithChildren
-  '/favorites': typeof AdvancedFavoritesRoute
-  '/glasses': typeof AdvancedGlassesRoute
-  '/ingredients': typeof AdvancedIngredientsRoute
-  '/order': typeof AdvancedOrderRoute
-  '/pumps': typeof AdvancedPumpsRouteWithChildren
-  '/recipes': typeof AdvancedRecipesRouteWithChildren
-  '/settings': typeof AdvancedSettingsRoute
-  '/users': typeof AdvancedUsersRoute
-  '/simple/drinks': typeof SimpleDrinksRoute
-  '/simple/order': typeof SimpleOrderRoute
-  '/simple/order-status': typeof SimpleOrderStatusRoute
-  '/simple/settings': typeof SimpleSettingsRoute
-  '/drinks/$recipeId': typeof AdvancedDrinksRecipeIdRoute
-  '/recipes/new': typeof AdvancedRecipesNewRoute
-  '/simple/drink/$id': typeof SimpleDrinkIdRoute
-  '/pumps/$pumpId/edit': typeof AdvancedPumpsPumpIdEditRoute
-  '/recipes/$recipeId/edit': typeof AdvancedRecipesRecipeIdEditRoute
+  '/': typeof IndexRoute;
+  '/login': typeof LoginRoute;
+  '/reversepumpsettings': typeof ReversepumpsettingsRoute;
+  '/simple': typeof SimpleRouteWithChildren;
+  '/categories': typeof AdvancedCategoriesRoute;
+  '/drinks': typeof AdvancedDrinksRouteWithChildren;
+  '/favorites': typeof AdvancedFavoritesRoute;
+  '/glasses': typeof AdvancedGlassesRoute;
+  '/ingredients': typeof AdvancedIngredientsRoute;
+  '/order': typeof AdvancedOrderRoute;
+  '/pumps': typeof AdvancedPumpsRouteWithChildren;
+  '/recipes': typeof AdvancedRecipesRouteWithChildren;
+  '/settings': typeof AdvancedSettingsRoute;
+  '/users': typeof AdvancedUsersRoute;
+  '/simple/drinks': typeof SimpleDrinksRoute;
+  '/simple/order': typeof SimpleOrderRoute;
+  '/simple/order-status': typeof SimpleOrderStatusRoute;
+  '/simple/settings': typeof SimpleSettingsRoute;
+  '/drinks/$recipeId': typeof AdvancedDrinksRecipeIdRoute;
+  '/recipes/new': typeof AdvancedRecipesNewRoute;
+  '/simple/drink/$id': typeof SimpleDrinkIdRoute;
+  '/pumps/$pumpId/edit': typeof AdvancedPumpsPumpIdEditRoute;
+  '/recipes/$recipeId/edit': typeof AdvancedRecipesRecipeIdEditRoute;
 }
 export interface FileRoutesByTo {
-  '/': typeof IndexRoute
-  '/login': typeof LoginRoute
-  '/reversepumpsettings': typeof ReversepumpsettingsRoute
-  '/simple': typeof SimpleRouteWithChildren
-  '/categories': typeof AdvancedCategoriesRoute
-  '/drinks': typeof AdvancedDrinksRouteWithChildren
-  '/favorites': typeof AdvancedFavoritesRoute
-  '/glasses': typeof AdvancedGlassesRoute
-  '/ingredients': typeof AdvancedIngredientsRoute
-  '/order': typeof AdvancedOrderRoute
-  '/pumps': typeof AdvancedPumpsRouteWithChildren
-  '/recipes': typeof AdvancedRecipesRouteWithChildren
-  '/settings': typeof AdvancedSettingsRoute
-  '/users': typeof AdvancedUsersRoute
-  '/simple/drinks': typeof SimpleDrinksRoute
-  '/simple/order': typeof SimpleOrderRoute
-  '/simple/order-status': typeof SimpleOrderStatusRoute
-  '/simple/settings': typeof SimpleSettingsRoute
-  '/drinks/$recipeId': typeof AdvancedDrinksRecipeIdRoute
-  '/recipes/new': typeof AdvancedRecipesNewRoute
-  '/simple/drink/$id': typeof SimpleDrinkIdRoute
-  '/pumps/$pumpId/edit': typeof AdvancedPumpsPumpIdEditRoute
-  '/recipes/$recipeId/edit': typeof AdvancedRecipesRecipeIdEditRoute
+  '/': typeof IndexRoute;
+  '/login': typeof LoginRoute;
+  '/reversepumpsettings': typeof ReversepumpsettingsRoute;
+  '/simple': typeof SimpleRouteWithChildren;
+  '/categories': typeof AdvancedCategoriesRoute;
+  '/drinks': typeof AdvancedDrinksRouteWithChildren;
+  '/favorites': typeof AdvancedFavoritesRoute;
+  '/glasses': typeof AdvancedGlassesRoute;
+  '/ingredients': typeof AdvancedIngredientsRoute;
+  '/order': typeof AdvancedOrderRoute;
+  '/pumps': typeof AdvancedPumpsRouteWithChildren;
+  '/recipes': typeof AdvancedRecipesRouteWithChildren;
+  '/settings': typeof AdvancedSettingsRoute;
+  '/users': typeof AdvancedUsersRoute;
+  '/simple/drinks': typeof SimpleDrinksRoute;
+  '/simple/order': typeof SimpleOrderRoute;
+  '/simple/order-status': typeof SimpleOrderStatusRoute;
+  '/simple/settings': typeof SimpleSettingsRoute;
+  '/drinks/$recipeId': typeof AdvancedDrinksRecipeIdRoute;
+  '/recipes/new': typeof AdvancedRecipesNewRoute;
+  '/simple/drink/$id': typeof SimpleDrinkIdRoute;
+  '/pumps/$pumpId/edit': typeof AdvancedPumpsPumpIdEditRoute;
+  '/recipes/$recipeId/edit': typeof AdvancedRecipesRecipeIdEditRoute;
 }
 export interface FileRoutesById {
-  __root__: typeof rootRouteImport
-  '/': typeof IndexRoute
-  '/_advanced': typeof AdvancedRouteWithChildren
-  '/login': typeof LoginRoute
-  '/reversepumpsettings': typeof ReversepumpsettingsRoute
-  '/simple': typeof SimpleRouteWithChildren
-  '/_advanced/categories': typeof AdvancedCategoriesRoute
-  '/_advanced/drinks': typeof AdvancedDrinksRouteWithChildren
-  '/_advanced/favorites': typeof AdvancedFavoritesRoute
-  '/_advanced/glasses': typeof AdvancedGlassesRoute
-  '/_advanced/ingredients': typeof AdvancedIngredientsRoute
-  '/_advanced/order': typeof AdvancedOrderRoute
-  '/_advanced/pumps': typeof AdvancedPumpsRouteWithChildren
-  '/_advanced/recipes': typeof AdvancedRecipesRouteWithChildren
-  '/_advanced/settings': typeof AdvancedSettingsRoute
-  '/_advanced/users': typeof AdvancedUsersRoute
-  '/simple/drinks': typeof SimpleDrinksRoute
-  '/simple/order': typeof SimpleOrderRoute
-  '/simple/order-status': typeof SimpleOrderStatusRoute
-  '/simple/settings': typeof SimpleSettingsRoute
-  '/_advanced/drinks/$recipeId': typeof AdvancedDrinksRecipeIdRoute
-  '/_advanced/recipes/new': typeof AdvancedRecipesNewRoute
-  '/simple/drink/$id': typeof SimpleDrinkIdRoute
-  '/_advanced/pumps/$pumpId/edit': typeof AdvancedPumpsPumpIdEditRoute
-  '/_advanced/recipes/$recipeId/edit': typeof AdvancedRecipesRecipeIdEditRoute
+  __root__: typeof rootRouteImport;
+  '/': typeof IndexRoute;
+  '/_advanced': typeof AdvancedRouteWithChildren;
+  '/login': typeof LoginRoute;
+  '/reversepumpsettings': typeof ReversepumpsettingsRoute;
+  '/simple': typeof SimpleRouteWithChildren;
+  '/_advanced/categories': typeof AdvancedCategoriesRoute;
+  '/_advanced/drinks': typeof AdvancedDrinksRouteWithChildren;
+  '/_advanced/favorites': typeof AdvancedFavoritesRoute;
+  '/_advanced/glasses': typeof AdvancedGlassesRoute;
+  '/_advanced/ingredients': typeof AdvancedIngredientsRoute;
+  '/_advanced/order': typeof AdvancedOrderRoute;
+  '/_advanced/pumps': typeof AdvancedPumpsRouteWithChildren;
+  '/_advanced/recipes': typeof AdvancedRecipesRouteWithChildren;
+  '/_advanced/settings': typeof AdvancedSettingsRoute;
+  '/_advanced/users': typeof AdvancedUsersRoute;
+  '/simple/drinks': typeof SimpleDrinksRoute;
+  '/simple/order': typeof SimpleOrderRoute;
+  '/simple/order-status': typeof SimpleOrderStatusRoute;
+  '/simple/settings': typeof SimpleSettingsRoute;
+  '/_advanced/drinks/$recipeId': typeof AdvancedDrinksRecipeIdRoute;
+  '/_advanced/recipes/new': typeof AdvancedRecipesNewRoute;
+  '/simple/drink/$id': typeof SimpleDrinkIdRoute;
+  '/_advanced/pumps/$pumpId/edit': typeof AdvancedPumpsPumpIdEditRoute;
+  '/_advanced/recipes/$recipeId/edit': typeof AdvancedRecipesRecipeIdEditRoute;
 }
 export interface FileRouteTypes {
-  fileRoutesByFullPath: FileRoutesByFullPath
+  fileRoutesByFullPath: FileRoutesByFullPath;
   fullPaths:
     | '/'
     | '/login'
@@ -257,8 +257,8 @@ export interface FileRouteTypes {
     | '/recipes/new'
     | '/simple/drink/$id'
     | '/pumps/$pumpId/edit'
-    | '/recipes/$recipeId/edit'
-  fileRoutesByTo: FileRoutesByTo
+    | '/recipes/$recipeId/edit';
+  fileRoutesByTo: FileRoutesByTo;
   to:
     | '/'
     | '/login'
@@ -282,7 +282,7 @@ export interface FileRouteTypes {
     | '/recipes/new'
     | '/simple/drink/$id'
     | '/pumps/$pumpId/edit'
-    | '/recipes/$recipeId/edit'
+    | '/recipes/$recipeId/edit';
   id:
     | '__root__'
     | '/'
@@ -308,239 +308,239 @@ export interface FileRouteTypes {
     | '/_advanced/recipes/new'
     | '/simple/drink/$id'
     | '/_advanced/pumps/$pumpId/edit'
-    | '/_advanced/recipes/$recipeId/edit'
-  fileRoutesById: FileRoutesById
+    | '/_advanced/recipes/$recipeId/edit';
+  fileRoutesById: FileRoutesById;
 }
 export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute
-  AdvancedRoute: typeof AdvancedRouteWithChildren
-  LoginRoute: typeof LoginRoute
-  ReversepumpsettingsRoute: typeof ReversepumpsettingsRoute
-  SimpleRoute: typeof SimpleRouteWithChildren
+  IndexRoute: typeof IndexRoute;
+  AdvancedRoute: typeof AdvancedRouteWithChildren;
+  LoginRoute: typeof LoginRoute;
+  ReversepumpsettingsRoute: typeof ReversepumpsettingsRoute;
+  SimpleRoute: typeof SimpleRouteWithChildren;
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
     '/simple': {
-      id: '/simple'
-      path: '/simple'
-      fullPath: '/simple'
-      preLoaderRoute: typeof SimpleRouteImport
-      parentRoute: typeof rootRouteImport
-    }
+      id: '/simple';
+      path: '/simple';
+      fullPath: '/simple';
+      preLoaderRoute: typeof SimpleRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
     '/reversepumpsettings': {
-      id: '/reversepumpsettings'
-      path: '/reversepumpsettings'
-      fullPath: '/reversepumpsettings'
-      preLoaderRoute: typeof ReversepumpsettingsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
+      id: '/reversepumpsettings';
+      path: '/reversepumpsettings';
+      fullPath: '/reversepumpsettings';
+      preLoaderRoute: typeof ReversepumpsettingsRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
     '/login': {
-      id: '/login'
-      path: '/login'
-      fullPath: '/login'
-      preLoaderRoute: typeof LoginRouteImport
-      parentRoute: typeof rootRouteImport
-    }
+      id: '/login';
+      path: '/login';
+      fullPath: '/login';
+      preLoaderRoute: typeof LoginRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
     '/_advanced': {
-      id: '/_advanced'
-      path: ''
-      fullPath: '/'
-      preLoaderRoute: typeof AdvancedRouteImport
-      parentRoute: typeof rootRouteImport
-    }
+      id: '/_advanced';
+      path: '';
+      fullPath: '/';
+      preLoaderRoute: typeof AdvancedRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
     '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
+      id: '/';
+      path: '/';
+      fullPath: '/';
+      preLoaderRoute: typeof IndexRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
     '/simple/settings': {
-      id: '/simple/settings'
-      path: '/settings'
-      fullPath: '/simple/settings'
-      preLoaderRoute: typeof SimpleSettingsRouteImport
-      parentRoute: typeof SimpleRoute
-    }
+      id: '/simple/settings';
+      path: '/settings';
+      fullPath: '/simple/settings';
+      preLoaderRoute: typeof SimpleSettingsRouteImport;
+      parentRoute: typeof SimpleRoute;
+    };
     '/simple/order-status': {
-      id: '/simple/order-status'
-      path: '/order-status'
-      fullPath: '/simple/order-status'
-      preLoaderRoute: typeof SimpleOrderStatusRouteImport
-      parentRoute: typeof SimpleRoute
-    }
+      id: '/simple/order-status';
+      path: '/order-status';
+      fullPath: '/simple/order-status';
+      preLoaderRoute: typeof SimpleOrderStatusRouteImport;
+      parentRoute: typeof SimpleRoute;
+    };
     '/simple/order': {
-      id: '/simple/order'
-      path: '/order'
-      fullPath: '/simple/order'
-      preLoaderRoute: typeof SimpleOrderRouteImport
-      parentRoute: typeof SimpleRoute
-    }
+      id: '/simple/order';
+      path: '/order';
+      fullPath: '/simple/order';
+      preLoaderRoute: typeof SimpleOrderRouteImport;
+      parentRoute: typeof SimpleRoute;
+    };
     '/simple/drinks': {
-      id: '/simple/drinks'
-      path: '/drinks'
-      fullPath: '/simple/drinks'
-      preLoaderRoute: typeof SimpleDrinksRouteImport
-      parentRoute: typeof SimpleRoute
-    }
+      id: '/simple/drinks';
+      path: '/drinks';
+      fullPath: '/simple/drinks';
+      preLoaderRoute: typeof SimpleDrinksRouteImport;
+      parentRoute: typeof SimpleRoute;
+    };
     '/_advanced/users': {
-      id: '/_advanced/users'
-      path: '/users'
-      fullPath: '/users'
-      preLoaderRoute: typeof AdvancedUsersRouteImport
-      parentRoute: typeof AdvancedRoute
-    }
+      id: '/_advanced/users';
+      path: '/users';
+      fullPath: '/users';
+      preLoaderRoute: typeof AdvancedUsersRouteImport;
+      parentRoute: typeof AdvancedRoute;
+    };
     '/_advanced/settings': {
-      id: '/_advanced/settings'
-      path: '/settings'
-      fullPath: '/settings'
-      preLoaderRoute: typeof AdvancedSettingsRouteImport
-      parentRoute: typeof AdvancedRoute
-    }
+      id: '/_advanced/settings';
+      path: '/settings';
+      fullPath: '/settings';
+      preLoaderRoute: typeof AdvancedSettingsRouteImport;
+      parentRoute: typeof AdvancedRoute;
+    };
     '/_advanced/recipes': {
-      id: '/_advanced/recipes'
-      path: '/recipes'
-      fullPath: '/recipes'
-      preLoaderRoute: typeof AdvancedRecipesRouteImport
-      parentRoute: typeof AdvancedRoute
-    }
+      id: '/_advanced/recipes';
+      path: '/recipes';
+      fullPath: '/recipes';
+      preLoaderRoute: typeof AdvancedRecipesRouteImport;
+      parentRoute: typeof AdvancedRoute;
+    };
     '/_advanced/pumps': {
-      id: '/_advanced/pumps'
-      path: '/pumps'
-      fullPath: '/pumps'
-      preLoaderRoute: typeof AdvancedPumpsRouteImport
-      parentRoute: typeof AdvancedRoute
-    }
+      id: '/_advanced/pumps';
+      path: '/pumps';
+      fullPath: '/pumps';
+      preLoaderRoute: typeof AdvancedPumpsRouteImport;
+      parentRoute: typeof AdvancedRoute;
+    };
     '/_advanced/order': {
-      id: '/_advanced/order'
-      path: '/order'
-      fullPath: '/order'
-      preLoaderRoute: typeof AdvancedOrderRouteImport
-      parentRoute: typeof AdvancedRoute
-    }
+      id: '/_advanced/order';
+      path: '/order';
+      fullPath: '/order';
+      preLoaderRoute: typeof AdvancedOrderRouteImport;
+      parentRoute: typeof AdvancedRoute;
+    };
     '/_advanced/ingredients': {
-      id: '/_advanced/ingredients'
-      path: '/ingredients'
-      fullPath: '/ingredients'
-      preLoaderRoute: typeof AdvancedIngredientsRouteImport
-      parentRoute: typeof AdvancedRoute
-    }
+      id: '/_advanced/ingredients';
+      path: '/ingredients';
+      fullPath: '/ingredients';
+      preLoaderRoute: typeof AdvancedIngredientsRouteImport;
+      parentRoute: typeof AdvancedRoute;
+    };
     '/_advanced/glasses': {
-      id: '/_advanced/glasses'
-      path: '/glasses'
-      fullPath: '/glasses'
-      preLoaderRoute: typeof AdvancedGlassesRouteImport
-      parentRoute: typeof AdvancedRoute
-    }
+      id: '/_advanced/glasses';
+      path: '/glasses';
+      fullPath: '/glasses';
+      preLoaderRoute: typeof AdvancedGlassesRouteImport;
+      parentRoute: typeof AdvancedRoute;
+    };
     '/_advanced/favorites': {
-      id: '/_advanced/favorites'
-      path: '/favorites'
-      fullPath: '/favorites'
-      preLoaderRoute: typeof AdvancedFavoritesRouteImport
-      parentRoute: typeof AdvancedRoute
-    }
+      id: '/_advanced/favorites';
+      path: '/favorites';
+      fullPath: '/favorites';
+      preLoaderRoute: typeof AdvancedFavoritesRouteImport;
+      parentRoute: typeof AdvancedRoute;
+    };
     '/_advanced/drinks': {
-      id: '/_advanced/drinks'
-      path: '/drinks'
-      fullPath: '/drinks'
-      preLoaderRoute: typeof AdvancedDrinksRouteImport
-      parentRoute: typeof AdvancedRoute
-    }
+      id: '/_advanced/drinks';
+      path: '/drinks';
+      fullPath: '/drinks';
+      preLoaderRoute: typeof AdvancedDrinksRouteImport;
+      parentRoute: typeof AdvancedRoute;
+    };
     '/_advanced/categories': {
-      id: '/_advanced/categories'
-      path: '/categories'
-      fullPath: '/categories'
-      preLoaderRoute: typeof AdvancedCategoriesRouteImport
-      parentRoute: typeof AdvancedRoute
-    }
+      id: '/_advanced/categories';
+      path: '/categories';
+      fullPath: '/categories';
+      preLoaderRoute: typeof AdvancedCategoriesRouteImport;
+      parentRoute: typeof AdvancedRoute;
+    };
     '/simple/drink/$id': {
-      id: '/simple/drink/$id'
-      path: '/drink/$id'
-      fullPath: '/simple/drink/$id'
-      preLoaderRoute: typeof SimpleDrinkIdRouteImport
-      parentRoute: typeof SimpleRoute
-    }
+      id: '/simple/drink/$id';
+      path: '/drink/$id';
+      fullPath: '/simple/drink/$id';
+      preLoaderRoute: typeof SimpleDrinkIdRouteImport;
+      parentRoute: typeof SimpleRoute;
+    };
     '/_advanced/recipes/new': {
-      id: '/_advanced/recipes/new'
-      path: '/new'
-      fullPath: '/recipes/new'
-      preLoaderRoute: typeof AdvancedRecipesNewRouteImport
-      parentRoute: typeof AdvancedRecipesRoute
-    }
+      id: '/_advanced/recipes/new';
+      path: '/new';
+      fullPath: '/recipes/new';
+      preLoaderRoute: typeof AdvancedRecipesNewRouteImport;
+      parentRoute: typeof AdvancedRecipesRoute;
+    };
     '/_advanced/drinks/$recipeId': {
-      id: '/_advanced/drinks/$recipeId'
-      path: '/$recipeId'
-      fullPath: '/drinks/$recipeId'
-      preLoaderRoute: typeof AdvancedDrinksRecipeIdRouteImport
-      parentRoute: typeof AdvancedDrinksRoute
-    }
+      id: '/_advanced/drinks/$recipeId';
+      path: '/$recipeId';
+      fullPath: '/drinks/$recipeId';
+      preLoaderRoute: typeof AdvancedDrinksRecipeIdRouteImport;
+      parentRoute: typeof AdvancedDrinksRoute;
+    };
     '/_advanced/recipes/$recipeId/edit': {
-      id: '/_advanced/recipes/$recipeId/edit'
-      path: '/$recipeId/edit'
-      fullPath: '/recipes/$recipeId/edit'
-      preLoaderRoute: typeof AdvancedRecipesRecipeIdEditRouteImport
-      parentRoute: typeof AdvancedRecipesRoute
-    }
+      id: '/_advanced/recipes/$recipeId/edit';
+      path: '/$recipeId/edit';
+      fullPath: '/recipes/$recipeId/edit';
+      preLoaderRoute: typeof AdvancedRecipesRecipeIdEditRouteImport;
+      parentRoute: typeof AdvancedRecipesRoute;
+    };
     '/_advanced/pumps/$pumpId/edit': {
-      id: '/_advanced/pumps/$pumpId/edit'
-      path: '/$pumpId/edit'
-      fullPath: '/pumps/$pumpId/edit'
-      preLoaderRoute: typeof AdvancedPumpsPumpIdEditRouteImport
-      parentRoute: typeof AdvancedPumpsRoute
-    }
+      id: '/_advanced/pumps/$pumpId/edit';
+      path: '/$pumpId/edit';
+      fullPath: '/pumps/$pumpId/edit';
+      preLoaderRoute: typeof AdvancedPumpsPumpIdEditRouteImport;
+      parentRoute: typeof AdvancedPumpsRoute;
+    };
   }
 }
 
 interface AdvancedDrinksRouteChildren {
-  AdvancedDrinksRecipeIdRoute: typeof AdvancedDrinksRecipeIdRoute
+  AdvancedDrinksRecipeIdRoute: typeof AdvancedDrinksRecipeIdRoute;
 }
 
 const AdvancedDrinksRouteChildren: AdvancedDrinksRouteChildren = {
   AdvancedDrinksRecipeIdRoute: AdvancedDrinksRecipeIdRoute,
-}
+};
 
 const AdvancedDrinksRouteWithChildren = AdvancedDrinksRoute._addFileChildren(
   AdvancedDrinksRouteChildren,
-)
+);
 
 interface AdvancedPumpsRouteChildren {
-  AdvancedPumpsPumpIdEditRoute: typeof AdvancedPumpsPumpIdEditRoute
+  AdvancedPumpsPumpIdEditRoute: typeof AdvancedPumpsPumpIdEditRoute;
 }
 
 const AdvancedPumpsRouteChildren: AdvancedPumpsRouteChildren = {
   AdvancedPumpsPumpIdEditRoute: AdvancedPumpsPumpIdEditRoute,
-}
+};
 
 const AdvancedPumpsRouteWithChildren = AdvancedPumpsRoute._addFileChildren(
   AdvancedPumpsRouteChildren,
-)
+);
 
 interface AdvancedRecipesRouteChildren {
-  AdvancedRecipesNewRoute: typeof AdvancedRecipesNewRoute
-  AdvancedRecipesRecipeIdEditRoute: typeof AdvancedRecipesRecipeIdEditRoute
+  AdvancedRecipesNewRoute: typeof AdvancedRecipesNewRoute;
+  AdvancedRecipesRecipeIdEditRoute: typeof AdvancedRecipesRecipeIdEditRoute;
 }
 
 const AdvancedRecipesRouteChildren: AdvancedRecipesRouteChildren = {
   AdvancedRecipesNewRoute: AdvancedRecipesNewRoute,
   AdvancedRecipesRecipeIdEditRoute: AdvancedRecipesRecipeIdEditRoute,
-}
+};
 
 const AdvancedRecipesRouteWithChildren = AdvancedRecipesRoute._addFileChildren(
   AdvancedRecipesRouteChildren,
-)
+);
 
 interface AdvancedRouteChildren {
-  AdvancedCategoriesRoute: typeof AdvancedCategoriesRoute
-  AdvancedDrinksRoute: typeof AdvancedDrinksRouteWithChildren
-  AdvancedFavoritesRoute: typeof AdvancedFavoritesRoute
-  AdvancedGlassesRoute: typeof AdvancedGlassesRoute
-  AdvancedIngredientsRoute: typeof AdvancedIngredientsRoute
-  AdvancedOrderRoute: typeof AdvancedOrderRoute
-  AdvancedPumpsRoute: typeof AdvancedPumpsRouteWithChildren
-  AdvancedRecipesRoute: typeof AdvancedRecipesRouteWithChildren
-  AdvancedSettingsRoute: typeof AdvancedSettingsRoute
-  AdvancedUsersRoute: typeof AdvancedUsersRoute
+  AdvancedCategoriesRoute: typeof AdvancedCategoriesRoute;
+  AdvancedDrinksRoute: typeof AdvancedDrinksRouteWithChildren;
+  AdvancedFavoritesRoute: typeof AdvancedFavoritesRoute;
+  AdvancedGlassesRoute: typeof AdvancedGlassesRoute;
+  AdvancedIngredientsRoute: typeof AdvancedIngredientsRoute;
+  AdvancedOrderRoute: typeof AdvancedOrderRoute;
+  AdvancedPumpsRoute: typeof AdvancedPumpsRouteWithChildren;
+  AdvancedRecipesRoute: typeof AdvancedRecipesRouteWithChildren;
+  AdvancedSettingsRoute: typeof AdvancedSettingsRoute;
+  AdvancedUsersRoute: typeof AdvancedUsersRoute;
 }
 
 const AdvancedRouteChildren: AdvancedRouteChildren = {
@@ -554,18 +554,18 @@ const AdvancedRouteChildren: AdvancedRouteChildren = {
   AdvancedRecipesRoute: AdvancedRecipesRouteWithChildren,
   AdvancedSettingsRoute: AdvancedSettingsRoute,
   AdvancedUsersRoute: AdvancedUsersRoute,
-}
+};
 
 const AdvancedRouteWithChildren = AdvancedRoute._addFileChildren(
   AdvancedRouteChildren,
-)
+);
 
 interface SimpleRouteChildren {
-  SimpleDrinksRoute: typeof SimpleDrinksRoute
-  SimpleOrderRoute: typeof SimpleOrderRoute
-  SimpleOrderStatusRoute: typeof SimpleOrderStatusRoute
-  SimpleSettingsRoute: typeof SimpleSettingsRoute
-  SimpleDrinkIdRoute: typeof SimpleDrinkIdRoute
+  SimpleDrinksRoute: typeof SimpleDrinksRoute;
+  SimpleOrderRoute: typeof SimpleOrderRoute;
+  SimpleOrderStatusRoute: typeof SimpleOrderStatusRoute;
+  SimpleSettingsRoute: typeof SimpleSettingsRoute;
+  SimpleDrinkIdRoute: typeof SimpleDrinkIdRoute;
 }
 
 const SimpleRouteChildren: SimpleRouteChildren = {
@@ -574,10 +574,10 @@ const SimpleRouteChildren: SimpleRouteChildren = {
   SimpleOrderStatusRoute: SimpleOrderStatusRoute,
   SimpleSettingsRoute: SimpleSettingsRoute,
   SimpleDrinkIdRoute: SimpleDrinkIdRoute,
-}
+};
 
 const SimpleRouteWithChildren =
-  SimpleRoute._addFileChildren(SimpleRouteChildren)
+  SimpleRoute._addFileChildren(SimpleRouteChildren);
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
@@ -585,7 +585,7 @@ const rootRouteChildren: RootRouteChildren = {
   LoginRoute: LoginRoute,
   ReversepumpsettingsRoute: ReversepumpsettingsRoute,
   SimpleRoute: SimpleRouteWithChildren,
-}
+};
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
-  ._addFileTypes<FileRouteTypes>()
+  ._addFileTypes<FileRouteTypes>();
