@@ -43,12 +43,13 @@ const Dock: React.FC = () => {
 
   return (
     <motion.div
-      className="fixed bottom-0 left-0 right-0 z-50 bg-gradient-to-t from-background via-background/98 to-background/95 backdrop-blur-xl border-t border-border/50 shadow-xl"
+      className="fixed inset-x-0 bottom-0 z-50 bg-gradient-to-t from-background via-background/98 to-background/95 backdrop-blur-xl border-t border-border/50 shadow-xl pointer-events-auto"
       initial="hidden"
       animate="visible"
       variants={dockVariants}
+      style={{ position: 'fixed' }}
     >
-      <div className="flex justify-center items-center h-16 sm:h-18 px-4 sm:px-6 max-w-3xl mx-auto gap-3 sm:gap-6">
+      <div className="flex justify-center items-center h-16 sm:h-18 px-4 sm:px-6 max-w-3xl mx-auto gap-3 sm:gap-6 touch-none">
         <motion.div
           variants={itemVariants}
           whileHover={{ scale: 1.05, y: -2 }}

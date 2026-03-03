@@ -1,5 +1,5 @@
 import { Navigate } from '@tanstack/react-router';
-import debounce from 'lodash/debounce';
+import { debounce } from 'es-toolkit';
 import { ArrowUp, Filter } from 'lucide-react';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
