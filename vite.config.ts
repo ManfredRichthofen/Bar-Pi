@@ -5,6 +5,10 @@ import path from 'path';
 import { defineConfig } from 'vite';
 
 export default defineConfig({
+  define: {
+    // sockjs-client references Node's `global` in its CJS lib files
+    global: 'globalThis',
+  },
   plugins: [
     // TanStack Router plugin must come before react plugin
     tanstackRouter({

@@ -44,7 +44,10 @@ class WebsocketService {
     const sockJsUrl = baseUrl + '/websocket';
 
     this.stompClient = new Client({
-      webSocketFactory: () => new SockJS(sockJsUrl),
+      webSocketFactory: () =>
+        new SockJS(sockJsUrl, null, {
+          transports: ['websocket', 'xhr-streaming', 'xhr-polling'],
+        }),
       connectHeaders: {
         Authorization: `Bearer ${token}`,
       },
@@ -53,17 +56,6 @@ class WebsocketService {
       heartbeatIncoming: 4000,
       heartbeatOutgoing: 4000,
     });
-
-    this.stompClient = Stomp.over(
-      () =>
-        new SockJS(`${baseUrl}/websocket`, null, {
-          transports: ['websocket', 'xhr-streaming', 'xhr-polling'],
-        }),
-    );
-
-    this.stompClient.connectHeaders = {
-      Authorization: `Bearer ${token}`,
-    };
     this.stompClient.onConnect = async () => {
       this.reconnectThrottleInSeconds = 5;
       this.showReconnectDialog = false;
