@@ -23,7 +23,7 @@ set DIST_DIR=%ROOT_DIR%\dist-backend
 
 REM Check if frontend is built
 if not exist "%FRONTEND_DIST%" (
-    echo [ERROR] Frontend dist not found. Please run 'npm run build' first.
+    echo [ERROR] Frontend dist not found. Please run 'bun run build' first.
     exit /b 1
 )
 

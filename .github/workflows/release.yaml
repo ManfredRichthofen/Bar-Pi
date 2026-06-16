@@ -14,11 +14,8 @@ jobs:
           fetch-depth: 0
           fetch-tags: true
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v6
-        with:
-          node-version: '24'
-          cache: 'npm'
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
 
       - name: Setup Go
         uses: actions/setup-go@v6
@@ -38,7 +35,7 @@ jobs:
       - name: Get version from package.json
         id: get_version
         run: |
-          version=$(node -p "require('./package.json').version")
+          version=$(bun pm pkg get version | tr -d '"')
           echo "version=$version" >> $GITHUB_OUTPUT
           echo "Building version: $version"
 
@@ -60,10 +57,10 @@ jobs:
 
       # ===== BUILD FRONTEND =====
       - name: Install frontend dependencies
-        run: npm ci
+        run: bun ci
 
       - name: Build frontend
-        run: npm run build
+        run: bun run build
 
       - name: Zip frontend
         run: |
@@ -155,10 +152,10 @@ jobs:
 
       # ===== BUILD ANDROID APK =====
       - name: Generate Capacitor assets
-        run: npx @capacitor/assets generate
+        run: bunx @capacitor/assets generate
 
       - name: Sync Capacitor
-        run: npx cap sync android
+        run: bunx cap sync android
 
       - name: Make gradlew executable
         run: chmod +x android/gradlew

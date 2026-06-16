@@ -494,7 +494,7 @@ Build with embedded frontend for single-file deployment:
 ```bash
 # Build frontend first
 cd ..
-npm run build
+bun run build
 
 # Build backend with embedded frontend
 cd backend-go

@@ -15,11 +15,8 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v6
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v6
-        with:
-          node-version: "24"
-          cache: "npm"
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
 
       - name: Setup Java JDK
         uses: actions/setup-java@v5
@@ -28,16 +25,16 @@ jobs:
           java-version: "21"
 
       - name: Install dependencies
-        run: npm ci
+        run: bun ci
 
       - name: Build web app
-        run: npm run build
+        run: bun run build
 
       - name: Generate Capacitor assets
-        run: npx @capacitor/assets generate
+        run: bunx @capacitor/assets generate
 
       - name: Sync Capacitor
-        run: npx cap sync android
+        run: bunx cap sync android
 
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3

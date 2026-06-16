@@ -14,13 +14,21 @@ The system includes inventory tracking, recipe management, and a simplified orde
 
 ### For Developers
 
-You'll need Node.js (v16+) and Git installed. Then:
+You'll need [Bun](https://bun.sh) and Git installed. Then:
 
 ```bash
 git clone https://github.com/ManfredRichthofen/Bar-Pi.git
 cd bar-pi
-npm install
-npm run dev
+bun install
+bun run dev
+```
+
+Or use the setup script:
+
+```bash
+curl -L https://raw.githubusercontent.com/ManfredRichthofen/Bar-Pi/main/scripts/install/install-dev.sh -o install-dev.sh
+chmod +x install-dev.sh
+./install-dev.sh
 ```
 
 The development server will start, and you can begin making changes immediately.
@@ -30,20 +38,20 @@ The development server will start, and you can begin making changes immediately.
 We've built an automated installer that handles everything. Download and run it:
 
 ```bash
-curl -L https://raw.githubusercontent.com/ManfredRichthofen/Bar-Pi/main/scripts/install/install.sh -o install.sh
-chmod +x install.sh
-./install.sh
+curl -L https://raw.githubusercontent.com/ManfredRichthofen/Bar-Pi/main/scripts/install/install-go.sh -o install-go.sh
+chmod +x install-go.sh
+./install-go.sh
 ```
 
-The installer will set up Node.js, download the latest release, and configure a systemd service that starts on boot. Once finished, access the interface at `http://localhost:5000`.
+The installer downloads the latest release and configures a systemd service that starts on boot. Once finished, access the interface at `http://localhost:8080`.
 
 Manage the service with standard systemd commands:
 
 ```bash
-sudo systemctl start barpi    # Start
-sudo systemctl stop barpi     # Stop
-sudo systemctl restart barpi  # Restart
-sudo systemctl status barpi   # Check status
+sudo systemctl start bar-pi    # Start
+sudo systemctl stop bar-pi     # Stop
+sudo systemctl restart bar-pi  # Restart
+sudo systemctl status bar-pi   # Check status
 ```
 
 For detailed installation options and troubleshooting, see `INSTALL_GUIDE.md`.
@@ -53,8 +61,8 @@ For detailed installation options and troubleshooting, see `INSTALL_GUIDE.md`.
 Create production builds with:
 
 ```bash
-npm run build              # Web version
-npm run cap:build          # Android APK
+bun run build              # Web version
+bun run cap:build          # Android APK
 ```
 
 ## Project Structure
@@ -75,7 +83,7 @@ The codebase is organized for clarity:
 
 - React for the UI
 - Tailwind CSS and Shadcn for styling and components
-- Vite for building
+- Vite and Bun for building
 - Zustand for state management
 - Capacitor for mobile deployment
 - React-i18next for internationalization
@@ -83,7 +91,7 @@ The codebase is organized for clarity:
 
 ## Contributing
 
-Contributions are welcome. Fork the repository, create a feature branch, make your changes, and submit a pull request. Please run `npm run format` and `npm run lint` before submitting to maintain code consistency.
+Contributions are welcome. Fork the repository, create a feature branch, make your changes, and submit a pull request. Please run `bun run format` and `bun run lint` before submitting to maintain code consistency.
 
 ## Acknowledgments
 

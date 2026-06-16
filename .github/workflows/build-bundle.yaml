@@ -18,24 +18,14 @@ jobs:
           fetch-depth: 0
           fetch-tags: true
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v6
-        with:
-          node-version: '24.x'
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
 
       - name: Set up Go
         uses: actions/setup-go@v6
         with:
           go-version: '1.26'
           cache-dependency-path: backend-go/go.sum
-
-      - name: Cache npm dependencies
-        uses: actions/cache@v5
-        with:
-          path: ~/.npm
-          key: ${{ runner.os }}-node-20-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-node-20-
 
       - name: Cache Go modules
         uses: actions/cache@v5
@@ -48,10 +38,10 @@ jobs:
             ${{ runner.os }}-go-
 
       - name: Install frontend dependencies
-        run: npm ci
+        run: bun ci
 
       - name: Build frontend
-        run: npm run build
+        run: bun run build
 
       - name: Prepare build directories
         run: |

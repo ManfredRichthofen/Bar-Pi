@@ -11,10 +11,6 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
-    strategy:
-      matrix:
-        node-version: [24.x]
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
@@ -22,34 +18,24 @@ jobs:
           fetch-depth: 0
           fetch-tags: true
 
-      - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v6
-        with:
-          node-version: ${{ matrix.node-version }}
-
-      - name: Cache npm dependencies
-        uses: actions/cache@v5
-        with:
-          path: ~/.npm
-          key: ${{ runner.os }}-node-${{ matrix.node-version }}-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-node-${{ matrix.node-version }}-
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
 
       - name: Install Dependencies
-        run: npm ci
+        run: bun ci
 
       - name: Build
-        run: npm run build
+        run: bun run build
 
       - name: Get version from package.json
-        if: github.event_name == 'workflow_dispatch' && matrix.node-version == '20.x'
+        if: github.event_name == 'workflow_dispatch'
         id: get_version
         run: |
-          version=$(node -p "require('./package.json').version")
+          version=$(bun pm pkg get version | tr -d '"')
           echo "version=$version" >> $GITHUB_OUTPUT
 
       - name: Generate Release Notes
-        if: github.event_name == 'workflow_dispatch' && matrix.node-version == '20.x'
+        if: github.event_name == 'workflow_dispatch'
         id: release_notes
         run: |
           # Get the previous tag
@@ -70,19 +56,19 @@ jobs:
           echo "EOF" >> $GITHUB_OUTPUT
 
       - name: Zip dist folder
-        if: github.event_name == 'workflow_dispatch' && matrix.node-version == '20.x'
+        if: github.event_name == 'workflow_dispatch'
         run: |
           cd dist
           zip -r ../${{ steps.get_version.outputs.version }}.zip .
 
       - name: Zip wait-for-app-html folder
-        if: github.event_name == 'workflow_dispatch' && matrix.node-version == '20.x'
+        if: github.event_name == 'workflow_dispatch'
         run: |
           cd scripts/wait-for-app-html
           zip -r ../../wait-for-app-html.zip .
 
       - name: Create Release
-        if: github.event_name == 'workflow_dispatch' && matrix.node-version == '20.x'
+        if: github.event_name == 'workflow_dispatch'
         uses: softprops/action-gh-release@v2
         with:
           tag_name: 'v${{ steps.get_version.outputs.version }}'
