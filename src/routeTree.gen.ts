@@ -9,39 +9,38 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as SimpleRouteImport } from './routes/simple'
-import { Route as ReversepumpsettingsRouteImport } from './routes/reversepumpsettings'
-import { Route as LoginRouteImport } from './routes/login'
-import { Route as AdvancedRouteImport } from './routes/_advanced'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as SimpleSettingsRouteImport } from './routes/simple.settings'
-import { Route as SimpleOrderStatusRouteImport } from './routes/simple.order-status'
-import { Route as SimpleOrderRouteImport } from './routes/simple.order'
-import { Route as SimpleDrinksRouteImport } from './routes/simple.drinks'
-import { Route as AdvancedUsersRouteImport } from './routes/_advanced.users'
-import { Route as AdvancedSettingsRouteImport } from './routes/_advanced.settings'
-import { Route as AdvancedRecipesRouteImport } from './routes/_advanced.recipes'
-import { Route as AdvancedPumpsRouteImport } from './routes/_advanced.pumps'
-import { Route as AdvancedOrderRouteImport } from './routes/_advanced.order'
-import { Route as AdvancedIngredientsRouteImport } from './routes/_advanced.ingredients'
-import { Route as AdvancedGlassesRouteImport } from './routes/_advanced.glasses'
-import { Route as AdvancedFavoritesRouteImport } from './routes/_advanced.favorites'
-import { Route as AdvancedDrinksRouteImport } from './routes/_advanced.drinks'
+import { Route as AdvancedRouteImport } from './routes/_advanced'
+import { Route as LoginRouteImport } from './routes/login'
+import { Route as ReversepumpsettingsRouteImport } from './routes/reversepumpsettings'
+import { Route as SimpleRouteImport } from './routes/simple'
 import { Route as AdvancedCategoriesRouteImport } from './routes/_advanced.categories'
-import { Route as SimpleDrinkIdRouteImport } from './routes/simple.drink.$id'
-import { Route as AdvancedRecipesNewRouteImport } from './routes/_advanced.recipes.new'
+import { Route as AdvancedDrinksRouteImport } from './routes/_advanced.drinks'
+import { Route as AdvancedFavoritesRouteImport } from './routes/_advanced.favorites'
+import { Route as AdvancedGlassesRouteImport } from './routes/_advanced.glasses'
+import { Route as AdvancedIngredientsRouteImport } from './routes/_advanced.ingredients'
+import { Route as AdvancedOrderRouteImport } from './routes/_advanced.order'
+import { Route as AdvancedPumpsRouteImport } from './routes/_advanced.pumps'
+import { Route as AdvancedRecipesRouteImport } from './routes/_advanced.recipes'
+import { Route as AdvancedSettingsRouteImport } from './routes/_advanced.settings'
+import { Route as AdvancedUsersRouteImport } from './routes/_advanced.users'
+import { Route as SimpleDrinksRouteImport } from './routes/simple.drinks'
+import { Route as SimpleOrderRouteImport } from './routes/simple.order'
+import { Route as SimpleOrderStatusRouteImport } from './routes/simple.order-status'
+import { Route as SimpleSettingsRouteImport } from './routes/simple.settings'
 import { Route as AdvancedDrinksRecipeIdRouteImport } from './routes/_advanced.drinks.$recipeId'
-import { Route as AdvancedRecipesRecipeIdEditRouteImport } from './routes/_advanced.recipes.$recipeId.edit'
+import { Route as AdvancedRecipesNewRouteImport } from './routes/_advanced.recipes.new'
+import { Route as SimpleDrinkIdRouteImport } from './routes/simple.drink.$id'
 import { Route as AdvancedPumpsPumpIdEditRouteImport } from './routes/_advanced.pumps.$pumpId.edit'
+import { Route as AdvancedRecipesRecipeIdEditRouteImport } from './routes/_advanced.recipes.$recipeId.edit'
 
-const SimpleRoute = SimpleRouteImport.update({
-  id: '/simple',
-  path: '/simple',
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ReversepumpsettingsRoute = ReversepumpsettingsRouteImport.update({
-  id: '/reversepumpsettings',
-  path: '/reversepumpsettings',
+const AdvancedRoute = AdvancedRouteImport.update({
+  id: '/_advanced',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LoginRoute = LoginRouteImport.update({
@@ -49,73 +48,19 @@ const LoginRoute = LoginRouteImport.update({
   path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AdvancedRoute = AdvancedRouteImport.update({
-  id: '/_advanced',
+const ReversepumpsettingsRoute = ReversepumpsettingsRouteImport.update({
+  id: '/reversepumpsettings',
+  path: '/reversepumpsettings',
   getParentRoute: () => rootRouteImport,
 } as any)
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
+const SimpleRoute = SimpleRouteImport.update({
+  id: '/simple',
+  path: '/simple',
   getParentRoute: () => rootRouteImport,
 } as any)
-const SimpleSettingsRoute = SimpleSettingsRouteImport.update({
-  id: '/settings',
-  path: '/settings',
-  getParentRoute: () => SimpleRoute,
-} as any)
-const SimpleOrderStatusRoute = SimpleOrderStatusRouteImport.update({
-  id: '/order-status',
-  path: '/order-status',
-  getParentRoute: () => SimpleRoute,
-} as any)
-const SimpleOrderRoute = SimpleOrderRouteImport.update({
-  id: '/order',
-  path: '/order',
-  getParentRoute: () => SimpleRoute,
-} as any)
-const SimpleDrinksRoute = SimpleDrinksRouteImport.update({
-  id: '/drinks',
-  path: '/drinks',
-  getParentRoute: () => SimpleRoute,
-} as any)
-const AdvancedUsersRoute = AdvancedUsersRouteImport.update({
-  id: '/users',
-  path: '/users',
-  getParentRoute: () => AdvancedRoute,
-} as any)
-const AdvancedSettingsRoute = AdvancedSettingsRouteImport.update({
-  id: '/settings',
-  path: '/settings',
-  getParentRoute: () => AdvancedRoute,
-} as any)
-const AdvancedRecipesRoute = AdvancedRecipesRouteImport.update({
-  id: '/recipes',
-  path: '/recipes',
-  getParentRoute: () => AdvancedRoute,
-} as any)
-const AdvancedPumpsRoute = AdvancedPumpsRouteImport.update({
-  id: '/pumps',
-  path: '/pumps',
-  getParentRoute: () => AdvancedRoute,
-} as any)
-const AdvancedOrderRoute = AdvancedOrderRouteImport.update({
-  id: '/order',
-  path: '/order',
-  getParentRoute: () => AdvancedRoute,
-} as any)
-const AdvancedIngredientsRoute = AdvancedIngredientsRouteImport.update({
-  id: '/ingredients',
-  path: '/ingredients',
-  getParentRoute: () => AdvancedRoute,
-} as any)
-const AdvancedGlassesRoute = AdvancedGlassesRouteImport.update({
-  id: '/glasses',
-  path: '/glasses',
-  getParentRoute: () => AdvancedRoute,
-} as any)
-const AdvancedFavoritesRoute = AdvancedFavoritesRouteImport.update({
-  id: '/favorites',
-  path: '/favorites',
+const AdvancedCategoriesRoute = AdvancedCategoriesRouteImport.update({
+  id: '/categories',
+  path: '/categories',
   getParentRoute: () => AdvancedRoute,
 } as any)
 const AdvancedDrinksRoute = AdvancedDrinksRouteImport.update({
@@ -123,25 +68,85 @@ const AdvancedDrinksRoute = AdvancedDrinksRouteImport.update({
   path: '/drinks',
   getParentRoute: () => AdvancedRoute,
 } as any)
-const AdvancedCategoriesRoute = AdvancedCategoriesRouteImport.update({
-  id: '/categories',
-  path: '/categories',
+const AdvancedFavoritesRoute = AdvancedFavoritesRouteImport.update({
+  id: '/favorites',
+  path: '/favorites',
   getParentRoute: () => AdvancedRoute,
 } as any)
-const SimpleDrinkIdRoute = SimpleDrinkIdRouteImport.update({
-  id: '/drink/$id',
-  path: '/drink/$id',
+const AdvancedGlassesRoute = AdvancedGlassesRouteImport.update({
+  id: '/glasses',
+  path: '/glasses',
+  getParentRoute: () => AdvancedRoute,
+} as any)
+const AdvancedIngredientsRoute = AdvancedIngredientsRouteImport.update({
+  id: '/ingredients',
+  path: '/ingredients',
+  getParentRoute: () => AdvancedRoute,
+} as any)
+const AdvancedOrderRoute = AdvancedOrderRouteImport.update({
+  id: '/order',
+  path: '/order',
+  getParentRoute: () => AdvancedRoute,
+} as any)
+const AdvancedPumpsRoute = AdvancedPumpsRouteImport.update({
+  id: '/pumps',
+  path: '/pumps',
+  getParentRoute: () => AdvancedRoute,
+} as any)
+const AdvancedRecipesRoute = AdvancedRecipesRouteImport.update({
+  id: '/recipes',
+  path: '/recipes',
+  getParentRoute: () => AdvancedRoute,
+} as any)
+const AdvancedSettingsRoute = AdvancedSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => AdvancedRoute,
+} as any)
+const AdvancedUsersRoute = AdvancedUsersRouteImport.update({
+  id: '/users',
+  path: '/users',
+  getParentRoute: () => AdvancedRoute,
+} as any)
+const SimpleDrinksRoute = SimpleDrinksRouteImport.update({
+  id: '/drinks',
+  path: '/drinks',
   getParentRoute: () => SimpleRoute,
+} as any)
+const SimpleOrderRoute = SimpleOrderRouteImport.update({
+  id: '/order',
+  path: '/order',
+  getParentRoute: () => SimpleRoute,
+} as any)
+const SimpleOrderStatusRoute = SimpleOrderStatusRouteImport.update({
+  id: '/order-status',
+  path: '/order-status',
+  getParentRoute: () => SimpleRoute,
+} as any)
+const SimpleSettingsRoute = SimpleSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => SimpleRoute,
+} as any)
+const AdvancedDrinksRecipeIdRoute = AdvancedDrinksRecipeIdRouteImport.update({
+  id: '/$recipeId',
+  path: '/$recipeId',
+  getParentRoute: () => AdvancedDrinksRoute,
 } as any)
 const AdvancedRecipesNewRoute = AdvancedRecipesNewRouteImport.update({
   id: '/new',
   path: '/new',
   getParentRoute: () => AdvancedRecipesRoute,
 } as any)
-const AdvancedDrinksRecipeIdRoute = AdvancedDrinksRecipeIdRouteImport.update({
-  id: '/$recipeId',
-  path: '/$recipeId',
-  getParentRoute: () => AdvancedDrinksRoute,
+const SimpleDrinkIdRoute = SimpleDrinkIdRouteImport.update({
+  id: '/drink/$id',
+  path: '/drink/$id',
+  getParentRoute: () => SimpleRoute,
+} as any)
+const AdvancedPumpsPumpIdEditRoute = AdvancedPumpsPumpIdEditRouteImport.update({
+  id: '/$pumpId/edit',
+  path: '/$pumpId/edit',
+  getParentRoute: () => AdvancedPumpsRoute,
 } as any)
 const AdvancedRecipesRecipeIdEditRoute =
   AdvancedRecipesRecipeIdEditRouteImport.update({
@@ -149,11 +154,6 @@ const AdvancedRecipesRecipeIdEditRoute =
     path: '/$recipeId/edit',
     getParentRoute: () => AdvancedRecipesRoute,
   } as any)
-const AdvancedPumpsPumpIdEditRoute = AdvancedPumpsPumpIdEditRouteImport.update({
-  id: '/$pumpId/edit',
-  path: '/$pumpId/edit',
-  getParentRoute: () => AdvancedPumpsRoute,
-} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -321,25 +321,11 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/simple': {
-      id: '/simple'
-      path: '/simple'
-      fullPath: '/simple'
-      preLoaderRoute: typeof SimpleRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/reversepumpsettings': {
-      id: '/reversepumpsettings'
-      path: '/reversepumpsettings'
-      fullPath: '/reversepumpsettings'
-      preLoaderRoute: typeof ReversepumpsettingsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/login': {
-      id: '/login'
-      path: '/login'
-      fullPath: '/login'
-      preLoaderRoute: typeof LoginRouteImport
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_advanced': {
@@ -349,95 +335,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdvancedRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/simple/settings': {
-      id: '/simple/settings'
-      path: '/settings'
-      fullPath: '/simple/settings'
-      preLoaderRoute: typeof SimpleSettingsRouteImport
-      parentRoute: typeof SimpleRoute
+    '/reversepumpsettings': {
+      id: '/reversepumpsettings'
+      path: '/reversepumpsettings'
+      fullPath: '/reversepumpsettings'
+      preLoaderRoute: typeof ReversepumpsettingsRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/simple/order-status': {
-      id: '/simple/order-status'
-      path: '/order-status'
-      fullPath: '/simple/order-status'
-      preLoaderRoute: typeof SimpleOrderStatusRouteImport
-      parentRoute: typeof SimpleRoute
+    '/simple': {
+      id: '/simple'
+      path: '/simple'
+      fullPath: '/simple'
+      preLoaderRoute: typeof SimpleRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/simple/order': {
-      id: '/simple/order'
-      path: '/order'
-      fullPath: '/simple/order'
-      preLoaderRoute: typeof SimpleOrderRouteImport
-      parentRoute: typeof SimpleRoute
-    }
-    '/simple/drinks': {
-      id: '/simple/drinks'
-      path: '/drinks'
-      fullPath: '/simple/drinks'
-      preLoaderRoute: typeof SimpleDrinksRouteImport
-      parentRoute: typeof SimpleRoute
-    }
-    '/_advanced/users': {
-      id: '/_advanced/users'
-      path: '/users'
-      fullPath: '/users'
-      preLoaderRoute: typeof AdvancedUsersRouteImport
-      parentRoute: typeof AdvancedRoute
-    }
-    '/_advanced/settings': {
-      id: '/_advanced/settings'
-      path: '/settings'
-      fullPath: '/settings'
-      preLoaderRoute: typeof AdvancedSettingsRouteImport
-      parentRoute: typeof AdvancedRoute
-    }
-    '/_advanced/recipes': {
-      id: '/_advanced/recipes'
-      path: '/recipes'
-      fullPath: '/recipes'
-      preLoaderRoute: typeof AdvancedRecipesRouteImport
-      parentRoute: typeof AdvancedRoute
-    }
-    '/_advanced/pumps': {
-      id: '/_advanced/pumps'
-      path: '/pumps'
-      fullPath: '/pumps'
-      preLoaderRoute: typeof AdvancedPumpsRouteImport
-      parentRoute: typeof AdvancedRoute
-    }
-    '/_advanced/order': {
-      id: '/_advanced/order'
-      path: '/order'
-      fullPath: '/order'
-      preLoaderRoute: typeof AdvancedOrderRouteImport
-      parentRoute: typeof AdvancedRoute
-    }
-    '/_advanced/ingredients': {
-      id: '/_advanced/ingredients'
-      path: '/ingredients'
-      fullPath: '/ingredients'
-      preLoaderRoute: typeof AdvancedIngredientsRouteImport
-      parentRoute: typeof AdvancedRoute
-    }
-    '/_advanced/glasses': {
-      id: '/_advanced/glasses'
-      path: '/glasses'
-      fullPath: '/glasses'
-      preLoaderRoute: typeof AdvancedGlassesRouteImport
-      parentRoute: typeof AdvancedRoute
-    }
-    '/_advanced/favorites': {
-      id: '/_advanced/favorites'
-      path: '/favorites'
-      fullPath: '/favorites'
-      preLoaderRoute: typeof AdvancedFavoritesRouteImport
+    '/_advanced/categories': {
+      id: '/_advanced/categories'
+      path: '/categories'
+      fullPath: '/categories'
+      preLoaderRoute: typeof AdvancedCategoriesRouteImport
       parentRoute: typeof AdvancedRoute
     }
     '/_advanced/drinks': {
@@ -447,26 +370,89 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdvancedDrinksRouteImport
       parentRoute: typeof AdvancedRoute
     }
-    '/_advanced/categories': {
-      id: '/_advanced/categories'
-      path: '/categories'
-      fullPath: '/categories'
-      preLoaderRoute: typeof AdvancedCategoriesRouteImport
+    '/_advanced/favorites': {
+      id: '/_advanced/favorites'
+      path: '/favorites'
+      fullPath: '/favorites'
+      preLoaderRoute: typeof AdvancedFavoritesRouteImport
       parentRoute: typeof AdvancedRoute
     }
-    '/simple/drink/$id': {
-      id: '/simple/drink/$id'
-      path: '/drink/$id'
-      fullPath: '/simple/drink/$id'
-      preLoaderRoute: typeof SimpleDrinkIdRouteImport
+    '/_advanced/glasses': {
+      id: '/_advanced/glasses'
+      path: '/glasses'
+      fullPath: '/glasses'
+      preLoaderRoute: typeof AdvancedGlassesRouteImport
+      parentRoute: typeof AdvancedRoute
+    }
+    '/_advanced/ingredients': {
+      id: '/_advanced/ingredients'
+      path: '/ingredients'
+      fullPath: '/ingredients'
+      preLoaderRoute: typeof AdvancedIngredientsRouteImport
+      parentRoute: typeof AdvancedRoute
+    }
+    '/_advanced/order': {
+      id: '/_advanced/order'
+      path: '/order'
+      fullPath: '/order'
+      preLoaderRoute: typeof AdvancedOrderRouteImport
+      parentRoute: typeof AdvancedRoute
+    }
+    '/_advanced/pumps': {
+      id: '/_advanced/pumps'
+      path: '/pumps'
+      fullPath: '/pumps'
+      preLoaderRoute: typeof AdvancedPumpsRouteImport
+      parentRoute: typeof AdvancedRoute
+    }
+    '/_advanced/recipes': {
+      id: '/_advanced/recipes'
+      path: '/recipes'
+      fullPath: '/recipes'
+      preLoaderRoute: typeof AdvancedRecipesRouteImport
+      parentRoute: typeof AdvancedRoute
+    }
+    '/_advanced/settings': {
+      id: '/_advanced/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof AdvancedSettingsRouteImport
+      parentRoute: typeof AdvancedRoute
+    }
+    '/_advanced/users': {
+      id: '/_advanced/users'
+      path: '/users'
+      fullPath: '/users'
+      preLoaderRoute: typeof AdvancedUsersRouteImport
+      parentRoute: typeof AdvancedRoute
+    }
+    '/simple/drinks': {
+      id: '/simple/drinks'
+      path: '/drinks'
+      fullPath: '/simple/drinks'
+      preLoaderRoute: typeof SimpleDrinksRouteImport
       parentRoute: typeof SimpleRoute
     }
-    '/_advanced/recipes/new': {
-      id: '/_advanced/recipes/new'
-      path: '/new'
-      fullPath: '/recipes/new'
-      preLoaderRoute: typeof AdvancedRecipesNewRouteImport
-      parentRoute: typeof AdvancedRecipesRoute
+    '/simple/order': {
+      id: '/simple/order'
+      path: '/order'
+      fullPath: '/simple/order'
+      preLoaderRoute: typeof SimpleOrderRouteImport
+      parentRoute: typeof SimpleRoute
+    }
+    '/simple/order-status': {
+      id: '/simple/order-status'
+      path: '/order-status'
+      fullPath: '/simple/order-status'
+      preLoaderRoute: typeof SimpleOrderStatusRouteImport
+      parentRoute: typeof SimpleRoute
+    }
+    '/simple/settings': {
+      id: '/simple/settings'
+      path: '/settings'
+      fullPath: '/simple/settings'
+      preLoaderRoute: typeof SimpleSettingsRouteImport
+      parentRoute: typeof SimpleRoute
     }
     '/_advanced/drinks/$recipeId': {
       id: '/_advanced/drinks/$recipeId'
@@ -475,12 +461,19 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdvancedDrinksRecipeIdRouteImport
       parentRoute: typeof AdvancedDrinksRoute
     }
-    '/_advanced/recipes/$recipeId/edit': {
-      id: '/_advanced/recipes/$recipeId/edit'
-      path: '/$recipeId/edit'
-      fullPath: '/recipes/$recipeId/edit'
-      preLoaderRoute: typeof AdvancedRecipesRecipeIdEditRouteImport
+    '/_advanced/recipes/new': {
+      id: '/_advanced/recipes/new'
+      path: '/new'
+      fullPath: '/recipes/new'
+      preLoaderRoute: typeof AdvancedRecipesNewRouteImport
       parentRoute: typeof AdvancedRecipesRoute
+    }
+    '/simple/drink/$id': {
+      id: '/simple/drink/$id'
+      path: '/drink/$id'
+      fullPath: '/simple/drink/$id'
+      preLoaderRoute: typeof SimpleDrinkIdRouteImport
+      parentRoute: typeof SimpleRoute
     }
     '/_advanced/pumps/$pumpId/edit': {
       id: '/_advanced/pumps/$pumpId/edit'
@@ -488,6 +481,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/pumps/$pumpId/edit'
       preLoaderRoute: typeof AdvancedPumpsPumpIdEditRouteImport
       parentRoute: typeof AdvancedPumpsRoute
+    }
+    '/_advanced/recipes/$recipeId/edit': {
+      id: '/_advanced/recipes/$recipeId/edit'
+      path: '/$recipeId/edit'
+      fullPath: '/recipes/$recipeId/edit'
+      preLoaderRoute: typeof AdvancedRecipesRecipeIdEditRouteImport
+      parentRoute: typeof AdvancedRecipesRoute
     }
   }
 }
