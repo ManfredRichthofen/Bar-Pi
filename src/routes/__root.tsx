@@ -1,5 +1,3 @@
-import { StatusBar, Style } from '@capacitor/status-bar';
-import { EdgeToEdge } from '@capawesome/capacitor-android-edge-to-edge-support';
 import { createRootRoute, Link, Outlet } from '@tanstack/react-router';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -36,41 +34,6 @@ export const Route = createRootRoute({
   notFoundComponent: NotFound,
 });
 
-function isDarkTheme(theme: string) {
-  const darkThemes = new Set([
-    'dark',
-    'night',
-    'dracula',
-    'dim',
-    'nord',
-    'business',
-    'black',
-    'coffee',
-    'forest',
-    'luxury',
-  ]);
-  return darkThemes.has(theme);
-}
-
-async function applyStatusBarForTheme(theme: string) {
-  const dark = isDarkTheme(theme);
-
-  const darkColor = '#020617';
-  const lightColor = '#f9fafb';
-
-  await EdgeToEdge.enable();
-
-  await EdgeToEdge.setBackgroundColor({
-    color: dark ? darkColor : lightColor,
-  });
-
-  await StatusBar.setStyle({
-    style: dark ? Style.Light : Style.Dark,
-  });
-
-  await StatusBar.setOverlaysWebView({ overlay: false });
-}
-
 function RootComponent() {
   const reinitializeAuthState = useAuthStore(
     (state) => state.reinitializeAuthState,
@@ -91,9 +54,6 @@ function RootComponent() {
 
   // Theme and language initialization
   useEffect(() => {
-    // Theme initialization - theme store handles persistence
-    applyStatusBarForTheme(theme);
-
     // Language initialization
     const savedLanguage = localStorage.getItem('i18nextLng') || 'en-US';
     i18n.changeLanguage(savedLanguage);
@@ -106,7 +66,6 @@ function RootComponent() {
           const newTheme = isDark ? 'dark' : 'light';
           if (newTheme !== theme) {
             setTheme(newTheme);
-            applyStatusBarForTheme(newTheme);
           }
         }
       });

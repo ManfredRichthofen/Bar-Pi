@@ -4,9 +4,11 @@ on:
   workflow_dispatch:
 
 jobs:
-  build-and-release:
+  meta:
     runs-on: ubuntu-latest
-
+    outputs:
+      version: ${{ steps.get_version.outputs.version }}
+      notes: ${{ steps.release_notes.outputs.notes }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
@@ -17,45 +19,46 @@ jobs:
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2
 
-      - name: Setup Go
-        uses: actions/setup-go@v6
-        with:
-          go-version: '1.26'
-          cache-dependency-path: backend-go/go.sum
-
-      - name: Setup Java JDK
-        uses: actions/setup-java@v5
-        with:
-          distribution: 'temurin'
-          java-version: '21'
-
-      - name: Setup Android SDK
-        uses: android-actions/setup-android@v3
-
       - name: Get version from package.json
         id: get_version
         run: |
           version=$(bun pm pkg get version | tr -d '"')
-          echo "version=$version" >> $GITHUB_OUTPUT
+          echo "version=$version" >> "$GITHUB_OUTPUT"
           echo "Building version: $version"
 
       - name: Generate Release Notes
         id: release_notes
         run: |
           previous_tag=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
-          
+
           if [ -z "$previous_tag" ]; then
             git log --pretty=format:"* %s (%h)" > release_notes.txt
           else
-            git log --pretty=format:"* %s (%h)" $previous_tag..HEAD > release_notes.txt
+            git log --pretty=format:"* %s (%h)" "$previous_tag"..HEAD > release_notes.txt
           fi
-          
-          notes=$(cat release_notes.txt)
-          echo "notes<<EOF" >> $GITHUB_OUTPUT
-          echo "$notes" >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
 
-      # ===== BUILD FRONTEND =====
+          {
+            echo "notes<<EOF"
+            cat release_notes.txt
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+
+  build-backend:
+    needs: meta
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+
+      - name: Setup Go
+        uses: actions/setup-go@v6
+        with:
+          go-version: "1.26"
+          cache-dependency-path: backend-go/go.sum
+
       - name: Install frontend dependencies
         run: bun ci
 
@@ -65,14 +68,13 @@ jobs:
       - name: Zip frontend
         run: |
           cd dist
-          zip -r ../frontend-${{ steps.get_version.outputs.version }}.zip .
+          zip -r ../frontend-${{ needs.meta.outputs.version }}.zip .
 
       - name: Zip wait-for-app-html
         run: |
           cd scripts/wait-for-app-html
           zip -r ../../wait-for-app-html.zip .
 
-      # ===== BUILD BACKEND BINARIES =====
       - name: Prepare backend build directory
         run: |
           rm -rf dist-backend
@@ -90,8 +92,7 @@ jobs:
           GOOS: linux
           GOARCH: amd64
           CGO_ENABLED: 0
-        run: |
-          go build -ldflags="-s -w" -o ../dist-backend/bar-pi-server-linux-amd64 ./cmd/server/main.go
+        run: go build -ldflags="-s -w" -o ../dist-backend/bar-pi-server-linux-amd64 ./cmd/server/main.go
 
       - name: Build backend - Linux ARM64
         working-directory: backend-go
@@ -99,8 +100,7 @@ jobs:
           GOOS: linux
           GOARCH: arm64
           CGO_ENABLED: 0
-        run: |
-          go build -ldflags="-s -w" -o ../dist-backend/bar-pi-server-linux-arm64 ./cmd/server/main.go
+        run: go build -ldflags="-s -w" -o ../dist-backend/bar-pi-server-linux-arm64 ./cmd/server/main.go
 
       - name: Build backend - Linux ARM
         working-directory: backend-go
@@ -109,10 +109,8 @@ jobs:
           GOARCH: arm
           GOARM: 7
           CGO_ENABLED: 0
-        run: |
-          go build -ldflags="-s -w" -o ../dist-backend/bar-pi-server-linux-arm ./cmd/server/main.go
+        run: go build -ldflags="-s -w" -o ../dist-backend/bar-pi-server-linux-arm ./cmd/server/main.go
 
-      # ===== BUILD BUNDLE BINARIES =====
       - name: Prepare bundle build
         run: |
           rm -rf backend-go/internal/static/dist
@@ -125,8 +123,7 @@ jobs:
           GOOS: linux
           GOARCH: amd64
           CGO_ENABLED: 0
-        run: |
-          go build -tags=bundle -ldflags="-s -w" -o ../dist-backend/bar-pi-bundle-linux-amd64 ./cmd/server/main.go
+        run: go build -tags=bundle -ldflags="-s -w" -o ../dist-backend/bar-pi-bundle-linux-amd64 ./cmd/server/main.go
 
       - name: Build bundle - Linux ARM64
         working-directory: backend-go
@@ -134,8 +131,7 @@ jobs:
           GOOS: linux
           GOARCH: arm64
           CGO_ENABLED: 0
-        run: |
-          go build -tags=bundle -ldflags="-s -w" -o ../dist-backend/bar-pi-bundle-linux-arm64 ./cmd/server/main.go
+        run: go build -tags=bundle -ldflags="-s -w" -o ../dist-backend/bar-pi-bundle-linux-arm64 ./cmd/server/main.go
 
       - name: Build bundle - Linux ARM
         working-directory: backend-go
@@ -144,98 +140,189 @@ jobs:
           GOARCH: arm
           GOARM: 7
           CGO_ENABLED: 0
-        run: |
-          go build -tags=bundle -ldflags="-s -w" -o ../dist-backend/bar-pi-bundle-linux-arm ./cmd/server/main.go
+        run: go build -tags=bundle -ldflags="-s -w" -o ../dist-backend/bar-pi-bundle-linux-arm ./cmd/server/main.go
 
-      - name: Clean up embedded frontend
-        run: rm -rf backend-go/internal/static/dist
+      - name: Upload backend artifacts
+        uses: actions/upload-artifact@v7
+        with:
+          name: backend-and-frontend
+          path: |
+            dist-backend/
+            frontend-${{ needs.meta.outputs.version }}.zip
+            wait-for-app-html.zip
+          if-no-files-found: error
 
-      # ===== BUILD ANDROID APK =====
-      - name: Generate Capacitor assets
-        run: bunx @capacitor/assets generate
+  build-android:
+    needs: meta
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
 
-      - name: Sync Capacitor
-        run: bunx cap sync android
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
 
-      - name: Make gradlew executable
-        run: chmod +x android/gradlew
+      - name: Install Rust stable
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: aarch64-linux-android,armv7-linux-androideabi,i686-linux-android,x86_64-linux-android
+
+      - name: Setup Java JDK
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install Android NDK
+        run: sdkmanager --install "ndk;28.2.13676358"
+
+      - name: Install frontend dependencies
+        run: bun ci
 
       - name: Decode Keystore
         run: |
-          echo "${{ secrets.ANDROID_KEYSTORE_FILE }}" | tr -d '\n\r\t ' | base64 -d > android/app/release.keystore
-          ls -lh android/app/release.keystore
+          echo "${{ secrets.ANDROID_KEYSTORE_FILE }}" | tr -d '\n\r\t ' | base64 -d > "$GITHUB_WORKSPACE/release.keystore"
+          ls -lh "$GITHUB_WORKSPACE/release.keystore"
 
       - name: Build Android Release APK
-        run: |
-          cd android
-          ./gradlew assembleRelease --no-daemon --stacktrace
         env:
-          RELEASE_STORE_FILE: ${{ github.workspace }}/android/app/release.keystore
+          RELEASE_STORE_FILE: ${{ github.workspace }}/release.keystore
           RELEASE_STORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
           RELEASE_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
           RELEASE_KEY_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+        run: |
+          export NDK_HOME="${ANDROID_HOME}/ndk/28.2.13676358"
+          bunx tauri android build --apk
 
-      # ===== VERIFY FILES =====
+      - name: Prepare APK artifact
+        run: |
+          mkdir -p release-apk
+          apk=$(find src-tauri/gen/android/app/build/outputs/apk -name "*.apk" -path "*/release/*" | head -n 1)
+          echo "Found APK: $apk"
+          cp "$apk" release-apk/app-release.apk
+          ls -lh release-apk/app-release.apk
+
+      - name: Upload Android APK
+        uses: actions/upload-artifact@v7
+        with:
+          name: android-apk
+          path: release-apk/app-release.apk
+          if-no-files-found: error
+
+  build-windows:
+    needs: meta
+    runs-on: windows-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+
+      - name: Install Rust stable
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Install frontend dependencies
+        run: bun ci
+
+      - name: Build Windows installer
+        run: bunx tauri build
+
+      - name: Prepare Windows artifact
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path release-windows | Out-Null
+          $installer = Get-ChildItem -Path src-tauri/target/release/bundle/nsis -Filter "*.exe" | Select-Object -First 1
+          if (-not $installer) { throw "NSIS installer not found" }
+          Copy-Item $installer.FullName release-windows/Bar-Pi-Setup.exe
+          Get-Item release-windows/Bar-Pi-Setup.exe
+
+      - name: Upload Windows installer
+        uses: actions/upload-artifact@v7
+        with:
+          name: windows-installer
+          path: release-windows/Bar-Pi-Setup.exe
+          if-no-files-found: error
+
+  release:
+    needs: [meta, build-backend, build-android, build-windows]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Download backend and frontend
+        uses: actions/download-artifact@v7
+        with:
+          name: backend-and-frontend
+          path: artifacts
+
+      - name: Download Android APK
+        uses: actions/download-artifact@v7
+        with:
+          name: android-apk
+          path: artifacts
+
+      - name: Download Windows installer
+        uses: actions/download-artifact@v7
+        with:
+          name: windows-installer
+          path: artifacts
+
       - name: Verify release files
         run: |
-          echo "=== Backend Binaries ==="
-          ls -lh dist-backend/
-          echo ""
-          echo "=== Frontend Archives ==="
-          ls -lh frontend-${{ steps.get_version.outputs.version }}.zip
-          ls -lh wait-for-app-html.zip
-          echo ""
-          echo "=== Android APK ==="
-          ls -lh android/app/build/outputs/apk/release/app-release.apk
-          echo ""
-          echo "All files verified!"
+          find artifacts -type f -exec ls -lh {} \;
 
-      # ===== CREATE GITHUB RELEASE =====
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v${{ steps.get_version.outputs.version }}
-          name: Release v${{ steps.get_version.outputs.version }}
+          tag_name: v${{ needs.meta.outputs.version }}
+          name: Release v${{ needs.meta.outputs.version }}
           body: |
-            ## Bar-Pi Release v${{ steps.get_version.outputs.version }}
-            
+            ## Bar-Pi Release v${{ needs.meta.outputs.version }}
+
             Complete release with all deployment options.
-            
+
+            ### Windows Desktop
+            - `Bar-Pi-Setup.exe` - Tauri thin client (connects to a reachable backend)
+
             ### Android App
-            - `app-release.apk` - Android application to run with the backend server
-            
+            - `app-release.apk` - Tauri thin client to run with the backend server
+
             ### Complete Bundle (Recommended)
             Single binary with embedded frontend - just download and run!
             - `bar-pi-bundle-linux-amd64` - Linux x86_64
             - `bar-pi-bundle-linux-arm64` - Raspberry(Arm64) Pi 64-bit
             - `bar-pi-bundle-linux-arm` - Raspberry(Arm) Pi 32-bit
-            
+
             ### Backend Only
-            API server without embedded frontend (deploy frontend separately use the apk or host else where)
+            API server without embedded frontend (deploy frontend separately use the apk or host elsewhere)
             - `bar-pi-server-linux-amd64` - Linux x86_64
             - `bar-pi-server-linux-arm64` - Raspberry(Arm64) Pi 64-bit
             - `bar-pi-server-linux-arm` - Raspberry(Arm) Pi 32-bit
-            
+
             ### Frontend Only
-            - `frontend-${{ steps.get_version.outputs.version }}.zip` - Web application files
+            - `frontend-${{ needs.meta.outputs.version }}.zip` - Web application files
             - `wait-for-app-html.zip` - Loading screen
-            
+
             ### Changes
-            ${{ steps.release_notes.outputs.notes }}
-            
+            ${{ needs.meta.outputs.notes }}
+
             ### Quick Start - Bundle
             See the [INSTALL_GUIDE.md](INSTALL_GUIDE.md) for detailed installation instructions.
-
           files: |
-            android/app/build/outputs/apk/release/app-release.apk
-            dist-backend/bar-pi-bundle-linux-amd64
-            dist-backend/bar-pi-bundle-linux-arm64
-            dist-backend/bar-pi-bundle-linux-arm
-            dist-backend/bar-pi-server-linux-amd64
-            dist-backend/bar-pi-server-linux-arm64
-            dist-backend/bar-pi-server-linux-arm
-            frontend-${{ steps.get_version.outputs.version }}.zip
-            wait-for-app-html.zip
+            artifacts/Bar-Pi-Setup.exe
+            artifacts/app-release.apk
+            artifacts/dist-backend/bar-pi-bundle-linux-amd64
+            artifacts/dist-backend/bar-pi-bundle-linux-arm64
+            artifacts/dist-backend/bar-pi-bundle-linux-arm
+            artifacts/dist-backend/bar-pi-server-linux-amd64
+            artifacts/dist-backend/bar-pi-server-linux-arm64
+            artifacts/dist-backend/bar-pi-server-linux-arm
+            artifacts/frontend-${{ needs.meta.outputs.version }}.zip
+            artifacts/wait-for-app-html.zip
           draft: false
           prerelease: false
         env:
