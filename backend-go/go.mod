@@ -11,7 +11,7 @@ require (
 	github.com/warthog618/go-gpiocdev v0.9.1
 	golang.org/x/crypto v0.50.0
 	gorm.io/driver/sqlite v1.6.0
-	gorm.io/gorm v1.31.1
+	gorm.io/gorm v1.31.2
 	modernc.org/sqlite v1.50.0
 )
 
