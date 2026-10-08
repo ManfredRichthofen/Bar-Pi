@@ -8,7 +8,7 @@ require (
 	github.com/gorilla/websocket v1.5.3
 	github.com/joho/godotenv v1.5.1
 	github.com/pressly/goose/v3 v3.27.1
-	github.com/warthog618/go-gpiocdev v0.9.1
+	github.com/warthog618/go-gpiocdev v0.9.2
 	golang.org/x/crypto v0.52.0
 	gorm.io/driver/sqlite v1.6.0
 	gorm.io/gorm v1.31.1
