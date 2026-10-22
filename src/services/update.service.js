@@ -1,4 +1,5 @@
 import axios from 'axios';
+import JSZip from 'jszip';
 import pkg from '../../package.json';
 
 const GITHUB_API_BASE = 'https://api.github.com';

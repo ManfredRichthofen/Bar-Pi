@@ -1,0 +1,53 @@
+name: Build Android APK
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+
+      - name: Install Rust stable
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: aarch64-linux-android,armv7-linux-androideabi,i686-linux-android,x86_64-linux-android
+
+      - name: Setup Java JDK
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install Android NDK
+        run: sdkmanager --install "ndk;28.2.13676358"
+
+      - name: Install frontend dependencies
+        run: bun ci
+
+      - name: Build Android Debug APK
+        run: |
+          export NDK_HOME="${ANDROID_HOME}/ndk/28.2.13676358"
+          bunx tauri android build --debug --apk
+
+      - name: Upload Debug APK artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: app-debug
+          path: |
+            src-tauri/gen/android/app/build/outputs/apk/**/debug/*.apk
+          retention-days: 30
+          if-no-files-found: error

@@ -1,6 +1,6 @@
 # Bar Pi
 
-Bar Pi is a bar management system built on top of the [CocktailPi project](https://github.com/alex9849/CocktailPi/). THe backend (Beta) is written in Go and the frontend is written in React. If you find this useful, consider supporting the original CocktailPi project that made it possible.
+Bar Pi is a bar management system built on top of the [CocktailPi project](https://github.com/alex9849/CocktailPi/). The backend (Beta) is written in Go and the frontend is written in React. If you find this useful, consider supporting the original CocktailPi project that made it possible.
 
 ## What It Does
 
@@ -14,7 +14,7 @@ The system includes inventory tracking, recipe management, and a simplified orde
 
 ### For Developers
 
-You'll need [Bun](https://bun.sh) and Git installed. Then:
+You'll need [Bun](https://bun.sh), [Rust](https://www.rust-lang.org/tools/install), and Git installed. Then:
 
 ```bash
 git clone https://github.com/ManfredRichthofen/Bar-Pi.git
@@ -32,6 +32,12 @@ chmod +x install-dev.sh
 ```
 
 The development server will start, and you can begin making changes immediately.
+
+For the Windows desktop thin client:
+
+```bash
+bun run tauri:dev
+```
 
 ### For Raspberry Pi Users
 
@@ -56,14 +62,19 @@ sudo systemctl status bar-pi   # Check status
 
 For detailed installation options and troubleshooting, see `INSTALL_GUIDE.md`.
 
+Pi kiosk / Python frontend installs are unchanged and do not use Tauri.
+
 ## Building for Production
 
 Create production builds with:
 
 ```bash
-bun run build              # Web version
-bun run cap:build          # Android APK
+bun run build                 # Web version (dist/)
+bun run tauri:build           # Windows desktop installer (NSIS)
+bun run tauri:android:build   # Android APK
 ```
+
+The Tauri Windows and Android apps are thin clients: they ship the UI and connect to a reachable Bar-Pi / CocktailPi backend via the API URL configured on the login screen.
 
 ## Project Structure
 
@@ -76,7 +87,7 @@ The codebase is organized for clarity:
   - `store/` handles state with Zustand
   - `translations/` provides i18next language files
 - `backend-go/` contains the Go backend server
-- `android/` and `ios/` hold mobile app configurations
+- `src-tauri/` contains the Tauri 2 shell (Windows desktop + Android)
 - `public/` stores static assets
 
 ## Technology Stack
@@ -85,7 +96,7 @@ The codebase is organized for clarity:
 - Tailwind CSS and Shadcn for styling and components
 - Vite and Bun for building
 - Zustand for state management
-- Capacitor for mobile deployment
+- Tauri 2 for Windows desktop and Android APK
 - React-i18next for internationalization
 - Go for the backend API
 
