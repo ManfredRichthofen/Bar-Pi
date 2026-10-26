@@ -3,9 +3,7 @@ import {
   Bell,
   Globe,
   LogOut,
-  Moon,
   Smartphone,
-  Sun,
   Volume2,
 } from 'lucide-react';
 import React from 'react';
@@ -23,7 +21,7 @@ import { Separator } from '@/components/ui/separator';
 import { Switch } from '@/components/ui/switch';
 import UpdateChecker from '../../../components/UpdateChecker';
 import useAuthStore from '../../../store/authStore';
-import useThemeStore from '../../../store/themeStore';
+import ThemeSelector from '../../simple-mode/simpleSettings/components/ThemeSelector';
 import useUIModeStore from '../../../store/uiModeStore';
 
 export const SettingsPage: React.FC = () => {
@@ -31,7 +29,6 @@ export const SettingsPage: React.FC = () => {
   const navigate = useNavigate({ from: '/settings' });
   const logoutUser = useAuthStore((state) => state.logoutUser);
   const setAdvancedMode = useUIModeStore((state) => state.setAdvancedMode);
-  const { theme, setTheme } = useThemeStore();
 
   const [notifications, setNotifications] = React.useState(false);
   const [soundEffects, setSoundEffects] = React.useState(false);
@@ -47,11 +44,6 @@ export const SettingsPage: React.FC = () => {
     if (langCode) {
       i18n.changeLanguage(langCode);
     }
-  };
-
-  const handleThemeToggle = (checked: boolean) => {
-    const newTheme = checked ? 'dark' : 'light';
-    setTheme(newTheme);
   };
 
   const handleSimpleModeSwitch = () => {
@@ -185,43 +177,7 @@ export const SettingsPage: React.FC = () => {
             </CardContent>
           </Card>
 
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                {theme === 'dark' ? (
-                  <Moon className="h-5 w-5" />
-                ) : (
-                  <Sun className="h-5 w-5" />
-                )}
-                {t('settings.appearance.title', 'Appearance')}
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  {theme === 'dark' ? (
-                    <Moon className="h-5 w-5 text-muted-foreground" />
-                  ) : (
-                    <Sun className="h-5 w-5 text-muted-foreground" />
-                  )}
-                  <div>
-                    <p className="font-medium">
-                      {theme === 'dark' ? 'Dark Mode' : 'Light Mode'}
-                    </p>
-                    <p className="text-sm text-muted-foreground">
-                      {theme === 'dark'
-                        ? 'Switch to light theme'
-                        : 'Switch to dark theme'}
-                    </p>
-                  </div>
-                </div>
-                <Switch
-                  checked={theme === 'dark'}
-                  onCheckedChange={handleThemeToggle}
-                />
-              </div>
-            </CardContent>
-          </Card>
+          <ThemeSelector />
         </div>
       </div>
     </div>

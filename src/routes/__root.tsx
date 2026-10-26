@@ -2,7 +2,6 @@ import { createRootRoute, Link, Outlet } from '@tanstack/react-router';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import useAuthStore from '../store/authStore';
-import useThemeStore from '../store/themeStore';
 import useUIModeStore from '../store/uiModeStore';
 
 function NotFound() {
@@ -41,7 +40,6 @@ function RootComponent() {
   const { i18n } = useTranslation();
   const [isAuthInitialized, setIsAuthInitialized] = useState(false);
   const { isInitialized: isUIModeInitialized } = useUIModeStore();
-  const { theme, setTheme } = useThemeStore();
 
   // Auth initialization
   useEffect(() => {
@@ -52,33 +50,12 @@ function RootComponent() {
     initialize();
   }, [reinitializeAuthState]);
 
-  // Theme and language initialization
+  // Language initialization
   useEffect(() => {
-    // Language initialization
     const savedLanguage = localStorage.getItem('i18nextLng') || 'en-US';
     i18n.changeLanguage(savedLanguage);
 
-    // Theme observer to sync external changes
-    const observer = new MutationObserver((mutations) => {
-      mutations.forEach((mutation) => {
-        if (mutation.attributeName === 'class') {
-          const isDark = document.documentElement.classList.contains('dark');
-          const newTheme = isDark ? 'dark' : 'light';
-          if (newTheme !== theme) {
-            setTheme(newTheme);
-          }
-        }
-      });
-    });
-
-    observer.observe(document.documentElement, {
-      attributes: true,
-      attributeFilter: ['class'],
-    });
-
-    return () => observer.disconnect();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [theme]);
+  }, [i18n]);
 
   // Show nothing while initializing to prevent flash of incorrect content
   if (!isAuthInitialized || !isUIModeInitialized) {

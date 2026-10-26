@@ -43,29 +43,29 @@ const SimpleDrinkCard = ({ recipe, onCardClick }) => {
 
   // Determine availability text and color
   let availabilityText = 'Available';
-  let availabilityColor = 'bg-primary/60';
+  let availabilityColor = 'bg-success';
 
   if (isAutomaticAndAvailable) {
     availabilityText = 'Auto + Available';
-    availabilityColor = 'bg-primary/60';
+    availabilityColor = 'bg-success';
   } else if (isAutomatic && isAvailable) {
     availabilityText = 'Auto + Available';
-    availabilityColor = 'bg-primary/60';
+    availabilityColor = 'bg-success';
   } else if (isAutomatic) {
     availabilityText = 'Automatic';
-    availabilityColor = 'bg-primary/60';
+    availabilityColor = 'bg-success';
   } else if (isManual && isAvailable) {
     availabilityText = 'Manual + Available';
-    availabilityColor = 'bg-accent/60';
+    availabilityColor = 'bg-warning';
   } else if (isManual) {
     availabilityText = 'Manual';
-    availabilityColor = 'bg-accent/40';
+    availabilityColor = 'bg-warning';
   } else if (isAvailable) {
     availabilityText = 'Available';
-    availabilityColor = 'bg-primary/60';
+    availabilityColor = 'bg-success';
   } else {
     availabilityText = 'Unavailable';
-    availabilityColor = 'bg-destructive/60';
+    availabilityColor = 'bg-danger';
   }
 
   return (
@@ -113,7 +113,7 @@ const SimpleDrinkCard = ({ recipe, onCardClick }) => {
               <div className="absolute top-3 left-3 z-10">
                 <Badge
                   variant="destructive"
-                  className="text-xs font-semibold shadow-lg backdrop-blur-sm bg-destructive/90"
+                  className="shadow-md"
                 >
                   21+
                 </Badge>
@@ -122,11 +122,11 @@ const SimpleDrinkCard = ({ recipe, onCardClick }) => {
 
             {/* Availability indicator - positioned on image */}
             <div className="absolute bottom-3 right-3 z-10">
-              <div className="flex items-center gap-2 px-2.5 py-1.5 rounded-full bg-background/80 backdrop-blur-sm shadow-lg">
+              <div className="flex items-center gap-2 px-2.5 py-1.5 rounded-full bg-background/90 backdrop-blur-sm shadow-md">
                 <div
-                  className={`w-2 h-2 rounded-full ${availabilityColor}`}
+                  className={`w-3 h-3 rounded-full ${availabilityColor}`}
                 ></div>
-                <span className="text-xs font-semibold text-foreground">
+                <span className="text-sm font-semibold text-foreground whitespace-nowrap">
                   {availabilityText}
                 </span>
               </div>
