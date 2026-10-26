@@ -47,12 +47,12 @@ const SimpleSettings = () => {
             className="rounded-xl transition-all duration-200 shadow-sm"
             onClick={() => navigate({ to: '/simple/drinks' })}
           >
-            <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5" />
+            <ArrowLeft className="size-6" />
           </Button>
           <h1 className="text-lg sm:text-xl font-bold truncate flex-1 mx-2 sm:mx-3 text-center text-base-content">
             {t('settings.title', 'Settings')}
           </h1>
-          <div className="w-8 sm:w-10" /> {/* Spacer for centering */}
+          <div className="size-control-md" /> {/* Spacer for centering */}
         </div>
       </div>
 

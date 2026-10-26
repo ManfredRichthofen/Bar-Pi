@@ -34,7 +34,7 @@ const ManualIngredientPrompt = ({
             <h3 className="text-lg sm:text-xl font-bold mb-1">
               {t('manual_ingredient_prompt.title')}
             </h3>
-            <p className="text-sm sm:text-base text-muted-foreground">
+            <p className="text-base text-muted-foreground">
               {t('manual_ingredient_prompt.description')}
             </p>
           </div>
@@ -47,17 +47,17 @@ const ManualIngredientPrompt = ({
                 key={`${item.ingredient.name}-${index}`}
                 className="flex justify-between items-center p-3 sm:p-4 bg-background rounded-lg border border-accent/20 hover:border-accent/40 transition-colors"
               >
-                <span className="font-medium text-sm sm:text-base min-w-0 break-words flex-1 pr-2">
+                <span className="font-medium text-base min-w-0 break-words flex-1 pr-2">
                   {item.ingredient.name}
                 </span>
-                <span className="text-sm sm:text-base text-accent-foreground shrink-0 font-bold">
+                <span className="text-base text-accent-foreground shrink-0 font-bold">
                   {item.amount} {item.ingredient.unit}
                 </span>
               </div>
             ))}
           </div>
         ) : (
-          <p className="text-sm sm:text-base text-muted-foreground mb-4 sm:mb-6">
+          <p className="text-base text-muted-foreground mb-4 sm:mb-6">
             {t('manual_ingredient_prompt.no_ingredients')}
           </p>
         )}
@@ -68,7 +68,7 @@ const ManualIngredientPrompt = ({
           disabled={confirming}
           size="lg"
         >
-          <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5" />
+          <CheckCircle className="size-6" />
           {confirming
             ? t('manual_ingredient_prompt.confirming')
             : t('manual_ingredient_prompt.confirm_button')}

@@ -62,13 +62,13 @@ const SimpleDrinkDetail = () => {
             className="rounded-xl transition-all duration-200"
             onClick={() => navigate({ to: '/simple/drinks' })}
           >
-            <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5" />
+            <ArrowLeft className="size-6" />
           </Button>
           <h1 className="text-base sm:text-lg font-bold truncate flex-1 mx-2 sm:mx-3 text-center">
             {recipe.name}
           </h1>
           {recipe.alcoholic && (
-            <Badge variant="destructive" className="shrink-0 text-xs">
+            <Badge variant="destructive" className="shrink-0 text-base">
               21+
             </Badge>
           )}
@@ -89,7 +89,7 @@ const SimpleDrinkDetail = () => {
           <Button
             type="button"
             size="lg"
-            className="w-full h-12 sm:h-14 gap-2 sm:gap-3 text-sm sm:text-base font-semibold shadow-lg hover:shadow-xl transition-all duration-200 active:scale-95"
+            className="w-full h-12 sm:h-14 gap-2 sm:gap-3 text-base font-semibold shadow-lg hover:shadow-xl transition-all duration-200 active:scale-95"
             onClick={() => {
               navigate({
                 to: '/simple/order',
@@ -97,7 +97,7 @@ const SimpleDrinkDetail = () => {
               } as any);
             }}
           >
-            <Beaker className="w-4 h-4 sm:w-5 sm:h-5" />
+            <Beaker className="size-6" />
             Make Drink
           </Button>
 

@@ -58,7 +58,7 @@ const StatusCard = ({
             </h2>
             <Badge
               variant="secondary"
-              className="capitalize text-xs sm:text-sm"
+              className="capitalize text-base"
             >
               {state.toLowerCase().replace(/_/g, ' ')}
             </Badge>
@@ -78,7 +78,7 @@ const StatusCard = ({
             <div className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-2">
               {progress}%
             </div>
-            <p className="text-sm sm:text-base text-muted-foreground">
+            <p className="text-base text-muted-foreground">
               {state === 'FINISHED'
                 ? 'Complete!'
                 : state === 'CANCELLED'
@@ -89,7 +89,7 @@ const StatusCard = ({
 
           <div className="space-y-2">
             <Progress value={progress} className="w-full h-3 sm:h-4" />
-            <div className="flex justify-between text-xs text-muted-foreground">
+            <div className="flex justify-between text-sm text-muted-foreground">
               <span>0%</span>
               <span>100%</span>
             </div>
@@ -105,7 +105,7 @@ const StatusCard = ({
             className="w-full gap-2"
             size="lg"
           >
-            <Square className="w-4 h-4" />
+            <Square className="size-6" />
             {canceling ? 'Cancelling...' : 'Cancel Order'}
           </Button>
         </div>

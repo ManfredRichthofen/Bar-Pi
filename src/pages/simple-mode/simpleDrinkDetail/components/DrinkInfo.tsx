@@ -25,11 +25,11 @@ const DrinkInfo = ({
       {description && (
         <Card className="bg-muted/50">
           <CardContent className="p-3 sm:p-4">
-            <h2 className="text-sm sm:text-base font-semibold mb-2 sm:mb-3 flex items-center gap-2">
-              <Info className="w-3 h-3 sm:w-4 sm:h-4" />
+            <h2 className="text-base font-semibold mb-2 sm:mb-3 flex items-center gap-2">
+              <Info className="size-6" />
               {t('drink_info.description')}
             </h2>
-            <p className="text-muted-foreground text-xs sm:text-sm leading-relaxed">
+            <p className="text-muted-foreground text-sm leading-relaxed">
               {description}
             </p>
           </CardContent>
@@ -39,11 +39,11 @@ const DrinkInfo = ({
       {/* Additional Info */}
       <Card className="bg-muted/50">
         <CardContent className="p-3 sm:p-4">
-          <h2 className="text-sm sm:text-base font-semibold mb-2 sm:mb-3 flex items-center gap-2">
-            <Clock className="w-3 h-3 sm:w-4 sm:h-4" />
+          <h2 className="text-base font-semibold mb-2 sm:mb-3 flex items-center gap-2">
+            <Clock className="size-6" />
             {t('drink_info.preparation')}
           </h2>
-          <div className="space-y-1.5 sm:space-y-2 text-xs sm:text-sm text-muted-foreground">
+          <div className="space-y-1.5 sm:space-y-2 text-sm text-muted-foreground">
             <div className="flex items-center justify-between">
               <span>{t('drink_info.type')}:</span>
               <span className="font-medium">

@@ -35,7 +35,7 @@ const GeneralSettings = ({
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <SettingsIcon className="w-4 h-4 sm:w-5 sm:h-5" />
+          <SettingsIcon className="size-6" />
           General Settings
         </CardTitle>
       </CardHeader>
@@ -47,12 +47,12 @@ const GeneralSettings = ({
               htmlFor="language-select"
               className="flex items-center gap-2"
             >
-              <Globe className="w-3 h-3 sm:w-4 sm:h-4" />
+              <Globe className="size-6" />
               Language
             </Label>
             <select
               id="language-select"
-              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+              className="min-h-control-md w-full rounded-md border border-border-strong bg-surface px-4 text-base shadow-inset focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-ring disabled:cursor-not-allowed disabled:opacity-50"
               value={currentLanguage}
               onChange={(e) => onLanguageChange(e.target.value)}
             >
@@ -68,23 +68,23 @@ const GeneralSettings = ({
 
           {/* Toggle Switches */}
           <div className="space-y-4">
-            <div className="flex items-center justify-between py-2 px-2 hover:bg-muted/50 rounded-lg transition-colors">
+            <div className="flex items-center justify-between py-3 px-3 min-h-control-md hover:bg-muted/50 rounded-lg transition-colors">
               <Label
                 htmlFor="notifications"
                 className="flex items-center gap-2 cursor-pointer"
               >
-                <Bell className="w-3 h-3 sm:w-4 sm:h-4" />
+                <Bell className="size-6" />
                 Notifications
               </Label>
               <Switch id="notifications" />
             </div>
 
-            <div className="flex items-center justify-between py-2 px-2 hover:bg-muted/50 rounded-lg transition-colors">
+            <div className="flex items-center justify-between py-3 px-3 min-h-control-md hover:bg-muted/50 rounded-lg transition-colors">
               <Label
                 htmlFor="sound-effects"
                 className="flex items-center gap-2 cursor-pointer"
               >
-                <Volume2 className="w-3 h-3 sm:w-4 sm:h-4" />
+                <Volume2 className="size-6" />
                 Sound Effects
               </Label>
               <Switch id="sound-effects" />
@@ -93,8 +93,8 @@ const GeneralSettings = ({
             <Separator />
 
             {/* Advanced Mode Switch */}
-            <div className="flex items-center justify-between py-2 px-2 hover:bg-muted/50 rounded-lg transition-colors">
-              <span className="text-sm font-medium">
+            <div className="flex items-center justify-between py-3 px-3 min-h-control-md hover:bg-muted/50 rounded-lg transition-colors">
+              <span className="text-base font-medium">
                 Switch to Advanced Mode
               </span>
               <Button onClick={onAdvancedModeSwitch} size="default">
@@ -105,9 +105,9 @@ const GeneralSettings = ({
             <Separator />
 
             {/* Logout Button */}
-            <div className="flex items-center justify-between py-2 px-2 hover:bg-muted/50 rounded-lg transition-colors">
+            <div className="flex items-center justify-between py-3 px-3 min-h-control-md hover:bg-muted/50 rounded-lg transition-colors">
               <Label className="flex items-center gap-2">
-                <LogOut className="w-3 h-3 sm:w-4 sm:h-4" />
+                <LogOut className="size-6" />
                 Logout
               </Label>
               <Button variant="destructive" onClick={onLogout}>

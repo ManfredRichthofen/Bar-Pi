@@ -47,9 +47,9 @@ const GlassSelector = ({
           Glass Size
         </Label>
         <div className="flex items-center gap-3 p-4 bg-card rounded-lg border">
-          <GlassWater size={20} className="text-muted-foreground" />
-          <Loader2 className="h-4 w-4 animate-spin" />
-          <span className="text-muted-foreground text-sm sm:text-base">
+          <GlassWater size={24} className="text-muted-foreground" />
+          <Loader2 className="size-6 animate-spin" />
+          <span className="text-muted-foreground text-base">
             Loading glass...
           </span>
         </div>
@@ -74,12 +74,12 @@ const GlassSelector = ({
           {selectedGlass ? (
             <div className="flex items-center justify-between w-full gap-3">
               <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
-                <GlassWater size={18} className="shrink-0 sm:w-5 sm:h-5" />
+                <GlassWater size={24} className="shrink-0 sm:w-5 sm:h-5" />
                 <div className="min-w-0 flex-1">
-                  <div className="font-semibold text-sm sm:text-base truncate">
+                  <div className="font-semibold text-base truncate">
                     {selectedGlass.name}
                   </div>
-                  <div className="text-xs sm:text-sm text-muted-foreground">
+                  <div className="text-sm text-muted-foreground">
                     {getGlassSizeMl(selectedGlass)}ml capacity
                   </div>
                 </div>
@@ -90,8 +90,8 @@ const GlassSelector = ({
             </div>
           ) : (
             <div className="flex items-center gap-2 text-muted-foreground">
-              <GlassWater size={18} />
-              <span className="text-sm sm:text-base">Select a glass</span>
+              <GlassWater size={24} />
+              <span className="text-base">Select a glass</span>
             </div>
           )}
         </Button>
@@ -101,7 +101,7 @@ const GlassSelector = ({
         <DialogContent className="max-w-2xl">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <GlassWater size={20} />
+              <GlassWater size={24} />
               Select Glass Size
             </DialogTitle>
           </DialogHeader>
@@ -145,7 +145,7 @@ const GlassSelector = ({
                       </Badge>
                     </div>
                     {glass.description && (
-                      <p className="text-sm mt-1 opacity-90">
+                      <p className="text-base mt-1 opacity-90">
                         {glass.description}
                       </p>
                     )}
@@ -157,7 +157,7 @@ const GlassSelector = ({
 
           {glasses.length === 0 && (
             <Alert>
-              <GlassWater className="w-4 h-4" />
+              <GlassWater className="size-6" />
               <AlertDescription>No glasses available</AlertDescription>
             </Alert>
           )}

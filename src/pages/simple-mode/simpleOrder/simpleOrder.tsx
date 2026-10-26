@@ -44,12 +44,12 @@ const SimpleOrder = () => {
             className="rounded-xl transition-all duration-200"
             onClick={() => navigate({ to: '/simple/drinks' })}
           >
-            <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5" />
+            <ArrowLeft className="size-6" />
           </Button>
           <h1 className="text-base sm:text-lg font-bold truncate flex-1 mx-2 sm:mx-3 text-center">
             Order Drink
           </h1>
-          <div className="w-8 sm:w-10" />
+          <div className="size-control-md" />
         </div>
       </div>
 
@@ -59,18 +59,18 @@ const SimpleOrder = () => {
             <Card className="sm:col-span-2 lg:col-span-5 lg:row-span-2 bg-gradient-to-br from-primary/10 via-primary/5 to-background border-primary/20 hover:shadow-lg hover:border-primary/30 transition-all duration-300">
               <CardContent className="p-5 sm:p-6 lg:p-8 h-full flex flex-col justify-center gap-4">
                 <div className="flex items-center gap-2 mb-2">
-                  <BeakerIcon className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
+                  <BeakerIcon className="size-6 text-primary" />
                   <h3 className="font-bold text-lg sm:text-xl lg:text-2xl truncate flex-1">
                     {recipe.name}
                   </h3>
                   {recipe.alcoholic && (
-                    <Badge variant="destructive" className="shrink-0 text-xs">
+                    <Badge variant="destructive" className="shrink-0 text-base">
                       21+
                     </Badge>
                   )}
                 </div>
                 {recipe.description && (
-                  <p className="text-sm sm:text-base text-muted-foreground line-clamp-2 sm:line-clamp-3">
+                  <p className="text-base text-muted-foreground line-clamp-2 sm:line-clamp-3">
                     {recipe.description}
                   </p>
                 )}
@@ -81,12 +81,12 @@ const SimpleOrder = () => {
                   onClick={handleMakeDrink}
                   disabled={!canOrderDrink || loading}
                 >
-                  {loading && <Spinner className="w-5 h-5" />}
-                  {!loading && <BeakerIcon className="w-5 h-5 sm:w-6 sm:h-6" />}
+                  {loading && <Spinner className="size-6" />}
+                  {!loading && <BeakerIcon className="size-6" />}
                   {loading ? 'Making...' : 'Make Drink'}
                 </Button>
                 {!canOrderDrink && !loading && !checking && (
-                  <p className="text-sm text-error text-center font-medium">
+                  <p className="text-base text-error text-center font-medium">
                     {feasibilityResult?.requiredIngredients?.some(
                       (item) => item.amountMissing > 0,
                     )
@@ -112,10 +112,10 @@ const SimpleOrder = () => {
             <Card className="sm:col-span-1 lg:col-span-3 lg:row-span-3 hover:shadow-md hover:border-primary/20 transition-all duration-300">
               <CardContent className="p-4 sm:p-5 lg:p-6 h-full flex flex-col">
                 <div className="flex items-center gap-2 mb-4">
-                  <BeakerIcon className="w-5 h-5 text-primary" />
+                  <BeakerIcon className="size-6 text-primary" />
                   <h3 className="font-bold text-base sm:text-lg">Recipe</h3>
                 </div>
-                <ul className="space-y-2 text-sm sm:text-base flex-1 overflow-y-auto max-h-[400px] lg:max-h-none">
+                <ul className="space-y-2 text-base flex-1 overflow-y-auto max-h-[400px] lg:max-h-none">
                   {recipeIngredients.map((item, index) => (
                     <li
                       key={index}
@@ -135,7 +135,7 @@ const SimpleOrder = () => {
               <Card className="sm:col-span-2 lg:col-span-9 hover:shadow-md hover:border-primary/20 transition-all duration-300">
                 <CardContent className="p-4 sm:p-5 lg:p-6">
                   <div className="flex items-center gap-2 mb-4">
-                    <Info className="w-5 h-5 text-primary" />
+                    <Info className="size-6 text-primary" />
                     <h3 className="font-bold text-base sm:text-lg">
                       Ingredient Availability
                     </h3>
@@ -164,7 +164,7 @@ const SimpleOrder = () => {
           type="button"
           variant="ghost"
           size="lg"
-          className="w-full h-12 sm:h-14 text-sm sm:text-base font-semibold"
+          className="w-full h-12 sm:h-14 text-base font-semibold"
           onClick={() => navigate({ to: '/simple/drinks' })}
         >
           Back to Drinks

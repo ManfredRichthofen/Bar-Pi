@@ -105,7 +105,7 @@ const SimpleOrderStatus = () => {
               className="rounded-xl"
               onClick={() => navigate({ to: '/simple/drinks' })}
             >
-              <ArrowLeft className="w-5 h-5" />
+              <ArrowLeft className="size-6" />
             </Button>
             <h1 className="text-lg font-bold">Order Status</h1>
             <div className="w-10" />
@@ -146,7 +146,7 @@ const SimpleOrderStatus = () => {
             className="rounded-xl"
             onClick={() => navigate({ to: '/simple/drinks' })}
           >
-            <ArrowLeft className="w-5 h-5" />
+            <ArrowLeft className="size-6" />
           </Button>
           <h1 className="text-lg font-bold">Order Status</h1>
           <div className="w-10" />
@@ -176,7 +176,7 @@ const SimpleOrderStatus = () => {
             <CardContent className="space-y-4">
               {/* Progress Bar */}
               <div className="space-y-2">
-                <div className="flex justify-between text-sm">
+                <div className="flex justify-between text-base">
                   <span className="text-muted-foreground">Progress</span>
                   <span className="font-semibold">
                     {Math.round(progress.progress)}%
@@ -198,7 +198,7 @@ const SimpleOrderStatus = () => {
                           (ing: any, idx: number) => (
                             <li
                               key={idx}
-                              className="flex items-center gap-2 text-sm"
+                              className="flex items-center gap-2 text-base"
                             >
                               <div className="w-2 h-2 rounded-full bg-accent" />
                               <span className="font-medium">{ing.name}</span>
@@ -217,7 +217,7 @@ const SimpleOrderStatus = () => {
                       >
                         {confirming ? (
                           <>
-                            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                            <Loader2 className="size-6 mr-2 animate-spin" />
                             Confirming...
                           </>
                         ) : (
@@ -234,7 +234,7 @@ const SimpleOrderStatus = () => {
                   <h3 className="font-semibold mb-2 text-sm text-muted-foreground">
                     About
                   </h3>
-                  <p className="text-sm">{progress.recipe.description}</p>
+                  <p className="text-base">{progress.recipe.description}</p>
                 </div>
               )}
 
@@ -250,7 +250,7 @@ const SimpleOrderStatus = () => {
                         (ing: any, idx: number) => (
                           <div
                             key={idx}
-                            className="flex items-center gap-2 text-sm bg-muted/50 rounded-lg p-2"
+                            className="flex items-center gap-2 text-base bg-muted/50 rounded-lg p-2"
                           >
                             <div className="w-1.5 h-1.5 rounded-full bg-primary" />
                             <span className="truncate">{ing.name}</span>
@@ -273,7 +273,7 @@ const SimpleOrderStatus = () => {
                   >
                     {canceling ? (
                       <>
-                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        <Loader2 className="size-6 mr-2 animate-spin" />
                         Canceling...
                       </>
                     ) : (

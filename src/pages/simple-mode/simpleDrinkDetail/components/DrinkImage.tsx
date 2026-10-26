@@ -28,7 +28,7 @@ const DrinkImage = ({ recipeId, hasImage, name }: DrinkImageProps) => {
         <div className="w-full h-full bg-gradient-to-br from-base-200 to-base-300 flex items-center justify-center">
           <div className="text-center p-4">
             <Info className="w-10 h-10 sm:w-12 sm:h-12 text-base-content/40 mx-auto mb-2" />
-            <span className="text-base-content/60 font-medium text-sm sm:text-base">
+            <span className="text-base-content/60 font-medium text-base">
               {error ? 'Failed to load image' : 'No image available'}
             </span>
           </div>

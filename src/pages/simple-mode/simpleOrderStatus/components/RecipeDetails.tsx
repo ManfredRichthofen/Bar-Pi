@@ -26,7 +26,7 @@ const RecipeDetails = ({ recipe }: RecipeDetailsProps) => {
         >
           <CardContent className="p-4 sm:p-6">
             <div className="flex items-center gap-2 mb-4">
-              <ChefHat className="w-5 h-5 text-primary" />
+              <ChefHat className="size-6 text-primary" />
               <h3 className="text-base sm:text-lg font-bold">Ingredients</h3>
             </div>
             <div className="space-y-2">
@@ -35,10 +35,10 @@ const RecipeDetails = ({ recipe }: RecipeDetailsProps) => {
                   key={`${ingredient.name}-${index}`}
                   className="flex justify-between items-center p-3 bg-muted/50 rounded-lg hover:bg-muted transition-colors"
                 >
-                  <span className="font-medium text-sm sm:text-base min-w-0 break-words flex-1 pr-2">
+                  <span className="font-medium text-base min-w-0 break-words flex-1 pr-2">
                     {ingredient.name}
                   </span>
-                  <span className="text-xs sm:text-sm text-muted-foreground shrink-0 font-semibold">
+                  <span className="text-sm text-muted-foreground shrink-0 font-semibold">
                     {ingredient.amount} {ingredient.unit}
                   </span>
                 </div>
@@ -53,12 +53,12 @@ const RecipeDetails = ({ recipe }: RecipeDetailsProps) => {
         <Card className="md:col-span-1">
           <CardContent className="p-4 sm:p-6">
             <div className="flex items-center gap-2 mb-4">
-              <Info className="w-5 h-5 text-primary" />
+              <Info className="size-6 text-primary" />
               <h3 className="text-base sm:text-lg font-bold">
                 About This Drink
               </h3>
             </div>
-            <p className="text-muted-foreground text-sm sm:text-base leading-relaxed">
+            <p className="text-muted-foreground text-base leading-relaxed">
               {recipe.description}
             </p>
           </CardContent>

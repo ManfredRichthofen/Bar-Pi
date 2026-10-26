@@ -33,10 +33,10 @@ const IngredientRequirements = ({
       {automaticIngredients.length > 0 && (
         <div>
           <div className="flex items-center gap-2 mb-3 sm:mb-4">
-            <h3 className="font-semibold text-sm sm:text-base">
+            <h3 className="font-semibold text-base">
               Automated Ingredients
             </h3>
-            <CheckCircle className="w-4 h-4 text-success" />
+            <CheckCircle className="size-6 text-success" />
           </div>
           <div className="space-y-2 sm:space-y-3">
             {automaticIngredients.map((item) => (
@@ -49,13 +49,13 @@ const IngredientRequirements = ({
                 }`}
               >
                 <div className="flex-1 pr-2 sm:pr-3 min-w-0">
-                  <span className="break-words font-medium text-sm sm:text-base block">
+                  <span className="break-words font-medium text-base block">
                     {item.ingredient.name}
                   </span>
                   {(item.amountMissing > 0 || !item.ingredient.onPump) && (
                     <div className="flex items-center gap-1 mt-1">
-                      <XCircle className="w-3 h-3 text-error shrink-0" />
-                      <span className="text-error text-xs">
+                      <XCircle className="size-4 text-error shrink-0" />
+                      <span className="text-error text-base">
                         {item.amountMissing > 0
                           ? `Missing: ${item.amountMissing} ${item.ingredient.unit}`
                           : 'Not on pump system'}
@@ -64,7 +64,7 @@ const IngredientRequirements = ({
                   )}
                 </div>
                 <div className="text-right shrink-0">
-                  <span className="font-semibold whitespace-nowrap text-sm sm:text-base">
+                  <span className="font-semibold whitespace-nowrap text-base">
                     {item.amountRequired} {item.ingredient.unit}
                   </span>
                 </div>
@@ -77,7 +77,7 @@ const IngredientRequirements = ({
       {manualIngredients.length > 0 && (
         <div>
           <div className="flex items-center gap-2 mb-3 sm:mb-4">
-            <h3 className="font-semibold text-sm sm:text-base">
+            <h3 className="font-semibold text-base">
               Manual Ingredients
             </h3>
             <AlertCircle className="text-warning" size={16} />
@@ -93,18 +93,18 @@ const IngredientRequirements = ({
                 }`}
               >
                 <div className="flex-1 pr-2 sm:pr-3 min-w-0">
-                  <span className="break-words font-medium text-sm sm:text-base block">
+                  <span className="break-words font-medium text-base block">
                     {item.ingredient.name}
                   </span>
                   {!item.ingredient.inBar && (
                     <div className="flex items-center gap-1 mt-1">
-                      <AlertCircle className="w-3 h-3 text-warning shrink-0" />
-                      <span className="text-warning text-xs">Add manually</span>
+                      <AlertCircle className="size-4 text-warning shrink-0" />
+                      <span className="text-warning text-base">Add manually</span>
                     </div>
                   )}
                 </div>
                 <div className="text-right shrink-0">
-                  <span className="font-semibold whitespace-nowrap text-sm sm:text-base">
+                  <span className="font-semibold whitespace-nowrap text-base">
                     {item.amountRequired} {item.ingredient.unit}
                   </span>
                 </div>
@@ -118,8 +118,8 @@ const IngredientRequirements = ({
         automaticIngredients.length === 0 &&
         manualIngredients.length === 0 && (
           <Alert className="bg-accent/10 border-accent/30">
-            <AlertCircle className="h-4 w-4 text-accent-foreground" />
-            <AlertDescription className="text-sm sm:text-base">
+            <AlertCircle className="size-6 text-accent-foreground" />
+            <AlertDescription className="text-base">
               Could not determine ingredient types. Please check the recipe
               configuration.
             </AlertDescription>
