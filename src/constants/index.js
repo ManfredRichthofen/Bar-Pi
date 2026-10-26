@@ -12,6 +12,7 @@ export const API_PATHS = {
   GLASS: 'api/glass/',
   CATEGORY: 'api/category/',
   GPIO: 'api/gpio/',
+  STATISTICS: 'api/statistics',
   WEBSOCKET: '/websocket',
 };
 

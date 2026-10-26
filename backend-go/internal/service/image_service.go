@@ -5,7 +5,9 @@ import (
 	"errors"
 	"fmt"
 	"image"
+	_ "image/gif"
 	"image/jpeg"
+	_ "image/png"
 	"os"
 	"path/filepath"
 )
@@ -17,35 +19,28 @@ type ImageService struct {
 
 // NewImageService creates a new image service
 func NewImageService(storageDir string) *ImageService {
-	// Create storage directory if it doesn't exist
-	os.MkdirAll(storageDir, 0755)
+	_ = os.MkdirAll(storageDir, 0755)
 	return &ImageService{storageDir: storageDir}
 }
 
 // SaveImage saves an image file and returns the filename
 func (s *ImageService) SaveImage(data []byte, entityType string, entityID int64) (string, error) {
-	// Decode image to validate format
 	img, _, err := image.Decode(bytes.NewReader(data))
 	if err != nil {
 		return "", errors.New("invalid image format")
 	}
 
-	// For now, save without resizing (can add resize later if needed)
-	resized := img
+	safeEntityType := filepath.Base(entityType)
+	filename := fmt.Sprintf("%s_%d.jpg", safeEntityType, entityID)
+	fullPath := filepath.Join(s.storageDir, filename)
 
-	// Generate filename
-	filename := fmt.Sprintf("%s_%d.jpg", entityType, entityID)
-	filepath := filepath.Join(s.storageDir, filename)
-
-	// Save as JPEG
-	file, err := os.Create(filepath)
+	file, err := os.Create(fullPath)
 	if err != nil {
 		return "", fmt.Errorf("failed to create file: %w", err)
 	}
 	defer file.Close()
 
-	// Encode as JPEG with quality 85
-	if err := jpeg.Encode(file, resized, &jpeg.Options{Quality: 85}); err != nil {
+	if err := jpeg.Encode(file, img, &jpeg.Options{Quality: 85}); err != nil {
 		return "", fmt.Errorf("failed to encode image: %w", err)
 	}
 
@@ -54,9 +49,13 @@ func (s *ImageService) SaveImage(data []byte, entityType string, entityID int64)
 
 // GetImage retrieves an image by filename
 func (s *ImageService) GetImage(filename string) ([]byte, error) {
-	filepath := filepath.Join(s.storageDir, filename)
+	safeFilename := filepath.Base(filename)
+	if safeFilename == "." || safeFilename == "/" || safeFilename == "" {
+		return nil, errors.New("invalid filename")
+	}
+	fullPath := filepath.Join(s.storageDir, safeFilename)
 
-	data, err := os.ReadFile(filepath)
+	data, err := os.ReadFile(fullPath)
 	if err != nil {
 		if os.IsNotExist(err) {
 			return nil, nil
@@ -69,9 +68,13 @@ func (s *ImageService) GetImage(filename string) ([]byte, error) {
 
 // DeleteImage deletes an image file
 func (s *ImageService) DeleteImage(filename string) error {
-	filepath := filepath.Join(s.storageDir, filename)
+	safeFilename := filepath.Base(filename)
+	if safeFilename == "." || safeFilename == "/" || safeFilename == "" {
+		return errors.New("invalid filename")
+	}
+	fullPath := filepath.Join(s.storageDir, safeFilename)
 
-	err := os.Remove(filepath)
+	err := os.Remove(fullPath)
 	if err != nil && !os.IsNotExist(err) {
 		return fmt.Errorf("failed to delete image: %w", err)
 	}
@@ -86,7 +89,6 @@ func (s *ImageService) ValidateImageFormat(data []byte) (string, error) {
 		return "", errors.New("invalid image format")
 	}
 
-	// Only allow common formats
 	switch format {
 	case "jpeg", "jpg", "png", "gif":
 		return format, nil

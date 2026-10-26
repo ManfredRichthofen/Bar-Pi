@@ -28,6 +28,11 @@ func (s *IngredientService) GetByID(id int64) (*models.Ingredient, error) {
 	return s.repo.FindByID(id)
 }
 
+// GetBoostable returns all boostable ingredients (automated with alcohol > 0)
+func (s *IngredientService) GetBoostable() ([]models.Ingredient, error) {
+	return s.repo.FindBoostable()
+}
+
 // GetByFilter returns ingredients matching the provided filters
 func (s *IngredientService) GetByFilter(
 	autocomplete string,
@@ -58,12 +63,18 @@ func (s *IngredientService) GetInBar() ([]models.Ingredient, error) {
 
 // Create creates a new ingredient
 func (s *IngredientService) Create(ingredient *models.Ingredient) error {
-	// Validate ingredient
+	ingredient.DType = models.FrontendTypeToDType(ingredient.DType)
+	if ingredient.DType == "AutomatedIngredient" && ingredient.Unit == "" {
+		ingredient.Unit = "ml"
+	}
+	if ingredient.DType == "ManualIngredient" && ingredient.Unit == "" {
+		ingredient.Unit = "ml"
+	}
+
 	if err := s.validateIngredient(ingredient); err != nil {
 		return err
 	}
 
-	// Check for duplicate name
 	existing, err := s.repo.FindByName(ingredient.Name)
 	if err != nil {
 		return fmt.Errorf("failed to check for duplicate: %w", err)
@@ -72,17 +83,29 @@ func (s *IngredientService) Create(ingredient *models.Ingredient) error {
 		return errors.New("ingredient with this name already exists")
 	}
 
-	return s.repo.Create(ingredient)
+	if err := s.repo.Create(ingredient); err != nil {
+		return err
+	}
+	if updated, err := s.repo.FindByID(ingredient.ID); err == nil && updated != nil {
+		*ingredient = *updated
+	}
+	return nil
 }
 
 // Update updates an existing ingredient
 func (s *IngredientService) Update(ingredient *models.Ingredient) error {
-	// Validate ingredient
+	ingredient.DType = models.FrontendTypeToDType(ingredient.DType)
+	if ingredient.DType == "AutomatedIngredient" && ingredient.Unit == "" {
+		ingredient.Unit = "ml"
+	}
+	if ingredient.DType == "ManualIngredient" && ingredient.Unit == "" {
+		ingredient.Unit = "ml"
+	}
+
 	if err := s.validateIngredient(ingredient); err != nil {
 		return err
 	}
 
-	// Check if ingredient exists
 	existing, err := s.repo.FindByID(ingredient.ID)
 	if err != nil {
 		return fmt.Errorf("failed to find ingredient: %w", err)
@@ -91,7 +114,6 @@ func (s *IngredientService) Update(ingredient *models.Ingredient) error {
 		return errors.New("ingredient not found")
 	}
 
-	// Check for duplicate name (excluding current ingredient)
 	duplicate, err := s.repo.FindByName(ingredient.Name)
 	if err != nil {
 		return fmt.Errorf("failed to check for duplicate: %w", err)
@@ -100,12 +122,21 @@ func (s *IngredientService) Update(ingredient *models.Ingredient) error {
 		return errors.New("ingredient with this name already exists")
 	}
 
-	return s.repo.Update(ingredient)
+	if ingredient.InBar == nil {
+		ingredient.InBar = existing.InBar
+	}
+
+	if err := s.repo.Update(ingredient); err != nil {
+		return err
+	}
+	if updated, err := s.repo.FindByID(ingredient.ID); err == nil && updated != nil {
+		*ingredient = *updated
+	}
+	return nil
 }
 
 // Delete deletes an ingredient by ID
 func (s *IngredientService) Delete(id int64) error {
-	// Check if ingredient exists
 	existing, err := s.repo.FindByID(id)
 	if err != nil {
 		return fmt.Errorf("failed to find ingredient: %w", err)
@@ -119,7 +150,6 @@ func (s *IngredientService) Delete(id int64) error {
 
 // SetInBar updates the inBar status of an ingredient
 func (s *IngredientService) SetInBar(id int64, inBar bool) error {
-	// Check if ingredient exists
 	existing, err := s.repo.FindByID(id)
 	if err != nil {
 		return fmt.Errorf("failed to find ingredient: %w", err)
@@ -141,7 +171,6 @@ func (s *IngredientService) validateIngredient(ingredient *models.Ingredient) er
 		return errors.New("ingredient type (dtype) is required")
 	}
 
-	// Validate dtype
 	validTypes := map[string]bool{
 		"ManualIngredient":    true,
 		"AutomatedIngredient": true,
@@ -151,25 +180,24 @@ func (s *IngredientService) validateIngredient(ingredient *models.Ingredient) er
 		return fmt.Errorf("invalid ingredient type: %s", ingredient.DType)
 	}
 
-	// Validate alcohol content
 	if ingredient.AlcoholContent != nil {
 		if *ingredient.AlcoholContent < 0 || *ingredient.AlcoholContent > 100 {
 			return errors.New("alcohol content must be between 0 and 100")
 		}
 	}
 
-	// Validate automated ingredient requirements
 	if ingredient.DType == "AutomatedIngredient" {
 		if ingredient.BottleSize == nil {
-			return errors.New("bottle size is required for automated ingredients")
+			defaultBottle := 750
+			ingredient.BottleSize = &defaultBottle
 		}
 		if ingredient.PumpTimeMultiplier == nil {
-			return errors.New("pump time multiplier is required for automated ingredients")
+			defaultMult := 1.0
+			ingredient.PumpTimeMultiplier = &defaultMult
 		}
 	}
 
-	// Prevent self-referencing parent group
-	if ingredient.ParentGroupID != nil && *ingredient.ParentGroupID == ingredient.ID {
+	if ingredient.ParentGroupID != nil && ingredient.ID != 0 && *ingredient.ParentGroupID == ingredient.ID {
 		return errors.New("ingredient cannot be its own parent group")
 	}
 

@@ -53,7 +53,11 @@ func main() {
 	defer cancel()
 
 	if err := srv.Shutdown(ctx); err != nil {
-		log.Fatalf("Server forced to shutdown: %v", err)
+		log.Printf("Server forced to shutdown: %v", err)
+	}
+
+	if sqlDB, err := db.DB(); err == nil && sqlDB != nil {
+		_ = sqlDB.Close()
 	}
 
 	log.Println("Server exited")

@@ -9,3 +9,4 @@ export { default as PumpService } from './pump.service';
 export { default as PumpSettingsService } from './pumpsettings.service';
 export { default as GlassService } from './glass.service';
 export { default as GpioService } from './gpio.service';
+export { default as StatisticsService } from './statistics.service';

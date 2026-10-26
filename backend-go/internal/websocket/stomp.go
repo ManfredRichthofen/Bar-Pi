@@ -27,6 +27,7 @@ type StompClient struct {
 	subscriptions map[string]*Subscription // subscription ID -> Subscription
 	sessionID     string
 	username      string
+	closed        bool
 	mu            sync.RWMutex
 	send          chan []byte
 }
@@ -53,10 +54,8 @@ func NewStompServer(hub *Hub) *StompServer {
 }
 
 func (s *StompServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	// Check if this is a SockJS request
 	path := r.URL.Path
 	if strings.Contains(path, "/websocket") && !strings.HasSuffix(path, "/websocket") {
-		// SockJS info or iframe request
 		if strings.HasSuffix(path, "/info") {
 			s.handleSockJSInfo(w, r)
 			return
@@ -87,7 +86,7 @@ func (s *StompServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	defer func() {
 		s.mu.Lock()
 		delete(s.clients, client)
-		// Clean up all subscriptions
+		client.mu.Lock()
 		for _, sub := range client.subscriptions {
 			if subscribers, ok := s.topics[sub.Destination]; ok {
 				delete(subscribers, client)
@@ -96,12 +95,13 @@ func (s *StompServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 				}
 			}
 		}
-		s.mu.Unlock()
+		client.closed = true
 		close(client.send)
+		client.mu.Unlock()
+		s.mu.Unlock()
 		conn.Close()
 	}()
 
-	// Start write pump
 	go client.writePump()
 
 	s.handleClient(client)
@@ -123,10 +123,8 @@ func (s *StompServer) handleClient(client *StompClient) {
 			break
 		}
 
-		// Handle SockJS envelope if present
 		data := string(message)
 		if strings.HasPrefix(data, "[") && strings.HasSuffix(data, "]") {
-			// SockJS array format
 			var messages []string
 			if err := json.Unmarshal(message, &messages); err == nil {
 				for _, msg := range messages {
@@ -162,12 +160,8 @@ func (s *StompServer) handleFrame(client *StompClient, frame *StompFrame) {
 }
 
 func (s *StompServer) handleConnect(client *StompClient, frame *StompFrame) {
-	// Extract username from Authorization header if present
 	if authHeader, ok := frame.Headers["Authorization"]; ok {
-		// Simple extraction - in production, validate JWT token
 		if strings.HasPrefix(authHeader, "Bearer ") {
-			// For now, just mark as authenticated
-			// In production, decode JWT and extract username
 			client.username = "authenticated-user"
 		}
 	}
@@ -181,7 +175,7 @@ func (s *StompServer) handleConnect(client *StompClient, frame *StompFrame) {
 			"heart-beat": "0,0",
 		},
 	}
-	client.sendFrame(response)
+	_ = client.sendFrame(response)
 	log.Printf("Client connected with session: %s", client.sessionID)
 }
 
@@ -194,7 +188,6 @@ func (s *StompServer) handleSubscribe(client *StompClient, frame *StompFrame) {
 		return
 	}
 
-	// Create subscription object
 	sub := &Subscription{
 		ID:          id,
 		Destination: destination,
@@ -253,55 +246,83 @@ func (s *StompServer) handleSend(client *StompClient, frame *StompFrame) {
 	s.Broadcast(destination, frame.Body)
 }
 
-// Broadcast sends a message to all subscribers of a destination
+// Broadcast sends a message to all subscribers of a destination (and its /user/ prefixed variant)
 func (s *StompServer) Broadcast(destination string, message string) {
-	s.mu.RLock()
-	subscribers, ok := s.topics[destination]
-	s.mu.RUnlock()
-
-	if !ok || len(subscribers) == 0 {
-		return
+	destinations := []string{destination}
+	if !strings.HasPrefix(destination, "/user") {
+		destinations = append(destinations, "/user"+destination)
 	}
 
-	for client, sub := range subscribers {
+	type target struct {
+		client *StompClient
+		subID  string
+		dest   string
+	}
+	var targets []target
+
+	s.mu.RLock()
+	for _, dest := range destinations {
+		if subscribers, ok := s.topics[dest]; ok {
+			for client, sub := range subscribers {
+				targets = append(targets, target{
+					client: client,
+					subID:  sub.ID,
+					dest:   dest,
+				})
+			}
+		}
+	}
+	s.mu.RUnlock()
+
+	for _, t := range targets {
 		frame := &StompFrame{
 			Command: "MESSAGE",
 			Headers: map[string]string{
-				"destination":  destination,
+				"destination":  t.dest,
 				"message-id":   generateMessageID(),
-				"subscription": sub.ID, // Use the actual subscription ID
+				"subscription": t.subID,
 			},
 			Body: message,
 		}
-		go client.sendFrame(frame)
+		_ = t.client.sendFrame(frame)
 	}
 }
 
 // BroadcastToUser sends a message to a specific user's destination
 func (s *StompServer) BroadcastToUser(username string, destination string, message string) {
-	// Convert /user/topic/xxx to /topic/xxx for matching
-	userDestination := "/user" + destination
-
-	s.mu.RLock()
-	subscribers, ok := s.topics[userDestination]
-	s.mu.RUnlock()
-
-	if !ok || len(subscribers) == 0 {
-		return
+	userDestination := destination
+	if !strings.HasPrefix(destination, "/user") {
+		userDestination = "/user" + destination
 	}
 
-	for client, sub := range subscribers {
-		// In production, check if client.username matches username
+	type target struct {
+		client *StompClient
+		subID  string
+	}
+	var targets []target
+
+	s.mu.RLock()
+	if subscribers, ok := s.topics[userDestination]; ok {
+		for client, sub := range subscribers {
+			targets = append(targets, target{
+				client: client,
+				subID:  sub.ID,
+			})
+		}
+	}
+	s.mu.RUnlock()
+
+	for _, t := range targets {
 		frame := &StompFrame{
 			Command: "MESSAGE",
 			Headers: map[string]string{
 				"destination":  userDestination,
 				"message-id":   generateMessageID(),
-				"subscription": sub.ID,
+				"subscription": t.subID,
 			},
 			Body: message,
 		}
-		go client.sendFrame(frame)
+		_ = t.client.sendFrame(frame)
 	}
 }
 
@@ -380,6 +401,12 @@ func (c *StompClient) sendFrame(frame *StompFrame) error {
 	}
 	buf.WriteString("\x00")
 
+	c.mu.RLock()
+	defer c.mu.RUnlock()
+	if c.closed {
+		return fmt.Errorf("client closed")
+	}
+
 	select {
 	case c.send <- []byte(buf.String()):
 		return nil
@@ -399,17 +426,17 @@ func (c *StompClient) writePump() {
 		select {
 		case message, ok := <-c.send:
 			if !ok {
-				c.conn.WriteMessage(websocket.CloseMessage, []byte{})
+				_ = c.conn.WriteMessage(websocket.CloseMessage, []byte{})
 				return
 			}
 
-			c.conn.SetWriteDeadline(time.Now().Add(10 * time.Second))
+			_ = c.conn.SetWriteDeadline(time.Now().Add(10 * time.Second))
 			if err := c.conn.WriteMessage(websocket.TextMessage, message); err != nil {
 				return
 			}
 
 		case <-ticker.C:
-			c.conn.SetWriteDeadline(time.Now().Add(10 * time.Second))
+			_ = c.conn.SetWriteDeadline(time.Now().Add(10 * time.Second))
 			if err := c.conn.WriteMessage(websocket.PingMessage, nil); err != nil {
 				return
 			}
@@ -419,20 +446,24 @@ func (c *StompClient) writePump() {
 
 func generateSessionID() string {
 	b := make([]byte, 16)
-	rand.Read(b)
+	_, _ = rand.Read(b)
 	return fmt.Sprintf("session-%s", hex.EncodeToString(b))
 }
 
 func generateMessageID() string {
 	b := make([]byte, 16)
-	rand.Read(b)
+	_, _ = rand.Read(b)
 	return fmt.Sprintf("msg-%s-%d", hex.EncodeToString(b), time.Now().UnixNano())
 }
 
 // handleSockJSInfo handles SockJS info requests
 func (s *StompServer) handleSockJSInfo(w http.ResponseWriter, r *http.Request) {
+	origin := r.Header.Get("Origin")
+	if origin == "" {
+		origin = "*"
+	}
 	w.Header().Set("Content-Type", "application/json")
-	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Origin", origin)
 	w.Header().Set("Access-Control-Allow-Credentials", "true")
 
 	info := map[string]any{
@@ -442,12 +473,12 @@ func (s *StompServer) handleSockJSInfo(w http.ResponseWriter, r *http.Request) {
 		"entropy":       generateEntropy(),
 	}
 
-	json.NewEncoder(w).Encode(info)
+	_ = json.NewEncoder(w).Encode(info)
 }
 
 func generateEntropy() int64 {
 	b := make([]byte, 4)
-	rand.Read(b)
+	_, _ = rand.Read(b)
 	var entropy int64
 	for _, v := range b {
 		entropy = (entropy << 8) | int64(v)

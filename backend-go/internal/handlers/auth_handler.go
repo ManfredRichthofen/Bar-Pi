@@ -1,8 +1,8 @@
 package handlers
 
 import (
-	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/ManfredRichthofen/Bar-Pi/backend-go/internal/auth"
 	"github.com/ManfredRichthofen/Bar-Pi/backend-go/internal/middleware"
@@ -36,30 +36,29 @@ type LoginResponse struct {
 }
 
 type UserResponse struct {
-	ID       int64  `json:"id"`
-	Username string `json:"username"`
-	Role     string `json:"role"`
+	ID               int64  `json:"id"`
+	Username         string `json:"username"`
+	Role             string `json:"role"`
+	AdminLevel       int    `json:"adminLevel"`
+	AccountNonLocked bool   `json:"accountNonLocked"`
 }
 
 func (h *AuthHandler) Login(c *gin.Context) {
 	var req LoginRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error(), "message": err.Error()})
 		return
 	}
 
-	fmt.Printf("Login attempt - Username: '%s', Password length: %d\n", req.Username, len(req.Password))
-
 	user, err := h.userService.Authenticate(req.Username, req.Password)
 	if err != nil {
-		fmt.Printf("Authentication failed for user '%s': %v\n", req.Username, err)
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid credentials"})
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid credentials", "message": "Invalid credentials"})
 		return
 	}
 
 	token, expiresAt, err := h.jwtService.GenerateToken(user, req.Remember)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate token"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate token", "message": "Failed to generate token"})
 		return
 	}
 
@@ -68,36 +67,45 @@ func (h *AuthHandler) Login(c *gin.Context) {
 		TokenExpiration: expiresAt.UnixMilli(),
 		TokenType:       "Bearer",
 		User: UserResponse{
-			ID:       user.ID,
-			Username: user.Username,
-			Role:     string(user.Role),
+			ID:               user.ID,
+			Username:         user.Username,
+			Role:             string(user.Role),
+			AdminLevel:       user.Role.Level(),
+			AccountNonLocked: user.IsAccountNonLocked,
 		},
 	})
 }
 
 func (h *AuthHandler) RefreshToken(c *gin.Context) {
 	authHeader := c.GetHeader("Authorization")
-	if authHeader == "" {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Authorization header required"})
+	if authHeader == "" || !strings.HasPrefix(authHeader, "Bearer ") {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Authorization header required", "message": "Authorization header required"})
 		return
 	}
 
-	tokenString := authHeader[len("Bearer "):]
+	tokenString := strings.TrimPrefix(authHeader, "Bearer ")
 	newToken, expiresAt, err := h.jwtService.RefreshToken(tokenString)
 	if err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid or expired token"})
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid or expired token", "message": "Invalid or expired token"})
 		return
 	}
 
-	claims, _ := middleware.GetClaims(c)
+	claims, ok := middleware.GetClaims(c)
+	if !ok {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized", "message": "Unauthorized"})
+		return
+	}
+
 	c.JSON(http.StatusOK, LoginResponse{
 		AccessToken:     newToken,
 		TokenExpiration: expiresAt.UnixMilli(),
 		TokenType:       "Bearer",
 		User: UserResponse{
-			ID:       claims.UserID,
-			Username: claims.Username,
-			Role:     string(claims.Role),
+			ID:               claims.UserID,
+			Username:         claims.Username,
+			Role:             string(claims.Role),
+			AdminLevel:       claims.Role.Level(),
+			AccountNonLocked: true,
 		},
 	})
 }

@@ -1,6 +1,7 @@
 import { useLocation, useNavigate } from '@tanstack/react-router';
 import {
   ArrowLeftToLine,
+  BarChart3,
   BookText,
   FlaskConical,
   Gauge,
@@ -83,6 +84,11 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed, onCollapse }) => {
           key: '/pumps',
           icon: <Gauge size={16} />,
           label: 'Pumps',
+        },
+        {
+          key: '/statistics',
+          icon: <BarChart3 size={16} />,
+          label: 'Statistics',
         },
       ],
     },

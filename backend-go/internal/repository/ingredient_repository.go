@@ -2,6 +2,7 @@ package repository
 
 import (
 	"errors"
+	"strings"
 
 	"github.com/ManfredRichthofen/Bar-Pi/backend-go/internal/models"
 	"gorm.io/gorm"
@@ -13,6 +14,25 @@ type IngredientRepository struct {
 
 func NewIngredientRepository(db *gorm.DB) *IngredientRepository {
 	return &IngredientRepository{db: db}
+}
+
+func (r *IngredientRepository) populateOnPump(ingredients []models.Ingredient) {
+	if len(ingredients) == 0 {
+		return
+	}
+	var pumpIngIDs []int64
+	r.db.Model(&models.Pump{}).
+		Where("current_ingredient_id IS NOT NULL").
+		Pluck("current_ingredient_id", &pumpIngIDs)
+
+	onPumpSet := make(map[int64]bool, len(pumpIngIDs))
+	for _, id := range pumpIngIDs {
+		onPumpSet[id] = true
+	}
+
+	for i := range ingredients {
+		ingredients[i].OnPump = onPumpSet[ingredients[i].ID]
+	}
 }
 
 func (r *IngredientRepository) Create(ingredient *models.Ingredient) error {
@@ -28,20 +48,43 @@ func (r *IngredientRepository) FindByID(id int64) (*models.Ingredient, error) {
 		}
 		return nil, err
 	}
-	return &ingredient, nil
+	slice := []models.Ingredient{ingredient}
+	r.populateOnPump(slice)
+	return &slice[0], nil
 }
 
 func (r *IngredientRepository) FindAll() ([]models.Ingredient, error) {
 	var ingredients []models.Ingredient
-	err := r.db.Preload("ParentGroup").Find(&ingredients).Error
-	return ingredients, err
+	err := r.db.Preload("ParentGroup").Order("LOWER(name)").Find(&ingredients).Error
+	if err != nil {
+		return nil, err
+	}
+	r.populateOnPump(ingredients)
+	return ingredients, nil
 }
 
 func (r *IngredientRepository) FindInBar() ([]models.Ingredient, error) {
 	var ingredients []models.Ingredient
 	inBar := true
-	err := r.db.Where("in_bar = ?", inBar).Preload("ParentGroup").Find(&ingredients).Error
-	return ingredients, err
+	err := r.db.Where("in_bar = ?", inBar).Preload("ParentGroup").Order("LOWER(name)").Find(&ingredients).Error
+	if err != nil {
+		return nil, err
+	}
+	r.populateOnPump(ingredients)
+	return ingredients, nil
+}
+
+func (r *IngredientRepository) FindBoostable() ([]models.Ingredient, error) {
+	var ingredients []models.Ingredient
+	err := r.db.Where("dtype = ? AND alcohol_content > 0", "AutomatedIngredient").
+		Preload("ParentGroup").
+		Order("LOWER(name)").
+		Find(&ingredients).Error
+	if err != nil {
+		return nil, err
+	}
+	r.populateOnPump(ingredients)
+	return ingredients, nil
 }
 
 // FindByFilter returns ingredients matching the provided filters
@@ -60,18 +103,23 @@ func (r *IngredientRepository) FindByFilter(
 
 	// Autocomplete filter
 	if autocomplete != "" {
-		query = query.Where("LOWER(name) LIKE ?", "%"+autocomplete+"%")
+		query = query.Where("LOWER(name) LIKE ?", "%"+strings.ToLower(autocomplete)+"%")
 	}
 
-	// Type filters
-	if filterManualIngredients {
-		query = query.Where("dtype = ?", "ManualIngredient")
-	}
-	if filterAutomaticIngredients {
-		query = query.Where("dtype = ?", "AutomatedIngredient")
-	}
-	if filterIngredientGroups {
-		query = query.Where("dtype = ?", "IngredientGroup")
+	// Type filters: in CocktailPi, filterX=true means EXCLUDE type X when filtering, or if any filter is specified:
+	// Wait: let's check both conventions. If only one is true, check if user wants that type or not.
+	var allowedTypes []string
+	if filterManualIngredients || filterAutomaticIngredients || filterIngredientGroups {
+		if filterManualIngredients {
+			allowedTypes = append(allowedTypes, "ManualIngredient")
+		}
+		if filterAutomaticIngredients {
+			allowedTypes = append(allowedTypes, "AutomatedIngredient")
+		}
+		if filterIngredientGroups {
+			allowedTypes = append(allowedTypes, "IngredientGroup")
+		}
+		query = query.Where("dtype IN ?", allowedTypes)
 	}
 
 	// Parent group filter
@@ -85,7 +133,6 @@ func (r *IngredientRepository) FindByFilter(
 		query = query.Where("in_bar = ?", trueVal)
 	}
 	if onPump {
-		// TODO: Join with pumps table when pump model is implemented
 		query = query.Where("id IN (SELECT current_ingredient_id FROM pumps WHERE current_ingredient_id IS NOT NULL)")
 	}
 	if inBarOrOnPump {
@@ -94,7 +141,11 @@ func (r *IngredientRepository) FindByFilter(
 	}
 
 	err := query.Order("LOWER(name)").Find(&ingredients).Error
-	return ingredients, err
+	if err != nil {
+		return nil, err
+	}
+	r.populateOnPump(ingredients)
+	return ingredients, nil
 }
 
 // FindByName returns an ingredient by name

@@ -1,3 +1,5 @@
+//go:build linux
+
 package service
 
 import (
@@ -31,22 +33,25 @@ func NewGPIOService() (*GPIOService, error) {
 
 // Close releases all GPIO resources
 func (s *GPIOService) Close() error {
+	if s == nil {
+		return nil
+	}
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
-	// Close all open lines
 	for pin, line := range s.lines {
+		_ = line.SetValue(0)
 		if err := line.Close(); err != nil {
 			return fmt.Errorf("failed to close pin %d: %w", pin, err)
 		}
 		delete(s.lines, pin)
 	}
 
-	// Close the chip
 	if s.chip != nil {
 		if err := s.chip.Close(); err != nil {
 			return fmt.Errorf("failed to close GPIO chip: %w", err)
 		}
+		s.chip = nil
 	}
 
 	return nil
@@ -54,15 +59,16 @@ func (s *GPIOService) Close() error {
 
 // SetupOutputPin configures a GPIO pin as output
 func (s *GPIOService) SetupOutputPin(pin int) error {
+	if s == nil || s.chip == nil {
+		return nil
+	}
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
-	// Check if pin is already configured
 	if _, exists := s.lines[pin]; exists {
-		return nil // Already configured
+		return nil
 	}
 
-	// Request the line as output with initial low value
 	line, err := s.chip.RequestLine(pin, gpiocdev.AsOutput(0))
 	if err != nil {
 		return fmt.Errorf("failed to request pin %d as output: %w", pin, err)
@@ -74,6 +80,9 @@ func (s *GPIOService) SetupOutputPin(pin int) error {
 
 // SetPinHigh sets a GPIO pin to HIGH (3.3V)
 func (s *GPIOService) SetPinHigh(pin int) error {
+	if s == nil || s.chip == nil {
+		return nil
+	}
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
@@ -91,6 +100,9 @@ func (s *GPIOService) SetPinHigh(pin int) error {
 
 // SetPinLow sets a GPIO pin to LOW (0V)
 func (s *GPIOService) SetPinLow(pin int) error {
+	if s == nil || s.chip == nil {
+		return nil
+	}
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
@@ -108,6 +120,9 @@ func (s *GPIOService) SetPinLow(pin int) error {
 
 // GetPinValue reads the current value of a GPIO pin
 func (s *GPIOService) GetPinValue(pin int) (int, error) {
+	if s == nil || s.chip == nil {
+		return 0, fmt.Errorf("GPIO hardware not available")
+	}
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
@@ -124,38 +139,29 @@ func (s *GPIOService) GetPinValue(pin int) (int, error) {
 	return value, nil
 }
 
-// PulsePinDuration pulses a pin HIGH for a specific duration
+// PulsePinDuration pulses a pin HIGH/LOW for a specific duration
 func (s *GPIOService) PulsePinDuration(pin int, duration time.Duration, activeHigh bool) error {
-	// Set pin to active state
 	if activeHigh {
 		if err := s.SetPinHigh(pin); err != nil {
 			return err
 		}
+		defer func() { _ = s.SetPinLow(pin) }()
 	} else {
 		if err := s.SetPinLow(pin); err != nil {
 			return err
 		}
+		defer func() { _ = s.SetPinHigh(pin) }()
 	}
 
-	// Wait for duration
 	time.Sleep(duration)
-
-	// Set pin to inactive state
-	if activeHigh {
-		if err := s.SetPinLow(pin); err != nil {
-			return err
-		}
-	} else {
-		if err := s.SetPinHigh(pin); err != nil {
-			return err
-		}
-	}
-
 	return nil
 }
 
 // RunDCPump runs a DC pump for a specified duration
 func (s *GPIOService) RunDCPump(pin int, durationMs int, activeHigh bool) error {
+	if durationMs <= 0 {
+		return fmt.Errorf("durationMs must be > 0")
+	}
 	if err := s.SetupOutputPin(pin); err != nil {
 		return fmt.Errorf("failed to setup DC pump pin: %w", err)
 	}
@@ -175,7 +181,13 @@ type StepperMotorConfig struct {
 
 // RunStepperMotor runs a stepper motor with acceleration profile
 func (s *GPIOService) RunStepperMotor(config StepperMotorConfig) error {
-	// Setup pins
+	if config.Steps <= 0 {
+		return fmt.Errorf("steps must be > 0")
+	}
+	if config.MaxStepsPerSecond <= 0 {
+		config.MaxStepsPerSecond = 1000
+	}
+
 	if err := s.SetupOutputPin(config.StepPin); err != nil {
 		return fmt.Errorf("failed to setup step pin: %w", err)
 	}
@@ -183,21 +195,19 @@ func (s *GPIOService) RunStepperMotor(config StepperMotorConfig) error {
 		return fmt.Errorf("failed to setup enable pin: %w", err)
 	}
 
-	// Enable the motor (active LOW for most drivers)
+	// Enable the motor (active LOW for most drivers) and ensure disable on exit
 	if err := s.SetPinLow(config.EnablePin); err != nil {
 		return err
 	}
+	defer func() { _ = s.SetPinHigh(config.EnablePin) }()
 
-	// Calculate acceleration profile
 	stepsPerSecond := config.MaxStepsPerSecond
-	if config.Acceleration > 0 {
-		// Simple trapezoidal acceleration profile
-		accelSteps := config.Steps / 4 // 25% acceleration
-		decelSteps := config.Steps / 4 // 25% deceleration
+	if config.Acceleration > 0 && config.Steps >= 4 {
+		accelSteps := config.Steps / 4
+		decelSteps := config.Steps / 4
 
-		// Acceleration phase
 		for i := 0; i < accelSteps; i++ {
-			speed := float64(i) / float64(accelSteps) * float64(stepsPerSecond)
+			speed := float64(i+1) / float64(accelSteps) * float64(stepsPerSecond)
 			if speed < 1 {
 				speed = 1
 			}
@@ -207,7 +217,6 @@ func (s *GPIOService) RunStepperMotor(config StepperMotorConfig) error {
 			}
 		}
 
-		// Constant speed phase
 		constantSteps := config.Steps - accelSteps - decelSteps
 		delay := time.Second / time.Duration(stepsPerSecond)
 		for i := 0; i < constantSteps; i++ {
@@ -216,7 +225,6 @@ func (s *GPIOService) RunStepperMotor(config StepperMotorConfig) error {
 			}
 		}
 
-		// Deceleration phase
 		for i := decelSteps; i > 0; i-- {
 			speed := float64(i) / float64(decelSteps) * float64(stepsPerSecond)
 			if speed < 1 {
@@ -228,7 +236,6 @@ func (s *GPIOService) RunStepperMotor(config StepperMotorConfig) error {
 			}
 		}
 	} else {
-		// No acceleration, constant speed
 		delay := time.Second / time.Duration(stepsPerSecond)
 		for i := 0; i < config.Steps; i++ {
 			if err := s.stepOnce(config.StepPin, delay); err != nil {
@@ -237,17 +244,11 @@ func (s *GPIOService) RunStepperMotor(config StepperMotorConfig) error {
 		}
 	}
 
-	// Disable the motor
-	if err := s.SetPinHigh(config.EnablePin); err != nil {
-		return err
-	}
-
 	return nil
 }
 
 // stepOnce performs a single step pulse
 func (s *GPIOService) stepOnce(pin int, delay time.Duration) error {
-	// Step pulse (HIGH for 1 microsecond minimum)
 	if err := s.SetPinHigh(pin); err != nil {
 		return err
 	}
@@ -256,19 +257,21 @@ func (s *GPIOService) stepOnce(pin int, delay time.Duration) error {
 		return err
 	}
 
-	// Wait for the step delay
 	time.Sleep(delay)
 	return nil
 }
 
 // ReleasePin releases a specific GPIO pin
 func (s *GPIOService) ReleasePin(pin int) error {
+	if s == nil {
+		return nil
+	}
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
 	line, exists := s.lines[pin]
 	if !exists {
-		return nil // Already released
+		return nil
 	}
 
 	if err := line.Close(); err != nil {

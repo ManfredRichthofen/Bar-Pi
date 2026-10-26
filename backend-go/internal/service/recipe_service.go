@@ -20,6 +20,9 @@ func (s *RecipeService) Create(recipe *models.Recipe) error {
 	if recipe.Name == "" {
 		return errors.New("recipe name is required")
 	}
+	if recipe.DefaultAmountToFill <= 0 {
+		recipe.DefaultAmountToFill = 250
+	}
 	return s.repo.Create(recipe)
 }
 
@@ -29,6 +32,17 @@ func (s *RecipeService) GetByID(id int64) (*models.Recipe, error) {
 
 func (s *RecipeService) GetAll() ([]models.Recipe, error) {
 	return s.repo.FindAll()
+}
+
+func (s *RecipeService) GetByFilter(
+	ownerID *int64,
+	inCollectionID *int64,
+	inCategoryID *int64,
+	containsIngredients []int64,
+	searchName string,
+	orderBy string,
+) ([]models.Recipe, error) {
+	return s.repo.FindByFilter(ownerID, inCollectionID, inCategoryID, containsIngredients, searchName, orderBy)
 }
 
 func (s *RecipeService) GetByOwnerID(ownerID int64) ([]models.Recipe, error) {
@@ -42,6 +56,15 @@ func (s *RecipeService) Update(recipe *models.Recipe) error {
 	}
 	if existing == nil {
 		return errors.New("recipe not found")
+	}
+	if recipe.OwnerID == 0 {
+		recipe.OwnerID = existing.OwnerID
+	}
+	if recipe.DefaultAmountToFill <= 0 {
+		recipe.DefaultAmountToFill = existing.DefaultAmountToFill
+		if recipe.DefaultAmountToFill <= 0 {
+			recipe.DefaultAmountToFill = 250
+		}
 	}
 	return s.repo.Update(recipe)
 }

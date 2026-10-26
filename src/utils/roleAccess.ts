@@ -14,6 +14,7 @@ export interface RolePermissions {
   canManageCategories: boolean;
   canManagePumps: boolean;
   canManageSettings: boolean;
+  canViewStatistics: boolean;
 }
 
 export const mapAdminLevelToRole = (
@@ -46,6 +47,7 @@ export const ROLE_PERMISSIONS: Record<UserRole, RolePermissions> = {
     canManageCategories: true,
     canManagePumps: true,
     canManageSettings: true,
+    canViewStatistics: true,
   },
   admin: {
     canManageUsers: true,
@@ -56,6 +58,7 @@ export const ROLE_PERMISSIONS: Record<UserRole, RolePermissions> = {
     canManageCategories: true,
     canManagePumps: true,
     canManageSettings: false,
+    canViewStatistics: true,
   },
   'pump-ingredient-editor': {
     canManageUsers: false,
@@ -66,6 +69,7 @@ export const ROLE_PERMISSIONS: Record<UserRole, RolePermissions> = {
     canManageCategories: false,
     canManagePumps: true,
     canManageSettings: false,
+    canViewStatistics: true,
   },
   'recipe-creator': {
     canManageUsers: false,
@@ -76,6 +80,7 @@ export const ROLE_PERMISSIONS: Record<UserRole, RolePermissions> = {
     canManageCategories: false,
     canManagePumps: false,
     canManageSettings: false,
+    canViewStatistics: true,
   },
   user: {
     canManageUsers: false,
@@ -86,6 +91,7 @@ export const ROLE_PERMISSIONS: Record<UserRole, RolePermissions> = {
     canManageCategories: false,
     canManagePumps: false,
     canManageSettings: false,
+    canViewStatistics: true,
   },
 };
 
@@ -132,6 +138,8 @@ export const canAccessRoute = (
       return permissions.canManagePumps;
     case '/settings':
       return permissions.canManageSettings;
+    case '/statistics':
+      return permissions.canViewStatistics;
     default:
       return true;
   }
