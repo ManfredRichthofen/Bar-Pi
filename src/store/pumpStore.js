@@ -1,5 +1,4 @@
 import { create } from 'zustand';
-import PumpService from '../services/pump.service';
 
 export const usePumpStore = create((set) => ({
   // State
@@ -8,20 +7,7 @@ export const usePumpStore = create((set) => ({
   loading: false,
   error: null,
 
-  // Actions
-  fetchPumps: async (token) => {
-    set({ loading: true });
-    try {
-      const pumps = await PumpService.getAllPumps(token);
-      set({ pumps, error: null });
-    } catch (error) {
-      set({ error: error.message });
-      console.error('Error fetching pumps:', error);
-    } finally {
-      set({ loading: false });
-    }
-  },
-
+  // Actions (list fetch lives in usePumps / React Query)
   setPumps: (pumps) => set({ pumps }),
 
   setAllowReversePumping: (isAllowed) =>

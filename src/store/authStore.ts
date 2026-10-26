@@ -1,6 +1,9 @@
 import { create } from 'zustand';
+import { currentUserQueryKey } from '../hooks/useCurrentUser';
+import { queryClient } from '../lib/queryClient';
 import AuthService from '../services/auth.service.js';
 import websocketService from '../services/websocket.service';
+import type { User } from '../types/user';
 import useCocktailProgressStore from './cocktailProgressStore';
 import useConfigStore from './configStore';
 import useFilterStore from './filterStore';
@@ -9,14 +12,14 @@ import { usePumpStore } from './pumpStore';
 interface AuthState {
   token: string | null;
   tokenExpiration: string | null;
-  user: any;
+  user: User | null;
   error: string | null;
   loading: boolean;
   loginUser: (credentials: any, apiBaseUrl: string) => Promise<boolean>;
   logoutUser: () => void;
   reinitializeAuthState: () => void;
   setToken: (token: string | null) => void;
-  setUser: (user: any) => void;
+  setUser: (user: User | null) => void;
   logout: () => void;
 }
 
@@ -74,9 +77,15 @@ const useAuthStore = create<AuthState>((set) => ({
       set({
         token: null,
         tokenExpiration: null,
+        user: null,
         error: null,
         loading: false,
       });
+
+      queryClient.removeQueries({ queryKey: currentUserQueryKey });
+      queryClient.removeQueries({ queryKey: ['pumps'] });
+      queryClient.removeQueries({ queryKey: ['glasses'] });
+      queryClient.removeQueries({ queryKey: ['categories'] });
 
       // Clear other stores
       const configStore = useConfigStore.getState();

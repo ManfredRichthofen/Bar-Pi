@@ -11,17 +11,9 @@ import {
   Tag,
   Users,
 } from 'lucide-react';
-import React, { useEffect, useState } from 'react';
-import userService from '../services/user.service';
-import useAuthStore from '../store/authStore';
+import React, { useEffect } from 'react';
+import { useCurrentUser } from '../hooks/useCurrentUser';
 import { canAccessRoute, mapAdminLevelToRole } from '../utils/roleAccess';
-
-interface UserData {
-  id: number;
-  username: string;
-  adminLevel: number;
-  accountNonLocked: boolean;
-}
 
 interface SidebarProps {
   collapsed: boolean;
@@ -31,32 +23,7 @@ interface SidebarProps {
 const Sidebar: React.FC<SidebarProps> = ({ collapsed, onCollapse }) => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { token } = useAuthStore();
-  const [userData, setUserData] = useState<UserData | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchUserData = async () => {
-      if (!token) {
-        setLoading(false);
-        return;
-      }
-
-      try {
-        const headers = {
-          Authorization: `Bearer ${token}`,
-        };
-        const data = await userService.getMe(headers);
-        setUserData(data);
-      } catch (error) {
-        console.error('Failed to fetch user data:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchUserData();
-  }, [token]);
+  const { user: userData, loading } = useCurrentUser();
 
   const menuItems = [
     {

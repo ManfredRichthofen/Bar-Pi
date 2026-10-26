@@ -1,34 +1,20 @@
 import { AlertTriangle, BeakerIcon, PlusCircle, Settings } from 'lucide-react';
-import { useState } from 'react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
-
-interface Ingredient {
-  id: string;
-  name: string;
-  type: string;
-  unit: string;
-}
-
-interface AdditionalIngredient {
-  ingredient: Ingredient;
-  amount: number;
-  manualAdd: boolean;
-}
-
-interface Customisations {
-  boost: number;
-  additionalIngredients: AdditionalIngredient[];
-}
+import { useDrinkCustomizerActions } from '@/hooks/useDrinkCustomizerActions';
+import type {
+  Ingredient,
+  OrderCustomizations,
+} from '@/pages/Shared/order';
 
 interface DrinkCustomizerProps {
   disableBoosting?: boolean;
-  customisations: Customisations;
-  onCustomisationsChange: (customisations: Customisations) => void;
+  customisations: OrderCustomizations;
+  onCustomisationsChange: (customisations: OrderCustomizations) => void;
   availableIngredients?: Ingredient[];
 }
 
@@ -38,57 +24,19 @@ const DrinkCustomizer = ({
   onCustomisationsChange,
   availableIngredients = [],
 }: DrinkCustomizerProps) => {
-  const [addingIngredient, setAddingIngredient] = useState(false);
-  const [selectedIngredient, setSelectedIngredient] =
-    useState<Ingredient | null>(null);
-
-  const additionalIngredients = customisations?.additionalIngredients || [];
-
-  const handleBoostChange = (value: number | readonly number[]) => {
-    const newValue = Array.isArray(value) ? value[0] : value;
-    onCustomisationsChange({
-      ...customisations,
-      boost: newValue,
-    });
-  };
-
-  const handleAdditionalIngredientAmountChange = (
-    ingredientId: string,
-    amount: number,
-  ) => {
-    const updatedIngredients = additionalIngredients.map((ing) =>
-      ing.ingredient.id === ingredientId ? { ...ing, amount } : ing,
-    );
-    onCustomisationsChange({
-      ...customisations,
-      additionalIngredients: updatedIngredients,
-    });
-  };
-
-  const handleAddIngredient = () => {
-    if (!selectedIngredient) return;
-
-    const exists = additionalIngredients.some(
-      (ing) => ing.ingredient.id === selectedIngredient.id,
-    );
-
-    if (!exists) {
-      onCustomisationsChange({
-        ...customisations,
-        additionalIngredients: [
-          ...additionalIngredients,
-          {
-            ingredient: selectedIngredient,
-            amount: 0,
-            manualAdd: true,
-          },
-        ],
-      });
-    }
-
-    setSelectedIngredient(null);
-    setAddingIngredient(false);
-  };
+  const {
+    addingIngredient,
+    setAddingIngredient,
+    selectedIngredient,
+    setSelectedIngredient,
+    additionalIngredients,
+    handleBoostChange,
+    handleAdditionalIngredientAmountChange,
+    handleAddIngredient,
+  } = useDrinkCustomizerActions({
+    customizations: customisations,
+    onCustomizationsChange: onCustomisationsChange,
+  });
 
   const automatedIngredients = availableIngredients.filter(
     (ing) => ing.type === 'automated',
@@ -103,9 +51,7 @@ const DrinkCustomizer = ({
         </h2>
       </div>
 
-      {/* Bento Grid for Customization Options */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 lg:gap-5">
-        {/* Alcohol Strength Card */}
         <Card
           className={`${automatedIngredients.length > 0 ? 'sm:col-span-1' : 'sm:col-span-2'} hover:shadow-md hover:border-primary/20 transition-all duration-300`}
         >
@@ -173,7 +119,6 @@ const DrinkCustomizer = ({
           </CardContent>
         </Card>
 
-        {/* Additional Ingredients Card */}
         {automatedIngredients.length > 0 && (
           <Card className="sm:col-span-1 hover:shadow-md hover:border-primary/20 transition-all duration-300">
             <CardContent className="p-4 sm:p-5 lg:p-6">

@@ -5,8 +5,6 @@ import {
   Beaker,
   Trash2,
 } from 'lucide-react';
-import React, { useState } from 'react';
-import { useTranslation } from 'react-i18next';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -22,6 +20,8 @@ import {
 } from '@/components/ui/select';
 import { Slider } from '@/components/ui/slider';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useDrinkCustomizerActions } from '@/hooks/useDrinkCustomizerActions';
+import { getBoostLabel } from '@/pages/Shared/order';
 
 const DrinkCustomizer = ({
   disableBoosting = false,
@@ -29,72 +29,21 @@ const DrinkCustomizer = ({
   onCustomizationsChange,
   availableIngredients = [],
 }) => {
-  const { t } = useTranslation();
-  const [addingIngredient, setAddingIngredient] = useState(false);
-  const [selectedIngredient, setSelectedIngredient] = useState(null);
-
-  const handleBoostChange = (value) => {
-    onCustomizationsChange({
-      ...customizations,
-      boost: value,
-    });
-  };
-
-  const handleAdditionalIngredientAmountChange = (ingredientId, amount) => {
-    const updatedIngredients = customizations.additionalIngredients.map(
-      (ing) => (ing.ingredient.id === ingredientId ? { ...ing, amount } : ing),
-    );
-    onCustomizationsChange({
-      ...customizations,
-      additionalIngredients: updatedIngredients,
-    });
-  };
-
-  const handleAddIngredient = () => {
-    if (!selectedIngredient) return;
-
-    const exists = customizations.additionalIngredients.some(
-      (ing) => ing.ingredient.id === selectedIngredient.id,
-    );
-
-    if (!exists) {
-      onCustomizationsChange({
-        ...customizations,
-        additionalIngredients: [
-          ...customizations.additionalIngredients,
-          {
-            ingredient: selectedIngredient,
-            amount: 0,
-            manualAdd: true,
-          },
-        ],
-      });
-    }
-
-    setSelectedIngredient(null);
-    setAddingIngredient(false);
-  };
-
-  const handleRemoveIngredient = (ingredientId) => {
-    const updatedIngredients = customizations.additionalIngredients.filter(
-      (ing) => ing.ingredient.id !== ingredientId,
-    );
-    onCustomizationsChange({
-      ...customizations,
-      additionalIngredients: updatedIngredients,
-    });
-  };
-
-  const getBoostLabel = (value) => {
-    if (value === 100) return 'Normal';
-    if (value === 0) return 'No Alcohol';
-    if (value === 200) return 'Double';
-    return `${value > 100 ? '+' : ''}${value - 100}%`;
-  };
+  const {
+    selectedIngredient,
+    setSelectedIngredient,
+    additionalIngredients,
+    handleBoostChange,
+    handleAdditionalIngredientAmountChange,
+    handleAddIngredient,
+    handleRemoveIngredient,
+  } = useDrinkCustomizerActions({
+    customizations,
+    onCustomizationsChange,
+  });
 
   return (
     <div className="space-y-4 sm:space-y-5 lg:space-y-6">
-      {/* Alcohol Content Adjustment */}
       <Card>
         <CardHeader className="pb-3 sm:pb-4">
           <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
@@ -143,14 +92,13 @@ const DrinkCustomizer = ({
         </CardContent>
       </Card>
 
-      {/* Additional Ingredients */}
       <Card>
         <CardHeader className="pb-3 sm:pb-4">
           <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
             <Beaker className="w-4 h-4 sm:w-5 sm:h-5" />
             Additional Ingredients
             <Badge variant="outline" className="ml-auto text-xs">
-              {customizations.additionalIngredients.length}
+              {additionalIngredients.length}
             </Badge>
           </CardTitle>
         </CardHeader>
@@ -166,7 +114,7 @@ const DrinkCustomizer = ({
             </TabsList>
 
             <TabsContent value="current" className="space-y-3 sm:space-y-4">
-              {customizations.additionalIngredients.length === 0 ? (
+              {additionalIngredients.length === 0 ? (
                 <div className="text-center py-6 sm:py-8 text-muted-foreground border-2 border-dashed rounded-lg">
                   <Beaker className="w-10 h-10 sm:w-12 sm:h-12 mx-auto mb-3 sm:mb-4 opacity-50" />
                   <p className="text-sm sm:text-base">
@@ -178,63 +126,61 @@ const DrinkCustomizer = ({
                 </div>
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
-                  {customizations.additionalIngredients.map(
-                    ({ ingredient, amount }) => (
-                      <Card key={ingredient.id} className="relative">
-                        <CardContent className="p-3 sm:p-4">
-                          <div className="flex items-start justify-between mb-2 sm:mb-3">
-                            <div className="flex-1 min-w-0">
-                              <h4 className="font-semibold text-sm sm:text-base truncate">
-                                {ingredient.name}
-                              </h4>
-                              <p className="text-xs sm:text-sm text-muted-foreground">
-                                {ingredient.type === 'automated'
-                                  ? 'Automated'
-                                  : 'Manual'}
-                              </p>
-                            </div>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() =>
-                                handleRemoveIngredient(ingredient.id)
+                  {additionalIngredients.map(({ ingredient, amount }) => (
+                    <Card key={ingredient.id} className="relative">
+                      <CardContent className="p-3 sm:p-4">
+                        <div className="flex items-start justify-between mb-2 sm:mb-3">
+                          <div className="flex-1 min-w-0">
+                            <h4 className="font-semibold text-sm sm:text-base truncate">
+                              {ingredient.name}
+                            </h4>
+                            <p className="text-xs sm:text-sm text-muted-foreground">
+                              {ingredient.type === 'automated'
+                                ? 'Automated'
+                                : 'Manual'}
+                            </p>
+                          </div>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() =>
+                              handleRemoveIngredient(ingredient.id)
+                            }
+                            className="text-destructive hover:text-destructive shrink-0 h-8 w-8 p-0"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </div>
+                        <div className="space-y-1.5 sm:space-y-2">
+                          <Label
+                            htmlFor={`amount-${ingredient.id}`}
+                            className="text-xs sm:text-sm"
+                          >
+                            Amount (ml)
+                          </Label>
+                          <div className="flex items-center gap-2">
+                            <Input
+                              id={`amount-${ingredient.id}`}
+                              type="number"
+                              min={0}
+                              max={100}
+                              value={amount}
+                              onChange={(e) =>
+                                handleAdditionalIngredientAmountChange(
+                                  ingredient.id,
+                                  parseFloat(e.target.value) || 0,
+                                )
                               }
-                              className="text-destructive hover:text-destructive shrink-0 h-8 w-8 p-0"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </Button>
+                              className="flex-1 h-9 sm:h-10 text-sm"
+                            />
+                            <span className="text-xs sm:text-sm text-muted-foreground shrink-0">
+                              ml
+                            </span>
                           </div>
-                          <div className="space-y-1.5 sm:space-y-2">
-                            <Label
-                              htmlFor={`amount-${ingredient.id}`}
-                              className="text-xs sm:text-sm"
-                            >
-                              Amount (ml)
-                            </Label>
-                            <div className="flex items-center gap-2">
-                              <Input
-                                id={`amount-${ingredient.id}`}
-                                type="number"
-                                min={0}
-                                max={100}
-                                value={amount}
-                                onChange={(e) =>
-                                  handleAdditionalIngredientAmountChange(
-                                    ingredient.id,
-                                    parseFloat(e.target.value) || 0,
-                                  )
-                                }
-                                className="flex-1 h-9 sm:h-10 text-sm"
-                              />
-                              <span className="text-xs sm:text-sm text-muted-foreground shrink-0">
-                                ml
-                              </span>
-                            </div>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    ),
-                  )}
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
                 </div>
               )}
             </TabsContent>
@@ -272,7 +218,7 @@ const DrinkCustomizer = ({
                         {availableIngredients
                           .filter(
                             (ing) =>
-                              !customizations.additionalIngredients.some(
+                              !additionalIngredients.some(
                                 (added) => added.ingredient.id === ing.id,
                               ),
                           )

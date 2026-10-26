@@ -1,38 +1,17 @@
-import axios from 'axios';
-import useConfigStore from '../store/configStore';
-import { DEFAULT_VALUES } from '../constants';
-
-// Set global axios defaults
-axios.defaults.baseURL = useConfigStore.getState().apiBaseUrl;
-axios.defaults.timeout = DEFAULT_VALUES.TIMEOUT;
-
-// Add request interceptor to dynamically update baseURL from config store
-axios.interceptors.request.use(
-  (config) => {
-    // Get the current API base URL from the store
-    const currentBaseUrl = useConfigStore.getState().apiBaseUrl;
-
-    // Update the baseURL for this request
-    config.baseURL = currentBaseUrl;
-
-    return config;
-  },
-  (error) => {
-    return Promise.reject(error);
-  },
-);
+import axios from '../lib/apiClient';
+import { authHeaders } from '../lib/apiClient';
 
 /**
  * Base service class with common functionality for all API services
  */
 export class BaseService {
   /**
-   * Get authorization headers with token
+   * Get authorization headers with token (flat object for axios `headers`)
    * @param {string} token - JWT token
    * @returns {object} Headers object
    */
   getAuthHeader(token = null) {
-    return token ? { Authorization: `Bearer ${token}` } : {};
+    return authHeaders(token);
   }
 
   /**
@@ -45,8 +24,8 @@ export class BaseService {
   get(path, token = null, config = {}) {
     return axios
       .get(path, {
-        headers: this.getAuthHeader(token),
         ...config,
+        headers: { ...this.getAuthHeader(token), ...config.headers },
       })
       .then((response) => response.data);
   }
@@ -62,8 +41,8 @@ export class BaseService {
   post(path, data = {}, token = null, config = {}) {
     return axios
       .post(path, data, {
-        headers: this.getAuthHeader(token),
         ...config,
+        headers: { ...this.getAuthHeader(token), ...config.headers },
       })
       .then((response) => response.data);
   }
@@ -79,8 +58,8 @@ export class BaseService {
   put(path, data = {}, token = null, config = {}) {
     return axios
       .put(path, data, {
-        headers: this.getAuthHeader(token),
         ...config,
+        headers: { ...this.getAuthHeader(token), ...config.headers },
       })
       .then((response) => response.data);
   }
@@ -95,8 +74,8 @@ export class BaseService {
   delete(path, token = null, config = {}) {
     return axios
       .delete(path, {
-        headers: this.getAuthHeader(token),
         ...config,
+        headers: { ...this.getAuthHeader(token), ...config.headers },
       })
       .then((response) => response.data);
   }

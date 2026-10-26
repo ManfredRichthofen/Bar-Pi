@@ -1,12 +1,6 @@
 import { Client } from '@stomp/stompjs';
 import SockJS from 'sockjs-client';
-import axios from 'axios';
-import useAuthStore from '../store/authStore';
 import useConfigStore from '../store/configStore';
-import authHeader from './auth-header';
-
-const configStore = useConfigStore.getState();
-axios.defaults.baseURL = configStore.apiBaseUrl;
 
 const getFormattedServerAddress = () => {
   return useConfigStore.getState().apiBaseUrl;

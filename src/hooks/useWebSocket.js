@@ -2,7 +2,14 @@ import { useEffect } from 'react';
 import WebsocketService from '../services/websocket.service';
 import useCocktailProgressStore from '../store/cocktailProgressStore';
 
-export const useWebSocket = (token, keepAlive = false) => {
+/**
+ * Single entry for WebSocket connection + optional cocktail-progress subscription.
+ * Pass `subscribeProgress: false` when only ensuring the connection (e.g. PumpsPage).
+ */
+export const useWebSocket = (
+  token,
+  { keepAlive = false, subscribeProgress = true } = {},
+) => {
   const setProgress = useCocktailProgressStore((state) => state.setProgress);
   const clearProgress = useCocktailProgressStore(
     (state) => state.clearProgress,
@@ -11,9 +18,12 @@ export const useWebSocket = (token, keepAlive = false) => {
   useEffect(() => {
     if (!token) return;
 
-    // Connect to WebSocket if not already connected
     if (!WebsocketService.connected) {
       WebsocketService.connectWebsocket(token);
+    }
+
+    if (!subscribeProgress) {
+      return;
     }
 
     WebsocketService.subscribe(
@@ -36,10 +46,9 @@ export const useWebSocket = (token, keepAlive = false) => {
         'cocktailProgress',
         '/user/topic/cocktailprogress',
       );
-      // Only disconnect if not keeping connection alive
       if (!keepAlive) {
         WebsocketService.disconnectWebsocket();
       }
     };
-  }, [token, setProgress, clearProgress, keepAlive]);
+  }, [token, setProgress, clearProgress, keepAlive, subscribeProgress]);
 };

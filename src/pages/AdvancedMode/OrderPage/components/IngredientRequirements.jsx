@@ -1,38 +1,22 @@
-import { CheckCircle, XCircle, AlertTriangle, Beaker } from 'lucide-react';
-import React from 'react';
-import { useTranslation } from 'react-i18next';
+import { CheckCircle, AlertTriangle, Beaker } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
-import { Separator } from '@/components/ui/separator';
+import { organizeRequiredIngredients } from '@/pages/Shared/order';
 
 const IngredientRequirements = ({ requiredIngredients }) => {
-  const { t } = useTranslation();
-  const insufficientIngredients = requiredIngredients.filter(
-    (x) => x.amountMissing > 0,
-  );
-  const isFulfilled = insufficientIngredients.length === 0;
-
-  // Calculate fulfillment percentage
-  const fulfilledCount =
-    requiredIngredients.length - insufficientIngredients.length;
-  const fulfillmentPercentage =
-    requiredIngredients.length > 0
-      ? (fulfilledCount / requiredIngredients.length) * 100
-      : 0;
-
-  // Organize ingredients by type
-  const automatedIngredients = requiredIngredients.filter(
-    (x) => x.ingredient.type === 'automated',
-  );
-  const manualIngredients = requiredIngredients.filter(
-    (x) => x.ingredient.type === 'manual',
-  );
+  const {
+    insufficient: insufficientIngredients,
+    automated: automatedIngredients,
+    manual: manualIngredients,
+    isFulfilled,
+    fulfilledCount,
+    fulfillmentPercentage,
+  } = organizeRequiredIngredients(requiredIngredients);
 
   return (
     <div className="space-y-3 sm:space-y-4">
-      {/* Overall Status Card */}
       <Card
         className={
           isFulfilled
@@ -98,7 +82,6 @@ const IngredientRequirements = ({ requiredIngredients }) => {
         </CardContent>
       </Card>
 
-      {/* Automated Ingredients */}
       {automatedIngredients.length > 0 && (
         <Card>
           <CardHeader className="pb-2 sm:pb-3">
@@ -155,7 +138,6 @@ const IngredientRequirements = ({ requiredIngredients }) => {
         </Card>
       )}
 
-      {/* Manual Ingredients */}
       {manualIngredients.length > 0 && (
         <Card>
           <CardHeader className="pb-2 sm:pb-3">

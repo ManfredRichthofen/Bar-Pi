@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios from '../lib/apiClient';
 import { BaseService } from './base.service';
 import { API_PATHS } from '../constants';
 import JsUtils from './JsUtils.js';
@@ -6,21 +6,10 @@ import JsUtils from './JsUtils.js';
 const API_PATH = API_PATHS.COCKTAIL;
 
 class CocktailService extends BaseService {
-  getAuthHeader(token) {
-    return {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    };
-  }
-
   order(recipeId, orderConfig, isIngredient = false, token) {
     return axios
       .put(`${API_PATH}${recipeId}`, orderConfig, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
+        headers: this.getAuthHeader(token),
       })
       .catch((error) => {
         const errorMessage =
@@ -37,10 +26,7 @@ class CocktailService extends BaseService {
     params = JsUtils.cleanObject(params);
     return axios
       .put(API_PATH + String(recipeId) + '/feasibility', orderConfig, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
+        headers: this.getAuthHeader(token),
         params,
       })
       .then((response) => response.data)
@@ -50,15 +36,11 @@ class CocktailService extends BaseService {
   }
 
   cancelCocktail(token) {
-    return axios.delete(API_PATH, this.getAuthHeader(token));
+    return this.delete(API_PATH, token);
   }
 
   continueProduction(token) {
-    return axios.post(
-      API_PATH + 'continueproduction',
-      null,
-      this.getAuthHeader(token),
-    );
+    return this.post(API_PATH + 'continueproduction', null, token);
   }
 }
 

@@ -1,40 +1,27 @@
-import axios from 'axios';
 import { BaseService } from './base.service';
 import { API_PATHS } from '../constants';
 
 const API_PATH = API_PATHS.GLASS;
 
 class GlassService extends BaseService {
-  getAuthHeader(token) {
-    return {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    };
-  }
-
   getGlasses(token) {
-    return axios
-      .get(API_PATH, this.getAuthHeader(token))
-      .then((response) => response.data);
+    return this.get(API_PATH, token);
   }
 
   getGlass(id, token) {
-    return axios
-      .get(API_PATH + String(id), this.getAuthHeader(token))
-      .then((response) => response.data);
+    return this.get(API_PATH + String(id), token);
   }
 
-  createGlass(glass) {
-    return axios.post(API_PATH, glass);
+  createGlass(glass, token = null) {
+    return this.post(API_PATH, glass, token);
   }
 
-  updateGlass(glass) {
-    return axios.put(API_PATH + String(glass.id), glass);
+  updateGlass(glass, token = null) {
+    return this.put(API_PATH + String(glass.id), glass, token);
   }
 
-  deleteGlass(glassId) {
-    return axios.delete(API_PATH + String(glassId));
+  deleteGlass(glassId, token = null) {
+    return this.delete(API_PATH + String(glassId), token);
   }
 }
 

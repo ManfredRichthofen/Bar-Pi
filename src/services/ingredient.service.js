@@ -1,30 +1,25 @@
-import axios from 'axios';
-import useConfigStore from '../store/configStore';
-
-// Set initial base URL from store
-axios.defaults.baseURL = useConfigStore.getState().apiBaseUrl;
+import axios from '../lib/apiClient';
+import { authHeaders } from '../lib/apiClient';
 
 const API_PATH = 'api/ingredient/';
 
 class IngredientService {
   getAuthHeader(token) {
-    return {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    };
+    return authHeaders(token);
   }
 
   getIngredients(token) {
-    return axios.get(API_PATH, this.getAuthHeader(token)).then((response) => {
-      response.data = response.data.map((x) => this.afterIngredientLoad(x));
-      return response.data;
-    });
+    return axios
+      .get(API_PATH, { headers: this.getAuthHeader(token) })
+      .then((response) => {
+        response.data = response.data.map((x) => this.afterIngredientLoad(x));
+        return response.data;
+      });
   }
 
   async getBoostableIngredients(token) {
     const response = await axios.get(`${API_PATH}boostable`, {
-      headers: { Authorization: `Bearer ${token}` },
+      headers: this.getAuthHeader(token),
     });
     return response.data;
   }
@@ -54,7 +49,7 @@ class IngredientService {
   ) {
     return axios
       .get(API_PATH, {
-        ...this.getAuthHeader(token),
+        headers: this.getAuthHeader(token),
         params: {
           autocomplete,
           filterManualIngredients,
@@ -86,9 +81,8 @@ class IngredientService {
       API_PATH + String(id) + '?removeImage=' + String(removeImage),
       uploadData,
       {
-        ...this.getAuthHeader(token),
         headers: {
-          ...this.getAuthHeader(token).headers,
+          ...this.getAuthHeader(token),
           'Content-Type': 'multipart/form-data',
         },
       },
@@ -108,9 +102,8 @@ class IngredientService {
 
     return axios
       .post(API_PATH, uploadData, {
-        ...this.getAuthHeader(token),
         headers: {
-          ...this.getAuthHeader(token).headers,
+          ...this.getAuthHeader(token),
           'Content-Type': 'multipart/form-data',
         },
       })
@@ -121,22 +114,21 @@ class IngredientService {
   }
 
   deleteIngredient(id, token) {
-    return axios.delete(API_PATH + String(id), this.getAuthHeader(token));
+    return axios.delete(API_PATH + String(id), {
+      headers: this.getAuthHeader(token),
+    });
   }
 
   addToBar(ingredientId, token) {
-    return axios.put(
-      API_PATH + String(ingredientId) + '/bar',
-      null,
-      this.getAuthHeader(token),
-    );
+    return axios.put(API_PATH + String(ingredientId) + '/bar', null, {
+      headers: this.getAuthHeader(token),
+    });
   }
 
   removeFromBar(ingredientId, token) {
-    return axios.delete(
-      API_PATH + String(ingredientId) + '/bar',
-      this.getAuthHeader(token),
-    );
+    return axios.delete(API_PATH + String(ingredientId) + '/bar', {
+      headers: this.getAuthHeader(token),
+    });
   }
 
   afterIngredientLoad(ingredient) {

@@ -1,5 +1,5 @@
 import { Edit, PlusCircle, Trash2 } from 'lucide-react';
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { toast } from 'sonner';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -8,29 +8,17 @@ import {
   EmptyState,
   ListCard,
   ActionButtons,
+  LoadingState,
 } from '@/components/AdvancedMode';
-import GlassService from '@/services/glass.service';
-import useAuthStore from '@/store/authStore';
+import { useGlassMutations, useGlassesList } from '@/hooks/useGlassesList';
 import GlassModal from './components/GlassModal';
 
 function Glasses() {
-  const [glasses, setGlasses] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [selectedGlass, setSelectedGlass] = useState(null);
-  const { token } = useAuthStore();
-
-  useEffect(() => {
-    loadGlasses();
-  }, []);
-
-  const loadGlasses = async () => {
-    try {
-      const data = await GlassService.getGlasses(token);
-      setGlasses(data);
-    } catch (error) {
-      toast.error('Failed to load glasses');
-    }
-  };
+  const { data: glasses = [], isLoading, isPending } = useGlassesList();
+  const { saveGlass, deleteGlass } = useGlassMutations();
+  const loading = isLoading || isPending;
 
   const handleAdd = () => {
     setSelectedGlass(null);
@@ -45,9 +33,8 @@ function Glasses() {
   const handleDelete = async (id) => {
     if (window.confirm('Are you sure you want to delete this glass?')) {
       try {
-        await GlassService.deleteGlass(id);
+        await deleteGlass.mutateAsync(id);
         toast.success('Glass deleted successfully');
-        loadGlasses();
       } catch (error) {
         toast.error('Failed to delete glass');
       }
@@ -56,15 +43,11 @@ function Glasses() {
 
   const handleSave = async (glass) => {
     try {
-      if (glass.id) {
-        await GlassService.updateGlass(glass);
-        toast.success('Glass updated successfully');
-      } else {
-        await GlassService.createGlass(glass);
-        toast.success('Glass created successfully');
-      }
+      await saveGlass.mutateAsync(glass);
+      toast.success(
+        glass.id ? 'Glass updated successfully' : 'Glass created successfully',
+      );
       setShowModal(false);
-      loadGlasses();
     } catch (error) {
       toast.error('Failed to save glass');
     }
@@ -83,7 +66,9 @@ function Glasses() {
       />
 
       <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-6 md:py-8">
-        {glasses.length === 0 ? (
+        {loading ? (
+          <LoadingState message="Loading glasses..." />
+        ) : glasses.length === 0 ? (
           <EmptyState
             title="No Glasses Found"
             description="Get started by adding your first glass to begin managing your collection"

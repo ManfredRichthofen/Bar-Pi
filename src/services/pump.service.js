@@ -1,10 +1,6 @@
-import axios from 'axios';
+import axios from '../lib/apiClient';
 import authHeader from './auth-header';
-import useConfigStore from '../store/configStore';
 import { pinDtoMapper } from './gpio.service';
-
-// Set initial base URL from store
-axios.defaults.baseURL = useConfigStore.getState().apiBaseUrl;
 
 const API_PATH = 'api/pump/';
 

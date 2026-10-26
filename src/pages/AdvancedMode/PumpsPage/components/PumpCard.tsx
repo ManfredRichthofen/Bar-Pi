@@ -1,20 +1,10 @@
 import { useNavigate } from '@tanstack/react-router';
-import {
-  Activity,
-  CornerUpLeft,
-  CornerUpRight,
-  Droplet,
-  Hexagon,
-  Pencil,
-  PlayCircle,
-  StopCircle,
-} from 'lucide-react';
+import { Activity, Droplet, Hexagon, Pencil } from 'lucide-react';
 import { motion } from 'motion/react';
 import type React from 'react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -23,7 +13,8 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { cn } from '@/lib/utils';
+import { PumpCardActions } from '@/pages/AdvancedMode/PumpsPage/components/PumpCardActions';
+import { PumpCardStatus } from '@/pages/AdvancedMode/PumpsPage/components/PumpCardStatus';
 import { StepperMotorIcon } from '@/pages/AdvancedMode/PumpsPage/components/StepperMotorIcon';
 import PumpService from '../../../../services/pump.service';
 import WebSocketService from '../../../../services/websocket.service';
@@ -316,107 +307,26 @@ export const PumpCard: React.FC<PumpCardProps> = ({ pump }) => {
           </div>
         </CardHeader>
 
-        <CardContent className="flex-1 p-4 pt-0 space-y-3">
-          {/* Status Badges */}
-          <div className="flex gap-2">
-            <Badge
-              variant={stateInfo.pumpState.variant}
-              className="text-xs h-5"
-            >
-              {stateInfo.pumpState.label}
-            </Badge>
-            <Badge
-              variant={stateInfo.pumpedUpState.variant}
-              className="text-xs h-5"
-            >
-              {stateInfo.pumpedUpState.label}
-            </Badge>
-          </div>
-
-          {/* Main Info */}
-          <div className="space-y-2">
-            <div className="flex items-center justify-between p-2.5 rounded-md bg-muted/50">
-              <span className="text-xs text-muted-foreground font-medium">
-                {t('pump_card.ingredient')}
-              </span>
-              <span className="text-sm font-semibold truncate ml-2">
-                {printIngredient}
-              </span>
-            </div>
-            <div className="flex items-center justify-between p-2.5 rounded-md bg-muted/50">
-              <span className="text-xs text-muted-foreground font-medium">
-                {t('pump_card.filling_level')}
-              </span>
-              <span
-                className={cn(
-                  'text-sm font-semibold',
-                  displayAttributes.fillingLevel.className,
-                )}
-              >
-                {displayAttributes.fillingLevel.label}
-              </span>
-            </div>
-          </div>
+        <CardContent className="flex-1 p-4 pt-0">
+          <PumpCardStatus
+            printIngredient={printIngredient}
+            fillingLevel={displayAttributes.fillingLevel}
+            pumpState={stateInfo.pumpState}
+            pumpedUpState={stateInfo.pumpedUpState}
+          />
         </CardContent>
 
         <CardFooter className="p-4 pt-0 flex gap-2">
-          {pump.canControlDirection && (
-            <>
-              <Button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onClickPumpUp(true);
-                }}
-                disabled={!!pumpJobState.runningState || pumpDownBtnLoading}
-                variant="outline"
-                size="sm"
-                title={t('pump_card.pump_down')}
-                className="flex-1"
-              >
-                <CornerUpLeft className="h-4 w-4" />
-              </Button>
-              <Button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onClickPumpUp(false);
-                }}
-                disabled={!!pumpJobState.runningState || pumpUpBtnLoading}
-                variant="outline"
-                size="sm"
-                title={t('pump_card.pump_up')}
-                className="flex-1"
-              >
-                <CornerUpRight className="h-4 w-4" />
-              </Button>
-            </>
-          )}
-          <Button
-            onClick={(e) => {
-              e.stopPropagation();
-              onClickTurnOnOrOffPump();
-            }}
-            disabled={runningBtnLoading}
-            variant={pumpJobState.runningState ? 'destructive' : 'default'}
-            size="sm"
-            title={
-              pumpJobState.runningState
-                ? t('pump_card.stop')
-                : t('pump_card.start')
-            }
-            className="flex-1"
-          >
-            {pumpJobState.runningState ? (
-              <>
-                <StopCircle className="h-4 w-4 mr-1.5" />
-                Stop
-              </>
-            ) : (
-              <>
-                <PlayCircle className="h-4 w-4 mr-1.5" />
-                Start
-              </>
-            )}
-          </Button>
+          <PumpCardActions
+            canControlDirection={!!pump.canControlDirection}
+            isRunning={!!pumpJobState.runningState}
+            pumpDownLoading={pumpDownBtnLoading}
+            pumpUpLoading={pumpUpBtnLoading}
+            runningLoading={runningBtnLoading}
+            onPumpDown={() => onClickPumpUp(true)}
+            onPumpUp={() => onClickPumpUp(false)}
+            onToggleRunning={onClickTurnOnOrOffPump}
+          />
         </CardFooter>
       </Card>
     </motion.div>
