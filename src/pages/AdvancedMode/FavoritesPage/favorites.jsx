@@ -1,3 +1,4 @@
+import { PageHeader } from '@/components/AdvancedMode/PageHeader';
 import { Navigate, useNavigate } from '@tanstack/react-router';
 import { AlertCircle, Heart, Trash2 } from 'lucide-react';
 import React, { useState, useEffect, useCallback } from 'react';
@@ -91,28 +92,18 @@ const Favorites = ({ sidebarCollapsed = false }) => {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="sticky top-16 z-40 border-b-hairline border-border bg-background">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <h1 className="text-2xl font-bold">Favorites</h1>
-              {favorites.length > 0 && (
-                <Badge variant="default">{favorites.length}</Badge>
-              )}
-            </div>
-            {favorites.length > 0 && (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setShowClearConfirm(true)}
-              >
-                <Trash2 className="size-6 mr-2 text-danger" />
-                Clear All
-              </Button>
-            )}
-          </div>
-        </div>
-      </div>
+      <PageHeader
+        title="Favorites"
+        count={favorites.length > 0 ? favorites.length : undefined}
+        action={
+          favorites.length > 0 && (
+            <Button variant="outline" onClick={() => setShowClearConfirm(true)}>
+              <Trash2 className="text-danger" />
+              Clear all
+            </Button>
+          )
+        }
+      />
 
       <div className="container mx-auto px-4 py-6 sm:py-8">
         {favorites.length === 0 ? (

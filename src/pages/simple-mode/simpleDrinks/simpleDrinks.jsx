@@ -179,13 +179,7 @@ function SimpleDrinks() {
         <div className="px-3 sm:px-4 py-3 sm:py-4 space-y-4">
           {/* Header Section */}
           <div className="flex items-center justify-between">
-            <div>
-              <p className="eyebrow">01 · the menu</p>
-              <h1 className="text-3xl sm:text-4xl">
-                <span className="text-foreground-muted">Thirsty? </span>
-                Pick a drink.
-              </h1>
-            </div>
+            <h1 className="text-3xl sm:text-4xl">Drinks</h1>
             <Button
               variant={isFilterPanelOpen ? 'default' : 'ghost'}
               size="icon"

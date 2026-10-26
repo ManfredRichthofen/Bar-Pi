@@ -3,6 +3,7 @@ import type React from 'react';
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { PageHeader } from '@/components/AdvancedMode/PageHeader';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { usePumps } from '../../../hooks/usePumps';
@@ -55,49 +56,26 @@ export const PumpsPage: React.FC = () => {
         </div>
       )}
 
-      <div className="sticky top-16 z-40 border-b-hairline border-border bg-background pt-2">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-5">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-            <div>
-              <h1 className="text-3xl font-bold tracking-tight">
-                Pump Management
-              </h1>
-              <p className="text-sm text-foreground-muted mt-1">
-                Manage and monitor your pump system
-              </p>
-            </div>
-            <div className="flex flex-wrap gap-2">
-              <Button
-                variant="default"
-                size="default"
-                onClick={() => setShowAddDialog(true)}
-                className="gap-2"
-              >
-                <PlusCircle className="size-6" />
-                Add Pump
-              </Button>
-              <Button
-                variant="default"
-                size="default"
-                onClick={onClickTurnOnAllPumps}
-                className="bg-primary hover:bg-primary gap-2"
-              >
-                <PlayCircle className="size-6" />
-                Start All
-              </Button>
-              <Button
-                variant="destructive"
-                size="default"
-                onClick={onClickTurnOffAllPumps}
-                className="gap-2"
-              >
-                <StopCircle className="size-6" />
-                Stop All
-              </Button>
-            </div>
-          </div>
-        </div>
-      </div>
+      <PageHeader
+        title="Pumps"
+        subtitle="Manage and monitor your pump system"
+        action={
+          <>
+            <Button variant="outline" onClick={() => setShowAddDialog(true)}>
+              <PlusCircle />
+              Add pump
+            </Button>
+            <Button onClick={onClickTurnOnAllPumps}>
+              <PlayCircle />
+              Start all
+            </Button>
+            <Button variant="destructive" onClick={onClickTurnOffAllPumps}>
+              <StopCircle />
+              Stop all
+            </Button>
+          </>
+        }
+      />
 
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
         {error && (

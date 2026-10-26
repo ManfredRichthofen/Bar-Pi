@@ -1,3 +1,4 @@
+import { PageHeader } from '@/components/AdvancedMode/PageHeader';
 import { Navigate } from '@tanstack/react-router';
 import { debounce } from 'es-toolkit';
 import { ArrowUp, Filter } from 'lucide-react';
@@ -135,33 +136,25 @@ const Drinks = ({ sidebarCollapsed = false }) => {
 
   return (
     <div className="min-h-screen bg-background">
-      <div
-        className={`sticky top-16 z-40 border-b-hairline border-border bg-background transition-colors ${
-          isHeaderVisible
-            ? 'translate-y-0 opacity-100'
-            : '-translate-y-full opacity-0'
-        }`}
-      >
-        <div className="px-3 sm:px-4 py-3 sm:py-4 space-y-4">
-          {/* Header Section */}
-          <div className="flex items-center justify-between">
-            <h1 className="text-3xl sm:text-4xl">Available Drinks</h1>
-            <Button
-              variant={isFilterPanelOpen ? 'default' : 'ghost'}
-              size="icon"
-              onClick={handleFilterToggle}
-              className="rounded-lg transition-colors"
-            >
-              <Filter className="size-6 sm:h-5 sm:w-5" />
-              {Object.values(filters).some(Boolean) && (
-                <span className="absolute -top-1 -right-1 bg-primary text-primary-foreground rounded-full size-6 text-sm font-medium flex items-center justify-center">
-                  {Object.values(filters).filter(Boolean).length}
-                </span>
-              )}
-            </Button>
-          </div>
-
-          {/* Search Bar */}
+      <PageHeader
+        title="Drinks"
+        isVisible={isHeaderVisible}
+        action={
+          <Button
+            variant={isFilterPanelOpen ? 'default' : 'outline'}
+            onClick={handleFilterToggle}
+            className="relative"
+          >
+            <Filter />
+            Filters
+            {Object.values(filters).some(Boolean) && (
+              <span className="flex size-6 items-center justify-center rounded-full bg-primary-tint font-mono text-sm text-primary-tint-ink">
+                {Object.values(filters).filter(Boolean).length}
+              </span>
+            )}
+          </Button>
+        }
+        searchComponent={
           <SearchInput
             value={searchValue}
             onChange={handleSearchInput}
@@ -169,24 +162,20 @@ const Drinks = ({ sidebarCollapsed = false }) => {
             loading={searchLoading}
             placeholder="Search drinks..."
             debounceMs={500}
-            className="max-w-2xl mx-auto"
-            
-            buttonClassName="rounded-lg"
           />
-
-          {/* Filter Panel */}
-          {isFilterPanelOpen && (
-            <FilterPanel
-              filters={filters}
-              onFilterChange={handleFilterChange}
-              onTogglePanel={() => setIsFilterPanelOpen(false)}
-              isOpen={isFilterPanelOpen}
-              variant="advanced"
-              showCloseButton={true}
-            />
-          )}
-        </div>
-      </div>
+        }
+      >
+        {isFilterPanelOpen && (
+          <FilterPanel
+            filters={filters}
+            onFilterChange={handleFilterChange}
+            onTogglePanel={() => setIsFilterPanelOpen(false)}
+            isOpen={isFilterPanelOpen}
+            variant="advanced"
+            showCloseButton={true}
+          />
+        )}
+      </PageHeader>
 
       {/* Main Content */}
       <VirtualDrinksGrid

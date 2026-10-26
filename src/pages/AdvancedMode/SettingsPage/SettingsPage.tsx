@@ -1,3 +1,4 @@
+import { PageHeader } from '@/components/AdvancedMode/PageHeader';
 import { useNavigate } from '@tanstack/react-router';
 import {
   Bell,
@@ -60,13 +61,10 @@ export const SettingsPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="sticky top-0 z-20 bg-background border-b shadow-sm">
-        <div className="container mx-auto px-4 py-4">
-          <h1 className="text-2xl font-bold">
-            {t('settings.title', 'Settings')}
-          </h1>
-        </div>
-      </div>
+      <PageHeader
+        title={t('settings.title', 'Settings')}
+        subtitle="Language, updates and appearance"
+      />
 
       <div className="container mx-auto px-4 py-6 sm:py-8 max-w-3xl">
         <div className="space-y-6">
