@@ -46,10 +46,10 @@ const GlassSelector = ({
           <GlassWater size={16} />
           Glass Size
         </Label>
-        <div className="flex items-center gap-3 p-4 bg-card rounded-lg border">
-          <GlassWater size={24} className="text-muted-foreground" />
+        <div className="flex items-center gap-3 p-4 bg-surface rounded-lg border">
+          <GlassWater size={24} className="text-foreground-muted" />
           <Loader2 className="size-6 animate-spin" />
-          <span className="text-muted-foreground text-base">
+          <span className="text-foreground-muted text-base">
             Loading glass...
           </span>
         </div>
@@ -79,7 +79,7 @@ const GlassSelector = ({
                   <div className="font-semibold text-base truncate">
                     {selectedGlass.name}
                   </div>
-                  <div className="text-sm text-muted-foreground">
+                  <div className="text-sm text-foreground-muted">
                     {getGlassSizeMl(selectedGlass)}ml capacity
                   </div>
                 </div>
@@ -89,7 +89,7 @@ const GlassSelector = ({
               </Badge>
             </div>
           ) : (
-            <div className="flex items-center gap-2 text-muted-foreground">
+            <div className="flex items-center gap-2 text-foreground-muted">
               <GlassWater size={24} />
               <span className="text-base">Select a glass</span>
             </div>
@@ -118,11 +118,11 @@ const GlassSelector = ({
               <label
                 key={glass.id}
                 className={`
-                  cursor-pointer transition-all duration-200 rounded-lg border p-4
+                  cursor-pointer transition-colors rounded-lg border p-4
                   ${
                     selectedGlass?.id === glass.id
                       ? 'bg-primary text-primary-foreground shadow-lg ring-2 ring-primary'
-                      : 'bg-card hover:bg-accent hover:border-primary/50'
+                      : 'bg-surface hover:bg-primary-tint hover:border-border-strong'
                   }
                 `}
               >

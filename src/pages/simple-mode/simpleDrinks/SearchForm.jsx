@@ -9,7 +9,7 @@ const SearchForm = React.memo(({ onSubmit, onInput, loading, value }) => (
       <Input
         name="search"
         value={value}
-        className="h-12 w-full text-base pr-12"
+        className="w-full text-base pr-12"
         placeholder="Search drinks..."
         onChange={onInput}
       />
@@ -20,9 +20,9 @@ const SearchForm = React.memo(({ onSubmit, onInput, loading, value }) => (
         className="absolute right-2 top-1/2 -translate-y-1/2"
       >
         {loading ? (
-          <Loader2 className="w-5 h-5 animate-spin" />
+          <Loader2 className="size-6 animate-spin" />
         ) : (
-          <Search className="w-5 h-5" />
+          <Search className="size-6" />
         )}
       </Button>
     </div>

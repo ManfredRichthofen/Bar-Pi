@@ -7,7 +7,7 @@ const FilterButtons = React.memo(({ filters, onFilterChange }) => (
       <Button
         variant={filters.automatic ? 'default' : 'outline'}
         size="sm"
-        className="h-10"
+        
         onClick={() => onFilterChange('automatic')}
         title="Show drinks with all automated ingredients"
       >
@@ -19,7 +19,7 @@ const FilterButtons = React.memo(({ filters, onFilterChange }) => (
       <Button
         variant={filters.manual ? 'default' : 'outline'}
         size="sm"
-        className="h-10"
+        
         onClick={() => onFilterChange('manual')}
         title="Show drinks that require manual preparation"
       >
@@ -31,7 +31,7 @@ const FilterButtons = React.memo(({ filters, onFilterChange }) => (
       <Button
         variant={filters.available ? 'default' : 'outline'}
         size="sm"
-        className="h-10"
+        
         onClick={() => onFilterChange('available')}
         title="Show drinks with ingredients on pumps or in the bar"
       >
@@ -45,7 +45,7 @@ const FilterButtons = React.memo(({ filters, onFilterChange }) => (
       <Button
         variant="ghost"
         size="sm"
-        className="h-10 text-destructive hover:bg-destructive/10"
+        className="text-danger hover:bg-danger-tint"
         onClick={() => onFilterChange('clear')}
       >
         Clear Filters

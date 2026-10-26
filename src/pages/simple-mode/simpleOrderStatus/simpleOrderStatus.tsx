@@ -72,12 +72,12 @@ const SimpleOrderStatus = () => {
       PUMPING: { label: 'Pumping', color: 'text-primary' },
       MANUAL_INGREDIENT_ADD: {
         label: 'Manual Add Required',
-        color: 'text-accent-foreground',
+        color: 'text-primary-tint-ink',
       },
       COMPLETED: { label: 'Completed', color: 'text-primary' },
-      CANCELLED: { label: 'Cancelled', color: 'text-destructive' },
+      CANCELLED: { label: 'Cancelled', color: 'text-danger' },
     };
-    return stateMap[state] || { label: state, color: 'text-muted-foreground' };
+    return stateMap[state] || { label: state, color: 'text-foreground-muted' };
   };
 
   // Loading state
@@ -86,7 +86,7 @@ const SimpleOrderStatus = () => {
       <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4">
         <Loader2 className="w-12 h-12 animate-spin text-primary mb-4" />
         <h2 className="text-xl font-semibold mb-2">Connecting...</h2>
-        <p className="text-sm text-muted-foreground">
+        <p className="text-sm text-foreground-muted">
           Fetching your order status
         </p>
       </div>
@@ -97,7 +97,7 @@ const SimpleOrderStatus = () => {
   if (!progress) {
     return (
       <div className="min-h-screen bg-background flex flex-col">
-        <div className="sticky top-0 z-20 bg-background/95 backdrop-blur-md border-b border-border shadow-sm pt-2">
+        <div className="sticky top-0 z-20 bg-background border-b border-border shadow-sm pt-2">
           <div className="px-4 py-4 flex items-center justify-between">
             <Button
               variant="ghost"
@@ -114,9 +114,9 @@ const SimpleOrderStatus = () => {
         <div className="flex-1 flex items-center justify-center p-4">
           <Card className="w-full max-w-md">
             <CardContent className="pt-6 text-center">
-              <Clock className="w-16 h-16 mx-auto mb-4 text-muted-foreground/60" />
+              <Clock className="w-16 h-16 mx-auto mb-4 text-foreground-muted" />
               <h2 className="text-xl font-bold mb-2">No Active Order</h2>
-              <p className="text-muted-foreground mb-6">
+              <p className="text-foreground-muted mb-6">
                 There is currently no cocktail being prepared
               </p>
               <Button
@@ -138,7 +138,7 @@ const SimpleOrderStatus = () => {
   return (
     <div className="min-h-screen bg-background flex flex-col">
       {/* Header */}
-      <div className="sticky top-0 z-20 bg-background/95 backdrop-blur-md border-b border-border shadow-sm pt-2">
+      <div className="sticky top-0 z-20 bg-background border-b border-border shadow-sm pt-2">
         <div className="px-4 py-4 flex items-center justify-between">
           <Button
             variant="ghost"
@@ -177,7 +177,7 @@ const SimpleOrderStatus = () => {
               {/* Progress Bar */}
               <div className="space-y-2">
                 <div className="flex justify-between text-base">
-                  <span className="text-muted-foreground">Progress</span>
+                  <span className="text-foreground-muted">Progress</span>
                   <span className="font-semibold">
                     {Math.round(progress.progress)}%
                   </span>
@@ -188,9 +188,9 @@ const SimpleOrderStatus = () => {
               {/* Manual Ingredient Prompt */}
               {progress.state === 'MANUAL_INGREDIENT_ADD' &&
                 progress.currentIngredientsToAddManually && (
-                  <Card className="bg-accent/10 border-accent/20">
+                  <Card className="bg-primary-tint border-border-strong">
                     <CardContent className="pt-6">
-                      <h3 className="font-semibold mb-3 text-accent-foreground">
+                      <h3 className="font-semibold mb-3 text-primary-tint-ink">
                         Please add the following ingredients manually:
                       </h3>
                       <ul className="space-y-2 mb-4">
@@ -200,9 +200,9 @@ const SimpleOrderStatus = () => {
                               key={idx}
                               className="flex items-center gap-2 text-base"
                             >
-                              <div className="w-2 h-2 rounded-full bg-accent" />
+                              <div className="w-2 h-2 rounded-full bg-primary-tint" />
                               <span className="font-medium">{ing.name}</span>
-                              <span className="text-muted-foreground">
+                              <span className="text-foreground-muted">
                                 - {ing.amount}ml
                               </span>
                             </li>
@@ -231,7 +231,7 @@ const SimpleOrderStatus = () => {
               {/* Recipe Details */}
               {progress.recipe.description && (
                 <div className="pt-2">
-                  <h3 className="font-semibold mb-2 text-sm text-muted-foreground">
+                  <h3 className="font-semibold mb-2 text-sm text-foreground-muted">
                     About
                   </h3>
                   <p className="text-base">{progress.recipe.description}</p>
@@ -242,7 +242,7 @@ const SimpleOrderStatus = () => {
               {progress.recipe.ingredients &&
                 progress.recipe.ingredients.length > 0 && (
                   <div className="pt-2">
-                    <h3 className="font-semibold mb-2 text-sm text-muted-foreground">
+                    <h3 className="font-semibold mb-2 text-sm text-foreground-muted">
                       Ingredients
                     </h3>
                     <div className="grid grid-cols-2 gap-2">
@@ -250,7 +250,7 @@ const SimpleOrderStatus = () => {
                         (ing: any, idx: number) => (
                           <div
                             key={idx}
-                            className="flex items-center gap-2 text-base bg-muted/50 rounded-lg p-2"
+                            className="flex items-center gap-2 text-base bg-surface-sunken rounded-lg p-2"
                           >
                             <div className="w-1.5 h-1.5 rounded-full bg-primary" />
                             <span className="truncate">{ing.name}</span>

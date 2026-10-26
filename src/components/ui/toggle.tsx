@@ -6,17 +6,17 @@ import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '@/lib/utils';
 
 const toggleVariants = cva(
-  "hover:text-foreground aria-pressed:bg-muted focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive gap-1 rounded-md text-sm font-medium transition-[color,box-shadow] [&_svg:not([class*='size-'])]:size-4 group/toggle hover:bg-muted inline-flex items-center justify-center whitespace-nowrap outline-none focus-visible:ring-[3px] disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0",
+  "group/toggle inline-flex items-center justify-center gap-2 rounded-control text-base font-semibold whitespace-nowrap text-foreground transition-[background-color,box-shadow] tint-hover tint-press aria-pressed:bg-primary-tint aria-pressed:text-primary-tint-ink aria-invalid:border-danger disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-6",
   {
     variants: {
       variant: {
         default: 'bg-transparent',
-        outline: 'border-input hover:bg-muted border bg-transparent shadow-xs',
+        outline: 'border-control border-border-strong bg-surface shadow-sm',
       },
       size: {
-        default: 'h-9 min-w-9 px-2',
-        sm: 'h-8 min-w-8 px-1.5',
-        lg: 'h-10 min-w-10 px-2.5',
+        default: 'min-h-control-md min-w-control-md px-4',
+        sm: 'min-h-control-sm min-w-control-sm px-3',
+        lg: 'min-h-control-lg min-w-control-lg px-5',
       },
     },
     defaultVariants: {

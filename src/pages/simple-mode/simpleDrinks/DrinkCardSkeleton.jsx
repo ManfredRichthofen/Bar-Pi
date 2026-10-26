@@ -3,7 +3,7 @@ import { Card, CardContent } from '@/components/ui/card';
 
 const DrinkCardSkeleton = () => {
   return (
-    <Card className="overflow-hidden hover:shadow-lg transition-all duration-200">
+    <Card className="overflow-hidden hover:shadow-lg transition-colors">
       <CardContent className="p-0">
         {/* Image skeleton */}
         <Skeleton className="w-full aspect-square" />

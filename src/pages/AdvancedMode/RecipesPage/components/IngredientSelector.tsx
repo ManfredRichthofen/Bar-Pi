@@ -64,12 +64,12 @@ export const IngredientSelector: React.FC<IngredientSelectorProps> = ({
       }`}
     >
       <div>
-        <Label className="text-xs sm:text-sm">Ingredient</Label>
+        <Label className="text-sm sm:text-sm">Ingredient</Label>
         <Select
           value={stepIngredient.ingredient?.id?.toString() || ''}
           onValueChange={updateIngredient}
         >
-          <SelectTrigger className="h-10 sm:h-11">
+          <SelectTrigger >
             <SelectValue>
               {stepIngredient.ingredient
                 ? stepIngredient.ingredient.name
@@ -87,7 +87,7 @@ export const IngredientSelector: React.FC<IngredientSelectorProps> = ({
       </div>
 
       <div>
-        <Label className="text-xs sm:text-sm">Amount</Label>
+        <Label className="text-sm sm:text-sm">Amount</Label>
         <Input
           type="number"
           value={stepIngredient.amount}
@@ -98,9 +98,9 @@ export const IngredientSelector: React.FC<IngredientSelectorProps> = ({
       </div>
 
       <div>
-        <Label className="text-xs sm:text-sm">Unit</Label>
+        <Label className="text-sm sm:text-sm">Unit</Label>
         <Select value={stepIngredient.scale || ''} onValueChange={updateScale}>
-          <SelectTrigger className="h-10 sm:h-11">
+          <SelectTrigger >
             <SelectValue>{stepIngredient.scale || 'Select unit'}</SelectValue>
           </SelectTrigger>
           <SelectContent>
@@ -119,7 +119,7 @@ export const IngredientSelector: React.FC<IngredientSelectorProps> = ({
             checked={stepIngredient.boostable || false}
             onCheckedChange={(checked) => onUpdate('boostable', checked)}
           />
-          <Label className="text-xs cursor-pointer">Boostable</Label>
+          <Label className="text-sm cursor-pointer">Boostable</Label>
         </div>
       )}
 
@@ -127,10 +127,10 @@ export const IngredientSelector: React.FC<IngredientSelectorProps> = ({
         type="button"
         variant="ghost"
         size="icon"
-        className="h-10 w-10 sm:h-11 sm:w-11"
+        className="w-10 sm:w-11"
         onClick={onRemove}
       >
-        <X className="h-4 w-4" />
+        <X className="size-6" />
       </Button>
     </div>
   );

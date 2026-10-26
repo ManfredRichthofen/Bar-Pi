@@ -37,11 +37,11 @@ export const PumpCardActions: React.FC<PumpCardActionsProps> = ({
             }}
             disabled={isRunning || pumpDownLoading}
             variant="outline"
-            size="sm"
+            size="icon"
             title={t('pump_card.pump_down')}
-            className="flex-1"
+            className="flex-none"
           >
-            <CornerUpLeft className="h-4 w-4" />
+            <CornerUpLeft className="size-6" />
           </Button>
           <Button
             onClick={(e) => {
@@ -50,11 +50,11 @@ export const PumpCardActions: React.FC<PumpCardActionsProps> = ({
             }}
             disabled={isRunning || pumpUpLoading}
             variant="outline"
-            size="sm"
+            size="icon"
             title={t('pump_card.pump_up')}
-            className="flex-1"
+            className="flex-none"
           >
-            <CornerUpRight className="h-4 w-4" />
+            <CornerUpRight className="size-6" />
           </Button>
         </>
       )}
@@ -65,18 +65,18 @@ export const PumpCardActions: React.FC<PumpCardActionsProps> = ({
         }}
         disabled={runningLoading}
         variant={isRunning ? 'destructive' : 'default'}
-        size="sm"
+        size="default"
         title={isRunning ? t('pump_card.stop') : t('pump_card.start')}
-        className="flex-1"
+        className="min-w-28 flex-1"
       >
         {isRunning ? (
           <>
-            <StopCircle className="h-4 w-4 mr-1.5" />
+            <StopCircle className="size-6" />
             Stop
           </>
         ) : (
           <>
-            <PlayCircle className="h-4 w-4 mr-1.5" />
+            <PlayCircle className="size-6" />
             Start
           </>
         )}

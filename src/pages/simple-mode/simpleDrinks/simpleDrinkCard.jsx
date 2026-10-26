@@ -76,33 +76,33 @@ const SimpleDrinkCard = ({ recipe, onCardClick }) => {
       className="h-full w-full"
     >
       <Card
-        className="group cursor-pointer overflow-hidden w-full h-full border-border/50 hover:border-border hover:shadow-xl transition-all duration-300 p-0"
+        className="group cursor-pointer overflow-hidden w-full h-full shadow-md [@media(hover:hover)]:hover:border-border-strong transition-colors p-0"
         onClick={() => onCardClick(recipe)}
       >
         <div className="flex flex-col">
           {/* Image section - fixed aspect ratio */}
           <figure
             ref={elementRef}
-            className="relative w-full aspect-[4/3] overflow-hidden bg-gradient-to-br from-muted to-accent flex-shrink-0"
+            className="relative w-full aspect-[4/3] overflow-hidden bg-surface-sunken flex-shrink-0"
           >
             {imageLoading ? (
               <div className="w-full h-full flex items-center justify-center">
-                <Loader2 className="h-8 w-8 animate-spin text-muted-foreground/40" />
+                <Loader2 className="h-8 w-8 animate-spin text-foreground-muted" />
               </div>
             ) : imageUrl ? (
               <>
                 <img
                   src={imageUrl}
                   alt={recipe.name}
-                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                  className="w-full h-full object-cover transition-transform  "
                 />
                 {/* Gradient overlay for better badge visibility */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/0 to-black/20" />
+                <div className="absolute inset-0 " />
               </>
             ) : (
               <div className="w-full h-full flex flex-col items-center justify-center gap-2">
-                <GlassWater className="h-12 w-12 text-muted-foreground/30" />
-                <span className="text-muted-foreground/60 text-sm font-medium">
+                <GlassWater className="h-12 w-12 text-foreground-muted" />
+                <span className="text-foreground-muted text-sm font-medium">
                   {imageError ? 'Failed to load' : 'No image'}
                 </span>
               </div>
@@ -113,7 +113,7 @@ const SimpleDrinkCard = ({ recipe, onCardClick }) => {
               <div className="absolute top-3 left-3 z-10">
                 <Badge
                   variant="destructive"
-                  className="shadow-md"
+                  className=""
                 >
                   21+
                 </Badge>
@@ -122,9 +122,9 @@ const SimpleDrinkCard = ({ recipe, onCardClick }) => {
 
             {/* Availability indicator - positioned on image */}
             <div className="absolute bottom-3 right-3 z-10">
-              <div className="flex items-center gap-2 px-2.5 py-1.5 rounded-full bg-background/90 backdrop-blur-sm shadow-md">
+              <div className="flex items-center gap-2 px-3 py-1.5 rounded-sm bg-background shadow-sm">
                 <div
-                  className={`w-3 h-3 rounded-full ${availabilityColor}`}
+                  className={`size-4 rounded-full ${availabilityColor}`}
                 ></div>
                 <span className="text-sm font-semibold text-foreground whitespace-nowrap">
                   {availabilityText}

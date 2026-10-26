@@ -1,122 +1,48 @@
 import { Link, useLocation } from '@tanstack/react-router';
 import { Clock, GlassWater, Settings } from 'lucide-react';
-import { motion } from 'motion/react';
 import type React from 'react';
 import { useTranslation } from 'react-i18next';
 import { cn } from '@/lib/utils';
 
+const NAV = [
+  { to: '/simple/drinks', icon: GlassWater, label: 'navigation.drinks' },
+  { to: '/simple/order-status', icon: Clock, label: 'navigation.order_status' },
+  { to: '/simple/settings', icon: Settings, label: 'navigation.settings' },
+] as const;
+
+/** Bottom navigation: three 56px targets; the current page is an ink pill. */
 const Dock: React.FC = () => {
   const { t } = useTranslation();
-  const location = useLocation();
-
-  const isActive = (path: string) => {
-    return location.pathname.startsWith(path);
-  };
-
-  const dockVariants = {
-    hidden: { y: 100, opacity: 0 },
-    visible: {
-      y: 0,
-      opacity: 1,
-      transition: {
-        type: 'spring' as const,
-        stiffness: 300,
-        damping: 25,
-        staggerChildren: 0.1,
-        delayChildren: 0.2,
-      },
-    },
-  };
-
-  const itemVariants = {
-    hidden: { y: 20, opacity: 0 },
-    visible: {
-      y: 0,
-      opacity: 1,
-      transition: {
-        type: 'spring' as const,
-        stiffness: 300,
-        damping: 25,
-      },
-    },
-  };
+  const { pathname } = useLocation();
 
   return (
-    <motion.div
-      className="fixed inset-x-0 bottom-0 z-50 bg-gradient-to-t from-background via-background/98 to-background/95 backdrop-blur-xl border-t border-border/50 shadow-xl pointer-events-auto"
-      initial="hidden"
-      animate="visible"
-      variants={dockVariants}
-      style={{ position: 'fixed' }}
+    <nav
+      aria-label="Main"
+      className="pointer-events-auto fixed inset-x-0 bottom-0 z-50 border-t-hairline border-border bg-background"
     >
-      <div className="flex justify-center items-center h-16 sm:h-18 px-4 sm:px-6 max-w-3xl mx-auto gap-3 sm:gap-6 touch-none">
-        <motion.div
-          variants={itemVariants}
-          whileHover={{ scale: 1.05, y: -2 }}
-          whileTap={{ scale: 0.95 }}
-          className="flex-1 max-w-[110px]"
-        >
-          <Link
-            to="/simple/drinks"
-            className={cn(
-              'flex flex-col items-center justify-center gap-1 py-2 px-3 sm:py-2.5 sm:px-4 rounded-xl transition-all duration-200 w-full',
-              isActive('/simple/drinks')
-                ? 'bg-gradient-to-br from-primary to-primary/80 text-primary-foreground shadow-md'
-                : 'text-foreground/60 hover:text-foreground hover:bg-muted/50',
-            )}
-          >
-            <GlassWater className="h-6 w-6 sm:h-7 sm:w-7" />
-            <span className="text-xs font-medium">
-              {t('navigation.drinks')}
-            </span>
-          </Link>
-        </motion.div>
-
-        <motion.div
-          variants={itemVariants}
-          whileHover={{ scale: 1.05, y: -2 }}
-          whileTap={{ scale: 0.95 }}
-          className="flex-1 max-w-[110px]"
-        >
-          <Link
-            to="/simple/order-status"
-            className={cn(
-              'flex flex-col items-center justify-center gap-1 py-2 px-3 sm:py-2.5 sm:px-4 rounded-xl transition-all duration-200 w-full',
-              isActive('/simple/order-status')
-                ? 'bg-gradient-to-br from-primary to-primary/80 text-primary-foreground shadow-md'
-                : 'text-foreground/60 hover:text-foreground hover:bg-muted/50',
-            )}
-          >
-            <Clock className="h-6 w-6 sm:h-7 sm:w-7" />
-            <span className="text-xs font-medium">
-              {t('navigation.order_status')}
-            </span>
-          </Link>
-        </motion.div>
-
-        <motion.div
-          variants={itemVariants}
-          whileHover={{ scale: 1.05, y: -2 }}
-          whileTap={{ scale: 0.95 }}
-          className="flex-1 max-w-[110px]"
-        >
-          <Link
-            to="/simple/settings"
-            className={cn(
-              'flex flex-col items-center justify-center gap-1 py-2 px-3 sm:py-2.5 sm:px-4 rounded-xl transition-all duration-200 w-full',
-              isActive('/simple/settings')
-                ? 'bg-gradient-to-br from-primary to-primary/80 text-primary-foreground shadow-md'
-                : 'text-foreground/60 hover:text-foreground hover:bg-muted/50',
-            )}
-          >
-            <Settings className="h-6 w-6 sm:h-7 sm:w-7" />
-            <span className="text-xs font-medium">
-              {t('navigation.settings')}
-            </span>
-          </Link>
-        </motion.div>
-      </div>
-    </motion.div>
+      <ul className="mx-auto flex max-w-3xl items-stretch justify-center gap-2 p-2">
+        {NAV.map(({ to, icon: Icon, label }) => {
+          const active = pathname.startsWith(to);
+          return (
+            <li key={to} className="max-w-44 flex-1">
+              <Link
+                to={to}
+                aria-current={active ? 'page' : undefined}
+                className={cn(
+                  'flex min-h-control-lg w-full flex-col items-center justify-center gap-0.5 rounded-full px-4 text-sm font-semibold transition-colors',
+                  active
+                    ? 'bg-primary text-primary-foreground'
+                    : 'text-foreground-muted [@media(hover:hover)]:hover:bg-surface-sunken [@media(hover:hover)]:hover:text-foreground',
+                )}
+              >
+                <Icon className="size-6" />
+                <span>{t(label)}</span>
+              </Link>
+            </li>
+          );
+        })}
+      </ul>
+    </nav>
   );
 };
 

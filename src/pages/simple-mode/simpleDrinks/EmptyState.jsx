@@ -60,8 +60,8 @@ const EmptyState = ({ type = 'no-results', onClearFilters }) => {
               }}
               className="mb-6"
             >
-              <div className="mx-auto w-20 h-20 rounded-full bg-muted/50 flex items-center justify-center">
-                <Icon className="w-10 h-10 text-muted-foreground/60" />
+              <div className="mx-auto w-20 h-20 rounded-full bg-surface-sunken flex items-center justify-center">
+                <Icon className="w-10 h-10 text-foreground-muted" />
               </div>
             </motion.div>
 
@@ -78,7 +78,7 @@ const EmptyState = ({ type = 'no-results', onClearFilters }) => {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.4 }}
-              className="text-muted-foreground mb-6 max-w-sm mx-auto"
+              className="text-foreground-muted mb-6 max-w-sm mx-auto"
             >
               {state.description}
             </motion.p>

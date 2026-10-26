@@ -33,12 +33,12 @@ const RecipeDetails = ({ recipe }: RecipeDetailsProps) => {
               {recipe.ingredients.map((ingredient, index) => (
                 <div
                   key={`${ingredient.name}-${index}`}
-                  className="flex justify-between items-center p-3 bg-muted/50 rounded-lg hover:bg-muted transition-colors"
+                  className="flex justify-between items-center p-3 bg-surface-sunken rounded-lg hover:bg-surface-sunken transition-colors"
                 >
                   <span className="font-medium text-base min-w-0 break-words flex-1 pr-2">
                     {ingredient.name}
                   </span>
-                  <span className="text-sm text-muted-foreground shrink-0 font-semibold">
+                  <span className="text-sm text-foreground-muted shrink-0 font-semibold">
                     {ingredient.amount} {ingredient.unit}
                   </span>
                 </div>
@@ -58,7 +58,7 @@ const RecipeDetails = ({ recipe }: RecipeDetailsProps) => {
                 About This Drink
               </h3>
             </div>
-            <p className="text-muted-foreground text-base leading-relaxed">
+            <p className="text-foreground-muted text-base leading-relaxed">
               {recipe.description}
             </p>
           </CardContent>

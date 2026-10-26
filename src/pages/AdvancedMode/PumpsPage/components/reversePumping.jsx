@@ -184,7 +184,7 @@ const ReversePumping = () => {
   return (
     <div className="min-h-screen bg-background p-4 sm:p-6">
       <div className="max-w-4xl mx-auto">
-        <h1 className="text-xl sm:text-2xl font-bold mb-4">
+        <h1 className="mb-4 text-3xl sm:text-4xl">
           {t('component.reverse_pump_settings.headline', {
             defaultValue: 'Reverse Pump Settings',
           })}
@@ -192,13 +192,13 @@ const ReversePumping = () => {
 
         {success && (
           <Alert className="mb-4">
-            <CheckCircle className="h-4 w-4" />
+            <CheckCircle className="size-6" />
             <AlertDescription>{success}</AlertDescription>
           </Alert>
         )}
         {error && (
           <Alert variant="destructive" className="mb-4">
-            <AlertCircle className="h-4 w-4" />
+            <AlertCircle className="size-6" />
             <AlertDescription>{error}</AlertDescription>
           </Alert>
         )}
@@ -314,10 +314,10 @@ const ReversePumping = () => {
                             <SelectContent>
                               {loadingPins ? (
                                 <div className="flex items-center justify-center py-6">
-                                  <Loader2 className="h-4 w-4 animate-spin" />
+                                  <Loader2 className="size-6 animate-spin" />
                                 </div>
                               ) : directorPins.length === 0 ? (
-                                <div className="py-6 text-center text-sm text-muted-foreground">
+                                <div className="py-6 text-center text-sm text-foreground-muted">
                                   {t('reverse_pumping.no_pins_available')}
                                 </div>
                               ) : (
@@ -353,20 +353,20 @@ const ReversePumping = () => {
                             }
                             title={t('common.clear', { defaultValue: 'Clear' })}
                           >
-                            <X className="h-4 w-4" />
+                            <X className="size-6" />
                           </Button>
                         </div>
                         {selectedDirectorBoardId &&
                           !loadingPins &&
                           directorPins.length === 0 && (
-                            <p className="text-sm text-muted-foreground">
+                            <p className="text-sm text-foreground-muted">
                               {t('reverse_pumping.no_available_pins')}
                             </p>
                           )}
                         {loadingPins && (
                           <div className="mt-2 space-y-2">
                             <Progress value={50} className="w-full" />
-                            <p className="text-xs text-muted-foreground">
+                            <p className="text-sm text-foreground-muted">
                               {t('common.loading_pins', {
                                 defaultValue: 'Loading pins...',
                               })}
@@ -437,14 +437,14 @@ const ReversePumping = () => {
                               min: 0,
                               max: 200,
                             })}
-                            className={`flex-1 ${errors.settings?.overshoot ? 'border-destructive' : ''}`}
+                            className={`flex-1 ${errors.settings?.overshoot ? 'border-danger' : ''}`}
                           />
-                          <span className="text-sm text-muted-foreground">
+                          <span className="text-sm text-foreground-muted">
                             %
                           </span>
                         </div>
                         {errors.settings?.overshoot && (
-                          <p className="text-sm text-destructive">
+                          <p className="text-sm text-danger">
                             {t('common.validation_invalid', {
                               defaultValue: 'Invalid value',
                             })}
@@ -494,9 +494,9 @@ const ReversePumping = () => {
               <div className="flex justify-end">
                 <Button type="submit" disabled={saving}>
                   {saving ? (
-                    <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                    <Loader2 className="size-6 animate-spin mr-2" />
                   ) : (
-                    <Save className="h-4 w-4 mr-2" />
+                    <Save className="size-6 mr-2" />
                   )}
                   {t('component.reverse_pump_settings.form.save_btn_label', {
                     defaultValue: 'Save',
@@ -508,7 +508,7 @@ const ReversePumping = () => {
         </Card>
 
         {loading && (
-          <div className="fixed inset-0 bg-background/50 backdrop-blur-sm flex justify-center items-center z-50">
+          <div className="fixed inset-0 bg-overlay flex justify-center items-center z-50">
             <Loader2 className="h-8 w-8 animate-spin" />
           </div>
         )}

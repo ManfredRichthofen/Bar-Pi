@@ -123,7 +123,7 @@ export function CocktailDBImportDialog({
           <DialogTitle className="text-lg sm:text-xl">
             Import from CocktailDB
           </DialogTitle>
-          <DialogDescription className="text-xs sm:text-sm">
+          <DialogDescription className="text-sm sm:text-sm">
             Search for cocktails from TheCocktailDB and import them with
             ingredients, instructions, and images.
           </DialogDescription>
@@ -142,12 +142,12 @@ export function CocktailDBImportDialog({
             <Button
               onClick={handleSearch}
               disabled={searching}
-              className="h-10 w-10 sm:h-11 sm:w-11 p-0"
+              className="w-10 sm:w-11"
             >
               {searching ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
+                <Loader2 className="size-6 animate-spin" />
               ) : (
-                <Search className="h-4 w-4" />
+                <Search className="size-6" />
               )}
             </Button>
           </div>
@@ -162,7 +162,7 @@ export function CocktailDBImportDialog({
                   onClick={handleBackToResults}
                   className="mb-2"
                 >
-                  <ArrowLeft className="h-4 w-4 mr-2" />
+                  <ArrowLeft className="size-6 mr-2" />
                   Back to Results
                 </Button>
 
@@ -178,7 +178,7 @@ export function CocktailDBImportDialog({
                   <h3 className="text-lg sm:text-xl font-bold mb-1">
                     {selectedCocktail.strDrink}
                   </h3>
-                  <p className="text-xs sm:text-sm text-muted-foreground">
+                  <p className="text-sm sm:text-sm text-foreground-muted">
                     {selectedCocktail.strCategory} •{' '}
                     {selectedCocktail.strAlcoholic}
                   </p>
@@ -195,7 +195,7 @@ export function CocktailDBImportDialog({
                       const measure = selectedCocktail[`strMeasure${i + 1}`];
                       if (ingredient) {
                         return (
-                          <li key={i} className="text-xs sm:text-sm">
+                          <li key={i} className="text-sm sm:text-sm">
                             {measure} {ingredient}
                           </li>
                         );
@@ -209,7 +209,7 @@ export function CocktailDBImportDialog({
                   <h4 className="font-semibold mb-2 text-sm sm:text-base">
                     Instructions:
                   </h4>
-                  <p className="text-xs sm:text-sm">
+                  <p className="text-sm sm:text-sm">
                     {selectedCocktail.strInstructions}
                   </p>
                 </div>
@@ -218,29 +218,29 @@ export function CocktailDBImportDialog({
                   <h4 className="font-semibold mb-2 text-sm sm:text-base">
                     Glass:
                   </h4>
-                  <p className="text-xs sm:text-sm">
+                  <p className="text-sm sm:text-sm">
                     {selectedCocktail.strGlass}
                   </p>
                 </div>
 
                 <Button
-                  className="w-full h-11 sm:h-10"
+                  className="w-full"
                   onClick={() => {
                     handleImport(selectedCocktail);
                     handleBackToResults();
                   }}
                 >
-                  <Download className="h-4 w-4 mr-2" />
+                  <Download className="size-6 mr-2" />
                   Import This Cocktail
                 </Button>
               </div>
             ) : results.length === 0 ? (
-              <div className="flex flex-col items-center justify-center h-full text-center text-muted-foreground">
+              <div className="flex flex-col items-center justify-center h-full text-center text-foreground-muted">
                 <Search className="h-10 w-10 sm:h-12 sm:w-12 mb-3 sm:mb-4 opacity-50" />
                 <p className="text-base sm:text-lg font-medium">
                   No results yet
                 </p>
-                <p className="text-xs sm:text-sm">
+                <p className="text-sm sm:text-sm">
                   Search for a cocktail to get started
                 </p>
               </div>
@@ -252,7 +252,7 @@ export function CocktailDBImportDialog({
                     className="border rounded-lg overflow-hidden hover:shadow-lg transition-shadow cursor-pointer"
                     onClick={() => handleSelectCocktail(cocktail)}
                   >
-                    <div className="relative aspect-video bg-muted">
+                    <div className="relative aspect-video bg-surface-sunken">
                       {cocktail.strDrinkThumb && (
                         <img
                           src={cocktail.strDrinkThumb}
@@ -265,15 +265,15 @@ export function CocktailDBImportDialog({
                       <h3 className="font-semibold text-base sm:text-lg mb-1">
                         {cocktail.strDrink}
                       </h3>
-                      <p className="text-xs sm:text-sm text-muted-foreground mb-2">
+                      <p className="text-sm sm:text-sm text-foreground-muted mb-2">
                         {cocktail.strCategory} • {cocktail.strAlcoholic}
                       </p>
-                      <p className="text-xs sm:text-sm text-muted-foreground line-clamp-2">
+                      <p className="text-sm sm:text-sm text-foreground-muted line-clamp-2">
                         {cocktail.strInstructions}
                       </p>
                       <Button
                         size="sm"
-                        className="mt-2 sm:mt-3 w-full h-9 sm:h-10"
+                        className="mt-2 sm:mt-3 w-full"
                         onClick={(e) => {
                           e.stopPropagation();
                           handleImport(cocktail);

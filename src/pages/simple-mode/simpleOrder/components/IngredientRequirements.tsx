@@ -44,8 +44,8 @@ const IngredientRequirements = ({
                 key={item.ingredient.id}
                 className={`flex justify-between items-center w-full p-3 sm:p-4 rounded-lg transition-colors ${
                   item.amountMissing > 0 || !item.ingredient.onPump
-                    ? 'bg-error/10 border border-error/20'
-                    : 'bg-success/10 border border-success/20'
+                    ? 'bg-danger-tint border-hairline border-danger'
+                    : 'bg-success-tint border-hairline border-success'
                 }`}
               >
                 <div className="flex-1 pr-2 sm:pr-3 min-w-0">
@@ -88,8 +88,8 @@ const IngredientRequirements = ({
                 key={item.ingredient.id}
                 className={`flex justify-between items-center w-full p-3 sm:p-4 rounded-lg transition-colors ${
                   !item.ingredient.inBar
-                    ? 'bg-yellow-500/10 border border-yellow-500/20'
-                    : 'bg-muted border border-border'
+                    ? 'bg-warning border border-warning'
+                    : 'bg-surface-sunken border border-border'
                 }`}
               >
                 <div className="flex-1 pr-2 sm:pr-3 min-w-0">
@@ -117,8 +117,8 @@ const IngredientRequirements = ({
       {requiredIngredients.length > 0 &&
         automaticIngredients.length === 0 &&
         manualIngredients.length === 0 && (
-          <Alert className="bg-accent/10 border-accent/30">
-            <AlertCircle className="size-6 text-accent-foreground" />
+          <Alert className="bg-primary-tint border-border-strong">
+            <AlertCircle className="size-6 text-primary-tint-ink" />
             <AlertDescription className="text-base">
               Could not determine ingredient types. Please check the recipe
               configuration.

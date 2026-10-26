@@ -75,7 +75,7 @@ export const SettingsPage: React.FC = () => {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Globe className="h-5 w-5" />
+                <Globe className="size-6" />
                 {t('settings.general.title', 'General Settings')}
               </CardTitle>
             </CardHeader>
@@ -106,12 +106,12 @@ export const SettingsPage: React.FC = () => {
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <Bell className="h-5 w-5 text-muted-foreground" />
+                    <Bell className="size-6 text-foreground-muted" />
                     <div>
                       <p className="font-medium">
                         {t('settings.general.notifications', 'Notifications')}
                       </p>
-                      <p className="text-sm text-muted-foreground">
+                      <p className="text-sm text-foreground-muted">
                         Receive system notifications
                       </p>
                     </div>
@@ -124,12 +124,12 @@ export const SettingsPage: React.FC = () => {
 
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <Volume2 className="h-5 w-5 text-muted-foreground" />
+                    <Volume2 className="size-6 text-foreground-muted" />
                     <div>
                       <p className="font-medium">
                         {t('settings.general.sound_effects', 'Sound Effects')}
                       </p>
-                      <p className="text-sm text-muted-foreground">
+                      <p className="text-sm text-foreground-muted">
                         Play sounds for actions
                       </p>
                     </div>
@@ -145,10 +145,10 @@ export const SettingsPage: React.FC = () => {
 
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <Smartphone className="h-5 w-5 text-muted-foreground" />
+                  <Smartphone className="size-6 text-foreground-muted" />
                   <div>
                     <p className="font-medium">Switch to Simple Mode</p>
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-sm text-foreground-muted">
                       Use simplified interface
                     </p>
                   </div>
@@ -160,12 +160,12 @@ export const SettingsPage: React.FC = () => {
 
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <LogOut className="h-5 w-5 text-muted-foreground" />
+                  <LogOut className="size-6 text-foreground-muted" />
                   <div>
                     <p className="font-medium">
                       {t('common.logout', 'Logout')}
                     </p>
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-sm text-foreground-muted">
                       Sign out of your account
                     </p>
                   </div>

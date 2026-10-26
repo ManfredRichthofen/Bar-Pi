@@ -211,13 +211,13 @@ export const IngredientFormDialog: React.FC<IngredientFormDialogProps> = ({
 
         <form onSubmit={handleSubmit(handleAddEdit)} className="space-y-8">
           <div className="space-y-4">
-            <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
+            <h3 className="text-sm font-semibold text-foreground-muted uppercase tracking-wide">
               Basic Information
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="name" className="text-sm font-medium">
-                  Name <span className="text-destructive">*</span>
+                  Name <span className="text-danger">*</span>
                 </Label>
                 <Input
                   id="name"
@@ -256,7 +256,7 @@ export const IngredientFormDialog: React.FC<IngredientFormDialogProps> = ({
           </div>
 
           <div className="space-y-4">
-            <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
+            <h3 className="text-sm font-semibold text-foreground-muted uppercase tracking-wide">
               Image
             </h3>
             <div className="flex items-start gap-6">
@@ -271,23 +271,23 @@ export const IngredientFormDialog: React.FC<IngredientFormDialogProps> = ({
                     type="button"
                     size="icon"
                     variant="destructive"
-                    className="h-7 w-7 absolute -top-2 -right-2 rounded-full shadow-md"
+                    className="absolute -top-3 -right-3"
                     onClick={() => {
                       setValue('image', null);
                       setValue('imagePreview', null);
                     }}
                   >
-                    <X className="h-4 w-4" />
+                    <X className="size-6" />
                   </Button>
                 </div>
               ) : (
-                <label className="flex flex-col items-center justify-center w-40 h-40 border-2 border-dashed rounded-lg cursor-pointer hover:bg-accent hover:border-primary transition-all flex-shrink-0">
+                <label className="flex flex-col items-center justify-center w-40 h-40 border-2 border-dashed rounded-lg cursor-pointer hover:bg-primary-tint hover:border-primary transition-colors flex-shrink-0">
                   <div className="flex flex-col items-center justify-center p-4">
                     <ImageIcon
                       size={32}
-                      className="mb-2 text-muted-foreground"
+                      className="mb-2 text-foreground-muted"
                     />
-                    <p className="text-xs text-center text-muted-foreground">
+                    <p className="text-sm text-center text-foreground-muted">
                       <span className="font-semibold">Click to upload</span>
                       <br />
                       PNG, JPG (max 5MB)
@@ -337,7 +337,7 @@ export const IngredientFormDialog: React.FC<IngredientFormDialogProps> = ({
           </div>
 
           <div className="space-y-4">
-            <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
+            <h3 className="text-sm font-semibold text-foreground-muted uppercase tracking-wide">
               Ingredient Type
             </h3>
             <Tabs
@@ -354,15 +354,15 @@ export const IngredientFormDialog: React.FC<IngredientFormDialogProps> = ({
                 </TabsTrigger>
               </TabsList>
             </Tabs>
-            <p className="text-xs text-muted-foreground">
+            <p className="text-sm text-foreground-muted">
               {watch('type') === 'manual'
                 ? 'Manually added ingredients (e.g., garnishes, ice)'
                 : 'Automated dispensing via pump system'}
             </p>
           </div>
 
-          <div className="space-y-4 bg-muted/30 p-4 rounded-lg">
-            <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
+          <div className="space-y-4 bg-surface-sunken p-4 rounded-lg">
+            <h3 className="text-sm font-semibold text-foreground-muted uppercase tracking-wide">
               Properties
             </h3>
             {watch('type') === 'manual' ? (
@@ -373,7 +373,7 @@ export const IngredientFormDialog: React.FC<IngredientFormDialogProps> = ({
                     className="text-sm font-medium"
                   >
                     Alcohol Content (%){' '}
-                    <span className="text-destructive">*</span>
+                    <span className="text-danger">*</span>
                   </Label>
                   <Input
                     id="alcoholContent"
@@ -392,7 +392,7 @@ export const IngredientFormDialog: React.FC<IngredientFormDialogProps> = ({
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="unit" className="text-sm font-medium">
-                    Unit <span className="text-destructive">*</span>
+                    Unit <span className="text-danger">*</span>
                   </Label>
                   <Select
                     value={watch('unit')}
@@ -422,7 +422,7 @@ export const IngredientFormDialog: React.FC<IngredientFormDialogProps> = ({
                       className="text-sm font-medium"
                     >
                       Alcohol Content (%){' '}
-                      <span className="text-destructive">*</span>
+                      <span className="text-danger">*</span>
                     </Label>
                     <Input
                       id="alcoholContentAuto"
@@ -442,7 +442,7 @@ export const IngredientFormDialog: React.FC<IngredientFormDialogProps> = ({
                   <div className="space-y-2">
                     <Label htmlFor="bottleSize" className="text-sm font-medium">
                       Bottle Size (ml){' '}
-                      <span className="text-destructive">*</span>
+                      <span className="text-danger">*</span>
                     </Label>
                     <Input
                       id="bottleSize"
@@ -464,7 +464,7 @@ export const IngredientFormDialog: React.FC<IngredientFormDialogProps> = ({
                     className="text-sm font-medium"
                   >
                     Pump Time Multiplier{' '}
-                    <span className="text-destructive">*</span>
+                    <span className="text-danger">*</span>
                   </Label>
                   <Input
                     id="pumpTimeMultiplier"
@@ -478,7 +478,7 @@ export const IngredientFormDialog: React.FC<IngredientFormDialogProps> = ({
                       min: 0,
                     })}
                   />
-                  <p className="text-xs text-muted-foreground">
+                  <p className="text-sm text-foreground-muted">
                     Adjusts pump timing for viscosity differences
                   </p>
                 </div>

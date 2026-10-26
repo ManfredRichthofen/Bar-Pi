@@ -4,31 +4,23 @@ import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '@/lib/utils';
 
 const buttonVariants = cva(
-  "aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive dark:aria-invalid:border-destructive/50 rounded-full border border-transparent bg-clip-padding text-base font-bold shadow-sm active:shadow-pressed active:scale-[0.98] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-ring aria-invalid:ring-[3px] [&_svg:not([class*='size-'])]:size-6 inline-flex items-center justify-center whitespace-nowrap transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none shrink-0 [&_svg]:shrink-0 outline-none group/button select-none",
+  "group/button inline-flex shrink-0 items-center justify-center gap-2 rounded-control border-control border-transparent text-base font-semibold whitespace-nowrap shadow-sm transition-[background-color,box-shadow] select-none tint-hover tint-press active:shadow-pressed disabled:pointer-events-none disabled:opacity-45 aria-invalid:border-danger [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-6",
   {
     variants: {
       variant: {
-        default:
-          'bg-primary text-primary-foreground [@media(hover:hover)]:hover:brightness-110 active:brightness-90',
-        outline:
-          'border-border-strong bg-surface text-foreground [@media(hover:hover)]:hover:bg-muted aria-expanded:bg-muted',
-        secondary:
-          'bg-surface text-foreground [@media(hover:hover)]:hover:bg-muted aria-expanded:bg-muted',
-        ghost:
-          'shadow-none bg-transparent text-foreground [@media(hover:hover)]:hover:bg-muted active:bg-muted aria-expanded:bg-muted',
-        destructive:
-          'bg-destructive text-destructive-foreground [@media(hover:hover)]:hover:brightness-110 active:brightness-90',
-        link: 'shadow-none text-primary underline underline-offset-4 rounded-md',
+        default: 'bg-primary text-primary-foreground',
+        secondary: 'bg-surface-sunken text-foreground',
+        outline: 'bg-surface text-foreground border-border-strong',
+        ghost: 'bg-transparent text-foreground shadow-none',
+        destructive: 'bg-danger text-danger-foreground',
+        link: 'min-h-0 rounded-sm px-0 text-primary underline underline-offset-4 shadow-none',
       },
       size: {
-        default:
-          'min-h-control-md gap-2 px-5 in-data-[slot=button-group]:rounded-md has-data-[icon=inline-end]:pr-4 has-data-[icon=inline-start]:pl-4',
-        xs: 'min-h-control-sm gap-1.5 px-4 text-sm in-data-[slot=button-group]:rounded-md',
-        sm: 'min-h-control-sm gap-1.5 px-4 in-data-[slot=button-group]:rounded-md',
-        lg: 'min-h-control-lg gap-2 px-6 text-lg has-data-[icon=inline-end]:pr-5 has-data-[icon=inline-start]:pl-5',
+        default: 'min-h-control-md px-5',
+        sm: 'min-h-control-sm px-4',
+        lg: 'min-h-control-lg px-6 text-lg',
         icon: 'size-control-md',
-        'icon-xs': 'size-control-sm in-data-[slot=button-group]:rounded-md',
-        'icon-sm': 'size-control-sm in-data-[slot=button-group]:rounded-md',
+        'icon-sm': 'size-control-sm',
         'icon-lg': 'size-control-lg',
       },
     },

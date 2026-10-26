@@ -59,7 +59,7 @@ function Glasses() {
         title="Glasses"
         action={
           <Button onClick={handleAdd} className="w-full sm:w-auto">
-            <PlusCircle className="mr-2 h-4 w-4" />
+            <PlusCircle className="mr-2 size-6" />
             Add Glass
           </Button>
         }
@@ -90,7 +90,7 @@ function Glasses() {
                     glass.sizeInMl && (
                       <Badge
                         variant="secondary"
-                        className="text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5"
+                        className="text-sm"
                       >
                         {glass.sizeInMl}ml
                       </Badge>
@@ -101,13 +101,13 @@ function Glasses() {
                       {glass.type && (
                         <Badge
                           variant="outline"
-                          className="text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5"
+                          className="text-sm"
                         >
                           {glass.type}
                         </Badge>
                       )}
                       {glass.sizeInMl && (
-                        <span className="text-xs text-muted-foreground">
+                        <span className="text-sm text-foreground-muted">
                           Capacity: {glass.sizeInMl}ml
                         </span>
                       )}
@@ -117,7 +117,7 @@ function Glasses() {
                     <ActionButtons
                       actions={[
                         {
-                          icon: <Edit className="h-4 w-4" />,
+                          icon: <Edit className="size-6" />,
                           label: 'Edit glass',
                           onClick: (e) => {
                             e.stopPropagation();
@@ -125,7 +125,7 @@ function Glasses() {
                           },
                         },
                         {
-                          icon: <Trash2 className="h-4 w-4 text-destructive" />,
+                          icon: <Trash2 className="size-6 text-danger" />,
                           label: 'Delete glass',
                           onClick: (e) => {
                             e.stopPropagation();

@@ -36,14 +36,14 @@ const StatusCard = ({
   const getStatusColor = () => {
     switch (state) {
       case 'FINISHED':
-        return 'text-primary bg-primary/10';
+        return 'text-primary bg-primary-tint';
       case 'CANCELLED':
-        return 'text-destructive bg-destructive/10';
+        return 'text-danger bg-danger-tint';
       case 'MANUAL_ACTION_REQUIRED':
       case 'MANUAL_INGREDIENT_ADD':
-        return 'text-accent-foreground bg-accent/10';
+        return 'text-primary-tint-ink bg-primary-tint';
       default:
-        return 'text-primary bg-primary/10';
+        return 'text-primary bg-primary-tint';
     }
   };
 
@@ -66,7 +66,7 @@ const StatusCard = ({
 
           {/* Status Icon */}
           <div
-            className={`rounded-2xl p-3 sm:p-4 ${getStatusColor()} transition-all duration-300`}
+            className={`rounded-xl p-3 sm:p-4 ${getStatusColor()} transition-colors`}
           >
             {getStatusIcon()}
           </div>
@@ -78,7 +78,7 @@ const StatusCard = ({
             <div className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-2">
               {progress}%
             </div>
-            <p className="text-base text-muted-foreground">
+            <p className="text-base text-foreground-muted">
               {state === 'FINISHED'
                 ? 'Complete!'
                 : state === 'CANCELLED'
@@ -89,7 +89,7 @@ const StatusCard = ({
 
           <div className="space-y-2">
             <Progress value={progress} className="w-full h-3 sm:h-4" />
-            <div className="flex justify-between text-sm text-muted-foreground">
+            <div className="flex justify-between text-sm text-foreground-muted">
               <span>0%</span>
               <span>100%</span>
             </div>

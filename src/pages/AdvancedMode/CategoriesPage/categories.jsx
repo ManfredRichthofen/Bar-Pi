@@ -94,7 +94,7 @@ const Categories = () => {
         title="Categories"
         action={
           <Button onClick={handleCreate} className="w-full sm:w-auto">
-            <PlusCircle className="mr-2 h-4 w-4" />
+            <PlusCircle className="mr-2 size-6" />
             Add Category
           </Button>
         }
@@ -130,7 +130,7 @@ const Categories = () => {
                   badges={
                     <Badge
                       variant="secondary"
-                      className="text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5"
+                      className="text-sm"
                     >
                       ID: {category.id}
                     </Badge>
@@ -139,7 +139,7 @@ const Categories = () => {
                     <ActionButtons
                       actions={[
                         {
-                          icon: <Edit className="h-4 w-4" />,
+                          icon: <Edit className="size-6" />,
                           label: 'Edit category',
                           onClick: (e) => {
                             e.stopPropagation();
@@ -147,7 +147,7 @@ const Categories = () => {
                           },
                         },
                         {
-                          icon: <Trash2 className="h-4 w-4 text-destructive" />,
+                          icon: <Trash2 className="size-6 text-danger" />,
                           label: 'Delete category',
                           onClick: (e) => {
                             e.stopPropagation();

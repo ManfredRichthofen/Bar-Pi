@@ -47,14 +47,14 @@ const DrinkCustomizer = ({
       <Card>
         <CardHeader className="pb-3 sm:pb-4">
           <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
-            <Sliders className="w-4 h-4 sm:w-5 sm:h-5" />
+            <Sliders className="size-6 sm:w-5 sm:h-5" />
             Alcohol Content Adjustment
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-3 sm:space-y-4">
           {disableBoosting ? (
             <Alert>
-              <AlertTriangle className="h-4 w-4" />
+              <AlertTriangle className="size-6" />
               <AlertDescription className="text-sm">
                 This drink's strength cannot be adjusted as it contains no
                 boostable ingredients.
@@ -66,7 +66,7 @@ const DrinkCustomizer = ({
                 <Label className="text-sm sm:text-base">Alcohol Strength</Label>
                 <Badge
                   variant="secondary"
-                  className="min-w-16 sm:min-w-20 justify-center text-xs sm:text-sm"
+                  className="min-w-16 sm:min-w-20 justify-center text-sm sm:text-sm"
                 >
                   {getBoostLabel(customizations.boost)}
                 </Badge>
@@ -81,7 +81,7 @@ const DrinkCustomizer = ({
                 className={`w-full ${disableBoosting ? 'opacity-50' : ''}`}
               />
               <div
-                className={`w-full flex justify-between text-xs sm:text-sm px-1 sm:px-2 text-muted-foreground ${disableBoosting ? 'opacity-50' : ''}`}
+                className={`w-full flex justify-between text-sm sm:text-sm px-1 sm:px-2 text-foreground-muted ${disableBoosting ? 'opacity-50' : ''}`}
               >
                 <span>No Alcohol</span>
                 <span>Normal</span>
@@ -95,9 +95,9 @@ const DrinkCustomizer = ({
       <Card>
         <CardHeader className="pb-3 sm:pb-4">
           <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
-            <Beaker className="w-4 h-4 sm:w-5 sm:h-5" />
+            <Beaker className="size-6 sm:w-5 sm:h-5" />
             Additional Ingredients
-            <Badge variant="outline" className="ml-auto text-xs">
+            <Badge variant="outline" className="ml-auto text-sm">
               {additionalIngredients.length}
             </Badge>
           </CardTitle>
@@ -105,22 +105,22 @@ const DrinkCustomizer = ({
         <CardContent>
           <Tabs defaultValue="current" className="w-full">
             <TabsList className="grid w-full grid-cols-2 h-9 sm:h-10">
-              <TabsTrigger value="current" className="text-xs sm:text-sm">
+              <TabsTrigger value="current" className="text-sm sm:text-sm">
                 Current Ingredients
               </TabsTrigger>
-              <TabsTrigger value="add" className="text-xs sm:text-sm">
+              <TabsTrigger value="add" className="text-sm sm:text-sm">
                 Add Ingredients
               </TabsTrigger>
             </TabsList>
 
             <TabsContent value="current" className="space-y-3 sm:space-y-4">
               {additionalIngredients.length === 0 ? (
-                <div className="text-center py-6 sm:py-8 text-muted-foreground border-2 border-dashed rounded-lg">
+                <div className="text-center py-6 sm:py-8 text-foreground-muted border-2 border-dashed rounded-lg">
                   <Beaker className="w-10 h-10 sm:w-12 sm:h-12 mx-auto mb-3 sm:mb-4 opacity-50" />
                   <p className="text-sm sm:text-base">
                     No additional ingredients added
                   </p>
-                  <p className="text-xs sm:text-sm">
+                  <p className="text-sm sm:text-sm">
                     Add ingredients to customize your drink
                   </p>
                 </div>
@@ -134,7 +134,7 @@ const DrinkCustomizer = ({
                             <h4 className="font-semibold text-sm sm:text-base truncate">
                               {ingredient.name}
                             </h4>
-                            <p className="text-xs sm:text-sm text-muted-foreground">
+                            <p className="text-sm sm:text-sm text-foreground-muted">
                               {ingredient.type === 'automated'
                                 ? 'Automated'
                                 : 'Manual'}
@@ -146,15 +146,15 @@ const DrinkCustomizer = ({
                             onClick={() =>
                               handleRemoveIngredient(ingredient.id)
                             }
-                            className="text-destructive hover:text-destructive shrink-0 h-8 w-8 p-0"
+                            className="text-danger hover:text-danger shrink-0 h-8 w-8 p-0"
                           >
-                            <Trash2 className="w-4 h-4" />
+                            <Trash2 className="size-6" />
                           </Button>
                         </div>
                         <div className="space-y-1.5 sm:space-y-2">
                           <Label
                             htmlFor={`amount-${ingredient.id}`}
-                            className="text-xs sm:text-sm"
+                            className="text-sm sm:text-sm"
                           >
                             Amount (ml)
                           </Label>
@@ -173,7 +173,7 @@ const DrinkCustomizer = ({
                               }
                               className="flex-1 h-9 sm:h-10 text-sm"
                             />
-                            <span className="text-xs sm:text-sm text-muted-foreground shrink-0">
+                            <span className="text-sm sm:text-sm text-foreground-muted shrink-0">
                               ml
                             </span>
                           </div>
@@ -188,7 +188,7 @@ const DrinkCustomizer = ({
             <TabsContent value="add" className="space-y-3 sm:space-y-4">
               {availableIngredients.length === 0 ? (
                 <Alert>
-                  <AlertTriangle className="h-4 w-4" />
+                  <AlertTriangle className="size-6" />
                   <AlertDescription className="text-sm">
                     No additional ingredients available for this drink.
                   </AlertDescription>
@@ -208,7 +208,7 @@ const DrinkCustomizer = ({
                         setSelectedIngredient(ingredient);
                       }}
                     >
-                      <SelectTrigger className="h-10 sm:h-11">
+                      <SelectTrigger >
                         <SelectValue
                           placeholder="Select ingredient to add"
                           className="text-sm"
@@ -232,8 +232,8 @@ const DrinkCustomizer = ({
                                 <div
                                   className={`w-2 h-2 rounded-full shrink-0 ${
                                     ing.type === 'automated'
-                                      ? 'bg-blue-500'
-                                      : 'bg-gray-500'
+                                      ? 'bg-info'
+                                      : 'bg-surface-sunken'
                                   }`}
                                 />
                                 <span className="text-sm flex-1 truncate">
@@ -241,7 +241,7 @@ const DrinkCustomizer = ({
                                 </span>
                                 <Badge
                                   variant="outline"
-                                  className="ml-auto shrink-0 text-xs"
+                                  className="ml-auto shrink-0 text-sm"
                                 >
                                   {ing.type}
                                 </Badge>
@@ -256,9 +256,9 @@ const DrinkCustomizer = ({
                     <Button
                       onClick={handleAddIngredient}
                       disabled={!selectedIngredient}
-                      className="flex-1 h-10 sm:h-11 text-sm sm:text-base"
+                      className="flex-1 text-sm sm:text-base"
                     >
-                      <PlusCircle className="w-4 h-4 mr-2" />
+                      <PlusCircle className="size-6 mr-2" />
                       Add Ingredient
                     </Button>
                     <Button
@@ -274,8 +274,8 @@ const DrinkCustomizer = ({
                   </div>
 
                   {selectedIngredient && (
-                    <div className="p-3 bg-muted rounded-lg">
-                      <p className="text-xs sm:text-sm">
+                    <div className="p-3 bg-surface-sunken rounded-lg">
+                      <p className="text-sm sm:text-sm">
                         <strong>{selectedIngredient.name}</strong> will be added
                         to your drink. You can adjust the amount after adding
                         it.

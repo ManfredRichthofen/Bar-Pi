@@ -29,7 +29,7 @@ const ThemeSelector = () => {
                 key={t.id}
                 data-theme={t.id}
                 className={cn(
-                  'bg-background text-foreground has-focus-visible:outline-3 has-focus-visible:outline-offset-2 has-focus-visible:outline-ring flex min-h-control-lg cursor-pointer flex-col items-start justify-center gap-0.5 rounded-lg border-2 px-4 py-3 text-left transition-colors active:scale-[0.98]',
+                  'bg-background text-foreground has-focus-visible:outline-3 has-focus-visible:outline-offset-2 has- flex min-h-control-lg cursor-pointer flex-col items-start justify-center gap-0.5 rounded-lg border-2 px-4 py-3 text-left transition-colors active:scale-[0.98]',
                   selected ? 'border-foreground' : 'border-border-strong',
                 )}
               >

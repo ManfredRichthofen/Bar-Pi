@@ -95,7 +95,7 @@ export const PumpSelector: React.FC<PumpSelectorProps> = ({
 
         <div className="block sm:hidden space-y-4">
           <Card
-            className={`cursor-pointer hover:shadow-lg transition-all ${
+            className={`cursor-pointer hover:shadow-lg transition-colors ${
               loading ? 'opacity-50 pointer-events-none' : ''
             }`}
             onClick={() => onClickAddPump('valve')}
@@ -108,7 +108,7 @@ export const PumpSelector: React.FC<PumpSelectorProps> = ({
               )}
               <div className="flex-1">
                 <p className="font-bold text-lg">{t('pump_selector.valve')}</p>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-sm text-foreground-muted">
                   {t('pump_selector.valve_description')}
                 </p>
               </div>
@@ -116,7 +116,7 @@ export const PumpSelector: React.FC<PumpSelectorProps> = ({
           </Card>
 
           <Card
-            className={`cursor-pointer hover:shadow-lg transition-all ${
+            className={`cursor-pointer hover:shadow-lg transition-colors ${
               loading ? 'opacity-50 pointer-events-none' : ''
             }`}
             onClick={() => onClickAddPump('dc')}
@@ -131,7 +131,7 @@ export const PumpSelector: React.FC<PumpSelectorProps> = ({
                 <p className="font-bold text-lg">
                   {t('pump_selector.dc_pump')}
                 </p>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-sm text-foreground-muted">
                   {t('pump_selector.dc_pump_description')}
                 </p>
               </div>
@@ -139,7 +139,7 @@ export const PumpSelector: React.FC<PumpSelectorProps> = ({
           </Card>
 
           <Card
-            className={`cursor-pointer hover:shadow-lg transition-all ${
+            className={`cursor-pointer hover:shadow-lg transition-colors ${
               loading ? 'opacity-50 pointer-events-none' : ''
             }`}
             onClick={() => onClickAddPump('stepper')}
@@ -154,7 +154,7 @@ export const PumpSelector: React.FC<PumpSelectorProps> = ({
                 <p className="font-bold text-lg">
                   {t('pump_selector.stepper_pump')}
                 </p>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-sm text-foreground-muted">
                   {t('pump_selector.stepper_pump_description')}
                 </p>
               </div>
@@ -164,7 +164,7 @@ export const PumpSelector: React.FC<PumpSelectorProps> = ({
 
         <div className="hidden sm:grid sm:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
           <Card
-            className={`cursor-pointer hover:shadow-lg transition-all ${
+            className={`cursor-pointer hover:shadow-lg transition-colors ${
               loading ? 'opacity-50 pointer-events-none' : ''
             }`}
             onClick={() => onClickAddPump('valve')}
@@ -178,14 +178,14 @@ export const PumpSelector: React.FC<PumpSelectorProps> = ({
               <p className="font-bold text-center text-base sm:text-lg">
                 {t('pump_selector.valve')}
               </p>
-              <p className="text-xs sm:text-sm text-muted-foreground text-center mt-1">
+              <p className="text-sm sm:text-sm text-foreground-muted text-center mt-1">
                 {t('pump_selector.valve_description')}
               </p>
             </CardContent>
           </Card>
 
           <Card
-            className={`cursor-pointer hover:shadow-lg transition-all ${
+            className={`cursor-pointer hover:shadow-lg transition-colors ${
               loading ? 'opacity-50 pointer-events-none' : ''
             }`}
             onClick={() => onClickAddPump('dc')}
@@ -199,14 +199,14 @@ export const PumpSelector: React.FC<PumpSelectorProps> = ({
               <p className="font-bold text-center text-base sm:text-lg">
                 {t('pump_selector.dc_pump')}
               </p>
-              <p className="text-xs sm:text-sm text-muted-foreground text-center mt-1">
+              <p className="text-sm sm:text-sm text-foreground-muted text-center mt-1">
                 {t('pump_selector.dc_pump_description')}
               </p>
             </CardContent>
           </Card>
 
           <Card
-            className={`cursor-pointer hover:shadow-lg transition-all ${
+            className={`cursor-pointer hover:shadow-lg transition-colors ${
               loading ? 'opacity-50 pointer-events-none' : ''
             }`}
             onClick={() => onClickAddPump('stepper')}
@@ -224,7 +224,7 @@ export const PumpSelector: React.FC<PumpSelectorProps> = ({
               <p className="font-bold text-center text-base sm:text-lg">
                 {t('pump_selector.stepper_pump')}
               </p>
-              <p className="text-xs sm:text-sm text-muted-foreground text-center mt-1">
+              <p className="text-sm sm:text-sm text-foreground-muted text-center mt-1">
                 {t('pump_selector.stepper_pump_description')}
               </p>
             </CardContent>

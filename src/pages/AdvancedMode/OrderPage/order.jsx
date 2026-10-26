@@ -50,7 +50,7 @@ const Order = () => {
             <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold">
               Drink Production
             </h2>
-            <p className="text-sm sm:text-base text-muted-foreground">
+            <p className="text-sm sm:text-base text-foreground-muted">
               Customize and prepare your drink
             </p>
           </div>
@@ -70,7 +70,7 @@ const Order = () => {
                 <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
                   {recipe.image && (
                     <div className="w-full sm:w-1/3">
-                      <div className="aspect-square rounded-lg overflow-hidden bg-muted">
+                      <div className="aspect-square rounded-lg overflow-hidden bg-surface-sunken">
                         <img
                           className="w-full h-full object-cover"
                           src={recipe.image}
@@ -84,18 +84,18 @@ const Order = () => {
                       {recipe.name}
                     </CardTitle>
                     {recipe.description && (
-                      <p className="text-muted-foreground text-sm mb-3 sm:mb-4">
+                      <p className="text-foreground-muted text-sm mb-3 sm:mb-4">
                         {recipe.description}
                       </p>
                     )}
                     <div className="flex flex-wrap gap-2">
-                      <Badge variant="secondary" className="text-xs sm:text-sm">
-                        <Beaker className="w-3 h-3 mr-1" />
+                      <Badge variant="secondary" className="text-sm sm:text-sm">
+                        <Beaker className="size-4 mr-1" />
                         {amountToProduce || 250}ml
                       </Badge>
                       {feasibilityResult?.feasible && (
-                        <Badge variant="default" className="text-xs sm:text-sm">
-                          <CheckCircle className="w-3 h-3 mr-1" />
+                        <Badge variant="default" className="text-sm sm:text-sm">
+                          <CheckCircle className="size-4 mr-1" />
                           Available
                         </Badge>
                       )}
@@ -116,7 +116,7 @@ const Order = () => {
 
                 {checking ? (
                   <div className="flex items-center justify-center py-3 sm:py-4">
-                    <Loader2 className="h-5 w-5 sm:h-6 sm:w-6 animate-spin" />
+                    <Loader2 className="size-6 sm:h-6 sm:w-6 animate-spin" />
                   </div>
                 ) : feasibilityResult ? (
                   <Alert
@@ -128,9 +128,9 @@ const Order = () => {
                       <div className="space-y-1.5 sm:space-y-2">
                         <div className="flex items-center gap-2">
                           {feasibilityResult.feasible ? (
-                            <CheckCircle className="w-4 h-4" />
+                            <CheckCircle className="size-6" />
                           ) : (
-                            <AlertTriangle className="w-4 h-4" />
+                            <AlertTriangle className="size-6" />
                           )}
                           <span className="font-medium text-sm sm:text-base">
                             {feasibilityResult.feasible
@@ -138,11 +138,11 @@ const Order = () => {
                               : 'Cannot make'}
                           </span>
                         </div>
-                        <div className="text-xs sm:text-sm">
+                        <div className="text-sm sm:text-sm">
                           Total amount: {feasibilityResult.totalAmountInMl}ml
                         </div>
                         {!feasibilityResult.feasible && (
-                          <div className="text-xs sm:text-sm">
+                          <div className="text-sm sm:text-sm">
                             {feasibilityResult.reason}
                           </div>
                         )}
@@ -150,7 +150,7 @@ const Order = () => {
                     </AlertDescription>
                   </Alert>
                 ) : (
-                  <div className="text-center py-3 sm:py-4 text-sm text-muted-foreground">
+                  <div className="text-center py-3 sm:py-4 text-sm text-foreground-muted">
                     {selectedGlass
                       ? 'Checking feasibility...'
                       : 'Select a glass to continue'}
@@ -162,16 +162,16 @@ const Order = () => {
                     onClick={handleMakeDrink}
                     disabled={!canOrderDrink || loading}
                     size="lg"
-                    className="flex-1 h-11 sm:h-12"
+                    className="flex-1"
                   >
                     {loading ? (
                       <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        <Loader2 className="mr-2 size-6 animate-spin" />
                         Making Drink...
                       </>
                     ) : (
                       <>
-                        <BeakerIcon className="mr-2 h-4 w-4" />
+                        <BeakerIcon className="mr-2 size-6" />
                         {feasibilityResult
                           ? `Make Drink (${feasibilityResult.totalAmountInMl}ml)`
                           : 'Make Drink'}
@@ -183,13 +183,13 @@ const Order = () => {
                   !loading &&
                   !checking &&
                   feasibilityResult && (
-                    <p className="text-xs sm:text-sm text-center text-muted-foreground">
+                    <p className="text-sm sm:text-sm text-center text-foreground-muted">
                       {!selectedGlass
-                        ? '🥃 Select a glass to continue'
+                        ? 'Select a glass to continue'
                         : feasibilityResult?.requiredIngredients?.some(
                               (item) => item.amountMissing > 0,
                             )
-                          ? '⚠️ Missing ingredients'
+                          ? 'Missing ingredients'
                           : 'Cannot make this drink'}
                     </p>
                   )}
@@ -223,7 +223,7 @@ const Order = () => {
                     requiredIngredients={feasibilityResult.requiredIngredients}
                   />
                 ) : (
-                  <div className="text-center py-6 sm:py-8 text-sm text-muted-foreground">
+                  <div className="text-center py-6 sm:py-8 text-sm text-foreground-muted">
                     {selectedGlass
                       ? 'Loading ingredient data...'
                       : 'Select a glass to view ingredients'}
@@ -249,27 +249,27 @@ const Order = () => {
                     return (
                       <div className="space-y-2.5 sm:space-y-3">
                         <div className="flex justify-between items-center">
-                          <span className="text-xs sm:text-sm">Automated</span>
-                          <Badge variant="secondary" className="text-xs">
+                          <span className="text-sm sm:text-sm">Automated</span>
+                          <Badge variant="secondary" className="text-sm">
                             {ingredients.automated.length}
                           </Badge>
                         </div>
                         <div className="flex justify-between items-center">
-                          <span className="text-xs sm:text-sm">Manual</span>
-                          <Badge variant="secondary" className="text-xs">
+                          <span className="text-sm sm:text-sm">Manual</span>
+                          <Badge variant="secondary" className="text-sm">
                             {ingredients.manual.length}
                           </Badge>
                         </div>
                         <div className="flex justify-between items-center">
-                          <span className="text-xs sm:text-sm">In Bar</span>
-                          <Badge variant="default" className="text-xs">
+                          <span className="text-sm sm:text-sm">In Bar</span>
+                          <Badge variant="default" className="text-sm">
                             {ingredients.inBar.length}
                           </Badge>
                         </div>
                         {ingredients.notInBar.length > 0 && (
                           <div className="flex justify-between items-center">
-                            <span className="text-xs sm:text-sm">Missing</span>
-                            <Badge variant="destructive" className="text-xs">
+                            <span className="text-sm sm:text-sm">Missing</span>
+                            <Badge variant="destructive" className="text-sm">
                               {ingredients.notInBar.length}
                             </Badge>
                           </div>

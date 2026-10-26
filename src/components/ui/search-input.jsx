@@ -69,21 +69,21 @@ const SearchInput = React.memo(
     }, []);
 
     const sizeClasses = {
-      sm: 'h-9 text-sm',
-      default: 'h-12 text-base',
-      lg: 'h-14 text-lg',
+      sm: 'min-h-control-sm text-base',
+      default: 'min-h-control-md text-base',
+      lg: 'min-h-control-lg text-lg',
     };
 
     const inputSizeClasses = {
       sm: 'pr-10',
-      default: 'pr-12',
+      default: 'pr-14',
       lg: 'pr-14',
     };
 
     const buttonSizeClasses = {
-      sm: 'w-4 h-4',
-      default: 'w-5 h-5',
-      lg: 'w-6 h-6',
+      sm: 'size-5',
+      default: 'size-6',
+      lg: 'size-6',
     };
 
     const baseInputClassName = `w-full ${sizeClasses[size]} ${inputSizeClasses[size]} ${inputClassName}`;

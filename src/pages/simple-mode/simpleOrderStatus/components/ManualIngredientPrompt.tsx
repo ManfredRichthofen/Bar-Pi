@@ -24,17 +24,17 @@ const ManualIngredientPrompt = ({
 }: ManualIngredientPromptProps) => {
   const { t } = useTranslation();
   return (
-    <Card className="border-accent/30 bg-accent/5">
+    <Card className="border-border-strong bg-primary-tint">
       <CardContent className="p-4 sm:p-6">
         <div className="flex items-start gap-3 sm:gap-4 mb-4">
-          <div className="rounded-full p-2 sm:p-3 bg-accent/20">
-            <AlertTriangle className="w-6 h-6 sm:w-8 sm:h-8 text-accent-foreground" />
+          <div className="rounded-full p-2 sm:p-3 bg-primary-tint">
+            <AlertTriangle className="w-6 h-6 sm:w-8 sm:h-8 text-primary-tint-ink" />
           </div>
           <div className="flex-1">
             <h3 className="text-lg sm:text-xl font-bold mb-1">
               {t('manual_ingredient_prompt.title')}
             </h3>
-            <p className="text-base text-muted-foreground">
+            <p className="text-base text-foreground-muted">
               {t('manual_ingredient_prompt.description')}
             </p>
           </div>
@@ -45,25 +45,25 @@ const ManualIngredientPrompt = ({
             {ingredients.map((item, index) => (
               <div
                 key={`${item.ingredient.name}-${index}`}
-                className="flex justify-between items-center p-3 sm:p-4 bg-background rounded-lg border border-accent/20 hover:border-accent/40 transition-colors"
+                className="flex justify-between items-center p-3 sm:p-4 bg-background rounded-lg border border-border-strong hover:border-accent/40 transition-colors"
               >
                 <span className="font-medium text-base min-w-0 break-words flex-1 pr-2">
                   {item.ingredient.name}
                 </span>
-                <span className="text-base text-accent-foreground shrink-0 font-bold">
+                <span className="text-base text-primary-tint-ink shrink-0 font-bold">
                   {item.amount} {item.ingredient.unit}
                 </span>
               </div>
             ))}
           </div>
         ) : (
-          <p className="text-base text-muted-foreground mb-4 sm:mb-6">
+          <p className="text-base text-foreground-muted mb-4 sm:mb-6">
             {t('manual_ingredient_prompt.no_ingredients')}
           </p>
         )}
 
         <Button
-          className="w-full bg-yellow-600 hover:bg-yellow-700 text-white gap-2"
+          className="w-full bg-warning hover:bg-warning text-primary-foreground gap-2"
           onClick={onConfirm}
           disabled={confirming}
           size="lg"

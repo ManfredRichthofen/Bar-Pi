@@ -59,8 +59,8 @@ const FilterPanel = React.memo(
     // Consistent button styling for both variants
     const getButtonClassName = (isActive) => {
       const baseClasses =
-        'h-10 rounded-lg transition-all duration-200 hover:scale-105';
-      return `${baseClasses} ${isActive ? '' : 'hover:scale-105'}`;
+        'min-h-control-sm';
+      return `${baseClasses} ${isActive ? '' : ''}`;
     };
 
     // Consistent filter button component
@@ -76,7 +76,7 @@ const FilterPanel = React.memo(
         <span className="flex items-center gap-1.5">
           {variant === 'simple' && (
             <span
-              className={`w-2 h-2 rounded-full ${isActive ? 'bg-primary' : 'bg-muted-foreground'}`}
+              className={`w-2 h-2 rounded-full ${isActive ? 'bg-primary' : 'bg-surface-sunken-foreground'}`}
             ></span>
           )}
           {filterLabels[filter]}
@@ -100,7 +100,7 @@ const FilterPanel = React.memo(
             <Button
               variant="ghost"
               size="sm"
-              className="h-10 text-destructive hover:bg-destructive/10 transition-all duration-200"
+              className="text-danger"
               onClick={() => onFilterChange('clear')}
             >
               Clear Filters
@@ -112,7 +112,7 @@ const FilterPanel = React.memo(
 
     return (
       <div
-        className={`bg-gradient-to-br from-card to-card/50 border-2 border-primary/20 rounded-xl px-4 sm:px-6 py-6 space-y-4 shadow-lg backdrop-blur-sm animate-in slide-in-from-top-2 duration-300 ${className}`}
+        className={`bg-surface border-control border-border-strong rounded-lg px-4 sm:px-6 py-6 space-y-4 shadow-lg animate-in slide-in-from-top-2 ${className}`}
       >
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -124,7 +124,7 @@ const FilterPanel = React.memo(
               variant="ghost"
               size="sm"
               onClick={() => onFilterChange('clear')}
-              className="text-muted-foreground hover:text-foreground transition-colors duration-200"
+              className="text-foreground-muted hover:text-foreground transition-colors"
             >
               Clear All
             </Button>
@@ -133,7 +133,7 @@ const FilterPanel = React.memo(
                 variant="ghost"
                 size="sm"
                 onClick={onTogglePanel}
-                className="text-muted-foreground hover:text-foreground transition-colors duration-200 h-8 w-8 p-0"
+                className="text-foreground-muted"
               >
                 ×
               </Button>

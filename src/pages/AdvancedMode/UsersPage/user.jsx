@@ -55,11 +55,11 @@ const UserPage = () => {
   const getRoleIcon = (adminLevel) => {
     switch (adminLevel) {
       case 4:
-        return <Crown className="h-4 w-4 text-yellow-500" />;
+        return <Crown className="size-6 text-warning" />;
       case 3:
-        return <Shield className="h-4 w-4 text-purple-500" />;
+        return <Shield className="size-6 text-info" />;
       case 2:
-        return <Wrench className="h-4 w-4 text-orange-500" />;
+        return <Wrench className="size-6 text-warning" />;
       default:
         return null;
     }
@@ -166,7 +166,7 @@ const UserPage = () => {
             onClick={() => setIsModalOpen(true)}
             className="w-full sm:w-auto"
           >
-            <UserPlus className="mr-2 h-4 w-4" />
+            <UserPlus className="mr-2 size-6" />
             Add User
           </Button>
         }
@@ -203,7 +203,7 @@ const UserPage = () => {
                         {getRoleIcon(user.adminLevel)}
                         <Badge
                           variant="default"
-                          className="text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5"
+                          className="text-sm"
                         >
                           {getRoleDisplayName(
                             mapAdminLevelToRole(user.adminLevel),
@@ -216,17 +216,17 @@ const UserPage = () => {
                         {user.accountNonLocked === false ? (
                           <Badge
                             variant="destructive"
-                            className="text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5"
+                            className="text-sm"
                           >
-                            <Lock className="h-3 w-3 mr-1" />
+                            <Lock className="size-4 mr-1" />
                             Locked
                           </Badge>
                         ) : (
                           <Badge
                             variant="default"
-                            className="text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5 bg-green-100 text-green-800 hover:bg-green-200"
+                            className="text-sm bg-success-tint text-success hover:bg-success-tint"
                           >
-                            <Check className="h-3 w-3 mr-1" />
+                            <Check className="size-4 mr-1" />
                             Active
                           </Badge>
                         )}
@@ -236,7 +236,7 @@ const UserPage = () => {
                       <ActionButtons
                         actions={[
                           {
-                            icon: <Edit className="h-4 w-4" />,
+                            icon: <Edit className="size-6" />,
                             label: 'Edit user',
                             onClick: (e) => {
                               e.stopPropagation();
@@ -245,7 +245,7 @@ const UserPage = () => {
                           },
                           {
                             icon: (
-                              <Trash2 className="h-4 w-4 text-destructive" />
+                              <Trash2 className="size-6 text-danger" />
                             ),
                             label: 'Delete user',
                             onClick: (e) => {

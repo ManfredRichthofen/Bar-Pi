@@ -45,32 +45,32 @@ const DrinkCard = ({ recipe }) => {
     >
       <Card
         onClick={handleCardClick}
-        className="group cursor-pointer h-full overflow-hidden border-border/50 hover:border-border hover:shadow-xl transition-all duration-300 p-0"
+        className="group cursor-pointer h-full overflow-hidden border-border hover:border-border hover:shadow-lg transition-colors p-0"
       >
         <div className="flex flex-col h-full">
           {/* Image Section with Gradient Overlay */}
           <div
             ref={elementRef}
-            className="relative aspect-[4/3] overflow-hidden bg-gradient-to-br from-muted to-accent flex-shrink-0"
+            className="relative aspect-[4/3] overflow-hidden bg-surface-sunken flex-shrink-0"
           >
             {imageLoading ? (
               <div className="w-full h-full flex items-center justify-center">
-                <Loader2 className="h-8 w-8 animate-spin text-muted-foreground/40" />
+                <Loader2 className="h-8 w-8 animate-spin text-foreground-muted" />
               </div>
             ) : imageUrl ? (
               <>
                 <img
                   src={imageUrl}
                   alt={recipe.name}
-                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                  className="w-full h-full object-cover transition-transform  "
                 />
                 {/* Gradient overlay for better text readability */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/0 to-black/0" />
+                <div className="absolute inset-0 " />
               </>
             ) : (
               <div className="w-full h-full flex flex-col items-center justify-center gap-2">
-                <GlassWater className="h-12 w-12 text-muted-foreground/30" />
-                <span className="text-muted-foreground/60 text-sm font-medium">
+                <GlassWater className="h-12 w-12 text-foreground-muted" />
+                <span className="text-foreground-muted text-sm font-medium">
                   {imageError ? 'Failed to load' : 'No image'}
                 </span>
               </div>
@@ -82,15 +82,15 @@ const DrinkCard = ({ recipe }) => {
                 type="button"
                 size="icon"
                 variant={favorited ? 'default' : 'secondary'}
-                className={`h-9 w-9 rounded-full shadow-lg backdrop-blur-sm transition-all ${
+                className={`size-control-sm  transition-colors ${
                   favorited
-                    ? 'bg-destructive/90 hover:bg-destructive'
-                    : 'bg-background/80 hover:bg-background'
+                    ? 'bg-danger hover:bg-danger'
+                    : 'bg-background hover:bg-background'
                 }`}
                 onClick={handleToggleFavorite}
               >
                 <Heart
-                  className={`h-4 w-4 transition-all ${
+                  className={`size-6 transition-colors ${
                     favorited ? 'fill-current scale-110' : ''
                   }`}
                 />
@@ -102,7 +102,7 @@ const DrinkCard = ({ recipe }) => {
               <div className="absolute top-3 left-3 z-10">
                 <Badge
                   variant="destructive"
-                  className="text-xs font-semibold shadow-lg backdrop-blur-sm bg-destructive/90"
+                  className="font-semibold"
                 >
                   21+
                 </Badge>
@@ -113,7 +113,7 @@ const DrinkCard = ({ recipe }) => {
             <div className="absolute bottom-3 right-3 z-10">
               <Badge
                 variant="secondary"
-                className="text-xs font-medium shadow-lg backdrop-blur-sm bg-background/80"
+                className="text-sm font-medium bg-background"
               >
                 {ingredientCount} ingredient{ingredientCount !== 1 ? 's' : ''}
               </Badge>
@@ -129,14 +129,14 @@ const DrinkCard = ({ recipe }) => {
 
             {/* Description */}
             {recipe.description && (
-              <p className="text-sm text-muted-foreground line-clamp-2 mb-3 flex-1">
+              <p className="text-sm text-foreground-muted line-clamp-2 mb-3 flex-1">
                 {recipe.description}
               </p>
             )}
 
             {/* Ingredients Preview */}
-            <div className="mt-auto pt-3 border-t border-border/50">
-              <div className="flex items-center gap-2 text-xs text-muted-foreground mb-2">
+            <div className="mt-auto pt-3 border-t border-border">
+              <div className="flex items-center gap-2 text-sm text-foreground-muted mb-2">
                 <GlassWater className="h-3.5 w-3.5" />
                 <span className="font-semibold">Top Ingredients</span>
               </div>
@@ -145,13 +145,13 @@ const DrinkCard = ({ recipe }) => {
                   <Badge
                     key={index}
                     variant="outline"
-                    className="text-xs font-normal"
+                    className="text-sm font-normal"
                   >
                     {ingredient.name}
                   </Badge>
                 ))}
                 {ingredientCount > 3 && (
-                  <Badge variant="outline" className="text-xs font-normal">
+                  <Badge variant="outline" className="text-sm font-normal">
                     +{ingredientCount - 3} more
                   </Badge>
                 )}

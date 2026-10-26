@@ -53,7 +53,7 @@ const DrinkCustomizer = ({
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 lg:gap-5">
         <Card
-          className={`${automatedIngredients.length > 0 ? 'sm:col-span-1' : 'sm:col-span-2'} hover:shadow-md hover:border-primary/20 transition-all duration-300`}
+          className={`${automatedIngredients.length > 0 ? 'sm:col-span-1' : 'sm:col-span-2'} hover:shadow-md hover:border-border-strong transition-colors`}
         >
           <CardContent className="p-4 sm:p-5 lg:p-6">
             <div className="flex items-center gap-2 mb-4">
@@ -64,8 +64,8 @@ const DrinkCustomizer = ({
             </div>
 
             {disableBoosting ? (
-              <Alert className="bg-accent/10 border-accent/30">
-                <AlertTriangle className="size-6 text-accent-foreground" />
+              <Alert className="bg-primary-tint border-border-strong">
+                <AlertTriangle className="size-6 text-primary-tint-ink" />
                 <AlertDescription className="text-base">
                   This drink's strength cannot be adjusted
                 </AlertDescription>
@@ -78,7 +78,7 @@ const DrinkCustomizer = ({
                       ? 'Normal'
                       : `${customisations?.boost > 100 ? '+' : ''}${(customisations?.boost || 100) - 100}%`}
                   </div>
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-sm text-foreground-muted">
                     Alcohol content adjustment
                   </p>
                 </div>
@@ -94,7 +94,7 @@ const DrinkCustomizer = ({
                   />
                 </div>
 
-                <div className="flex justify-between text-sm text-muted-foreground px-1">
+                <div className="flex justify-between text-sm text-foreground-muted px-1">
                   <span className="font-medium text-center">
                     <span className="block text-base sm:text-lg font-bold text-foreground">
                       0%
@@ -120,7 +120,7 @@ const DrinkCustomizer = ({
         </Card>
 
         {automatedIngredients.length > 0 && (
-          <Card className="sm:col-span-1 hover:shadow-md hover:border-primary/20 transition-all duration-300">
+          <Card className="sm:col-span-1 hover:shadow-md hover:border-border-strong transition-colors">
             <CardContent className="p-4 sm:p-5 lg:p-6">
               <div className="flex items-center gap-2 mb-4">
                 <PlusCircle className="size-6 text-primary" />
@@ -129,7 +129,7 @@ const DrinkCustomizer = ({
                 </h3>
               </div>
 
-              <p className="text-sm text-muted-foreground mb-4">
+              <p className="text-sm text-foreground-muted mb-4">
                 Add extra ingredients to personalize your drink
               </p>
 
@@ -137,7 +137,7 @@ const DrinkCustomizer = ({
                 {additionalIngredients.map(({ ingredient, amount }) => (
                   <div
                     key={ingredient.id}
-                    className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg"
+                    className="flex items-center gap-3 p-3 bg-surface-sunken rounded-lg"
                   >
                     <Label className="font-medium text-base flex-1">
                       {ingredient.name}
@@ -159,12 +159,12 @@ const DrinkCustomizer = ({
                 ))}
 
                 {addingIngredient ? (
-                  <div className="space-y-3 p-3 border-2 border-dashed border-primary/30 rounded-lg">
+                  <div className="space-y-3 p-3 border-2 border-dashed border-border-strong rounded-lg">
                     <Label className="font-medium text-base">
                       Select Ingredient
                     </Label>
                     <select
-                      className="min-h-control-md w-full rounded-md border border-border-strong bg-surface px-4 text-base shadow-inset focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-ring disabled:cursor-not-allowed disabled:opacity-50"
+                      className="min-h-control-md w-full rounded-md border border-border-strong bg-surface px-4 text-base shadow-inset focus-visible:outline-3 focus-visible:outline-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                       value={selectedIngredient?.id || ''}
                       onChange={(e) => {
                         const ingredient = automatedIngredients.find(

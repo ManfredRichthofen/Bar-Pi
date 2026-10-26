@@ -170,7 +170,7 @@ function SimpleDrinks() {
     <div className="min-h-screen bg-background">
       {/* Header */}
       <div
-        className={`sticky top-0 z-20 bg-background/95 backdrop-blur-sm border-b border-border shadow-sm pt-2 transition-all duration-300 ${
+        className={`sticky top-0 z-20 bg-background  border-b border-border shadow-sm pt-2 transition-colors ${
           isHeaderVisible
             ? 'translate-y-0 opacity-100'
             : '-translate-y-full opacity-0'
@@ -179,16 +179,22 @@ function SimpleDrinks() {
         <div className="px-3 sm:px-4 py-3 sm:py-4 space-y-4">
           {/* Header Section */}
           <div className="flex items-center justify-between">
-            <h1 className="text-xl sm:text-2xl font-bold">Available Drinks</h1>
+            <div>
+              <p className="eyebrow">01 · the menu</p>
+              <h1 className="text-3xl sm:text-4xl">
+                <span className="text-foreground-muted">Thirsty? </span>
+                Pick a drink.
+              </h1>
+            </div>
             <Button
               variant={isFilterPanelOpen ? 'default' : 'ghost'}
               size="icon"
               onClick={handleFilterToggle}
-              className="rounded-lg transition-all duration-200"
+              className="rounded-lg transition-colors"
             >
-              <Filter className="h-4 w-4 sm:h-5 sm:w-5" />
+              <Filter className="size-6 sm:h-5 sm:w-5" />
               {Object.values(filters).some(Boolean) && (
-                <span className="absolute -top-1 -right-1 bg-primary text-primary-foreground rounded-full w-4 h-4 text-xs font-medium flex items-center justify-center">
+                <span className="absolute -top-1 -right-1 bg-primary text-primary-foreground rounded-full size-6 text-sm font-medium flex items-center justify-center">
                   {Object.values(filters).filter(Boolean).length}
                 </span>
               )}
@@ -244,10 +250,10 @@ function SimpleDrinks() {
             <Button
               onClick={scrollToTop}
               size="icon"
-              className="rounded-full shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-110 active:scale-95"
+              className=""
               aria-label="Scroll to top"
             >
-              <ArrowUp className="w-5 h-5" />
+              <ArrowUp className="size-6" />
             </Button>
           </motion.div>
         )}

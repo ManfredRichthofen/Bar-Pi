@@ -136,7 +136,7 @@ const Drinks = ({ sidebarCollapsed = false }) => {
   return (
     <div className="min-h-screen bg-background">
       <div
-        className={`sticky top-16 z-40 bg-background/95 backdrop-blur-sm border-b shadow-sm transition-all duration-300 ${
+        className={`sticky top-16 z-40 border-b-hairline border-border bg-background transition-colors ${
           isHeaderVisible
             ? 'translate-y-0 opacity-100'
             : '-translate-y-full opacity-0'
@@ -145,16 +145,16 @@ const Drinks = ({ sidebarCollapsed = false }) => {
         <div className="px-3 sm:px-4 py-3 sm:py-4 space-y-4">
           {/* Header Section */}
           <div className="flex items-center justify-between">
-            <h1 className="text-xl sm:text-2xl font-bold">Available Drinks</h1>
+            <h1 className="text-3xl sm:text-4xl">Available Drinks</h1>
             <Button
               variant={isFilterPanelOpen ? 'default' : 'ghost'}
               size="icon"
               onClick={handleFilterToggle}
-              className="rounded-lg transition-all duration-200"
+              className="rounded-lg transition-colors"
             >
-              <Filter className="h-4 w-4 sm:h-5 sm:w-5" />
+              <Filter className="size-6 sm:h-5 sm:w-5" />
               {Object.values(filters).some(Boolean) && (
-                <span className="absolute -top-1 -right-1 bg-primary text-primary-foreground rounded-full w-4 h-4 text-xs font-medium flex items-center justify-center">
+                <span className="absolute -top-1 -right-1 bg-primary text-primary-foreground rounded-full size-6 text-sm font-medium flex items-center justify-center">
                   {Object.values(filters).filter(Boolean).length}
                 </span>
               )}
@@ -170,7 +170,7 @@ const Drinks = ({ sidebarCollapsed = false }) => {
             placeholder="Search drinks..."
             debounceMs={500}
             className="max-w-2xl mx-auto"
-            inputClassName="rounded-lg border-2 focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all duration-200"
+            
             buttonClassName="rounded-lg"
           />
 
@@ -204,10 +204,10 @@ const Drinks = ({ sidebarCollapsed = false }) => {
         <Button
           onClick={scrollToTop}
           size="icon"
-          className="fixed bottom-8 right-8 z-50 rounded-full shadow-lg"
+          className="fixed bottom-8 right-8 z-50"
           aria-label="Scroll to top"
         >
-          <ArrowUp className="h-4 w-4" />
+          <ArrowUp className="size-6" />
         </Button>
       )}
     </div>

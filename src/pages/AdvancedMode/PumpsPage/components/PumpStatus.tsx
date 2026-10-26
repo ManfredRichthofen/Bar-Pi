@@ -71,8 +71,8 @@ export const PumpStatus: React.FC = () => {
             <CardTitle className="text-lg font-bold">
               {t('pump_status.headline')}
             </CardTitle>
-            <CollapsibleTrigger className="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground h-8 w-8">
-              <ChevronsUpDown className="h-4 w-4" />
+            <CollapsibleTrigger className="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors hover:bg-primary-tint hover:text-primary-tint-ink h-8 w-8">
+              <ChevronsUpDown className="size-6" />
               <span className="sr-only">Toggle</span>
             </CollapsibleTrigger>
           </div>
@@ -80,11 +80,11 @@ export const PumpStatus: React.FC = () => {
         <CollapsibleContent>
           <CardContent className="divide-y divide-border/50">
             <div className="py-5">
-              <h3 className="font-semibold mb-4 text-sm uppercase tracking-wide text-muted-foreground">
+              <h3 className="font-semibold mb-4 text-sm uppercase tracking-wide text-foreground-muted">
                 {t('pump_status.pumps_headline')}
               </h3>
               <div className="space-y-3">
-                <div className="flex items-center justify-between py-2 px-3 rounded-lg bg-muted/30">
+                <div className="flex items-center justify-between py-2 px-3 rounded-lg bg-surface-sunken">
                   <span className="text-sm font-medium">
                     {t('pump_status.pumps_installed')}
                   </span>
@@ -92,7 +92,7 @@ export const PumpStatus: React.FC = () => {
                     {nrPumps}
                   </Badge>
                 </div>
-                <div className="flex items-center justify-between py-2 px-3 rounded-lg bg-muted/30">
+                <div className="flex items-center justify-between py-2 px-3 rounded-lg bg-surface-sunken">
                   <span className="text-sm font-medium">
                     {t('pump_status.pumps_ingredients_installed')}
                   </span>
@@ -105,7 +105,7 @@ export const PumpStatus: React.FC = () => {
 
             <div className="py-5">
               <div className="flex justify-between items-center mb-4">
-                <h3 className="font-semibold text-sm uppercase tracking-wide text-muted-foreground">
+                <h3 className="font-semibold text-sm uppercase tracking-wide text-foreground-muted">
                   {t('pump_status.reverse_pumping_headline')}
                 </h3>
                 <Button
@@ -115,11 +115,11 @@ export const PumpStatus: React.FC = () => {
                   title={t('common.edit')}
                   className="-mr-2"
                 >
-                  <Pencil className="h-4 w-4" />
+                  <Pencil className="size-6" />
                 </Button>
               </div>
               <div className="space-y-3">
-                <div className="flex items-center justify-between py-2 px-3 rounded-lg bg-muted/30">
+                <div className="flex items-center justify-between py-2 px-3 rounded-lg bg-surface-sunken">
                   <span className="text-sm font-medium">
                     {t('pump_status.reverse_pumping')}
                   </span>
@@ -134,7 +134,7 @@ export const PumpStatus: React.FC = () => {
                 </div>
                 {reversePumpSettings?.enable && (
                   <>
-                    <div className="flex items-center justify-between py-2 px-3 rounded-lg bg-muted/30">
+                    <div className="flex items-center justify-between py-2 px-3 rounded-lg bg-surface-sunken">
                       <span className="text-sm font-medium">
                         {t('pump_status.reverse_pumping_overshoot')}
                       </span>
@@ -142,7 +142,7 @@ export const PumpStatus: React.FC = () => {
                         {reversePumpSettings?.settings?.overshoot || 0}%
                       </Badge>
                     </div>
-                    <div className="flex items-center justify-between py-2 px-3 rounded-lg bg-muted/30">
+                    <div className="flex items-center justify-between py-2 px-3 rounded-lg bg-surface-sunken">
                       <span className="text-sm font-medium">
                         {t('pump_status.reverse_pumping_timer')}
                       </span>
@@ -158,7 +158,7 @@ export const PumpStatus: React.FC = () => {
 
             <div className="py-5">
               <div className="flex justify-between items-center mb-4">
-                <h3 className="font-semibold text-sm uppercase tracking-wide text-muted-foreground">
+                <h3 className="font-semibold text-sm uppercase tracking-wide text-foreground-muted">
                   {t('pump_status.load_cell_headline')}
                 </h3>
                 <Button
@@ -170,11 +170,11 @@ export const PumpStatus: React.FC = () => {
                   title={t('common.edit')}
                   className="-mr-2"
                 >
-                  <Pencil className="h-4 w-4" />
+                  <Pencil className="size-6" />
                 </Button>
               </div>
               <div className="space-y-3">
-                <div className="flex items-center justify-between py-2 px-3 rounded-lg bg-muted/30">
+                <div className="flex items-center justify-between py-2 px-3 rounded-lg bg-surface-sunken">
                   <span className="text-sm font-medium">
                     {t('pump_status.load_cell_status')}
                   </span>
@@ -188,7 +188,7 @@ export const PumpStatus: React.FC = () => {
                   </Badge>
                 </div>
                 {loadCellSettings?.enable && (
-                  <div className="flex items-center justify-between py-2 px-3 rounded-lg bg-muted/30">
+                  <div className="flex items-center justify-between py-2 px-3 rounded-lg bg-surface-sunken">
                     <span className="text-sm font-medium">
                       {t('pump_status.load_cell_calibrated')}
                     </span>

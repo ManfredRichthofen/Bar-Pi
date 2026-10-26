@@ -6,20 +6,20 @@ import useUIModeStore from '../store/uiModeStore';
 
 function NotFound() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-50 dark:bg-gray-950">
+    <div className="flex min-h-screen items-center justify-center bg-surface-sunken dark:bg-foreground">
       <div className="text-center">
-        <h1 className="text-6xl font-bold text-gray-900 dark:text-gray-100">
+        <h1 className="text-6xl font-bold text-foreground dark:text-foreground-muted">
           404
         </h1>
-        <p className="mt-4 text-xl text-gray-600 dark:text-gray-400">
+        <p className="mt-4 text-xl text-foreground-muted dark:text-foreground-muted">
           Page Not Found
         </p>
-        <p className="mt-2 text-gray-500 dark:text-gray-500">
+        <p className="mt-2 text-foreground-muted dark:text-foreground-muted">
           The page you're looking for doesn't exist.
         </p>
         <Link
           to="/"
-          className="mt-6 inline-block rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
+          className="mt-6 inline-block rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary"
         >
           Go Home
         </Link>

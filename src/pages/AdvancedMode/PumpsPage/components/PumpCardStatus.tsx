@@ -9,7 +9,7 @@ interface DisplayAttribute {
 }
 
 interface StateBadge {
-  variant: 'default' | 'destructive';
+  variant: 'success' | 'default' | 'destructive';
   label: string;
 }
 
@@ -31,25 +31,25 @@ export const PumpCardStatus: React.FC<PumpCardStatusProps> = ({
   return (
     <div className="space-y-3">
       <div className="flex gap-2">
-        <Badge variant={pumpState.variant} className="text-xs h-5">
+        <Badge variant={pumpState.variant}>
           {pumpState.label}
         </Badge>
-        <Badge variant={pumpedUpState.variant} className="text-xs h-5">
+        <Badge variant={pumpedUpState.variant}>
           {pumpedUpState.label}
         </Badge>
       </div>
 
       <div className="space-y-2">
-        <div className="flex items-center justify-between p-2.5 rounded-md bg-muted/50">
-          <span className="text-xs text-muted-foreground font-medium">
+        <div className="flex items-center justify-between p-2.5 rounded-md bg-surface-sunken">
+          <span className="text-sm text-foreground-muted font-medium">
             {t('pump_card.ingredient')}
           </span>
           <span className="text-sm font-semibold truncate ml-2">
             {printIngredient}
           </span>
         </div>
-        <div className="flex items-center justify-between p-2.5 rounded-md bg-muted/50">
-          <span className="text-xs text-muted-foreground font-medium">
+        <div className="flex items-center justify-between p-2.5 rounded-md bg-surface-sunken">
+          <span className="text-sm text-foreground-muted font-medium">
             {t('pump_card.filling_level')}
           </span>
           <span className={cn('text-sm font-semibold', fillingLevel.className)}>

@@ -1,136 +1,182 @@
 @import "tailwindcss";
-@import url("https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap");
+@import "@fontsource-variable/geist";
+@import "@fontsource-variable/geist-mono";
 
 @plugin "tailwindcss-animate";
 
-/* Dark utilities (dark:) apply to the Night theme only. */
+/* dark: utilities apply to the Night theme only */
 @custom-variant dark (&:where([data-theme="night"], [data-theme="night"] *));
 
 /*
- * Bar-Pi design system tokens: Daylight (default), Night, Soft.
- * Theme is set by data-theme on <html> (see src/store/themeStore.ts).
+ * Bar-Pi design system. Source of truth: the design system artifact (tokens.json).
+ * Theme is set with data-theme on <html> (src/store/themeStore.ts).
+ * Colour, shape (radius scale), edge (--border-w, --control-border-w), elevation (shadow-*)
+ * and the display face all change per theme, so components never branch on the theme.
  */
-:root, [data-theme="daylight"] {
-  --background: #eef0f3;
-  --surface: #ffffff;
-  --surface-sunken: #e3e6ea;
-  --foreground: #0d1014;
-  --foreground-muted: #566170;
-  --border: #dde1e6;
-  --border-strong: #77808e;
-  --primary: #0d1014;
+:root,
+[data-theme="daylight"] {
+  --background: #ffffff;
+  --surface: #f6f6f6;
+  --surface-sunken: #ececec;
+  --foreground: #1a1a1a;
+  --foreground-muted: #666666;
+  --border: #e6e6e6;
+  --border-strong: #808080;
+  --primary: #1a1a1a;
   --on-primary: #ffffff;
-  --primary-tint: #e0e4ea;
-  --primary-tint-ink: #0d1014;
-  --accent: #c9f23a;
-  --on-accent: #11140a;
-  --accent-tint: #eefac0;
-  --accent-tint-ink: #3a4a00;
-  --success: #1b6e3a;
-  --success-tint: #dcf1e3;
-  --success-tint-ink: #14532b;
+  --primary-tint: #e8e8e8;
+  --primary-tint-ink: #1a1a1a;
+  --success: #1c7a45;
+  --success-tint: #e1f1e7;
+  --success-tint-ink: #14532f;
   --warning: #8a5a00;
-  --warning-tint: #fbefc8;
-  --warning-tint-ink: #6b4500;
-  --danger: #c0261c;
+  --warning-tint: #f7ecc9;
+  --warning-tint-ink: #62410a;
+  --danger: #c0291f;
   --on-danger: #ffffff;
-  --danger-tint: #fde3e0;
+  --danger-tint: #fbe3e0;
   --danger-tint-ink: #8c1d17;
   --info: #2457c5;
-  --info-tint: #e0e9fb;
+  --info-tint: #e1eafb;
   --info-tint-ink: #1a43a0;
-  --focus-ring: #2f55e6;
-  --overlay: #0d101099;
-  --state-hover: #0d101012;
-  --state-press: #0d10101f;
-  --shadow-sm: 0 1px 2px #0d101014;
-  --shadow-md: 0 8px 24px #0d10101a;
-  --shadow-lg: 0 24px 48px #0d101033;
-  --shadow-inset: inset 0 1px 2px #0d101014;
-  --shadow-pressed: inset 0 2px 4px #0d101033;
+  --focus-ring: #1a1a1a;
+  --overlay: #0000006b;
+  --state-hover: #0000000d;
+  --state-press: #0000001a;
+  --shadow-sm: none;
+  --shadow-md: 0 6px 20px #0000000f;
+  --shadow-lg: 0 24px 56px #00000029;
+  --shadow-inset: none;
+  --shadow-pressed: inset 0 1px 3px #00000026;
 }
+:root,
+[data-theme="daylight"] {
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 20px;
+  --radius-xl: 28px;
+  --radius-control: 14px;
+  --border-w: 1px;
+  --control-border-w: 1px;
+  --font-display: "Geist Variable", system-ui, sans-serif;
+  --display-weight: 650;
+  --display-tracking: -0.025em;
+}
+
 [data-theme="night"] {
-  --background: #0a0c10;
-  --surface: #14171d;
-  --surface-sunken: #1e222a;
-  --foreground: #f2f4f7;
-  --foreground-muted: #9aa5b4;
-  --border: #232830;
-  --border-strong: #6f7a8a;
-  --primary: #f2f4f7;
-  --on-primary: #0a0c10;
-  --primary-tint: #232832;
-  --primary-tint-ink: #f2f4f7;
-  --accent: #d4ff3f;
-  --on-accent: #121700;
-  --accent-tint: #2b3410;
-  --accent-tint-ink: #e2ff8a;
+  --background: #0b0b0b;
+  --surface: #151515;
+  --surface-sunken: #212121;
+  --foreground: #f2f2f2;
+  --foreground-muted: #a0a0a0;
+  --border: #272727;
+  --border-strong: #767676;
+  --primary: #f2f2f2;
+  --on-primary: #0b0b0b;
+  --primary-tint: #262626;
+  --primary-tint-ink: #f2f2f2;
   --success: #6fd08a;
-  --success-tint: #17381f;
-  --success-tint-ink: #9fe3b3;
+  --success-tint: #17301f;
+  --success-tint-ink: #a6e3ae;
   --warning: #e8b64a;
-  --warning-tint: #3f3010;
+  --warning-tint: #3a2d10;
   --warning-tint-ink: #f5d27c;
-  --danger: #ff8f86;
+  --danger: #ff8f84;
   --on-danger: #2e0805;
-  --danger-tint: #4a1814;
-  --danger-tint-ink: #ffb4ad;
+  --danger-tint: #431614;
+  --danger-tint-ink: #ffb7ab;
   --info: #8fb0ff;
   --info-tint: #16264d;
   --info-tint-ink: #b5caff;
-  --focus-ring: #7d9bff;
+  --focus-ring: #f2f2f2;
   --overlay: #000000b3;
   --state-hover: #ffffff14;
   --state-press: #ffffff24;
-  --shadow-sm: 0 1px 2px #00000066;
+  --shadow-sm: none;
   --shadow-md: 0 8px 24px #00000099;
-  --shadow-lg: 0 24px 48px #000000b3;
-  --shadow-inset: inset 0 1px 2px #00000080;
-  --shadow-pressed: inset 0 2px 4px #00000099;
+  --shadow-lg: 0 28px 64px #000000cc;
+  --shadow-inset: none;
+  --shadow-pressed: inset 0 1px 3px #000000cc;
+}
+[data-theme="night"] {
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 20px;
+  --radius-xl: 28px;
+  --radius-control: 14px;
+  --border-w: 1px;
+  --control-border-w: 1px;
+  --font-display: "Geist Variable", system-ui, sans-serif;
+  --display-weight: 650;
+  --display-tracking: -0.025em;
+}
+
+[data-theme="soft"] {
+  --background: #e7e9ed;
+  --surface: #e7e9ed;
+  --surface-sunken: #d9dce2;
+  --foreground: #1a1a1a;
+  --foreground-muted: #555a64;
+  --border: #f3f4f7;
+  --border-strong: #6b717d;
+  --primary: #1a1a1a;
+  --on-primary: #ffffff;
+  --primary-tint: #d3d6dd;
+  --primary-tint-ink: #1a1a1a;
+  --success: #1a6c3f;
+  --success-tint: #cfe6d8;
+  --success-tint-ink: #124a2a;
+  --warning: #7a4f06;
+  --warning-tint: #eee0b4;
+  --warning-tint-ink: #5f3d06;
+  --danger: #b3261e;
+  --on-danger: #ffffff;
+  --danger-tint: #f1d3d0;
+  --danger-tint-ink: #7a1b15;
+  --info: #245aa8;
+  --info-tint: #d0dcf0;
+  --info-tint-ink: #1a4478;
+  --focus-ring: #1a1a1a;
+  --overlay: #1a1a1a80;
+  --state-hover: #1a1a1a10;
+  --state-press: #1a1a1a1f;
+  --shadow-sm: 4px 4px 10px #bfc3cc, -4px -4px 10px #ffffff;
+  --shadow-md: 8px 8px 18px #bfc3cc, -8px -8px 18px #ffffff;
+  --shadow-lg: 18px 18px 36px #b3b8c2, -18px -18px 36px #ffffff;
+  --shadow-inset: inset 3px 3px 7px #bfc3cc, inset -3px -3px 7px #ffffff;
+  --shadow-pressed: inset 3px 3px 7px #bfc3cc, inset -3px -3px 7px #ffffff;
 }
 [data-theme="soft"] {
-  --background: #e6e9ef;
-  --surface: #e6e9ef;
-  --surface-sunken: #d9dde5;
-  --foreground: #1b2130;
-  --foreground-muted: #4a566a;
-  --border: #f0f2f6;
-  --border-strong: #68758a;
-  --primary: #2c4fc2;
-  --on-primary: #ffffff;
-  --primary-tint: #d3dcf7;
-  --primary-tint-ink: #1c3590;
-  --accent: #c9f23a;
-  --on-accent: #11140a;
-  --accent-tint: #eefac0;
-  --accent-tint-ink: #3a4a00;
-  --success: #1b6e3a;
-  --success-tint: #cfe9d8;
-  --success-tint-ink: #14532b;
-  --warning: #8a5a00;
-  --warning-tint: #f3e5b5;
-  --warning-tint-ink: #6b4500;
-  --danger: #b8231a;
-  --on-danger: #ffffff;
-  --danger-tint: #f6d5d1;
-  --danger-tint-ink: #8c1d17;
-  --info: #2457c5;
-  --info-tint: #d3e0f6;
-  --info-tint-ink: #1a43a0;
-  --focus-ring: #1b2130;
-  --overlay: #1b213099;
-  --state-hover: #1b213012;
-  --state-press: #1b21301f;
-  --shadow-sm: 4px 4px 8px #c3c8d2, -4px -4px 8px #ffffff;
-  --shadow-md: 8px 8px 16px #c3c8d2, -8px -8px 16px #ffffff;
-  --shadow-lg: 16px 16px 32px #b8bdc8, -16px -16px 32px #ffffff;
-  --shadow-inset: inset 3px 3px 6px #c3c8d2, inset -3px -3px 6px #ffffff;
-  --shadow-pressed: inset 3px 3px 6px #c3c8d2, inset -3px -3px 6px #ffffff;
+  --radius-sm: 12px;
+  --radius-md: 18px;
+  --radius-lg: 26px;
+  --radius-xl: 34px;
+  --radius-control: 18px;
+  --border-w: 0px;
+  --control-border-w: 1px;
+  --font-display: "Geist Variable", system-ui, sans-serif;
+  --display-weight: 650;
+  --display-tracking: -0.025em;
 }
 
 :root {
-  --space-1: 4px; --space-2: 8px; --space-3: 12px; --space-4: 16px; --space-5: 20px; --space-6: 24px; --space-8: 32px; --space-12: 48px;
-  --control-sm: 40px; --control-md: 48px; --control-lg: 56px;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-12: 48px;
+  --control-sm: 40px;
+  --control-md: 48px;
+  --control-lg: 56px;
+  --radius-full: 9999px;
+  --z-nav: 10;
+  --z-overlay: 50;
+  --z-toast: 60;
+  --font-sans: "Geist Variable", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "Geist Mono Variable", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
 }
 
 @theme inline {
@@ -145,11 +191,6 @@
   --color-primary-foreground: var(--on-primary);
   --color-primary-tint: var(--primary-tint);
   --color-primary-tint-ink: var(--primary-tint-ink);
-  /* Design-system "accent" (lime, live machine activity) is exposed as live-* ; shadcn accent stays the quiet hover tint */
-  --color-live: var(--accent);
-  --color-live-foreground: var(--on-accent);
-  --color-live-tint: var(--accent-tint);
-  --color-live-tint-ink: var(--accent-tint-ink);
   --color-success: var(--success);
   --color-success-tint: var(--success-tint);
   --color-success-tint-ink: var(--success-tint-ink);
@@ -166,7 +207,7 @@
   --color-ring: var(--focus-ring);
   --color-overlay: var(--overlay);
 
-  /* shadcn aliases so existing components keep working */
+  /* shadcn / Base UI names, mapped onto the tokens so generated components stay on-system */
   --color-card: var(--surface);
   --color-card-foreground: var(--foreground);
   --color-popover: var(--surface);
@@ -181,10 +222,10 @@
   --color-destructive: var(--danger);
   --color-destructive-foreground: var(--on-danger);
   --color-chart-1: var(--primary);
-  --color-chart-2: var(--accent);
-  --color-chart-3: var(--info);
-  --color-chart-4: var(--warning);
-  --color-chart-5: var(--success);
+  --color-chart-2: var(--info);
+  --color-chart-3: var(--warning);
+  --color-chart-4: var(--success);
+  --color-chart-5: var(--danger);
   --color-sidebar: var(--surface);
   --color-sidebar-foreground: var(--foreground);
   --color-sidebar-primary: var(--primary);
@@ -194,17 +235,17 @@
   --color-sidebar-border: var(--border);
   --color-sidebar-ring: var(--focus-ring);
 
-  --font-sans: "Plus Jakarta Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
-  --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  --font-sans: "Geist Variable", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-display: var(--font-display);
+  --font-mono: "Geist Mono Variable", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
 
-  --radius-sm: 10px;
-  --radius-md: 16px;
-  --radius-lg: 24px;
-  --radius-xl: 32px;
-  --radius-2xl: 32px;
-  --radius-4xl: 9999px;
+  --radius-sm: var(--radius-sm);
+  --radius-md: var(--radius-md);
+  --radius-lg: var(--radius-lg);
+  --radius-xl: var(--radius-xl);
+  --radius-control: var(--radius-control);
+  --radius-full: 9999px;
 
-  --shadow-xs: var(--shadow-sm);
   --shadow-sm: var(--shadow-sm);
   --shadow-md: var(--shadow-md);
   --shadow-lg: var(--shadow-lg);
@@ -214,17 +255,61 @@
   --spacing-control-sm: var(--control-sm);
   --spacing-control-md: var(--control-md);
   --spacing-control-lg: var(--control-lg);
+
+  --text-caption: 14px;
+  --text-caption--line-height: 20px;
+}
+
+/* Type styles from the design system */
+@utility heading {
+  font-family: var(--font-display);
+  font-weight: var(--display-weight);
+  letter-spacing: var(--display-tracking);
+}
+/* Mono eyebrow: small lowercase label above a heading, e.g. "02 · the pumps" */
+@utility eyebrow {
+  font-family: var(--font-mono);
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--foreground-muted);
+}
+@utility border-control {
+  border-width: var(--control-border-w);
+}
+@utility border-hairline {
+  border-width: var(--border-w);
+}
+/* Layered state tints: work over any fill in any theme */
+@utility tint-press {
+  &:active:not(:disabled, [data-disabled]) {
+    background-image: linear-gradient(var(--state-press), var(--state-press));
+  }
+}
+@utility tint-hover {
+  @media (hover: hover) {
+    &:hover:not(:disabled, [data-disabled]) {
+      background-image: linear-gradient(var(--state-hover), var(--state-hover));
+    }
+  }
 }
 
 @layer base {
-  :root, [data-theme="daylight"], [data-theme="soft"] { color-scheme: light; }
-  [data-theme="night"] { color-scheme: dark; }
+  :root,
+  [data-theme="daylight"],
+  [data-theme="soft"] {
+    color-scheme: light;
+  }
+  [data-theme="night"] {
+    color-scheme: dark;
+  }
   * {
-    @apply border-border;
+    border-color: var(--border);
     outline-color: var(--focus-ring);
   }
   body {
-    @apply bg-background text-foreground font-sans;
+    background: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-sans);
     font-size: 16px;
     line-height: 24px;
   }
@@ -238,44 +323,22 @@
     touch-action: manipulation;
     -webkit-tap-highlight-color: transparent;
   }
+  h1, h2, h3 {
+    font-family: var(--font-display);
+    font-weight: var(--display-weight);
+    letter-spacing: var(--display-tracking);
+  }
 }
 
 @layer utilities {
-  /* Pump or order running: use on a Card or Progress */
-  [data-slot="card"].pump-running {
-    border-color: var(--primary);
-    box-shadow: 0 0 0 2px var(--primary), var(--shadow-md);
+  @keyframes dots-march {
+    to { background-position: 8px 0; }
   }
-
-  @keyframes progress-scroll {
-    0% { background-position: 0 0; }
-    100% { background-position: 28px 0; }
-  }
-
-  .animate-scroll {
-    animation: progress-scroll 1s linear infinite;
-  }
-
-  .progress-scrolling [data-slot="progress-indicator"],
+  /* A running pump or order: the dots of the progress indicator march */
   .running-progress [data-slot="progress-indicator"] {
-    background-color: var(--accent);
-    box-shadow: inset 0 0 0 2px var(--on-accent);
-    background-image: linear-gradient(
-      45deg,
-      var(--on-accent) 25%,
-      transparent 25%,
-      transparent 50%,
-      var(--on-accent) 50%,
-      var(--on-accent) 75%,
-      transparent 75%
-    );
-    background-size: 28px 28px;
-    animation: progress-scroll 1s linear infinite;
+    animation: dots-march 0.6s linear infinite;
   }
-
   @media (prefers-reduced-motion: reduce) {
-    .animate-scroll,
-    .progress-scrolling [data-slot="progress-indicator"],
     .running-progress [data-slot="progress-indicator"] {
       animation: none;
     }
@@ -283,18 +346,5 @@
 
   .scrollbar-thin {
     scrollbar-width: thin;
-  }
-  .scrollbar-thin::-webkit-scrollbar {
-    width: 6px;
-  }
-  .scrollbar-thin::-webkit-scrollbar-track {
-    background: transparent;
-  }
-  .scrollbar-thin::-webkit-scrollbar-thumb {
-    background-color: color-mix(in srgb, var(--foreground-muted) 40%, transparent);
-    border-radius: 3px;
-  }
-  .scrollbar-thin::-webkit-scrollbar-thumb:hover {
-    background-color: color-mix(in srgb, var(--foreground-muted) 60%, transparent);
   }
 }

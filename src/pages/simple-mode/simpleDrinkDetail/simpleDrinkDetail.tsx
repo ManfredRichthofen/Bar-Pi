@@ -53,13 +53,13 @@ const SimpleDrinkDetail = () => {
   return (
     <div className="min-h-screen bg-base-100 flex flex-col pb-20 sm:pb-0">
       {/* Header */}
-      <div className="sticky top-0 z-20 bg-base-100/95 backdrop-blur-md border-b border-base-200 shadow-sm">
+      <div className="sticky top-0 z-20 bg-base-100/95 border-b border-base-200 shadow-sm">
         <div className="px-3 sm:px-4 py-3 sm:py-4 flex items-center justify-between">
           <Button
             type="button"
             variant="ghost"
             size="icon"
-            className="rounded-xl transition-all duration-200"
+            className="rounded-xl transition-colors"
             onClick={() => navigate({ to: '/simple/drinks' })}
           >
             <ArrowLeft className="size-6" />
@@ -89,7 +89,7 @@ const SimpleDrinkDetail = () => {
           <Button
             type="button"
             size="lg"
-            className="w-full h-12 sm:h-14 gap-2 sm:gap-3 text-base font-semibold shadow-lg hover:shadow-xl transition-all duration-200 active:scale-95"
+            className="w-full gap-2 sm:gap-3 text-base font-semibold hover: transition-colors"
             onClick={() => {
               navigate({
                 to: '/simple/order',

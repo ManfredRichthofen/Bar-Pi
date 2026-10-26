@@ -108,7 +108,7 @@ const Login = () => {
           <h2 className="text-4xl font-medium">
             {t('login.headline_short') || 'Sign in'}
           </h2>
-          <p className="text-sm text-muted-foreground mt-3">
+          <p className="text-sm text-foreground-muted mt-3">
             {t('login.subtitle')}
           </p>
 
@@ -122,20 +122,20 @@ const Login = () => {
           {/* Divider */}
           <div className="flex items-center gap-4 w-full my-8">
             <div className="w-full h-px bg-border"></div>
-            <p className="text-nowrap text-sm text-muted-foreground">
+            <p className="text-nowrap text-sm text-foreground-muted">
               {t('login.divider_text') || 'sign in with email'}
             </p>
             <div className="w-full h-px bg-border"></div>
           </div>
 
           {/* Username Input */}
-          <div className="flex items-center w-full bg-transparent border h-12 rounded-full overflow-hidden pl-6 gap-3 focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2 transition-all">
-            <User className="w-4 h-4 text-muted-foreground" />
+          <div className="flex items-center w-full bg-surface border-control border-border-strong min-h-control-md rounded-md shadow-inset overflow-hidden pl-4 gap-3">
+            <User className="size-6 text-foreground-muted" />
             <input
               type="text"
               name="username"
               placeholder={t('login.username_field_label')}
-              className="bg-transparent placeholder:text-muted-foreground outline-none text-sm w-full h-full pr-6"
+              className="bg-transparent placeholder:text-foreground-muted outline-none text-sm w-full h-full pr-6"
               required
               autoComplete="username"
               autoCapitalize="none"
@@ -144,13 +144,13 @@ const Login = () => {
           </div>
 
           {/* Password Input */}
-          <div className="flex items-center mt-6 w-full bg-transparent border h-12 rounded-full overflow-hidden pl-6 gap-3 focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2 transition-all">
-            <KeyRound className="w-4 h-4 text-muted-foreground" />
+          <div className="flex items-center mt-6 w-full bg-surface border-control border-border-strong min-h-control-md rounded-md shadow-inset overflow-hidden pl-4 gap-3">
+            <KeyRound className="size-6 text-foreground-muted" />
             <input
               type="password"
               name="password"
               placeholder={t('login.password_field_label')}
-              className="bg-transparent placeholder:text-muted-foreground outline-none text-sm w-full h-full pr-6"
+              className="bg-transparent placeholder:text-foreground-muted outline-none text-sm w-full h-full pr-6"
               required
               autoComplete="current-password"
             />
@@ -168,7 +168,7 @@ const Login = () => {
               </Label>
             </div>
             <a
-              className="text-sm hover:underline text-muted-foreground"
+              className="text-sm hover:underline text-foreground-muted"
               href="/forgot-password"
             >
               {t('login.forgot_password')}
@@ -178,8 +178,8 @@ const Login = () => {
           {/* Advanced Settings */}
           {showAdvanced && (
             <div className="w-full mt-6">
-              <div className="flex items-center w-full bg-transparent border h-12 rounded-full overflow-hidden pl-6 gap-3 focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2 transition-all">
-                <Globe className="w-4 h-4 text-muted-foreground" />
+              <div className="flex items-center w-full bg-surface border-control border-border-strong min-h-control-md rounded-md shadow-inset overflow-hidden pl-4 gap-3">
+                <Globe className="size-6 text-foreground-muted" />
                 <input
                   type="url"
                   name="apiBaseUrl"
@@ -191,12 +191,12 @@ const Login = () => {
                     }
                   }}
                   placeholder={`${t('login.api_url')} (${t('common.optional') || 'optional'}) - Default: localhost:80`}
-                  className="bg-transparent placeholder:text-muted-foreground outline-none text-sm w-full h-full pr-6"
+                  className="bg-transparent placeholder:text-foreground-muted outline-none text-sm w-full h-full pr-6"
                   autoComplete="url"
                   inputMode="url"
                 />
               </div>
-              <p className="text-xs text-muted-foreground mt-2 px-6">
+              <p className="text-sm text-foreground-muted mt-2 px-6">
                 {t('login.api_url_help')}
               </p>
             </div>
@@ -209,7 +209,7 @@ const Login = () => {
             onClick={() => setShowAdvanced(!showAdvanced)}
             className="mt-4"
           >
-            <Settings className="w-3 h-3 mr-1" />
+            <Settings className="size-4 mr-1" />
             {showAdvanced
               ? t('common.hide') || 'Hide'
               : t('common.show') || 'Show'}{' '}
@@ -219,12 +219,12 @@ const Login = () => {
           {/* Sign In Button */}
           <Button
             type="submit"
-            className="mt-8 w-full h-11 rounded-full"
+            className="mt-8 w-full"
             disabled={loading}
           >
             {loading ? (
               <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                <Loader2 className="mr-2 size-6 animate-spin" />
                 {t('login.logging_in')}
               </>
             ) : (
@@ -233,7 +233,7 @@ const Login = () => {
           </Button>
 
           {/* Sign Up Link */}
-          <p className="text-muted-foreground text-sm mt-4">
+          <p className="text-foreground-muted text-sm mt-4">
             {t('login.no_account')}{' '}
             <a className="text-primary hover:underline" href="/register">
               {t('login.create_account_short') || t('login.create_account')}

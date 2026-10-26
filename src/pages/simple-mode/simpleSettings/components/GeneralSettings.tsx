@@ -52,7 +52,7 @@ const GeneralSettings = ({
             </Label>
             <select
               id="language-select"
-              className="min-h-control-md w-full rounded-md border border-border-strong bg-surface px-4 text-base shadow-inset focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-ring disabled:cursor-not-allowed disabled:opacity-50"
+              className="min-h-control-md w-full rounded-md border border-border-strong bg-surface px-4 text-base shadow-inset focus-visible:outline-3 focus-visible:outline-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
               value={currentLanguage}
               onChange={(e) => onLanguageChange(e.target.value)}
             >
@@ -68,7 +68,7 @@ const GeneralSettings = ({
 
           {/* Toggle Switches */}
           <div className="space-y-4">
-            <div className="flex items-center justify-between py-3 px-3 min-h-control-md hover:bg-muted/50 rounded-lg transition-colors">
+            <div className="flex items-center justify-between py-3 px-3 min-h-control-md hover:bg-surface-sunken rounded-lg transition-colors">
               <Label
                 htmlFor="notifications"
                 className="flex items-center gap-2 cursor-pointer"
@@ -79,7 +79,7 @@ const GeneralSettings = ({
               <Switch id="notifications" />
             </div>
 
-            <div className="flex items-center justify-between py-3 px-3 min-h-control-md hover:bg-muted/50 rounded-lg transition-colors">
+            <div className="flex items-center justify-between py-3 px-3 min-h-control-md hover:bg-surface-sunken rounded-lg transition-colors">
               <Label
                 htmlFor="sound-effects"
                 className="flex items-center gap-2 cursor-pointer"
@@ -93,7 +93,7 @@ const GeneralSettings = ({
             <Separator />
 
             {/* Advanced Mode Switch */}
-            <div className="flex items-center justify-between py-3 px-3 min-h-control-md hover:bg-muted/50 rounded-lg transition-colors">
+            <div className="flex items-center justify-between py-3 px-3 min-h-control-md hover:bg-surface-sunken rounded-lg transition-colors">
               <span className="text-base font-medium">
                 Switch to Advanced Mode
               </span>
@@ -105,7 +105,7 @@ const GeneralSettings = ({
             <Separator />
 
             {/* Logout Button */}
-            <div className="flex items-center justify-between py-3 px-3 min-h-control-md hover:bg-muted/50 rounded-lg transition-colors">
+            <div className="flex items-center justify-between py-3 px-3 min-h-control-md hover:bg-surface-sunken rounded-lg transition-colors">
               <Label className="flex items-center gap-2">
                 <LogOut className="size-6" />
                 Logout

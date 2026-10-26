@@ -43,7 +43,7 @@ const HeaderBar: React.FC<HeaderBarProps> = ({ collapsed, onToggle }) => {
   };
 
   return (
-    <header className="fixed top-0 right-0 left-0 h-16 bg-background border-b z-50">
+    <header className="fixed top-0 right-0 left-0 h-16 bg-surface border-b-hairline border-border z-50">
       <div className="flex items-center justify-between h-full px-3 sm:px-4">
         <div className="flex items-center gap-2 sm:gap-4">
           <Button
@@ -78,7 +78,7 @@ const HeaderBar: React.FC<HeaderBarProps> = ({ collapsed, onToggle }) => {
                     <p className="text-sm font-semibold m-0">
                       {loading ? 'Loading...' : userData?.username || 'Guest'}
                     </p>
-                    <p className="text-xs text-muted-foreground m-0">
+                    <p className="text-sm text-foreground-muted m-0">
                       {loading
                         ? ''
                         : getRoleDisplayName(
@@ -91,19 +91,19 @@ const HeaderBar: React.FC<HeaderBarProps> = ({ collapsed, onToggle }) => {
             />
             <DropdownMenuContent align="end" className="w-52">
               <DropdownMenuItem onClick={() => navigate({ to: '/settings' })}>
-                <Settings className="mr-2 h-4 w-4" />
+                <Settings className="mr-2 size-6" />
                 <span>Settings</span>
               </DropdownMenuItem>
               <DropdownMenuItem onClick={handleSimpleModeSwitch}>
-                <Smartphone className="mr-2 h-4 w-4" />
+                <Smartphone className="mr-2 size-6" />
                 <span>Simple Mode</span>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem
                 onClick={handleLogout}
-                className="text-destructive"
+                className="text-danger"
               >
-                <LogOut className="mr-2 h-4 w-4" />
+                <LogOut className="mr-2 size-6" />
                 <span>Logout</span>
               </DropdownMenuItem>
             </DropdownMenuContent>

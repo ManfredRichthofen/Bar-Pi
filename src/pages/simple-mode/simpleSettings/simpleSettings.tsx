@@ -38,18 +38,18 @@ const SimpleSettings = () => {
   return (
     <div className="min-h-screen bg-background flex flex-col">
       {/* Header */}
-      <div className="sticky top-0 z-20 bg-background/95 backdrop-blur-md border-b border-border shadow-sm">
+      <div className="sticky top-0 z-20 bg-background border-b border-border shadow-sm">
         <div className="px-3 sm:px-4 py-3 sm:py-4 flex items-center justify-between">
           <Button
             type="button"
             variant="ghost"
             size="icon"
-            className="rounded-xl transition-all duration-200 shadow-sm"
+            className="rounded-xl transition-colors"
             onClick={() => navigate({ to: '/simple/drinks' })}
           >
             <ArrowLeft className="size-6" />
           </Button>
-          <h1 className="text-lg sm:text-xl font-bold truncate flex-1 mx-2 sm:mx-3 text-center text-base-content">
+          <h1 className="text-xl truncate flex-1 mx-2 sm:mx-3 text-center text-foreground">
             {t('settings.title', 'Settings')}
           </h1>
           <div className="size-control-md" /> {/* Spacer for centering */}
