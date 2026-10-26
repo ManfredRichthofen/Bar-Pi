@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios from '../lib/apiClient';
 import { BaseService } from './base.service';
 import { API_PATHS, ERROR_MESSAGES } from '../constants';
 import JsUtils from './JsUtils.js';

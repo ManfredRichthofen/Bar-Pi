@@ -15,11 +15,12 @@ import (
 )
 
 type StompServer struct {
-	hub      *Hub
-	upgrader websocket.Upgrader
-	clients  map[*StompClient]bool
-	mu       sync.RWMutex
-	topics   map[string]map[*StompClient]*Subscription
+	hub         *Hub
+	upgrader    websocket.Upgrader
+	clients     map[*StompClient]bool
+	mu          sync.RWMutex
+	topics      map[string]map[*StompClient]*Subscription
+	OnSubscribe func(client *StompClient, sub *Subscription)
 }
 
 type StompClient struct {
@@ -27,6 +28,7 @@ type StompClient struct {
 	subscriptions map[string]*Subscription // subscription ID -> Subscription
 	sessionID     string
 	username      string
+	isSockJS      bool
 	closed        bool
 	mu            sync.RWMutex
 	send          chan []byte
@@ -66,6 +68,8 @@ func (s *StompServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	isSockJS := strings.HasSuffix(path, "/websocket") && path != "/websocket"
+
 	conn, err := s.upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		log.Printf("WebSocket upgrade error: %v", err)
@@ -76,6 +80,7 @@ func (s *StompServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		conn:          conn,
 		subscriptions: make(map[string]*Subscription),
 		sessionID:     generateSessionID(),
+		isSockJS:      isSockJS,
 		send:          make(chan []byte, 256),
 	}
 
@@ -101,6 +106,11 @@ func (s *StompServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		s.mu.Unlock()
 		conn.Close()
 	}()
+
+	if client.isSockJS {
+		// SockJS requires an initial "o" (open) frame immediately after WebSocket upgrade
+		client.send <- []byte("o")
+	}
 
 	go client.writePump()
 
@@ -203,9 +213,31 @@ func (s *StompServer) handleSubscribe(client *StompClient, frame *StompFrame) {
 		s.topics[destination] = make(map[*StompClient]*Subscription)
 	}
 	s.topics[destination][client] = sub
+	onSub := s.OnSubscribe
 	s.mu.Unlock()
 
 	log.Printf("Client %s subscribed to %s with id %s", client.sessionID, destination, id)
+
+	if onSub != nil {
+		onSub(client, sub)
+	}
+}
+
+// SendToSubscription sends a message directly to a specific client subscription
+func (s *StompServer) SendToSubscription(client *StompClient, sub *Subscription, body string) {
+	if client == nil || sub == nil {
+		return
+	}
+	frame := &StompFrame{
+		Command: "MESSAGE",
+		Headers: map[string]string{
+			"destination":  sub.Destination,
+			"message-id":   generateMessageID(),
+			"subscription": sub.ID,
+		},
+		Body: body,
+	}
+	_ = client.sendFrame(frame)
 }
 
 func (s *StompServer) handleUnsubscribe(client *StompClient, frame *StompFrame) {
@@ -351,6 +383,10 @@ type StompFrame struct {
 }
 
 func parseStompFrame(data string) *StompFrame {
+	trimmed := strings.TrimSpace(data)
+	if trimmed == "" {
+		return nil
+	}
 	lines := strings.Split(data, "\n")
 	if len(lines) == 0 {
 		return nil
@@ -363,7 +399,7 @@ func parseStompFrame(data string) *StompFrame {
 
 	bodyStart := -1
 	for i := 1; i < len(lines); i++ {
-		line := lines[i]
+		line := strings.TrimRight(lines[i], "\r")
 		if line == "" {
 			bodyStart = i + 1
 			break
@@ -401,6 +437,14 @@ func (c *StompClient) sendFrame(frame *StompFrame) error {
 	}
 	buf.WriteString("\x00")
 
+	payload := []byte(buf.String())
+	if c.isSockJS {
+		encoded, err := json.Marshal([]string{buf.String()})
+		if err == nil {
+			payload = append([]byte("a"), encoded...)
+		}
+	}
+
 	c.mu.RLock()
 	defer c.mu.RUnlock()
 	if c.closed {
@@ -408,7 +452,7 @@ func (c *StompClient) sendFrame(frame *StompFrame) error {
 	}
 
 	select {
-	case c.send <- []byte(buf.String()):
+	case c.send <- payload:
 		return nil
 	default:
 		return fmt.Errorf("send channel full")
@@ -416,7 +460,7 @@ func (c *StompClient) sendFrame(frame *StompFrame) error {
 }
 
 func (c *StompClient) writePump() {
-	ticker := time.NewTicker(54 * time.Second)
+	ticker := time.NewTicker(25 * time.Second)
 	defer func() {
 		ticker.Stop()
 		c.conn.Close()
@@ -437,8 +481,14 @@ func (c *StompClient) writePump() {
 
 		case <-ticker.C:
 			_ = c.conn.SetWriteDeadline(time.Now().Add(10 * time.Second))
-			if err := c.conn.WriteMessage(websocket.PingMessage, nil); err != nil {
-				return
+			if c.isSockJS {
+				if err := c.conn.WriteMessage(websocket.TextMessage, []byte("h")); err != nil {
+					return
+				}
+			} else {
+				if err := c.conn.WriteMessage(websocket.PingMessage, nil); err != nil {
+					return
+				}
 			}
 		}
 	}

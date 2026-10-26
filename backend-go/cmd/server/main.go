@@ -26,7 +26,7 @@ func main() {
 		log.Fatalf("Failed to initialize database: %v", err)
 	}
 
-	r := router.Setup(cfg, db)
+	r, cleanup := router.SetupWithCleanup(cfg, db)
 
 	srv := &http.Server{
 		Addr:         fmt.Sprintf(":%d", cfg.Server.Port),
@@ -54,6 +54,10 @@ func main() {
 
 	if err := srv.Shutdown(ctx); err != nil {
 		log.Printf("Server forced to shutdown: %v", err)
+	}
+
+	if cleanup != nil {
+		cleanup()
 	}
 
 	if sqlDB, err := db.DB(); err == nil && sqlDB != nil {

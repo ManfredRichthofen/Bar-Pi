@@ -1,10 +1,12 @@
 package router
 
 import (
+	"encoding/json"
 	"io/fs"
 	"log"
 	"net/http"
 	"path/filepath"
+	"strconv"
 	"strings"
 
 	"github.com/ManfredRichthofen/Bar-Pi/backend-go/internal/auth"
@@ -21,6 +23,11 @@ import (
 )
 
 func Setup(cfg *config.Config, db *gorm.DB) *gin.Engine {
+	r, _ := SetupWithCleanup(cfg, db)
+	return r
+}
+
+func SetupWithCleanup(cfg *config.Config, db *gorm.DB) (*gin.Engine, func()) {
 	if cfg.Server.Port != 8080 {
 		gin.SetMode(gin.ReleaseMode)
 	}
@@ -51,6 +58,11 @@ func Setup(cfg *config.Config, db *gorm.DB) *gin.Engine {
 		log.Printf("Warning: GPIO hardware service not available (%v) - running in software/simulated GPIO mode", err)
 	}
 
+	imagesDir := cfg.App.ImagesDir
+	if imagesDir == "" {
+		imagesDir = "./images"
+	}
+
 	userService := service.NewUserService(userRepo)
 	recipeService := service.NewRecipeService(recipeRepo)
 	ingredientService := service.NewIngredientService(ingredientRepo)
@@ -60,7 +72,48 @@ func Setup(cfg *config.Config, db *gorm.DB) *gin.Engine {
 	pumpService := service.NewPumpService(pumpRepo, ingredientRepo, gpioRepo, gpioService, wsService, systemService)
 	cocktailService := service.NewCocktailService(recipeRepo, ingredientRepo, pumpRepo, gpioService, wsService, db)
 	statisticsService := service.NewStatisticsService(db)
-	imageService := service.NewImageService("./images")
+	imageService := service.NewImageService(imagesDir)
+
+	// Push initial state immediately when a STOMP client subscribes to a topic
+	stompServer.OnSubscribe = func(client *websocket.StompClient, sub *websocket.Subscription) {
+		dest := sub.Destination
+		switch {
+		case dest == websocket.WS_COCKTAIL_DESTINATION || dest == "/user"+websocket.WS_COCKTAIL_DESTINATION:
+			prog := cocktailService.GetCurrentProgress()
+			if prog == nil {
+				stompServer.SendToSubscription(client, sub, "DELETE")
+			} else if data, err := json.Marshal(prog); err == nil {
+				stompServer.SendToSubscription(client, sub, string(data))
+			}
+
+		case dest == websocket.WS_PUMP_LAYOUT_DESTINATION || dest == "/user"+websocket.WS_PUMP_LAYOUT_DESTINATION:
+			if pumps, err := pumpService.GetAll(); err == nil {
+				if data, err := json.Marshal(pumps); err == nil {
+					stompServer.SendToSubscription(client, sub, string(data))
+				}
+			}
+
+		case strings.HasPrefix(dest, websocket.WS_PUMP_RUNNING_STATE_DESTINATION+"/") ||
+			strings.HasPrefix(dest, "/user"+websocket.WS_PUMP_RUNNING_STATE_DESTINATION+"/"):
+			parts := strings.Split(dest, "/")
+			if len(parts) > 0 {
+				if pumpID, err := strconv.ParseInt(parts[len(parts)-1], 10, 64); err == nil {
+					state := pumpService.GetJobState(pumpID)
+					if data, err := json.Marshal(state); err == nil {
+						stompServer.SendToSubscription(client, sub, string(data))
+					}
+				}
+			}
+		}
+	}
+
+	cleanup := func() {
+		_ = cocktailService.CancelOrder(0, true)
+		_ = pumpService.StopPump(nil)
+		if gpioService != nil {
+			_ = gpioService.Close()
+		}
+	}
 
 	if err := userService.EnsureDefaultAdmin(); err != nil {
 		log.Printf("Error ensuring default admin user: %v", err)
@@ -291,7 +344,7 @@ func Setup(cfg *config.Config, db *gorm.DB) *gin.Engine {
 		log.Println("Running in standalone mode - API-only, no frontend serving")
 	}
 
-	return r
+	return r, cleanup
 }
 
 // setupStaticFileServer configures serving of static frontend files

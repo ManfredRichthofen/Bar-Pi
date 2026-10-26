@@ -8,17 +8,20 @@ import (
 	"net/http/httptest"
 	"path/filepath"
 	"strconv"
+	"strings"
 	"testing"
 	"time"
 
 	"github.com/ManfredRichthofen/Bar-Pi/backend-go/internal/config"
 	"github.com/ManfredRichthofen/Bar-Pi/backend-go/internal/database"
 	"github.com/ManfredRichthofen/Bar-Pi/backend-go/internal/router"
+	"github.com/gorilla/websocket"
 )
 
 func setupTestServer(t *testing.T) http.Handler {
 	t.Helper()
-	dbPath := filepath.Join(t.TempDir(), "test.db")
+	tmpDir := t.TempDir()
+	dbPath := filepath.Join(tmpDir, "test.db")
 	cfg := &config.Config{
 		Server: config.ServerConfig{
 			Port:         8080,
@@ -36,8 +39,9 @@ func setupTestServer(t *testing.T) http.Handler {
 			ExpirationTime: 24 * time.Hour,
 		},
 		App: config.AppConfig{
-			Name:    "Bar-Pi Test",
-			Version: "2.0.0",
+			Name:      "Bar-Pi Test",
+			Version:   "2.0.0",
+			ImagesDir: filepath.Join(tmpDir, "images"),
 		},
 	}
 
@@ -45,13 +49,17 @@ func setupTestServer(t *testing.T) http.Handler {
 	if err != nil {
 		t.Fatalf("failed to init db: %v", err)
 	}
+	r, cleanup := router.SetupWithCleanup(cfg, db)
 	t.Cleanup(func() {
+		if cleanup != nil {
+			cleanup()
+		}
 		if sqlDB, err := db.DB(); err == nil && sqlDB != nil {
 			_ = sqlDB.Close()
 		}
 	})
 
-	return router.Setup(cfg, db)
+	return r
 }
 
 func doJSONRequest(t *testing.T, r http.Handler, method, path, token string, body any) *httptest.ResponseRecorder {
@@ -161,7 +169,7 @@ func TestCocktailPiAndFrontendCompatibility(t *testing.T) {
 		t.Fatalf("expected glass size & sizeInMl = 250, got %+v", glass)
 	}
 
-	// 5. Create automated ingredient via multipart/form-data (as sent by IngredientService)
+	// 5. Create automated & manual ingredients via multipart/form-data and verify filterX exclusion semantics
 	ingRes := doMultipartRequest(t, srv, http.MethodPost, "/api/ingredient/", token, "ingredient", map[string]any{
 		"type":               "automated",
 		"name":               "White Rum",
@@ -180,6 +188,30 @@ func TestCocktailPiAndFrontendCompatibility(t *testing.T) {
 	_ = json.Unmarshal(ingRes.Body.Bytes(), &rum)
 	if rum.Type != "automated" || rum.DType != "AutomatedIngredient" {
 		t.Fatalf("unexpected ingredient response: %+v", rum)
+	}
+
+	manualIngRes := doMultipartRequest(t, srv, http.MethodPost, "/api/ingredient/", token, "ingredient", map[string]any{
+		"type":           "manual",
+		"name":           "Mint Leaves",
+		"alcoholContent": 0,
+		"unit":           "piece",
+	})
+	if manualIngRes.Code != http.StatusCreated {
+		t.Fatalf("expected 201 create manual ingredient, got %d: %s", manualIngRes.Code, manualIngRes.Body.String())
+	}
+
+	// Verify filterManualIngredients=true excludes manual ingredients (leaves only automated)
+	filteredIngsRes := doJSONRequest(t, srv, http.MethodGet, "/api/ingredient/?filterManualIngredients=true", token, nil)
+	if filteredIngsRes.Code != http.StatusOK {
+		t.Fatalf("expected 200 on filtered ingredients, got %d", filteredIngsRes.Code)
+	}
+	var filteredIngs []struct {
+		Name string `json:"name"`
+		Type string `json:"type"`
+	}
+	_ = json.Unmarshal(filteredIngsRes.Body.Bytes(), &filteredIngs)
+	if len(filteredIngs) != 1 || filteredIngs[0].Name != "White Rum" {
+		t.Fatalf("expected only White Rum when filterManualIngredients=true, got %+v", filteredIngs)
 	}
 
 	// 6. Check GPIO boards and pins
@@ -213,7 +245,7 @@ func TestCocktailPiAndFrontendCompatibility(t *testing.T) {
 		"name":                "Pump 1",
 		"type":                "dc",
 		"pin":                 map[string]any{"boardId": 1, "nr": 17},
-		"timePerClInMs":       1000,
+		"timePerClInMs":       100,
 		"tubeCapacityInMl":    50,
 		"fillingLevelInMl":    500,
 		"isPowerStateHigh":    true,
@@ -290,7 +322,7 @@ func TestCocktailPiAndFrontendCompatibility(t *testing.T) {
 		t.Fatalf("unexpected page response: %+v", pageObj)
 	}
 
-	// 10. Check feasibility & order cocktail (previously panicked in CocktailHandler!)
+	// 10. Check feasibility & order cocktail
 	recipeIDStr := strconv.FormatInt(createdRecipe.ID, 10)
 	feasRes := doJSONRequest(t, srv, http.MethodPut, "/api/cocktail/"+recipeIDStr+"/feasibility", token, map[string]any{
 		"amountOrderedInMl": 250,
@@ -329,5 +361,69 @@ func TestCocktailPiAndFrontendCompatibility(t *testing.T) {
 	cancelRes := doJSONRequest(t, srv, http.MethodDelete, "/api/cocktail", token, nil)
 	if cancelRes.Code != http.StatusOK {
 		t.Fatalf("expected 200 cancel cocktail, got %d: %s", cancelRes.Code, cancelRes.Body.String())
+	}
+}
+
+func TestSockJSFramingAndInitialSubscriptionState(t *testing.T) {
+	srv := setupTestServer(t)
+	ts := httptest.NewServer(srv)
+	defer ts.Close()
+
+	// 1. Check /websocket/info
+	infoResp, err := http.Get(ts.URL + "/websocket/info")
+	if err != nil {
+		t.Fatalf("GET /websocket/info failed: %v", err)
+	}
+	defer infoResp.Body.Close()
+	if infoResp.StatusCode != http.StatusOK {
+		t.Fatalf("expected 200 on /websocket/info, got %d", infoResp.StatusCode)
+	}
+
+	// 2. Connect to SockJS WebSocket sub-path: /websocket/123/abc/websocket
+	wsURL := "ws" + strings.TrimPrefix(ts.URL, "http") + "/websocket/123/abc/websocket"
+	conn, _, err := websocket.DefaultDialer.Dial(wsURL, nil)
+	if err != nil {
+		t.Fatalf("dial sockjs websocket failed: %v", err)
+	}
+	defer conn.Close()
+
+	_ = conn.SetReadDeadline(time.Now().Add(3 * time.Second))
+
+	// First frame must be SockJS open frame "o"
+	_, msg, err := conn.ReadMessage()
+	if err != nil {
+		t.Fatalf("read open frame failed: %v", err)
+	}
+	if string(msg) != "o" {
+		t.Fatalf("expected SockJS open frame 'o', got %q", string(msg))
+	}
+
+	// Send SockJS-wrapped STOMP CONNECT frame
+	connectFrame, _ := json.Marshal([]string{"CONNECT\naccept-version:1.2\n\n\x00"})
+	if err := conn.WriteMessage(websocket.TextMessage, connectFrame); err != nil {
+		t.Fatalf("write CONNECT failed: %v", err)
+	}
+
+	// Expect SockJS-wrapped CONNECTED frame: a["CONNECTED\n..."]
+	_, msg, err = conn.ReadMessage()
+	if err != nil {
+		t.Fatalf("read CONNECTED failed: %v", err)
+	}
+	if !strings.HasPrefix(string(msg), "a[\"CONNECTED") {
+		t.Fatalf("expected SockJS a[\"CONNECTED...\"] frame, got %q", string(msg))
+	}
+
+	// Subscribe to /user/topic/cocktailprogress and verify immediate initial state push
+	subFrame, _ := json.Marshal([]string{"SUBSCRIBE\nid:sub-0\ndestination:/user/topic/cocktailprogress\n\n\x00"})
+	if err := conn.WriteMessage(websocket.TextMessage, subFrame); err != nil {
+		t.Fatalf("write SUBSCRIBE failed: %v", err)
+	}
+
+	_, msg, err = conn.ReadMessage()
+	if err != nil {
+		t.Fatalf("read initial MESSAGE failed: %v", err)
+	}
+	if !strings.HasPrefix(string(msg), "a[\"MESSAGE") || !strings.Contains(string(msg), "DELETE") {
+		t.Fatalf("expected initial MESSAGE with DELETE body, got %q", string(msg))
 	}
 }

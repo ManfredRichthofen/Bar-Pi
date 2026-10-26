@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios from '../lib/apiClient';
 import { useEffect, useRef, useState } from 'react';
 import useAuthStore from '../store/authStore';
 

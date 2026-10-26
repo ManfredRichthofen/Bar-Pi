@@ -661,6 +661,50 @@ func (s *PumpService) DispatchPumpAdvice(pumpID int64, advice models.PumpAdvice)
 			}
 		}
 
+		// Energize GPIO pin (and reverse director pin if applicable) during finite job
+		if s.gpioService != nil && pump.DcPinNr != nil {
+			activeHigh := pump.IsPowerStateHigh == nil || *pump.IsPowerStateHigh
+			var directorPin *int
+			var directorActiveHigh bool
+			if !forward && s.systemService != nil {
+				rev := s.systemService.GetReversePumpSettings()
+				if rev.Enable && rev.Settings != nil && rev.Settings.DirectorPin != nil {
+					directorPin = rev.Settings.DirectorPin.PinNumber()
+					// Reverse state is opposite of ForwardStateHigh
+					directorActiveHigh = !rev.Settings.ForwardStateHigh
+				}
+			}
+			if directorPin != nil {
+				_ = s.gpioService.SetupOutputPin(*directorPin)
+				if directorActiveHigh {
+					_ = s.gpioService.SetPinHigh(*directorPin)
+				} else {
+					_ = s.gpioService.SetPinLow(*directorPin)
+				}
+				defer func(dp int, dah bool) {
+					if dah {
+						_ = s.gpioService.SetPinLow(dp)
+					} else {
+						_ = s.gpioService.SetPinHigh(dp)
+					}
+				}(*directorPin, directorActiveHigh)
+			}
+
+			_ = s.gpioService.SetupOutputPin(*pump.DcPinNr)
+			if activeHigh {
+				_ = s.gpioService.SetPinHigh(*pump.DcPinNr)
+			} else {
+				_ = s.gpioService.SetPinLow(*pump.DcPinNr)
+			}
+			defer func(pin int, ah bool) {
+				if ah {
+					_ = s.gpioService.SetPinLow(pin)
+				} else {
+					_ = s.gpioService.SetPinHigh(pin)
+				}
+			}(*pump.DcPinNr, activeHigh)
+		}
+
 		steps := 10
 		stepDuration := time.Duration(durationMs/steps) * time.Millisecond
 		if stepDuration < 50*time.Millisecond {

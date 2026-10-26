@@ -17,6 +17,7 @@ function GlassModal({ show, onHide, onSave, glass }) {
   const { t } = useTranslation();
   const [formData, setFormData] = useState({
     name: '',
+    size: 250,
     description: '',
   });
 
@@ -24,28 +25,35 @@ function GlassModal({ show, onHide, onSave, glass }) {
     if (glass) {
       setFormData({
         id: glass.id,
-        name: glass.name,
-        description: glass.description,
+        name: glass.name || '',
+        size: glass.size ?? glass.sizeInMl ?? 250,
+        description: glass.description || '',
       });
     } else {
       setFormData({
         name: '',
+        size: 250,
         description: '',
       });
     }
   }, [glass]);
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
+    const { name, value, type } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [name]: value,
+      [name]: type === 'number' ? parseInt(value, 10) || 0 : value,
     }));
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onSave(formData);
+    const size = Number(formData.size) || 250;
+    onSave({
+      ...formData,
+      size,
+      sizeInMl: size,
+    });
   };
 
   return (
@@ -67,6 +75,21 @@ function GlassModal({ show, onHide, onSave, glass }) {
                 id="name"
                 name="name"
                 value={formData.name}
+                onChange={handleChange}
+                required
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="size">
+                {t('glass_modal.size', 'Size (ml)')}
+              </Label>
+              <Input
+                id="size"
+                name="size"
+                type="number"
+                min={10}
+                max={5000}
+                value={formData.size}
                 onChange={handleChange}
                 required
               />

@@ -511,15 +511,108 @@ func (s *CocktailService) produceCocktail(
 		s.currentOrder.Message = fmt.Sprintf("Dispensing step %d of %d", i+1, totalSteps)
 		s.mu.Unlock()
 
+		// Compute step dispense duration and activate pumps via GPIO
+		maxDurationMs := 1500
+		var activeDcPins []struct {
+			pin        int
+			activeHigh bool
+		}
+		for _, si := range autoIngs {
+			if si.Ingredient == nil {
+				continue
+			}
+			p, ok := pumpByIngredient[si.Ingredient.ID]
+			if !ok {
+				continue
+			}
+			amt := reqByIngredient[si.Ingredient.ID]
+			if amt <= 0 {
+				amt = si.Amount
+			}
+			timePerCl := 1000
+			if p.TimePerClInMs != nil && *p.TimePerClInMs > 0 {
+				timePerCl = *p.TimePerClInMs
+			}
+			mult := 1.0
+			if si.Ingredient.PumpTimeMultiplier != nil && *si.Ingredient.PumpTimeMultiplier > 0 {
+				mult = *si.Ingredient.PumpTimeMultiplier
+			}
+			pumpMs := int((float64(amt) / 10.0) * float64(timePerCl) * mult)
+			if pumpMs > maxDurationMs {
+				maxDurationMs = pumpMs
+			}
+
+			if s.gpioService != nil {
+				if (p.DType == "DcPump" || p.DType == "Valve") && p.DcPinNr != nil {
+					activeHigh := p.IsPowerStateHigh == nil || *p.IsPowerStateHigh
+					_ = s.gpioService.SetupOutputPin(*p.DcPinNr)
+					if activeHigh {
+						_ = s.gpioService.SetPinHigh(*p.DcPinNr)
+					} else {
+						_ = s.gpioService.SetPinLow(*p.DcPinNr)
+					}
+					activeDcPins = append(activeDcPins, struct {
+						pin        int
+						activeHigh bool
+					}{pin: *p.DcPinNr, activeHigh: activeHigh})
+				} else if p.DType == "StepperPump" && p.StepPinNr != nil && p.EnablePinNr != nil {
+					stepsPerCl := 100
+					if p.StepsPerCl != nil && *p.StepsPerCl > 0 {
+						stepsPerCl = *p.StepsPerCl
+					}
+					maxSteps := 1000
+					if p.MaxStepsPerSecond != nil && *p.MaxStepsPerSecond > 0 {
+						maxSteps = *p.MaxStepsPerSecond
+					}
+					accel := 0
+					if p.Acceleration != nil && *p.Acceleration > 0 {
+						accel = *p.Acceleration
+					}
+					totalMotorSteps := int((float64(amt) / 10.0) * float64(stepsPerCl))
+					go func(cfg StepperMotorConfig) {
+						_ = s.gpioService.RunStepperMotor(cfg)
+					}(StepperMotorConfig{
+						StepPin:           *p.StepPinNr,
+						EnablePin:         *p.EnablePinNr,
+						Steps:             totalMotorSteps,
+						MaxStepsPerSecond: maxSteps,
+						Acceleration:      accel,
+					})
+				}
+			}
+		}
+
+		stopActivePins := func() {
+			if s.gpioService == nil {
+				return
+			}
+			for _, ap := range activeDcPins {
+				if ap.activeHigh {
+					_ = s.gpioService.SetPinLow(ap.pin)
+				} else {
+					_ = s.gpioService.SetPinHigh(ap.pin)
+				}
+			}
+		}
+
 		subTicks := 5
+		tickDuration := time.Duration(maxDurationMs/subTicks) * time.Millisecond
+		if tickDuration < 100*time.Millisecond {
+			tickDuration = 100 * time.Millisecond
+		}
+		if tickDuration > 500*time.Millisecond {
+			tickDuration = 500 * time.Millisecond
+		}
 		for tick := 1; tick <= subTicks; tick++ {
 			select {
 			case <-cancelCh:
+				stopActivePins()
 				return
-			case <-time.After(350 * time.Millisecond):
+			case <-time.After(tickDuration):
 				s.mu.Lock()
 				if s.currentOrder == nil || s.currentOrder.Status == "cancelled" {
 					s.mu.Unlock()
+					stopActivePins()
 					return
 				}
 				pct := ((i*subTicks + tick) * 100) / (totalSteps * subTicks)
@@ -530,6 +623,7 @@ func (s *CocktailService) produceCocktail(
 				s.broadcastProgress(&snap)
 			}
 		}
+		stopActivePins()
 
 		// Deduct liquid from pumps
 		for _, si := range autoIngs {

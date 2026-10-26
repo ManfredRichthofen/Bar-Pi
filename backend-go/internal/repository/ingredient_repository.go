@@ -106,20 +106,15 @@ func (r *IngredientRepository) FindByFilter(
 		query = query.Where("LOWER(name) LIKE ?", "%"+strings.ToLower(autocomplete)+"%")
 	}
 
-	// Type filters: in CocktailPi, filterX=true means EXCLUDE type X when filtering, or if any filter is specified:
-	// Wait: let's check both conventions. If only one is true, check if user wants that type or not.
-	var allowedTypes []string
-	if filterManualIngredients || filterAutomaticIngredients || filterIngredientGroups {
-		if filterManualIngredients {
-			allowedTypes = append(allowedTypes, "ManualIngredient")
-		}
-		if filterAutomaticIngredients {
-			allowedTypes = append(allowedTypes, "AutomatedIngredient")
-		}
-		if filterIngredientGroups {
-			allowedTypes = append(allowedTypes, "IngredientGroup")
-		}
-		query = query.Where("dtype IN ?", allowedTypes)
+	// Type filters: in CocktailPi, filterX=true means EXCLUDE type X from results
+	if filterManualIngredients {
+		query = query.Where("dtype != ?", "ManualIngredient")
+	}
+	if filterAutomaticIngredients {
+		query = query.Where("dtype != ?", "AutomatedIngredient")
+	}
+	if filterIngredientGroups {
+		query = query.Where("dtype != ?", "IngredientGroup")
 	}
 
 	// Parent group filter
