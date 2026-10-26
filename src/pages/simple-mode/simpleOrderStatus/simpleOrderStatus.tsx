@@ -21,7 +21,7 @@ const SimpleOrderStatus = () => {
   const token = useAuthStore((state) => state.token);
 
   // Maintain WebSocket connection
-  useWebSocket(token, true);
+  useWebSocket(token, { keepAlive: true });
 
   // Stop loading once we have progress or after timeout
   useEffect(() => {

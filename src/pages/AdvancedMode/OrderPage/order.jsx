@@ -1,204 +1,50 @@
-import { useLocation, useNavigate } from '@tanstack/react-router';
 import {
   BeakerIcon,
-  PlayCircle,
-  XCircle,
   Loader2,
-  Clock,
   CheckCircle,
   AlertTriangle,
   Beaker,
 } from 'lucide-react';
-import React, { useEffect, useRef, useState } from 'react';
-import { toast } from 'sonner';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Progress } from '@/components/ui/progress';
 import { Separator } from '@/components/ui/separator';
 import { Skeleton } from '@/components/ui/skeleton';
-import cocktailService from '../../../services/cocktail.service';
-import glassService from '../../../services/glass.service';
-import ingredientService from '../../../services/ingredient.service';
-import useAuthStore from '../../../store/authStore';
-import {
-  areAllIngredientsAvailable,
-  checkFeasibility,
-  orderDrink,
-  createAdvancedOrderConfig,
-} from '../../../utils/orderUtils';
+import { useOrderFlow } from '@/hooks/useOrderFlow';
+import { organizeRequiredIngredients } from '@/pages/Shared/order';
 import DrinkCustomizer from './components/DrinkCustomizer';
 import GlassSelector from './components/GlassSelector';
 import IngredientRequirements from './components/IngredientRequirements';
 
 const Order = () => {
-  const [loading, setLoading] = useState(false);
-  const [checking, setChecking] = useState(false);
-  const [feasibilityResult, setFeasibilityResult] = useState(null);
-  const [amountToProduce, setAmountToProduce] = useState(null);
-  const token = useAuthStore((state) => state.token);
-  const location = useLocation();
-  const navigate = useNavigate({ from: '/order' });
-  const recipe = location.state?.recipe;
-  const [customizations, setCustomizations] = useState({
-    boost: 100,
-    additionalIngredients: [],
-  });
-  const [selectedGlass, setSelectedGlass] = useState(null);
-  const feasibilityCheckTimeout = useRef(null);
-
-  useEffect(() => {
-    if (recipe) {
-      // Set default glass from recipe
-      if (recipe.defaultGlass) {
-        setSelectedGlass(recipe.defaultGlass);
-        setAmountToProduce(recipe.defaultGlass.sizeInMl);
-      } else {
-        // Fallback to 250ml if no default glass
-        setSelectedGlass(null);
-        setAmountToProduce(250);
-      }
-    }
-  }, [recipe]);
-
-  // Debounced feasibility check when all required data is available
-  useEffect(() => {
-    if (recipe && amountToProduce && selectedGlass && token) {
-      // Clear existing timeout
-      if (feasibilityCheckTimeout.current) {
-        clearTimeout(feasibilityCheckTimeout.current);
-      }
-
-      // Debounce feasibility check to prevent UI jumping
-      feasibilityCheckTimeout.current = setTimeout(() => {
-        checkFeasibilityLocal(recipe.id, getOrderConfig());
-      }, 300);
-    }
-
-    return () => {
-      if (feasibilityCheckTimeout.current) {
-        clearTimeout(feasibilityCheckTimeout.current);
-      }
-    };
-  }, [
+  const {
+    token,
     recipe,
+    loading,
+    checking,
+    feasibilityResult,
     amountToProduce,
     selectedGlass,
-    customizations.boost,
-    customizations.additionalIngredients,
-    token,
-  ]);
-
-  const getOrderConfig = () =>
-    createAdvancedOrderConfig(amountToProduce, customizations);
-
-  const checkFeasibilityLocal = async (recipeId, orderConfig) => {
-    return await checkFeasibility(
-      recipeId,
-      orderConfig,
-      token,
-      setChecking,
-      setFeasibilityResult,
-    );
-  };
-
-  const orderDrinkLocal = async (recipeId, orderConfig) => {
-    await orderDrink(
-      recipeId,
-      orderConfig,
-      token,
-      setLoading,
-      navigate,
-      '/drinks',
-    );
-  };
-
-  const handleMakeDrink = () => {
-    const orderConfig = getOrderConfig();
-    orderDrinkLocal(recipe.id, orderConfig);
-  };
-
-  const cancelOrder = async () => {
-    try {
-      await cocktailService.cancelCocktail(token);
-      toast.success('Order cancelled');
-    } catch (error) {
-      toast.error('Failed to cancel order');
-    }
-  };
-
-  const continueProduction = async () => {
-    try {
-      await cocktailService.continueProduction(token);
-      toast.success('Production continued');
-    } catch (error) {
-      toast.error('Failed to continue production');
-    }
-  };
-
-  const handleGlassChange = (glass) => {
-    setSelectedGlass(glass);
-    if (glass) {
-      setAmountToProduce(glass.sizeInMl);
-    }
-  };
-
-  // Remove custom amount change handler since glass should not be custom
-
-  // Handle redirects in useEffect to prevent infinite loops
-  useEffect(() => {
-    if (!token) {
-      navigate({ to: '/login' });
-    } else if (!recipe) {
-      navigate({ to: '/drinks' });
-    }
-  }, [token, recipe, navigate]);
-
-  // Fetch available ingredients for customization
-  const [availableIngredients, setAvailableIngredients] = useState([]);
-
-  useEffect(() => {
-    const fetchIngredients = async () => {
-      try {
-        const ingredients = await ingredientService.getIngredients(token);
-        setAvailableIngredients(ingredients);
-      } catch (error) {
-        console.error('Failed to fetch ingredients:', error);
-      }
-    };
-
-    if (token) {
-      fetchIngredients();
-    }
-  }, [token]);
+    setSelectedGlass,
+    customizations,
+    setCustomizations,
+    customizerIngredients,
+    canOrderDrink,
+    hasBoostableIngredients,
+    handleGlassChange,
+    handleMakeDrink,
+    navigate,
+  } = useOrderFlow({
+    mode: 'advanced',
+    successRoute: '/drinks',
+  });
 
   if (!token || !recipe) return null;
-
-  const canOrderDrink =
-    feasibilityResult?.feasible &&
-    selectedGlass !== null &&
-    !loading &&
-    !checking &&
-    areAllIngredientsAvailable(feasibilityResult?.requiredIngredients);
-
-  const organizeIngredients = (requiredIngredients) => {
-    return {
-      inBar: requiredIngredients.filter((item) => item.ingredient.inBar),
-      notInBar: requiredIngredients.filter((item) => !item.ingredient.inBar),
-      automated: requiredIngredients.filter(
-        (item) => item.ingredient.type === 'automated',
-      ),
-      manual: requiredIngredients.filter(
-        (item) => item.ingredient.type === 'manual',
-      ),
-    };
-  };
 
   return (
     <div className="min-h-screen bg-background">
       <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-6 lg:py-8">
-        {/* Header */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4 mb-4 sm:mb-6">
           <div>
             <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold">
@@ -217,11 +63,8 @@ const Order = () => {
           </Button>
         </div>
 
-        {/* Main Content */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-5 lg:gap-6">
-          {/* Left Column - Drink Info & Customization */}
           <div className="lg:col-span-2 space-y-4 sm:space-y-5 lg:space-y-6">
-            {/* Drink Overview Card */}
             <Card>
               <CardHeader className="pb-3 sm:pb-4">
                 <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
@@ -271,7 +114,6 @@ const Order = () => {
 
                 <Separator />
 
-                {/* Feasibility Status */}
                 {checking ? (
                   <div className="flex items-center justify-center py-3 sm:py-4">
                     <Loader2 className="h-5 w-5 sm:h-6 sm:w-6 animate-spin" />
@@ -354,7 +196,6 @@ const Order = () => {
               </CardContent>
             </Card>
 
-            {/* Customization Section */}
             <Card>
               <CardHeader className="pb-3 sm:pb-4">
                 <CardTitle className="text-base sm:text-lg">
@@ -363,23 +204,14 @@ const Order = () => {
               </CardHeader>
               <CardContent className="space-y-4 sm:space-y-6">
                 <DrinkCustomizer
-                  disableBoosting={
-                    !ingredientService.hasBoostableIngredients(
-                      feasibilityResult?.requiredIngredients,
-                    )
-                  }
+                  disableBoosting={!hasBoostableIngredients}
                   customizations={customizations}
                   onCustomizationsChange={setCustomizations}
-                  availableIngredients={
-                    availableIngredients.filter(
-                      (ing) => ing.type === 'automated',
-                    ) || []
-                  }
+                  availableIngredients={customizerIngredients}
                 />
 
                 <Separator />
 
-                {/* Ingredient Requirements */}
                 {checking ? (
                   <div className="space-y-3 sm:space-y-4">
                     <Skeleton className="h-4 w-1/3" />
@@ -401,9 +233,7 @@ const Order = () => {
             </Card>
           </div>
 
-          {/* Right Column - Quick Stats */}
           <div className="space-y-4 sm:space-y-5 lg:space-y-6">
-            {/* Quick Stats */}
             {feasibilityResult?.requiredIngredients && (
               <Card>
                 <CardHeader className="pb-3 sm:pb-4">
@@ -413,7 +243,7 @@ const Order = () => {
                 </CardHeader>
                 <CardContent>
                   {(() => {
-                    const ingredients = organizeIngredients(
+                    const ingredients = organizeRequiredIngredients(
                       feasibilityResult.requiredIngredients,
                     );
                     return (

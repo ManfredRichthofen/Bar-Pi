@@ -1,20 +1,10 @@
 import { AlertCircle, CheckCircle, XCircle } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-
-interface Ingredient {
-  id: string;
-  name: string;
-  type: string;
-  unit: string;
-  onPump?: boolean;
-  inBar?: boolean;
-}
-
-interface RequiredIngredient {
-  ingredient: Ingredient;
-  amountRequired: number;
-  amountMissing: number;
-}
+import {
+  isAutomatedIngredient,
+  isManualIngredient,
+} from '@/pages/Shared/order';
+import type { RequiredIngredient } from '@/pages/Shared/order';
 
 interface IngredientRequirementsProps {
   requiredIngredients: RequiredIngredient[];
@@ -23,22 +13,8 @@ interface IngredientRequirementsProps {
 const IngredientRequirements = ({
   requiredIngredients,
 }: IngredientRequirementsProps) => {
-  const isAutomatedIngredient = (ingredient: Ingredient) => {
-    return ingredient && ingredient.type === 'automated';
-  };
-
-  const isManualIngredient = (ingredient: Ingredient) => {
-    return (
-      ingredient &&
-      (ingredient.type === 'manual' ||
-        ingredient.type === 'group' ||
-        ingredient.type === 'ingredient')
-    );
-  };
-
-  const isRequiredIngredient = (item: RequiredIngredient) => {
-    return item && item.amountRequired > 0;
-  };
+  const isRequiredIngredient = (item: RequiredIngredient) =>
+    item && item.amountRequired > 0;
 
   const automaticIngredients = requiredIngredients.filter(
     (x) => isAutomatedIngredient(x.ingredient) && isRequiredIngredient(x),
@@ -54,7 +30,6 @@ const IngredientRequirements = ({
 
   return (
     <div className="space-y-4 sm:space-y-6">
-      {/* Automated Ingredients Section */}
       {automaticIngredients.length > 0 && (
         <div>
           <div className="flex items-center gap-2 mb-3 sm:mb-4">
@@ -99,7 +74,6 @@ const IngredientRequirements = ({
         </div>
       )}
 
-      {/* Manual Ingredients Section */}
       {manualIngredients.length > 0 && (
         <div>
           <div className="flex items-center gap-2 mb-3 sm:mb-4">
@@ -140,7 +114,6 @@ const IngredientRequirements = ({
         </div>
       )}
 
-      {/* Warning for unknown ingredients */}
       {requiredIngredients.length > 0 &&
         automaticIngredients.length === 0 &&
         manualIngredients.length === 0 && (

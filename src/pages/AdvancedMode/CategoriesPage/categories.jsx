@@ -1,6 +1,6 @@
 import { Navigate } from '@tanstack/react-router';
 import { Edit, FolderOpen, PlusCircle, Trash2 } from 'lucide-react';
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { toast } from 'sonner';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
@@ -12,38 +12,25 @@ import {
   ActionButtons,
   LoadingState,
 } from '@/components/AdvancedMode';
-import CategoryService from '@/services/category.service';
+import { useCategories, useCategoryMutations } from '@/hooks/useCategories';
 import useAuthStore from '../../../store/authStore';
 import { CategoryFormModal } from './components/CategoryFormModal';
 import { DeleteCategoryDialog } from './components/DeleteCategoryDialog';
 
-const Categories = ({ sidebarCollapsed = false }) => {
+const Categories = () => {
   const token = useAuthStore((state) => state.token);
-  const [categories, setCategories] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const { data: categories = [], isLoading, isPending, error: queryError } =
+    useCategories();
+  const { saveCategory, deleteCategory } = useCategoryMutations();
   const [error, setError] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingCategory, setEditingCategory] = useState(null);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [categoryToDelete, setCategoryToDelete] = useState(null);
 
-  useEffect(() => {
-    loadCategories();
-  }, []);
-
-  const loadCategories = async () => {
-    try {
-      setLoading(true);
-      setError('');
-      const data = await CategoryService.getAllCategories(token);
-      setCategories(data || []);
-    } catch (err) {
-      setError('Failed to load categories');
-      toast.error('Failed to load categories');
-    } finally {
-      setLoading(false);
-    }
-  };
+  const loading = isLoading || isPending;
+  const displayError =
+    error || (queryError ? 'Failed to load categories' : '');
 
   const handleCreate = () => {
     setEditingCategory(null);
@@ -63,22 +50,14 @@ const Categories = ({ sidebarCollapsed = false }) => {
   const handleSubmit = async (name) => {
     try {
       setError('');
-      if (editingCategory) {
-        await CategoryService.updateCategory(
-          {
-            id: editingCategory.id,
-            name: name,
-          },
-          token,
-        );
-        toast.success('Category updated successfully');
-      } else {
-        await CategoryService.createCategory(name, token);
-        toast.success('Category created successfully');
-      }
+      await saveCategory.mutateAsync({ name, editingCategory });
+      toast.success(
+        editingCategory
+          ? 'Category updated successfully'
+          : 'Category created successfully',
+      );
       setIsModalOpen(false);
       setEditingCategory(null);
-      await loadCategories();
     } catch (err) {
       const errorMsg =
         err.response?.data?.message ||
@@ -93,11 +72,10 @@ const Categories = ({ sidebarCollapsed = false }) => {
 
     try {
       setError('');
-      await CategoryService.deleteCategory(categoryToDelete.id, token);
+      await deleteCategory.mutateAsync(categoryToDelete.id);
       toast.success('Category deleted successfully');
       setDeleteConfirmOpen(false);
       setCategoryToDelete(null);
-      await loadCategories();
     } catch (err) {
       const errorMsg =
         err.response?.data?.message || 'Failed to delete category';
@@ -123,9 +101,9 @@ const Categories = ({ sidebarCollapsed = false }) => {
       />
 
       <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-6 md:py-8">
-        {error && (
+        {displayError && (
           <Alert variant="destructive" className="mb-6">
-            <AlertDescription>{error}</AlertDescription>
+            <AlertDescription>{displayError}</AlertDescription>
           </Alert>
         )}
 

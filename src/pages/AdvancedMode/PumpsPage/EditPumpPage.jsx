@@ -6,34 +6,17 @@ import {
   Droplet,
   Hexagon,
   Loader2,
-  Package,
   Save,
   Settings,
-  TestTube,
-  Thermometer,
-  Timer,
   Trash2,
-  Zap,
 } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Switch } from '@/components/ui/switch';
-import { PinSelector } from '@/pages/AdvancedMode/PumpsPage/components/PinSelector';
+import { PumpFormFields } from '@/pages/AdvancedMode/PumpsPage/components/PumpFormFields';
 import { StepperMotorIcon } from '@/pages/AdvancedMode/PumpsPage/components/StepperMotorIcon';
 import GpioService from '../../../services/gpio.service';
 import IngredientService from '../../../services/ingredient.service';
@@ -46,17 +29,15 @@ const EditPumpPage = () => {
   const params = useParams({ strict: false });
   const pumpId = params?.pumpId;
   console.log('EditPumpPage rendering, pumpId:', pumpId);
-  const { t } = useTranslation();
   const token = useAuthStore((state) => state.token);
   const { updatePump, removePump } = usePumpStore();
 
-  // Form state
   const {
     register,
     handleSubmit,
     setValue,
     watch,
-    formState: { errors, isSubmitting },
+    formState: { errors },
   } = useForm({
     defaultValues: {
       name: '',
@@ -76,7 +57,6 @@ const EditPumpPage = () => {
     },
   });
 
-  // Component state
   const [pump, setPump] = useState(null);
   const [ingredients, setIngredients] = useState([]);
   const [boards, setBoards] = useState([]);
@@ -85,13 +65,7 @@ const EditPumpPage = () => {
   const [deleting, setDeleting] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
-  const [ingredientSearch, setIngredientSearch] = useState('');
 
-  // Watch form values for conditional rendering
-  const pumpType = watch('type');
-  const selectedBoardId = watch('pin.boardId');
-
-  // Load pump data
   useEffect(() => {
     const loadPumpData = async () => {
       console.log('loadPumpData called, token:', !!token, 'pumpId:', pumpId);
@@ -114,7 +88,6 @@ const EditPumpPage = () => {
         setIngredients(ingredientsData);
         setBoards(boardsData);
 
-        // Populate form with pump data
         setValue('name', pumpData.name || '');
         setValue('type', pumpData.type || 'dc');
         setValue('pin', pumpData.pin || null);
@@ -140,7 +113,6 @@ const EditPumpPage = () => {
     loadPumpData();
   }, [pumpId, token, setValue]);
 
-  // Handle form submission
   const onSubmit = async (data) => {
     if (!token || !pumpId) return;
 
@@ -148,22 +120,18 @@ const EditPumpPage = () => {
       setSaving(true);
       setError(null);
 
-      // Prepare pump data for API
       const pumpData = {
         ...data,
         removeFields: [],
       };
 
-      // Update pump via API
       const updatedPump = await PumpService.patchPump(pumpId, pumpData, token);
 
-      // Update local store
       updatePump(pumpId, updatedPump);
 
       setSuccess('Pump updated successfully');
       toast.success('Pump updated successfully');
 
-      // Navigate back after a short delay
       setTimeout(() => {
         navigate({ to: '/pumps' });
       }, 1500);
@@ -176,7 +144,6 @@ const EditPumpPage = () => {
     }
   };
 
-  // Handle pump deletion
   const handleDelete = async () => {
     if (!token || !pumpId) return;
 
@@ -194,12 +161,10 @@ const EditPumpPage = () => {
 
       await PumpService.deletePump(pumpId, token);
 
-      // Update local store
       removePump(pumpId);
 
       toast.success('Pump deleted successfully');
 
-      // Navigate back
       navigate({ to: '/pumps' });
     } catch (err) {
       console.error('Error deleting pump:', err);
@@ -210,7 +175,6 @@ const EditPumpPage = () => {
     }
   };
 
-  // Get pump type icon
   const getPumpTypeIcon = (type) => {
     switch (type) {
       case 'dc':
@@ -224,7 +188,6 @@ const EditPumpPage = () => {
     }
   };
 
-  // Get pump type name
   const getPumpTypeName = (type) => {
     switch (type) {
       case 'dc':
@@ -279,7 +242,6 @@ const EditPumpPage = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
       <div className="sticky top-0 z-20 bg-background/95 backdrop-blur-md border-b shadow-sm pt-2">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-5">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -343,7 +305,6 @@ const EditPumpPage = () => {
       </div>
 
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
-        {/* Success/Error Messages */}
         {success && (
           <Alert className="mb-6">
             <CheckCircle className="h-4 w-4" />
@@ -363,310 +324,17 @@ const EditPumpPage = () => {
           onSubmit={handleSubmit(onSubmit)}
           className="space-y-6"
         >
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 lg:gap-6">
-            {/* Basic Information */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Basic Information</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="name">Pump Name</Label>
-                  <Input
-                    id="name"
-                    type="text"
-                    placeholder="Enter pump name"
-                    value={watch('name') || ''}
-                    {...register('name', { required: 'Pump name is required' })}
-                    className={errors.name ? 'border-destructive' : ''}
-                  />
-                  {errors.name && (
-                    <p className="text-sm text-destructive">
-                      {errors.name.message}
-                    </p>
-                  )}
-                </div>
+          <PumpFormFields
+            register={register}
+            setValue={setValue}
+            watch={watch}
+            errors={errors}
+            boards={boards}
+            ingredients={ingredients}
+            showTypeSelector
+            enableIngredientSearch
+          />
 
-                <div className="space-y-2">
-                  <Label htmlFor="type">Pump Type</Label>
-                  <Select
-                    value={watch('type')}
-                    onValueChange={(value) => setValue('type', value)}
-                  >
-                    <SelectTrigger id="type">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="dc">DC Pump</SelectItem>
-                      <SelectItem value="stepper">Stepper Motor</SelectItem>
-                      <SelectItem value="valve">Control Valve</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="ingredient">Current Ingredient</Label>
-                  <Select
-                    value={watch('currentIngredientId')?.toString() || 'none'}
-                    onValueChange={(value) =>
-                      setValue(
-                        'currentIngredientId',
-                        value === 'none' ? null : parseInt(value),
-                      )
-                    }
-                  >
-                    <SelectTrigger id="ingredient">
-                      <SelectValue>
-                        {watch('currentIngredientId')
-                          ? ingredients.find(
-                              (i) => i.id === watch('currentIngredientId'),
-                            )?.name || 'No ingredient assigned'
-                          : 'No ingredient assigned'}
-                      </SelectValue>
-                    </SelectTrigger>
-                    <SelectContent>
-                      <div className="px-2 py-1.5">
-                        <Input
-                          placeholder="Search ingredients..."
-                          value={ingredientSearch}
-                          onChange={(e) => setIngredientSearch(e.target.value)}
-                          className="h-8"
-                          onClick={(e) => e.stopPropagation()}
-                        />
-                      </div>
-                      <SelectItem value="none">
-                        No ingredient assigned
-                      </SelectItem>
-                      {ingredients
-                        .filter((ingredient) =>
-                          ingredient.name
-                            .toLowerCase()
-                            .includes(ingredientSearch.toLowerCase()),
-                        )
-                        .map((ingredient) => (
-                          <SelectItem
-                            key={ingredient.id}
-                            value={ingredient.id.toString()}
-                          >
-                            {ingredient.name}
-                          </SelectItem>
-                        ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Hardware Configuration */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Zap className="h-5 w-5" />
-                  Hardware Configuration
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {/* DC Pump / Valve Pin */}
-                {(pumpType === 'dc' || pumpType === 'valve') && (
-                  <PinSelector
-                    label="Control Pin"
-                    pin={watch('pin') || { boardId: null, nr: null }}
-                    boards={boards}
-                    onPinChange={(pin) => setValue('pin', pin)}
-                  />
-                )}
-
-                {/* Stepper Motor Pins */}
-                {pumpType === 'stepper' && (
-                  <>
-                    <PinSelector
-                      label="Enable Pin"
-                      pin={watch('enablePin') || { boardId: null, nr: null }}
-                      boards={boards}
-                      onPinChange={(pin) => setValue('enablePin', pin)}
-                    />
-                    <PinSelector
-                      label="Step Pin"
-                      pin={watch('stepPin') || { boardId: null, nr: null }}
-                      boards={boards}
-                      onPinChange={(pin) => setValue('stepPin', pin)}
-                    />
-                  </>
-                )}
-
-                <div className="flex items-center justify-between">
-                  <Label htmlFor="powerState">Power State High</Label>
-                  <Switch
-                    id="powerState"
-                    checked={watch('isPowerStateHigh')}
-                    onCheckedChange={(checked) =>
-                      setValue('isPowerStateHigh', checked)
-                    }
-                  />
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Timing Configuration */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Timer className="h-5 w-5" />
-                  Timing Configuration
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="timePerCl">Time per CL (ms)</Label>
-                  <Input
-                    id="timePerCl"
-                    type="number"
-                    placeholder="1000"
-                    {...register('timePerClInMs', {
-                      min: { value: 1, message: 'Must be at least 1ms' },
-                      required: 'Time per CL is required',
-                    })}
-                    className={errors.timePerClInMs ? 'border-destructive' : ''}
-                  />
-                  {errors.timePerClInMs && (
-                    <p className="text-sm text-destructive">
-                      {errors.timePerClInMs.message}
-                    </p>
-                  )}
-                </div>
-
-                {/* Stepper-specific timing */}
-                {pumpType === 'stepper' && (
-                  <>
-                    <div className="space-y-2">
-                      <Label htmlFor="acceleration">Acceleration</Label>
-                      <Input
-                        id="acceleration"
-                        type="number"
-                        placeholder="1000"
-                        {...register('acceleration', {
-                          min: { value: 1, message: 'Must be at least 1' },
-                        })}
-                        className={
-                          errors.acceleration ? 'border-destructive' : ''
-                        }
-                      />
-                      {errors.acceleration && (
-                        <p className="text-sm text-destructive">
-                          {errors.acceleration.message}
-                        </p>
-                      )}
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="maxSteps">Max Steps per Second</Label>
-                      <Input
-                        id="maxSteps"
-                        type="number"
-                        placeholder="2000"
-                        {...register('maxStepsPerSecond', {
-                          min: { value: 1, message: 'Must be at least 1' },
-                        })}
-                        className={
-                          errors.maxStepsPerSecond ? 'border-destructive' : ''
-                        }
-                      />
-                      {errors.maxStepsPerSecond && (
-                        <p className="text-sm text-destructive">
-                          {errors.maxStepsPerSecond.message}
-                        </p>
-                      )}
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="stepsPerCl">Steps per CL</Label>
-                      <Input
-                        id="stepsPerCl"
-                        type="number"
-                        placeholder="100"
-                        {...register('stepsPerCl', {
-                          min: { value: 1, message: 'Must be at least 1' },
-                        })}
-                        className={
-                          errors.stepsPerCl ? 'border-destructive' : ''
-                        }
-                      />
-                      {errors.stepsPerCl && (
-                        <p className="text-sm text-destructive">
-                          {errors.stepsPerCl.message}
-                        </p>
-                      )}
-                    </div>
-                  </>
-                )}
-              </CardContent>
-            </Card>
-
-            {/* Capacity Configuration */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Package className="h-5 w-5" />
-                  Capacity Configuration
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="tubeCapacity">Tube Capacity (ml)</Label>
-                  <Input
-                    id="tubeCapacity"
-                    type="number"
-                    placeholder="100"
-                    {...register('tubeCapacityInMl', {
-                      min: { value: 0, message: 'Must be at least 0' },
-                      required: 'Tube capacity is required',
-                    })}
-                    className={
-                      errors.tubeCapacityInMl ? 'border-destructive' : ''
-                    }
-                  />
-                  {errors.tubeCapacityInMl && (
-                    <p className="text-sm text-destructive">
-                      {errors.tubeCapacityInMl.message}
-                    </p>
-                  )}
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="fillingLevel">Filling Level (ml)</Label>
-                  <Input
-                    id="fillingLevel"
-                    type="number"
-                    placeholder="0"
-                    {...register('fillingLevelInMl', {
-                      min: { value: 0, message: 'Must be at least 0' },
-                    })}
-                    className={
-                      errors.fillingLevelInMl ? 'border-destructive' : ''
-                    }
-                  />
-                  {errors.fillingLevelInMl && (
-                    <p className="text-sm text-destructive">
-                      {errors.fillingLevelInMl.message}
-                    </p>
-                  )}
-                </div>
-
-                <div className="flex items-center justify-between">
-                  <Label htmlFor="pumpedUp">Pumped Up</Label>
-                  <Switch
-                    id="pumpedUp"
-                    checked={watch('isPumpedUp')}
-                    onCheckedChange={(checked) =>
-                      setValue('isPumpedUp', checked)
-                    }
-                  />
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Action Buttons */}
           <div className="flex justify-end gap-3 pt-8 border-t mt-8">
             <Button
               type="button"

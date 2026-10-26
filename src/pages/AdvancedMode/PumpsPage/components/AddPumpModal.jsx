@@ -1,16 +1,11 @@
-import { useNavigate } from '@tanstack/react-router';
 import {
   AlertCircle,
   CheckCircle,
   Droplet,
   Hexagon,
   Loader2,
-  Package,
   Save,
   Settings,
-  Timer,
-  X,
-  Zap,
 } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -18,7 +13,6 @@ import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   Dialog,
   DialogContent,
@@ -26,18 +20,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Switch } from '@/components/ui/switch';
-import { PinSelector } from '@/pages/AdvancedMode/PumpsPage/components/PinSelector';
+import { PumpFormFields } from '@/pages/AdvancedMode/PumpsPage/components/PumpFormFields';
 import { StepperMotorIcon } from '@/pages/AdvancedMode/PumpsPage/components/StepperMotorIcon';
 import GpioService from '../../../../services/gpio.service';
 import IngredientService from '../../../../services/ingredient.service';
@@ -46,12 +30,10 @@ import useAuthStore from '../../../../store/authStore';
 import { usePumpStore } from '../../../../store/pumpStore';
 
 const AddPumpModal = ({ show, onClose, pumpType = null }) => {
-  const navigate = useNavigate({ from: '/pumps' });
   const { t } = useTranslation();
   const token = useAuthStore((state) => state.token);
   const { addPump } = usePumpStore();
 
-  // Form state
   const {
     register,
     handleSubmit,
@@ -78,7 +60,6 @@ const AddPumpModal = ({ show, onClose, pumpType = null }) => {
     },
   });
 
-  // Component state
   const [ingredients, setIngredients] = useState([]);
   const [boards, setBoards] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -86,24 +67,20 @@ const AddPumpModal = ({ show, onClose, pumpType = null }) => {
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
 
-  // Watch form values for conditional rendering
   const pumpTypeValue = watch('type');
 
-  // Load data when modal opens
   useEffect(() => {
     if (show && token) {
       loadData();
     }
   }, [show, token]);
 
-  // Reset form when pump type changes
   useEffect(() => {
     if (pumpType) {
       setValue('type', pumpType);
     }
   }, [pumpType, setValue]);
 
-  // Load ingredients and boards
   const loadData = async () => {
     try {
       setLoading(true);
@@ -122,7 +99,6 @@ const AddPumpModal = ({ show, onClose, pumpType = null }) => {
     }
   };
 
-  // Handle form submission
   const onSubmit = async (data) => {
     if (!token) return;
 
@@ -130,20 +106,16 @@ const AddPumpModal = ({ show, onClose, pumpType = null }) => {
       setSaving(true);
       setError(null);
 
-      // Create pump via API
       const response = await PumpService.createPump(data, token);
       const newPump = response.data;
 
-      // Add to local store
       addPump(newPump);
 
       setSuccess('Pump created successfully');
       toast.success('Pump created successfully');
 
-      // Reset form
       reset();
 
-      // Close modal after a short delay
       setTimeout(() => {
         handleClose();
       }, 1500);
@@ -156,7 +128,6 @@ const AddPumpModal = ({ show, onClose, pumpType = null }) => {
     }
   };
 
-  // Handle modal close
   const handleClose = () => {
     if (!saving && onClose) {
       reset();
@@ -166,7 +137,6 @@ const AddPumpModal = ({ show, onClose, pumpType = null }) => {
     }
   };
 
-  // Get pump type icon
   const getPumpTypeIcon = (type) => {
     switch (type) {
       case 'dc':
@@ -180,7 +150,6 @@ const AddPumpModal = ({ show, onClose, pumpType = null }) => {
     }
   };
 
-  // Get pump type name
   const getPumpTypeName = (type) => {
     switch (type) {
       case 'dc':
@@ -211,7 +180,6 @@ const AddPumpModal = ({ show, onClose, pumpType = null }) => {
           </div>
         </DialogHeader>
 
-        {/* Success/Error Messages */}
         {success && (
           <Alert className="mb-4">
             <CheckCircle className="h-4 w-4" />
@@ -226,318 +194,23 @@ const AddPumpModal = ({ show, onClose, pumpType = null }) => {
           </Alert>
         )}
 
-        {/* Loading State */}
         {loading && (
           <div className="flex justify-center items-center py-8">
             <Skeleton className="h-8 w-8 rounded-full" />
           </div>
         )}
 
-        {/* Form */}
         {!loading && (
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {/* Basic Information */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>Basic Information</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="name">{t('add_pump_modal.name')}</Label>
-                    <Input
-                      id="name"
-                      type="text"
-                      placeholder="Enter pump name"
-                      {...register('name', {
-                        required: 'Pump name is required',
-                      })}
-                      className={errors.name ? 'border-destructive' : ''}
-                    />
-                    {errors.name && (
-                      <p className="text-sm text-destructive">
-                        {errors.name.message}
-                      </p>
-                    )}
-                  </div>
-
-                  {!pumpType && (
-                    <div className="space-y-2">
-                      <Label htmlFor="type">{t('add_pump_modal.type')}</Label>
-                      <Select
-                        value={watch('type')}
-                        onValueChange={(value) => setValue('type', value)}
-                      >
-                        <SelectTrigger id="type">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="dc">DC Pump</SelectItem>
-                          <SelectItem value="stepper">Stepper Motor</SelectItem>
-                          <SelectItem value="valve">Control Valve</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  )}
-
-                  <div className="space-y-2">
-                    <Label htmlFor="ingredient">
-                      {t('add_pump_modal.current_ingredient')}
-                    </Label>
-                    <Select
-                      value={watch('currentIngredientId')?.toString() || ''}
-                      onValueChange={(value) =>
-                        setValue(
-                          'currentIngredientId',
-                          value ? parseInt(value) : null,
-                        )
-                      }
-                    >
-                      <SelectTrigger id="ingredient">
-                        <SelectValue placeholder="No ingredient assigned" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="">No ingredient assigned</SelectItem>
-                        {ingredients.map((ingredient) => (
-                          <SelectItem
-                            key={ingredient.id}
-                            value={ingredient.id.toString()}
-                          >
-                            {ingredient.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Hardware Configuration */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Zap className="h-5 w-5" />
-                    Hardware Configuration
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  {/* DC Pump / Valve Pin */}
-                  {(pumpTypeValue === 'dc' || pumpTypeValue === 'valve') && (
-                    <PinSelector
-                      label="Control Pin"
-                      pin={watch('pin') || { boardId: null, nr: null }}
-                      boards={boards}
-                      onPinChange={(pin) => setValue('pin', pin)}
-                    />
-                  )}
-
-                  {/* Stepper Motor Pins */}
-                  {pumpTypeValue === 'stepper' && (
-                    <>
-                      <PinSelector
-                        label="Enable Pin"
-                        pin={watch('enablePin') || { boardId: null, nr: null }}
-                        boards={boards}
-                        onPinChange={(pin) => setValue('enablePin', pin)}
-                      />
-                      <PinSelector
-                        label="Step Pin"
-                        pin={watch('stepPin') || { boardId: null, nr: null }}
-                        boards={boards}
-                        onPinChange={(pin) => setValue('stepPin', pin)}
-                      />
-                    </>
-                  )}
-
-                  <div className="flex items-center justify-between">
-                    <Label htmlFor="powerState">
-                      {t('add_pump_modal.power_state_high')}
-                    </Label>
-                    <Switch
-                      id="powerState"
-                      checked={watch('isPowerStateHigh')}
-                      onCheckedChange={(checked) =>
-                        setValue('isPowerStateHigh', checked)
-                      }
-                    />
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Timing Configuration */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Timer className="h-5 w-5" />
-                    Timing Configuration
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="timePerCl">
-                      {t('add_pump_modal.time_per_cl_ms')}
-                    </Label>
-                    <Input
-                      id="timePerCl"
-                      type="number"
-                      placeholder="1000"
-                      {...register('timePerClInMs', {
-                        min: { value: 1, message: 'Must be at least 1ms' },
-                        required: 'Time per CL is required',
-                      })}
-                      className={
-                        errors.timePerClInMs ? 'border-destructive' : ''
-                      }
-                    />
-                    {errors.timePerClInMs && (
-                      <p className="text-sm text-destructive">
-                        {errors.timePerClInMs.message}
-                      </p>
-                    )}
-                  </div>
-
-                  {/* Stepper-specific timing */}
-                  {pumpTypeValue === 'stepper' && (
-                    <>
-                      <div className="space-y-2">
-                        <Label htmlFor="acceleration">
-                          {t('add_pump_modal.acceleration')}
-                        </Label>
-                        <Input
-                          id="acceleration"
-                          type="number"
-                          placeholder="1000"
-                          {...register('acceleration', {
-                            min: { value: 1, message: 'Must be at least 1' },
-                          })}
-                          className={
-                            errors.acceleration ? 'border-destructive' : ''
-                          }
-                        />
-                        {errors.acceleration && (
-                          <p className="text-sm text-destructive">
-                            {errors.acceleration.message}
-                          </p>
-                        )}
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label htmlFor="maxSteps">
-                          {t('add_pump_modal.max_steps_per_second')}
-                        </Label>
-                        <Input
-                          id="maxSteps"
-                          type="number"
-                          placeholder="2000"
-                          {...register('maxStepsPerSecond', {
-                            min: { value: 1, message: 'Must be at least 1' },
-                          })}
-                          className={
-                            errors.maxStepsPerSecond ? 'border-destructive' : ''
-                          }
-                        />
-                        {errors.maxStepsPerSecond && (
-                          <p className="text-sm text-destructive">
-                            {errors.maxStepsPerSecond.message}
-                          </p>
-                        )}
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label htmlFor="stepsPerCl">
-                          {t('add_pump_modal.steps_per_cl')}
-                        </Label>
-                        <Input
-                          id="stepsPerCl"
-                          type="number"
-                          placeholder="100"
-                          {...register('stepsPerCl', {
-                            min: { value: 1, message: 'Must be at least 1' },
-                          })}
-                          className={
-                            errors.stepsPerCl ? 'border-destructive' : ''
-                          }
-                        />
-                        {errors.stepsPerCl && (
-                          <p className="text-sm text-destructive">
-                            {errors.stepsPerCl.message}
-                          </p>
-                        )}
-                      </div>
-                    </>
-                  )}
-                </CardContent>
-              </Card>
-
-              {/* Capacity Configuration */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Package className="h-5 w-5" />
-                    Capacity Configuration
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="tubeCapacity">
-                      {t('add_pump_modal.tube_capacity_ml')}
-                    </Label>
-                    <Input
-                      id="tubeCapacity"
-                      type="number"
-                      placeholder="100"
-                      {...register('tubeCapacityInMl', {
-                        min: { value: 0, message: 'Must be at least 0' },
-                        required: 'Tube capacity is required',
-                      })}
-                      className={
-                        errors.tubeCapacityInMl ? 'border-destructive' : ''
-                      }
-                    />
-                    {errors.tubeCapacityInMl && (
-                      <p className="text-sm text-destructive">
-                        {errors.tubeCapacityInMl.message}
-                      </p>
-                    )}
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="fillingLevel">
-                      {t('add_pump_modal.filling_level_ml')}
-                    </Label>
-                    <Input
-                      id="fillingLevel"
-                      type="number"
-                      placeholder="0"
-                      {...register('fillingLevelInMl', {
-                        min: { value: 0, message: 'Must be at least 0' },
-                      })}
-                      className={
-                        errors.fillingLevelInMl ? 'border-destructive' : ''
-                      }
-                    />
-                    {errors.fillingLevelInMl && (
-                      <p className="text-sm text-destructive">
-                        {errors.fillingLevelInMl.message}
-                      </p>
-                    )}
-                  </div>
-
-                  <div className="flex items-center justify-between">
-                    <Label htmlFor="pumpedUp">
-                      {t('add_pump_modal.pumped_up')}
-                    </Label>
-                    <Switch
-                      id="pumpedUp"
-                      checked={watch('isPumpedUp')}
-                      onCheckedChange={(checked) =>
-                        setValue('isPumpedUp', checked)
-                      }
-                    />
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
+            <PumpFormFields
+              register={register}
+              setValue={setValue}
+              watch={watch}
+              errors={errors}
+              boards={boards}
+              ingredients={ingredients}
+              showTypeSelector={!pumpType}
+            />
 
             <DialogFooter className="pt-6 border-t">
               <Button

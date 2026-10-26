@@ -5,7 +5,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import FilterPanel from '@/components/ui/filter-panel.jsx';
 import SearchInput from '@/components/ui/search-input.jsx';
-import CocktailService from '../../../services/cocktail.service.js';
+import { useFabricableRecipes } from '@/hooks/useFabricableRecipes';
 import useAuthStore from '../../../store/authStore.js';
 import useFilterStore from '../../../store/filterStore.js';
 import { filterRecipes } from '../../../utils/recipeFilters.js';
@@ -20,11 +20,13 @@ const Drinks = ({ sidebarCollapsed = false }) => {
   const [isHeaderVisible, setIsHeaderVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
   const { filters, updateFilter, clearFilters } = useFilterStore();
-  const [fabricableRecipes, setFabricableRecipes] = useState(new Set());
   const [showScrollTop, setShowScrollTop] = useState(false);
 
   const filterPanelRef = useRef(null);
   const token = useAuthStore((state) => state.token);
+  const { fabricableRecipes, checkFabricability } = useFabricableRecipes({
+    token,
+  });
 
   const handleFilterChange = useCallback(
     (filterName) => {
@@ -38,49 +40,9 @@ const Drinks = ({ sidebarCollapsed = false }) => {
     [filters, clearFilters, updateFilter],
   );
 
-  const checkFabricability = useCallback(
-    async (recipes) => {
-      if (!token) return;
-
-      const fabricableSet = new Set(fabricableRecipes);
-      const batchSize = 50;
-
-      for (let i = 0; i < recipes.length; i += batchSize) {
-        const batch = recipes.slice(i, i + batchSize);
-        const results = await Promise.allSettled(
-          batch.map(async (recipe) => {
-            if (fabricableSet.has(recipe.id)) return recipe.id;
-            try {
-              const isFabricable = await CocktailService.checkFabricability(
-                recipe.id,
-                token,
-              );
-              if (isFabricable) {
-                fabricableSet.add(recipe.id);
-              }
-              return recipe.id;
-            } catch (error) {
-              console.error(
-                `Failed to check fabricability for recipe ${recipe.id}:`,
-                error,
-              );
-              return recipe.id;
-            }
-          }),
-        );
-
-        // Update state after each batch to show progress
-        setFabricableRecipes(new Set(fabricableSet));
-      }
-
-      return fabricableSet;
-    },
-    [token, fabricableRecipes],
-  );
-
   const handleFilterRecipes = useCallback(
-    (recipes, filters, fabricableRecipes) => {
-      return filterRecipes(recipes, filters, fabricableRecipes);
+    (recipes, activeFilters, fabricable) => {
+      return filterRecipes(recipes, activeFilters, fabricable);
     },
     [],
   );

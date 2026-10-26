@@ -1,14 +1,14 @@
 import { AlertCircle, PlayCircle, PlusCircle, StopCircle } from 'lucide-react';
 import type React from 'react';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { toast } from 'sonner';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
+import { usePumps } from '../../../hooks/usePumps';
+import { useWebSocket } from '../../../hooks/useWebSocket';
 import PumpService from '../../../services/pump.service';
-import WebSocketService from '../../../services/websocket.service';
 import useAuthStore from '../../../store/authStore';
-import { usePumpStore } from '../../../store/pumpStore';
 import { PumpCard } from './components/PumpCard';
 import { PumpSelector } from './components/PumpSelector';
 import { PumpStatus } from './components/PumpStatus';
@@ -17,25 +17,10 @@ import { StepperMotorIcon } from './components/StepperMotorIcon';
 export const PumpsPage: React.FC = () => {
   const [showAddDialog, setShowAddDialog] = useState(false);
   const token = useAuthStore((state) => state.token);
+  const { pumps, loading, error } = usePumps();
 
-  const { pumps, loading, error, fetchPumps } = usePumpStore();
-
-  useEffect(() => {
-    if (token) {
-      fetchPumps(token);
-      // Initialize WebSocket connection for real-time pump updates
-      if (!WebSocketService.connected) {
-        WebSocketService.connectWebsocket(token);
-      }
-    }
-  }, [token, fetchPumps]);
-
-  // Cleanup WebSocket on unmount
-  useEffect(() => {
-    return () => {
-      // Don't disconnect WebSocket as other components might be using it
-    };
-  }, []);
+  // Ensure WS connection for pump card live updates (no progress sub)
+  useWebSocket(token, { keepAlive: true, subscribeProgress: false });
 
   const onClickTurnOnAllPumps = () => {
     PumpService.startPump(null, token)

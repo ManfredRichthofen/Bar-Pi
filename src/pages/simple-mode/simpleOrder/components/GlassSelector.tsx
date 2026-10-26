@@ -1,5 +1,5 @@
 import { GlassWater, Loader2 } from 'lucide-react';
-import { useEffect, useRef, useState } from 'react';
+import { useState } from 'react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -11,15 +11,9 @@ import {
 } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import glassService from '../../../../services/glass.service';
-
-interface Glass {
-  id: string;
-  name: string;
-  size: number;
-  sizeInMl?: number;
-  description?: string;
-}
+import { useGlasses } from '@/hooks/useGlasses';
+import { getGlassSizeMl } from '@/pages/Shared/order';
+import type { Glass } from '@/pages/Shared/order';
 
 interface GlassSelectorProps {
   selectedGlass: Glass | null;
@@ -36,57 +30,14 @@ const GlassSelector = ({
   setSelectedGlass,
   onGlassChange,
 }: GlassSelectorProps) => {
-  const [loading, setLoading] = useState(true);
-  const [glasses, setGlasses] = useState<Glass[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const hasInitialized = useRef(false);
-
-  useEffect(() => {
-    const fetchGlasses = async () => {
-      try {
-        const allGlasses = await glassService.getGlasses(token);
-        setGlasses(allGlasses);
-
-        if (!hasInitialized.current) {
-          hasInitialized.current = true;
-
-          console.log('GlassSelector initializing:', {
-            defaultGlass,
-            selectedGlass,
-            glassCount: allGlasses.length,
-          });
-
-          if (defaultGlass) {
-            const glass = allGlasses.find(
-              (g: Glass) => g.id === defaultGlass.id,
-            );
-            if (glass) {
-              console.log('Setting default glass:', glass);
-              setSelectedGlass(glass);
-              if (onGlassChange) {
-                onGlassChange(glass);
-              }
-            }
-          } else if (allGlasses.length > 0 && !selectedGlass) {
-            // Auto-select first glass if none selected
-            console.log('Auto-selecting first glass:', allGlasses[0]);
-            setSelectedGlass(allGlasses[0]);
-            if (onGlassChange) {
-              onGlassChange(allGlasses[0]);
-            }
-          }
-        }
-      } catch (error) {
-        console.error('Failed to fetch glasses:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    if (token) {
-      fetchGlasses();
-    }
-  }, [token]);
+  const { loading, glasses, selectGlass } = useGlasses({
+    token,
+    defaultGlass,
+    selectedGlass,
+    setSelectedGlass,
+    onGlassChange,
+  });
 
   if (loading) {
     return (
@@ -107,17 +58,13 @@ const GlassSelector = ({
   }
 
   const handleGlassSelect = (glass: Glass) => {
-    setSelectedGlass(glass);
-    if (onGlassChange) {
-      onGlassChange(glass);
-    }
+    selectGlass(glass);
     setIsModalOpen(false);
   };
 
   return (
     <>
       <div className="w-full">
-        {/* Selected Glass Display - Click to open modal */}
         <Button
           type="button"
           variant="outline"
@@ -133,11 +80,13 @@ const GlassSelector = ({
                     {selectedGlass.name}
                   </div>
                   <div className="text-xs sm:text-sm text-muted-foreground">
-                    {selectedGlass.size}ml capacity
+                    {getGlassSizeMl(selectedGlass)}ml capacity
                   </div>
                 </div>
               </div>
-              <Badge className="shrink-0">{selectedGlass.size}ml</Badge>
+              <Badge className="shrink-0">
+                {getGlassSizeMl(selectedGlass)}ml
+              </Badge>
             </div>
           ) : (
             <div className="flex items-center gap-2 text-muted-foreground">
@@ -148,7 +97,6 @@ const GlassSelector = ({
         </Button>
       </div>
 
-      {/* Modal for glass selection */}
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
@@ -193,7 +141,7 @@ const GlassSelector = ({
                         }
                         className="shrink-0"
                       >
-                        {glass.size}ml
+                        {getGlassSizeMl(glass)}ml
                       </Badge>
                     </div>
                     {glass.description && (

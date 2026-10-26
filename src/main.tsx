@@ -1,9 +1,11 @@
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { QueryClientProvider } from '@tanstack/react-query';
 import { createRouter, RouterProvider } from '@tanstack/react-router';
 import { TanStackRouterDevtools } from '@tanstack/react-router-devtools';
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { Toaster } from './components/ui/sonner';
+import './lib/apiClient';
+import { queryClient } from './lib/queryClient';
 import './index.css';
 import './i18n';
 
@@ -18,16 +20,6 @@ window.addEventListener('beforeunload', () => {
 
 // Create a new router instance
 const router = createRouter({ routeTree });
-
-// Create a new query client instance
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      staleTime: 1000 * 60 * 5, // 5 minutes
-      gcTime: 1000 * 60 * 10, // 10 minutes
-    },
-  },
-});
 
 // Register the router instance for type safety
 declare module '@tanstack/react-router' {

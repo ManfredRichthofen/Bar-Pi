@@ -4,13 +4,13 @@ import { ArrowUp, Filter } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
-import CocktailService from '../../../services/cocktail.service.js';
+import FilterPanel from '@/components/ui/filter-panel.jsx';
+import SearchInput from '@/components/ui/search-input.jsx';
+import { useFabricableRecipes } from '@/hooks/useFabricableRecipes';
 import useAuthStore from '../../../store/authStore.js';
 import useFilterStore from '../../../store/filterStore.js';
 import { filterRecipes } from '../../../utils/recipeFilters.js';
 import ErrorMessage from './ErrorMessage.jsx';
-import FilterPanel from '@/components/ui/filter-panel.jsx';
-import SearchInput from '@/components/ui/search-input.jsx';
 import VirtualGrid from './VirtualGrid.jsx';
 
 function SimpleDrinks() {
@@ -22,12 +22,20 @@ function SimpleDrinks() {
   const [isHeaderVisible, setIsHeaderVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
   const { filters, updateFilter, clearFilters } = useFilterStore();
-  const [fabricableRecipes, setFabricableRecipes] = useState(new Set());
   const token = useAuthStore((state) => state.token);
   const navigate = useNavigate({ from: '/simple/drinks' });
   const [showScrollTop, setShowScrollTop] = useState(false);
 
   const filterPanelRef = useRef(null);
+
+  const handleUnauthorized = useCallback(() => {
+    navigate({ to: '/login' });
+  }, [navigate]);
+
+  const { fabricableRecipes, checkFabricability } = useFabricableRecipes({
+    token,
+    onUnauthorized: handleUnauthorized,
+  });
 
   const handleFilterChange = useCallback(
     (filterName) => {
@@ -41,98 +49,21 @@ function SimpleDrinks() {
     [filters, clearFilters, updateFilter],
   );
 
-  const checkFabricability = useCallback(
-    async (recipes) => {
-      if (!token) return; // Skip if no token
-
-      const fabricableSet = new Set(fabricableRecipes);
-      const batchSize = 50; // Increased batch size for faster processing
-
-      for (let i = 0; i < recipes.length; i += batchSize) {
-        const batch = recipes.slice(i, i + batchSize);
-        const results = await Promise.allSettled(
-          batch.map(async (recipe) => {
-            try {
-              const orderConfig = {
-                amountOrderedInMl: recipe.defaultGlass?.sizeInMl || 250,
-                customisations: {
-                  boost: 100,
-                  additionalIngredients: [],
-                },
-                productionStepReplacements: [],
-                ingredientGroupReplacements: [],
-                useAutomaticIngredients: true,
-                skipMissingIngredients: false,
-                allowManualIngredients: true,
-                allowAutomaticIngredients: true,
-                checkMissingIngredients: true,
-              };
-
-              const result = await CocktailService.checkFeasibility(
-                recipe.id,
-                orderConfig,
-                false,
-                token,
-              );
-
-              // Check for missing ingredients and ensure automatic ingredients are on pumps
-              const hasMissingIngredients = result?.requiredIngredients?.some(
-                (item) => item.amountMissing > 0,
-              );
-
-              const hasUnpumpedAutomaticIngredients =
-                result?.requiredIngredients?.some(
-                  (item) =>
-                    item.ingredient.type === 'automated' &&
-                    !item.ingredient.onPump,
-                );
-
-              return {
-                id: recipe.id,
-                feasible:
-                  result?.feasible &&
-                  !hasMissingIngredients &&
-                  !hasUnpumpedAutomaticIngredients,
-              };
-            } catch (err) {
-              if (err.response?.status === 401) {
-                navigate('/login');
-                return { id: recipe.id, feasible: false };
-              }
-              console.error(
-                `Error checking fabricability for recipe ${recipe.id}:`,
-                err,
-              );
-              return { id: recipe.id, feasible: false };
-            }
-          }),
-        );
-
-        // Process results in bulk
-        results.forEach((result) => {
-          if (result.status === 'fulfilled' && result.value.feasible) {
-            fabricableSet.add(result.value.id);
-          }
-        });
-
-        // Update fabricable recipes after each batch
-        setFabricableRecipes(new Set(fabricableSet));
-      }
-    },
-    [token, fabricableRecipes, navigate],
-  );
-
   // Memoize the filter function to prevent unnecessary recalculations
   const filterRecipesMemo = useCallback(
-    (recipes) => {
+    (recipes, activeFilters = filters, fabricable = fabricableRecipes) => {
       if (!recipes?.length) return [];
 
       // Early return if no filters are active
-      if (!filters.automatic && !filters.manual && !filters.available) {
+      if (
+        !activeFilters.automatic &&
+        !activeFilters.manual &&
+        !activeFilters.available
+      ) {
         return recipes;
       }
 
-      return filterRecipes(recipes, filters, fabricableRecipes);
+      return filterRecipes(recipes, activeFilters, fabricable);
     },
     [filters, fabricableRecipes],
   );

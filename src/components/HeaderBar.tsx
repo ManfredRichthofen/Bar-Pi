@@ -1,7 +1,6 @@
 import { useNavigate } from '@tanstack/react-router';
 import { LogOut, Menu, Settings, Smartphone, User } from 'lucide-react';
 import type React from 'react';
-import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import {
@@ -11,7 +10,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import userService from '../services/user.service';
+import { useCurrentUser } from '../hooks/useCurrentUser';
 import useAuthStore from '../store/authStore';
 import useUIModeStore from '../store/uiModeStore.ts';
 import { getRoleDisplayName, mapAdminLevelToRole } from '../utils/roleAccess';
@@ -21,54 +20,11 @@ interface HeaderBarProps {
   onToggle: () => void;
 }
 
-interface UserData {
-  id: number;
-  username: string;
-  adminLevel: number;
-  accountNonLocked: boolean;
-}
-
 const HeaderBar: React.FC<HeaderBarProps> = ({ collapsed, onToggle }) => {
-  const [userData, setUserData] = useState<UserData | null>(null);
-  const [loading, setLoading] = useState(true);
-  const { token, logoutUser } = useAuthStore();
+  const { user: userData, loading } = useCurrentUser({ logoutOn401: true });
+  const { logoutUser } = useAuthStore();
   const setAdvancedMode = useUIModeStore((state) => state.setAdvancedMode);
   const navigate = useNavigate();
-
-  useEffect(() => {
-    const fetchUserData = async () => {
-      if (!token) {
-        setLoading(false);
-        return;
-      }
-
-      try {
-        const headers = {
-          Authorization: `Bearer ${token}`,
-        };
-        const data = await userService.getMe(headers);
-        setUserData(data);
-      } catch (error) {
-        console.error('Failed to fetch user data:', error);
-        if (
-          error instanceof Error &&
-          'response' in error &&
-          typeof error.response === 'object' &&
-          error.response &&
-          'status' in error.response &&
-          error.response.status === 401
-        ) {
-          logoutUser();
-          navigate({ to: '/login', replace: true });
-        }
-        toast.error('Failed to load user information');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchUserData();
-  }, [token, navigate, logoutUser]);
 
   const handleLogout = async () => {
     try {
