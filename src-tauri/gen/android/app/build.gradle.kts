@@ -69,6 +69,11 @@ android {
     buildFeatures {
         buildConfig = true
     }
+    // AGP/Kotlin FIR crash in lintVitalAnalyze* when lint visits applied
+    // .gradle.kts scripts (e.g. tauri.build.gradle.kts). Not an app finding.
+    lint {
+        checkReleaseBuilds = false
+    }
 }
 
 kotlin {
