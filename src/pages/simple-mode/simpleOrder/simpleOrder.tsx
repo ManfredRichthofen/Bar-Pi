@@ -36,7 +36,8 @@ const SimpleOrder = () => {
 
   if (!token || !recipe) return null;
 
-  const isCheckingFeasibility = checking || (!!selectedGlass && !feasibilityResult);
+  const isCheckingFeasibility =
+    checking || (!!selectedGlass && !feasibilityResult);
   const hasMissingIngredients = !!feasibilityResult?.requiredIngredients?.some(
     (item) => item.amountMissing > 0,
   );

@@ -56,11 +56,7 @@ const SimpleDrinkCard = ({ recipe, onCardClick }) => {
               <Loader2 className="size-8 animate-spin text-foreground-muted" />
             </div>
           ) : imageUrl ? (
-            <img
-              src={imageUrl}
-              alt=""
-              className="w-full h-full object-cover"
-            />
+            <img src={imageUrl} alt="" className="w-full h-full object-cover" />
           ) : (
             <div className="w-full h-full flex flex-col items-center justify-center gap-2">
               <GlassWater className="size-12 text-foreground-muted" />

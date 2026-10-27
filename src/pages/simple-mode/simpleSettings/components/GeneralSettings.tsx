@@ -111,7 +111,10 @@ const GeneralSettings = ({
       <ConfirmationDialog
         open={confirmAdvanced}
         onOpenChange={setConfirmAdvanced}
-        title={t('simple_settings.advanced_confirm_title', 'Switch to Advanced Mode?')}
+        title={t(
+          'simple_settings.advanced_confirm_title',
+          'Switch to Advanced Mode?',
+        )}
         description={t(
           'simple_settings.advanced_confirm_description',
           'Advanced mode shows pump, recipe and user management. Guests should stay in simple mode.',

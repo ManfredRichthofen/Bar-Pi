@@ -2,7 +2,13 @@ import { useIsFetching } from '@tanstack/react-query';
 import { Navigate, useNavigate } from '@tanstack/react-router';
 import { ArrowUp, Filter } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import FilterPanel from '@/components/ui/filter-panel.jsx';
@@ -177,7 +183,10 @@ function SimpleDrinks() {
             onChange={setSearchTerm}
             onSubmit={handleSearch}
             loading={isFetchingRecipes}
-            placeholder={t('simple_drinks.search_placeholder', 'Search drinks...')}
+            placeholder={t(
+              'simple_drinks.search_placeholder',
+              'Search drinks...',
+            )}
             debounceMs={400}
           />
 

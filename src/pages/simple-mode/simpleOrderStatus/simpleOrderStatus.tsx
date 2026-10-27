@@ -60,7 +60,9 @@ const SimpleOrderStatus = () => {
       await CocktailService.cancelCocktail(token);
     } catch (error) {
       console.error('Failed to cancel cocktail:', error);
-      toast.error(t('simple_status.cancel_failed', 'Could not cancel the order'));
+      toast.error(
+        t('simple_status.cancel_failed', 'Could not cancel the order'),
+      );
     } finally {
       setCanceling(false);
     }
@@ -185,7 +187,9 @@ const SimpleOrderStatus = () => {
           <Card>
             <CardHeader>
               <div className="flex items-center justify-between gap-3">
-                <CardTitle className="text-2xl">{progress.recipe.name}</CardTitle>
+                <CardTitle className="text-2xl">
+                  {progress.recipe.name}
+                </CardTitle>
                 {isCompleted && (
                   <CheckCircle2 className="size-8 shrink-0 text-success" />
                 )}
@@ -308,11 +312,7 @@ const SimpleOrderStatus = () => {
                 )}
 
               {isFinished ? (
-                <Button
-                  onClick={goToDrinks}
-                  className="w-full mt-4"
-                  size="lg"
-                >
+                <Button onClick={goToDrinks} className="w-full mt-4" size="lg">
                   <GlassWater className="size-6" />
                   {t('simple_status.order_another', 'Order another drink')}
                 </Button>

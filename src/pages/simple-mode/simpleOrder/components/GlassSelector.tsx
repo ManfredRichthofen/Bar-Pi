@@ -72,7 +72,9 @@ const GlassSelector = ({
                 {selectedGlass.name}
               </span>
             </div>
-            <Badge className="shrink-0">{getGlassSizeMl(selectedGlass)}ml</Badge>
+            <Badge className="shrink-0">
+              {getGlassSizeMl(selectedGlass)}ml
+            </Badge>
             <ChevronRight className="size-6 shrink-0 text-foreground-muted" />
           </div>
         ) : (
