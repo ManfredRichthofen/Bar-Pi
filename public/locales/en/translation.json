@@ -277,6 +277,7 @@
       "prerelease": "Pre-release",
       "release_notes": "Release Notes",
       "restart_complete": "Updated to {{version}}. Reloading...",
+      "restart_same_version": "Bar-Pi restarted but is still running {{version}}. Check the server logs.",
       "restarting": "Restarting Bar-Pi...",
       "settings_failed": "Failed to save update settings",
       "settings_title": "Update Settings",

@@ -277,6 +277,7 @@
       "prerelease": "Versión preliminar",
       "release_notes": "Notas de la versión",
       "restart_complete": "Actualizado a {{version}}. Recargando...",
+      "restart_same_version": "Bar-Pi se reinició pero sigue ejecutando {{version}}. Revisa los registros del servidor.",
       "restarting": "Reiniciando Bar-Pi...",
       "settings_failed": "No se pudo guardar la configuración de actualizaciones",
       "settings_title": "Configuración de actualizaciones",

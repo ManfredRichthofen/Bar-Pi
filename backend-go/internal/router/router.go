@@ -15,6 +15,7 @@ import (
 	"github.com/ManfredRichthofen/Bar-Pi/backend-go/internal/handlers"
 	"github.com/ManfredRichthofen/Bar-Pi/backend-go/internal/middleware"
 	"github.com/ManfredRichthofen/Bar-Pi/backend-go/internal/models"
+	"github.com/ManfredRichthofen/Bar-Pi/backend-go/internal/process"
 	"github.com/ManfredRichthofen/Bar-Pi/backend-go/internal/repository"
 	"github.com/ManfredRichthofen/Bar-Pi/backend-go/internal/service"
 	"github.com/ManfredRichthofen/Bar-Pi/backend-go/internal/static"
@@ -88,6 +89,7 @@ func SetupWithOptions(cfg *config.Config, db *gorm.DB, opts Options) (*gin.Engin
 		Variant:        static.Variant(),
 		Disabled:       cfg.App.DisableUpdater,
 		Settings:       systemService.GetUpdaterSettings,
+		ExecutablePath: process.Executable,
 		IsBusy: func() bool {
 			p := cocktailService.GetCurrentProgress()
 			return p != nil && (p.Status == "pending" || p.Status == "in_progress" || p.Status == "paused")

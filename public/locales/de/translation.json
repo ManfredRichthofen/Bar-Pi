@@ -277,6 +277,7 @@
       "prerelease": "Vorabversion",
       "release_notes": "Versionshinweise",
       "restart_complete": "Auf {{version}} aktualisiert. Seite wird neu geladen...",
+      "restart_same_version": "Bar-Pi wurde neu gestartet, läuft aber weiterhin mit {{version}}. Bitte Server-Logs prüfen.",
       "restarting": "Bar-Pi wird neu gestartet...",
       "settings_failed": "Update-Einstellungen konnten nicht gespeichert werden",
       "settings_title": "Update-Einstellungen",

@@ -137,7 +137,20 @@ const UpdateChecker: React.FC = () => {
 
   useEffect(() => {
     const previous = versionBeforeRestart.current;
-    if (!previous || !status || status.currentVersion === previous) return;
+    if (!previous || !status || BUSY_STATES.includes(status.state)) return;
+    if (status.currentVersion === previous) {
+      versionBeforeRestart.current = null;
+      if (status.state === 'idle') {
+        toast.error(
+          t(
+            'settings.updates.restart_same_version',
+            'Bar-Pi restarted but is still running {{version}}. Check the server logs.',
+            { version: previous },
+          ),
+        );
+      }
+      return;
+    }
     versionBeforeRestart.current = null;
     toast.success(
       t('settings.updates.restart_complete', {
