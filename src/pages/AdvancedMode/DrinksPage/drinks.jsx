@@ -9,7 +9,10 @@ import SearchInput from '@/components/ui/search-input.jsx';
 import { useFabricableRecipes } from '@/hooks/useFabricableRecipes';
 import useAuthStore from '../../../store/authStore.js';
 import useFilterStore from '../../../store/filterStore.js';
-import { filterRecipes } from '../../../utils/recipeFilters.js';
+import {
+  countActiveFilters,
+  filterRecipes,
+} from '../../../utils/recipeFilters.js';
 import VirtualDrinksGrid from './components/drinks/VirtualDrinksGrid.jsx';
 
 const Drinks = ({ sidebarCollapsed = false }) => {
@@ -41,10 +44,17 @@ const Drinks = ({ sidebarCollapsed = false }) => {
     [filters, clearFilters, updateFilter],
   );
 
-  const handleFilterRecipes = useCallback(
-    (recipes, activeFilters, fabricable) => {
-      return filterRecipes(recipes, activeFilters, fabricable);
+  const handleCollectionChange = useCallback(
+    (collectionId) => {
+      setSearchLoading(true);
+      updateFilter('collectionId', collectionId);
     },
+    [updateFilter],
+  );
+
+  const handleFilterRecipes = useCallback(
+    (recipes, activeFilters, fabricable, favoriteIds) =>
+      filterRecipes(recipes, activeFilters, fabricable, favoriteIds),
     [],
   );
 
@@ -144,9 +154,9 @@ const Drinks = ({ sidebarCollapsed = false }) => {
           >
             <Filter />
             Filters
-            {Object.values(filters).some(Boolean) && (
+            {countActiveFilters(filters) > 0 && (
               <span className="flex size-6 items-center justify-center rounded-full bg-primary-tint font-mono text-sm text-primary-tint-ink">
-                {Object.values(filters).filter(Boolean).length}
+                {countActiveFilters(filters)}
               </span>
             )}
           </Button>
@@ -166,6 +176,7 @@ const Drinks = ({ sidebarCollapsed = false }) => {
           <FilterPanel
             filters={filters}
             onFilterChange={handleFilterChange}
+            onCollectionChange={handleCollectionChange}
             onTogglePanel={() => setIsFilterPanelOpen(false)}
             isOpen={isFilterPanelOpen}
             variant="advanced"

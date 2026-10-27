@@ -73,9 +73,6 @@ const HeaderBar: React.FC<HeaderBarProps> = ({ collapsed, onToggle }) => {
               <GlassWater className="size-6" />
             </span>
             <span className="text-xl font-bold tracking-tight">Bar-Pi</span>
-            <span className="hidden rounded-full bg-surface-sunken px-3 py-0.5 font-mono text-sm text-foreground-muted sm:inline">
-              advanced
-            </span>
           </div>
         </div>
 

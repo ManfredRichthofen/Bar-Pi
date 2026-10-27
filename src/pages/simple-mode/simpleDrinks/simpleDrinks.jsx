@@ -22,10 +22,13 @@ import {
 } from '@/lib/simpleMotion';
 import useAuthStore from '../../../store/authStore.js';
 import useFilterStore from '../../../store/filterStore.js';
-import { filterRecipes } from '../../../utils/recipeFilters.js';
+import {
+  countActiveFilters,
+  filterRecipes,
+  hasActiveClientFilters,
+} from '../../../utils/recipeFilters.js';
 import VirtualGrid from './VirtualGrid.jsx';
 
-const SIMPLE_FILTER_KEYS = ['automatic', 'manual', 'available'];
 const FILTER_PANEL_ID = 'simple-drinks-filters';
 
 function SimpleDrinks() {
@@ -35,24 +38,14 @@ function SimpleDrinks() {
   const [isFilterPanelOpen, setIsFilterPanelOpen] = useState(false);
   const [showScrollTop, setShowScrollTop] = useState(false);
   const headerRef = useRef(null);
-  const { filters: allFilters, updateFilter } = useFilterStore();
+  const { filters, updateFilter, clearFilters } = useFilterStore();
   const token = useAuthStore((state) => state.token);
   const navigate = useNavigate({ from: '/simple/drinks' });
   const isFetchingRecipes =
     useIsFetching({ queryKey: ['recipes', 'simple'] }) > 0;
   const fabTransition = reduceMotion ? noneTransition : enterTransition;
 
-  // Advanced-mode filters live in the same store; simple mode only shows and applies these.
-  const filters = useMemo(
-    () =>
-      Object.fromEntries(
-        SIMPLE_FILTER_KEYS.map((key) => [key, !!allFilters[key]]),
-      ),
-    [allFilters],
-  );
-  const activeFilterCount = SIMPLE_FILTER_KEYS.filter(
-    (key) => filters[key],
-  ).length;
+  const activeFilterCount = countActiveFilters(filters);
 
   const handleUnauthorized = useCallback(() => {
     navigate({ to: '/login' });
@@ -63,32 +56,31 @@ function SimpleDrinks() {
     onUnauthorized: handleUnauthorized,
   });
 
-  const clearSimpleFilters = useCallback(() => {
-    for (const key of SIMPLE_FILTER_KEYS) {
-      updateFilter(key, false);
-    }
-  }, [updateFilter]);
-
   const handleFilterChange = useCallback(
     (filterName) => {
       if (filterName === 'clear') {
-        clearSimpleFilters();
+        clearFilters();
       } else {
         updateFilter(filterName, !filters[filterName]);
       }
     },
-    [filters, clearSimpleFilters, updateFilter],
+    [filters, clearFilters, updateFilter],
+  );
+
+  const handleCollectionChange = useCallback(
+    (collectionId) => updateFilter('collectionId', collectionId),
+    [updateFilter],
   );
 
   const filterRecipesMemo = useCallback(
-    (recipes, activeFilters = filters, fabricable = fabricableRecipes) => {
-      if (!recipes?.length) return [];
-
-      if (!SIMPLE_FILTER_KEYS.some((key) => activeFilters[key])) {
-        return recipes;
-      }
-
-      return filterRecipes(recipes, activeFilters, fabricable);
+    (
+      recipes,
+      activeFilters = filters,
+      fabricable = fabricableRecipes,
+      favoriteIds,
+    ) => {
+      if (!hasActiveClientFilters(activeFilters)) return recipes ?? [];
+      return filterRecipes(recipes, activeFilters, fabricable, favoriteIds);
     },
     [filters, fabricableRecipes],
   );
@@ -199,6 +191,7 @@ function SimpleDrinks() {
               id={FILTER_PANEL_ID}
               filters={filters}
               onFilterChange={handleFilterChange}
+              onCollectionChange={handleCollectionChange}
               variant="simple"
             />
           )}
@@ -219,7 +212,7 @@ function SimpleDrinks() {
           onCheckFabricability={checkFabricability}
           onFilterRecipes={filterRecipesMemo}
           onClearFilters={() => {
-            clearSimpleFilters();
+            clearFilters();
             setSearchTerm('');
           }}
         />
