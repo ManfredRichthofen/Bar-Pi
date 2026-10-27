@@ -18,12 +18,14 @@
     "type": ""
   },
   "common": {
+    "back": "Atrás",
+    "cancel": "Cancelar",
     "clear": "",
-    "close": "",
+    "close": "Cerrar",
     "edit": "",
     "hide": "",
     "loading_pins": "",
-    "logout": "",
+    "logout": "Cerrar sesión",
     "optional": "",
     "select_board": "",
     "select_pin": "",
@@ -69,13 +71,32 @@
     "normal": ""
   },
   "drink_info": {
-    "alcoholic": "",
-    "description": "",
-    "glass": "",
-    "ml_unit": "",
-    "non_alcoholic": "",
-    "preparation": "",
-    "type": ""
+    "alcoholic": "Con alcohol",
+    "description": "Descripción",
+    "glass": "Vaso:",
+    "ml_unit": "ml)",
+    "non_alcoholic": "Sin alcohol",
+    "preparation": "Preparación",
+    "type": "Tipo:"
+  },
+  "filters": {
+    "alcoholic": "Con alcohol",
+    "alcoholic_description": "Mostrar bebidas con alcohol",
+    "automatic": "Automático",
+    "automatic_description": "Mostrar bebidas con todos los ingredientes automáticos",
+    "available": "Disponible",
+    "available_description": "Mostrar bebidas con ingredientes en las bombas o en el bar",
+    "clear": "Borrar filtros",
+    "clear_all": "Borrar todo",
+    "fabricable": "Se puede preparar",
+    "fabricable_description": "Mostrar bebidas que se pueden preparar con los ingredientes disponibles",
+    "favorited": "Favoritos",
+    "favorited_description": "Mostrar bebidas favoritas",
+    "manual": "Manual",
+    "manual_description": "Mostrar bebidas que requieren preparación manual",
+    "non_alcoholic": "Sin alcohol",
+    "non_alcoholic_description": "Mostrar bebidas sin alcohol",
+    "title": "Filtrar bebidas"
   },
   "glass_modal": {
     "cancel": "",
@@ -92,7 +113,7 @@
     "missing": ""
   },
   "ingredients_list": {
-    "title": ""
+    "title": "Ingredientes"
   },
   "login": {
     "advanced_settings": "",
@@ -120,9 +141,9 @@
     "title": ""
   },
   "navigation": {
-    "drinks": "",
-    "order_status": "",
-    "settings": ""
+    "drinks": "Bebidas",
+    "order_status": "Estado del pedido",
+    "settings": "Ajustes"
   },
   "pump": {
     "pump_card": {
@@ -216,15 +237,15 @@
   },
   "settings": {
     "appearance": {
-      "title": ""
+      "title": "Apariencia"
     },
     "general": {
-      "language_label": "",
+      "language_label": "Idioma",
       "notifications": "",
       "sound_effects": "",
-      "title": ""
+      "title": "Ajustes generales"
     },
-    "title": "",
+    "title": "Ajustes",
     "updates": {
       "check": "",
       "current_version": "",
@@ -235,6 +256,94 @@
       "title": "",
       "update_now": ""
     }
+  },
+  "simple_drinks": {
+    "clear_search_filters": "Borrar búsqueda y filtros",
+    "empty_none_description": "Todavía no hay bebidas en el sistema. Añade algunas para empezar.",
+    "empty_none_title": "No hay bebidas",
+    "empty_results_description": "Prueba a cambiar la búsqueda o los filtros.",
+    "empty_results_title": "No se encontraron bebidas",
+    "filters": "Filtros",
+    "image_failed": "Error al cargar",
+    "image_failed_long": "No se pudo cargar la imagen",
+    "image_none": "Sin imagen",
+    "image_none_long": "No hay imagen disponible",
+    "scroll_top": "Volver arriba",
+    "search_placeholder": "Buscar bebidas...",
+    "status_hand_pour": "Requiere servir a mano",
+    "status_ready": "Lista",
+    "status_unavailable": "No disponible"
+  },
+  "simple_order": {
+    "automated_ingredients": "Servido automáticamente",
+    "blocked_missing": "Faltan algunos ingredientes",
+    "blocked_no_glass": "Selecciona un vaso para continuar",
+    "blocked_unavailable": "Esta bebida no se puede preparar ahora",
+    "checking": "Comprobando ingredientes...",
+    "customize_title": "Personaliza tu bebida",
+    "extras_add": "Añadir",
+    "extras_add_ingredient": "Añadir ingrediente",
+    "extras_hint": "Añade ingredientes extra para personalizar tu bebida",
+    "extras_placeholder": "Elige un ingrediente...",
+    "extras_remove": "Quitar",
+    "extras_select": "Seleccionar ingrediente",
+    "extras_title": "Ingredientes extra",
+    "glass_dialog_title": "Selecciona el tamaño del vaso",
+    "glass_loading": "Cargando vasos...",
+    "glass_none": "No hay vasos disponibles",
+    "glass_select": "Selecciona un vaso",
+    "glass_title": "Vaso",
+    "ingredients_title": "Ingredientes",
+    "make_drink": "Preparar bebida",
+    "making": "Preparando...",
+    "manual_ingredients": "Se añade a mano",
+    "missing_amount": "Faltan: {{amount}} {{unit}}",
+    "not_in_bar": "No está en el bar",
+    "not_on_pump": "No está en una bomba",
+    "strength_double": "Doble",
+    "strength_fixed": "La graduación de esta bebida no se puede ajustar",
+    "strength_hint": "Ajuste del contenido de alcohol",
+    "strength_none": "Sin alcohol",
+    "strength_normal": "Normal",
+    "strength_title": "Graduación alcohólica",
+    "title": "Pedir bebida",
+    "unknown_types": "No se pudieron determinar los tipos de ingredientes. Revisa la receta."
+  },
+  "simple_settings": {
+    "advanced_button": "Cambiar",
+    "advanced_confirm_description": "El modo avanzado muestra la gestión de bombas, recetas y usuarios. Los invitados deberían quedarse en el modo simple.",
+    "advanced_confirm_title": "¿Cambiar al modo avanzado?",
+    "advanced_hint": "Acceso a todas las opciones de gestión",
+    "advanced_title": "Cambiar al modo avanzado",
+    "logout_confirm_description": "Tendrás que iniciar sesión de nuevo para pedir bebidas.",
+    "logout_confirm_title": "¿Cerrar sesión?",
+    "theme": "Tema"
+  },
+  "simple_status": {
+    "about": "Acerca de",
+    "cancel_confirm": "Sí, cancelar pedido",
+    "cancel_description": "¿Seguro que quieres cancelar este pedido? No se puede deshacer.",
+    "cancel_failed": "No se pudo cancelar el pedido",
+    "cancel_keep": "Mantener pedido",
+    "cancel_order": "Cancelar pedido",
+    "cancel_title": "¿Cancelar pedido?",
+    "canceling": "Cancelando...",
+    "confirm_added": "Ya he añadido los ingredientes",
+    "confirming": "Confirmando...",
+    "connecting": "Conectando...",
+    "connecting_hint": "Obteniendo el estado del pedido",
+    "continue_failed": "No se pudo continuar el pedido",
+    "manual_add_title": "Añade a mano los siguientes ingredientes:",
+    "no_order_description": "Ahora mismo no se está preparando ningún cóctel",
+    "no_order_title": "No hay pedido activo",
+    "order_a_drink": "Pedir una bebida",
+    "order_another": "Pedir otra bebida",
+    "progress": "Progreso",
+    "state_cancelled": "Cancelado",
+    "state_completed": "Completado",
+    "state_manual": "Añadir a mano",
+    "state_preparing": "Preparando",
+    "state_pumping": "Bombeando"
   },
   "virtual_drinks_grid": {
     "loading_drinks": "",
