@@ -1,8 +1,4 @@
-import {
-  createFileRoute,
-  Outlet,
-  useMatches,
-} from '@tanstack/react-router';
+import { createFileRoute, Outlet, useMatches } from '@tanstack/react-router';
 import { PumpsPage } from '../pages/AdvancedMode/PumpsPage/PumpsPage';
 import { requirePermission } from '../utils/requirePermission';
 

@@ -1,13 +1,11 @@
 import { create } from 'zustand';
 
 export const usePumpStore = create((set) => ({
-  // State
   pumps: [],
   isAllowReversePumping: false,
   loading: false,
   error: null,
 
-  // Actions (list fetch lives in usePumps / React Query)
   setPumps: (pumps) => set({ pumps }),
 
   setAllowReversePumping: (isAllowed) =>

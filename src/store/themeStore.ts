@@ -1,12 +1,11 @@
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 
-export type ThemeId = 'daylight' | 'night' | 'soft';
+export type ThemeId = 'light' | 'dark';
 
 export const THEMES: { id: ThemeId; label: string; description: string }[] = [
-  { id: 'daylight', label: 'Daylight', description: 'Clean and bright' },
-  { id: 'night', label: 'Night', description: 'Low glare, near black' },
-  { id: 'soft', label: 'Soft', description: 'Raised, tactile controls' },
+  { id: 'light', label: 'Light Mode', description: 'Clean and bright' },
+  { id: 'dark', label: 'Dark Mode', description: 'Low glare, near black' },
 ];
 
 interface ThemeState {
@@ -14,23 +13,21 @@ interface ThemeState {
   setTheme: (theme: ThemeId) => void;
 }
 
-// Older versions stored 'light' | 'dark'
+// Legacy: night→dark; daylight/soft→light
 const normalize = (value: unknown): ThemeId => {
-  if (value === 'night' || value === 'dark') return 'night';
-  if (value === 'soft') return 'soft';
-  return 'daylight';
+  if (value === 'dark' || value === 'night') return 'dark';
+  return 'light';
 };
 
 const applyTheme = (theme: ThemeId) => {
   const root = document.documentElement;
   root.dataset.theme = theme;
-  // Night is the only dark theme; keep the legacy class for any `.dark` selectors
-  root.classList.toggle('dark', theme === 'night');
+  root.classList.toggle('dark', theme === 'dark');
 };
 
 // Read the stored theme immediately to prevent a flash on load
 const getInitialTheme = (): ThemeId => {
-  if (typeof window === 'undefined') return 'daylight';
+  if (typeof window === 'undefined') return 'light';
 
   let theme: ThemeId | null = null;
   try {
@@ -42,8 +39,8 @@ const getInitialTheme = (): ThemeId => {
 
   if (!theme) {
     theme = window.matchMedia?.('(prefers-color-scheme: dark)').matches
-      ? 'night'
-      : 'daylight';
+      ? 'dark'
+      : 'light';
   }
   applyTheme(theme);
   return theme;
@@ -61,7 +58,7 @@ const useThemeStore = create<ThemeState>()(
     {
       name: 'theme-storage',
       storage: createJSONStorage(() => localStorage),
-      version: 1,
+      version: 2,
       migrate: (persisted) => ({
         theme: normalize((persisted as { theme?: unknown })?.theme),
       }),

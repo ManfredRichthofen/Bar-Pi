@@ -56,11 +56,6 @@ func (s *IngredientService) GetByFilter(
 	)
 }
 
-// GetInBar returns all ingredients marked as in bar
-func (s *IngredientService) GetInBar() ([]models.Ingredient, error) {
-	return s.repo.FindInBar()
-}
-
 // Create creates a new ingredient
 func (s *IngredientService) Create(ingredient *models.Ingredient) error {
 	ingredient.DType = models.FrontendTypeToDType(ingredient.DType)

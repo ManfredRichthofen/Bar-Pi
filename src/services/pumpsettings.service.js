@@ -1,5 +1,4 @@
-import axios from '../lib/apiClient';
-import authHeader from './auth-header';
+import axios, { authHeaders } from '../lib/apiClient';
 import { pinDtoMapper } from './gpio.service';
 
 const API_PATH = 'api/pump/settings/';
@@ -19,13 +18,13 @@ class PumpSettingsService {
         : undefined,
     };
     return axios.put(API_PATH + 'reversepumping', dto, {
-      headers: authHeader(token),
+      headers: authHeaders(token),
     });
   }
 
   getReversePumpSettings(token) {
     return axios
-      .get(API_PATH + 'reversepumping', { headers: authHeader(token) })
+      .get(API_PATH + 'reversepumping', { headers: authHeaders(token) })
       .then((response) => {
         if (!response.data.settings) {
           delete response.data.settings;
@@ -45,7 +44,7 @@ class PumpSettingsService {
     return axios
       .put(API_PATH + 'loadcell', dto, {
         headers: {
-          ...authHeader(token),
+          ...authHeaders(token),
           'Content-Type': 'application/json',
         },
       })
@@ -55,7 +54,7 @@ class PumpSettingsService {
   getLoadCell(token) {
     return axios
       .get(API_PATH + 'loadcell', {
-        headers: authHeader(token),
+        headers: authHeaders(token),
       })
       .then((response) => response.data);
   }
@@ -63,7 +62,7 @@ class PumpSettingsService {
   readLoadCell(token) {
     return axios
       .get(API_PATH + 'loadcell/read', {
-        headers: authHeader(token),
+        headers: authHeaders(token),
       })
       .then((response) => response.data);
   }
@@ -71,7 +70,7 @@ class PumpSettingsService {
   calibrateLoadCellZero(token) {
     return axios
       .put(API_PATH + 'loadcell/calibratezero', null, {
-        headers: authHeader(token),
+        headers: authHeaders(token),
       })
       .then((response) => response.data);
   }
@@ -80,7 +79,7 @@ class PumpSettingsService {
     return axios
       .put(API_PATH + 'loadcell/calibratereference', referenceWeight, {
         headers: {
-          ...authHeader(token),
+          ...authHeaders(token),
           'Content-Type': 'application/json',
         },
       })

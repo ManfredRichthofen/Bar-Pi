@@ -81,18 +81,3 @@ func (s *ImageService) DeleteImage(filename string) error {
 
 	return nil
 }
-
-// ValidateImageFormat checks if the data is a valid image
-func (s *ImageService) ValidateImageFormat(data []byte) (string, error) {
-	_, format, err := image.Decode(bytes.NewReader(data))
-	if err != nil {
-		return "", errors.New("invalid image format")
-	}
-
-	switch format {
-	case "jpeg", "jpg", "png", "gif":
-		return format, nil
-	default:
-		return "", fmt.Errorf("unsupported image format: %s", format)
-	}
-}

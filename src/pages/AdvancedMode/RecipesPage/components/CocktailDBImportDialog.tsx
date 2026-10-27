@@ -1,4 +1,4 @@
-import { Search, Loader2, Download, ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Download, Loader2, Search } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';

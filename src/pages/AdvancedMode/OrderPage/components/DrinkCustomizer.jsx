@@ -1,8 +1,8 @@
 import {
   AlertTriangle,
+  Beaker,
   PlusCircle,
   Sliders,
-  Beaker,
   Trash2,
 } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -208,7 +208,7 @@ const DrinkCustomizer = ({
                         setSelectedIngredient(ingredient);
                       }}
                     >
-                      <SelectTrigger >
+                      <SelectTrigger>
                         <SelectValue
                           placeholder="Select ingredient to add"
                           className="text-sm"

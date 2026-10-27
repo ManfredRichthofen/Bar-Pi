@@ -45,10 +45,6 @@ func (s *RecipeService) GetByFilter(
 	return s.repo.FindByFilter(ownerID, inCollectionID, inCategoryID, containsIngredients, searchName, orderBy)
 }
 
-func (s *RecipeService) GetByOwnerID(ownerID int64) ([]models.Recipe, error) {
-	return s.repo.FindByOwnerID(ownerID)
-}
-
 func (s *RecipeService) Update(recipe *models.Recipe) error {
 	existing, err := s.repo.FindByID(recipe.ID)
 	if err != nil {

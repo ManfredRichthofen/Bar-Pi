@@ -18,11 +18,9 @@ const SearchInput = React.memo(
     size = 'default',
     variant = 'default',
   }) => {
-    // Internal state for immediate UI updates
     const [internalValue, setInternalValue] = useState(value || '');
     const timeoutRef = useRef(null);
 
-    // Sync internal value when prop changes externally
     useEffect(() => {
       setInternalValue(value || '');
     }, [value]);
@@ -41,15 +39,12 @@ const SearchInput = React.memo(
       (e) => {
         const newValue = e.target.value;
 
-        // Update internal state immediately for responsive UI
         setInternalValue(newValue);
 
-        // Clear existing timeout
         if (timeoutRef.current) {
           clearTimeout(timeoutRef.current);
         }
 
-        // Debounce the callback to parent
         if (onChange) {
           timeoutRef.current = setTimeout(() => {
             onChange(newValue);
@@ -59,7 +54,6 @@ const SearchInput = React.memo(
       [onChange, debounceMs],
     );
 
-    // Cleanup timeout on unmount
     useEffect(() => {
       return () => {
         if (timeoutRef.current) {

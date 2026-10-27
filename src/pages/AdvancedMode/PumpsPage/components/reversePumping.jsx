@@ -97,7 +97,6 @@ const ReversePumping = () => {
     [t],
   );
 
-  // Fetch pins when a board is selected
   useEffect(() => {
     if (!selectedDirectorBoardId || !token) {
       console.log('No board selected or no token, clearing pins');
@@ -106,7 +105,6 @@ const ReversePumping = () => {
     }
     console.log('Fetching pins for board:', selectedDirectorBoardId);
     setLoadingPins(true);
-    // Reset pin selection when board changes
     setValue('settings.directorPin.pinId', null);
     GpioService.getBoardPins(selectedDirectorBoardId, token)
       .then((pins) => {

@@ -1,10 +1,10 @@
 import { AlertCircle, CheckCircle, XCircle } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import type { RequiredIngredient } from '@/pages/Shared/order';
 import {
   isAutomatedIngredient,
   isManualIngredient,
 } from '@/pages/Shared/order';
-import type { RequiredIngredient } from '@/pages/Shared/order';
 
 interface IngredientRequirementsProps {
   requiredIngredients: RequiredIngredient[];
@@ -33,9 +33,7 @@ const IngredientRequirements = ({
       {automaticIngredients.length > 0 && (
         <div>
           <div className="flex items-center gap-2 mb-3 sm:mb-4">
-            <h3 className="font-semibold text-base">
-              Automated Ingredients
-            </h3>
+            <h3 className="font-semibold text-base">Automated Ingredients</h3>
             <CheckCircle className="size-6 text-success" />
           </div>
           <div className="space-y-2 sm:space-y-3">
@@ -54,8 +52,8 @@ const IngredientRequirements = ({
                   </span>
                   {(item.amountMissing > 0 || !item.ingredient.onPump) && (
                     <div className="flex items-center gap-1 mt-1">
-                      <XCircle className="size-4 text-error shrink-0" />
-                      <span className="text-error text-base">
+                      <XCircle className="size-4 text-danger shrink-0" />
+                      <span className="text-danger text-base">
                         {item.amountMissing > 0
                           ? `Missing: ${item.amountMissing} ${item.ingredient.unit}`
                           : 'Not on pump system'}
@@ -77,9 +75,7 @@ const IngredientRequirements = ({
       {manualIngredients.length > 0 && (
         <div>
           <div className="flex items-center gap-2 mb-3 sm:mb-4">
-            <h3 className="font-semibold text-base">
-              Manual Ingredients
-            </h3>
+            <h3 className="font-semibold text-base">Manual Ingredients</h3>
             <AlertCircle className="text-warning" size={16} />
           </div>
           <div className="space-y-2 sm:space-y-3">
@@ -88,8 +84,8 @@ const IngredientRequirements = ({
                 key={item.ingredient.id}
                 className={`flex justify-between items-center w-full p-3 sm:p-4 rounded-lg transition-colors ${
                   !item.ingredient.inBar
-                    ? 'bg-warning border border-warning'
-                    : 'bg-surface-sunken border border-border'
+                    ? 'bg-warning-tint border-hairline border-warning'
+                    : 'bg-surface-sunken border-hairline border-border'
                 }`}
               >
                 <div className="flex-1 pr-2 sm:pr-3 min-w-0">
@@ -99,7 +95,9 @@ const IngredientRequirements = ({
                   {!item.ingredient.inBar && (
                     <div className="flex items-center gap-1 mt-1">
                       <AlertCircle className="size-4 text-warning shrink-0" />
-                      <span className="text-warning text-base">Add manually</span>
+                      <span className="text-warning text-base">
+                        Add manually
+                      </span>
                     </div>
                   )}
                 </div>

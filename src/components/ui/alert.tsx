@@ -9,6 +9,8 @@ const alertVariants = cva(
     variants: {
       variant: {
         default: 'border-border bg-surface text-foreground',
+        warning:
+          'border-warning bg-warning-tint text-warning-tint-ink *:data-[slot=alert-description]:text-warning-tint-ink',
         destructive:
           'border-danger bg-danger-tint text-danger-tint-ink *:data-[slot=alert-description]:text-danger-tint-ink',
       },

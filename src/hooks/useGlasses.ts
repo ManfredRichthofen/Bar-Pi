@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
-import { useGlassesList } from './useGlassesList';
 import type { Glass } from '../pages/Shared/order/types';
+import { useGlassesList } from './useGlassesList';
 
 interface UseGlassesOptions {
   token: string | null;

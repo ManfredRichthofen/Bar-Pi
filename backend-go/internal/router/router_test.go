@@ -362,6 +362,44 @@ func TestCocktailPiAndFrontendCompatibility(t *testing.T) {
 	if cancelRes.Code != http.StatusOK {
 		t.Fatalf("expected 200 cancel cocktail, got %d: %s", cancelRes.Code, cancelRes.Body.String())
 	}
+
+	// 11. Verify backend identification on /health, /api/system/version, and /api/system/settings/global
+	healthRes := doJSONRequest(t, srv, http.MethodGet, "/health", "", nil)
+	if healthRes.Code != http.StatusOK {
+		t.Fatalf("expected 200 on /health, got %d", healthRes.Code)
+	}
+	var healthData struct {
+		Status  string `json:"status"`
+		Backend string `json:"backend"`
+	}
+	_ = json.Unmarshal(healthRes.Body.Bytes(), &healthData)
+	if healthData.Status != "ok" || healthData.Backend != "go" {
+		t.Fatalf("expected /health backend='go', got %+v", healthData)
+	}
+
+	globalRes := doJSONRequest(t, srv, http.MethodGet, "/api/system/settings/global", token, nil)
+	if globalRes.Code != http.StatusOK {
+		t.Fatalf("expected 200 on /api/system/settings/global, got %d", globalRes.Code)
+	}
+	var globalData struct {
+		Backend string `json:"backend"`
+	}
+	_ = json.Unmarshal(globalRes.Body.Bytes(), &globalData)
+	if globalData.Backend != "go" {
+		t.Fatalf("expected /api/system/settings/global backend='go', got %+v", globalData)
+	}
+
+	versionRes := doJSONRequest(t, srv, http.MethodGet, "/api/system/version", token, nil)
+	if versionRes.Code != http.StatusOK {
+		t.Fatalf("expected 200 on /api/system/version, got %d", versionRes.Code)
+	}
+	var versionData struct {
+		Backend string `json:"backend"`
+	}
+	_ = json.Unmarshal(versionRes.Body.Bytes(), &versionData)
+	if versionData.Backend != "go" {
+		t.Fatalf("expected /api/system/version backend='go', got %+v", versionData)
+	}
 }
 
 func TestSockJSFramingAndInitialSubscriptionState(t *testing.T) {

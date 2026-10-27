@@ -30,7 +30,7 @@ export const PageHeader: React.FC<PageHeaderProps> = ({
   return (
     <header
       className={cn(
-        'sticky top-16 z-40 border-b-hairline border-border bg-background transition-transform',
+        'sticky top-16 z-30 border-b-hairline border-border bg-background transition-transform',
         !isVisible && '-translate-y-full',
         className,
       )}

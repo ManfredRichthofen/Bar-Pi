@@ -77,7 +77,7 @@ export const ProductionStepEditor: React.FC<ProductionStepEditorProps> = ({
         </div>
 
         {step.type === 'addIngredients' ? (
-          <div className="space-y-2 sm:space-y-3">
+          <div className="@container space-y-4">
             {step.stepIngredients?.map((ing, ingIndex) => (
               <IngredientSelector
                 key={ingIndex}

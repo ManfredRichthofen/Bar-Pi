@@ -48,6 +48,16 @@ func (h *SystemHandler) GetGlobalSettings(c *gin.Context) {
 	c.JSON(http.StatusOK, settings)
 }
 
+// GetVersion handles GET /api/system/version
+func (h *SystemHandler) GetVersion(c *gin.Context) {
+	settings := h.service.GetGlobalSettings()
+	c.JSON(http.StatusOK, gin.H{
+		"version": settings.AppVersion,
+		"appName": settings.AppName,
+		"backend": "go",
+	})
+}
+
 // SetDonated handles PUT /api/system/settings/donated
 func (h *SystemHandler) SetDonated(c *gin.Context) {
 	var req struct {

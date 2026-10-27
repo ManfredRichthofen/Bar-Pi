@@ -17,22 +17,6 @@ func NewStatisticsRepository(db *gorm.DB) *StatisticsRepository {
 	return &StatisticsRepository{db: db}
 }
 
-// CreateOrder inserts a new CocktailOrder and its ingredients
-func (r *StatisticsRepository) CreateOrder(order *models.CocktailOrder) error {
-	return r.db.Create(order).Error
-}
-
-// UpdateOrderStatus updates the status and completion timestamp of an order
-func (r *StatisticsRepository) UpdateOrderStatus(orderID int64, status string, completedAt *time.Time) error {
-	updates := map[string]interface{}{
-		"status": status,
-	}
-	if completedAt != nil {
-		updates["completed_at"] = *completedAt
-	}
-	return r.db.Model(&models.CocktailOrder{}).Where("id = ?", orderID).Updates(updates).Error
-}
-
 // ClearOrderHistory deletes all cocktail order records
 func (r *StatisticsRepository) ClearOrderHistory() error {
 	return r.db.Session(&gorm.Session{AllowGlobalUpdate: true}).Delete(&models.CocktailOrder{}).Error

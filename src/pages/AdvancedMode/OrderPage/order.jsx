@@ -1,9 +1,9 @@
 import {
-  BeakerIcon,
-  Loader2,
-  CheckCircle,
   AlertTriangle,
   Beaker,
+  BeakerIcon,
+  CheckCircle,
+  Loader2,
 } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';

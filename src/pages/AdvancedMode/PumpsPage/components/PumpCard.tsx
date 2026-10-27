@@ -172,7 +172,10 @@ export const PumpCard: React.FC<PumpCardProps> = ({ pump }) => {
     })();
 
     const pumpState = (() => {
-      let state: { variant: 'success' | 'default' | 'destructive'; label: string } = {
+      let state: {
+        variant: 'success' | 'default' | 'destructive';
+        label: string;
+      } = {
         variant: 'success',
         label: '',
       };

@@ -2,16 +2,16 @@ import { Navigate } from '@tanstack/react-router';
 import { Edit, FolderOpen, PlusCircle, Trash2 } from 'lucide-react';
 import React, { useState } from 'react';
 import { toast } from 'sonner';
+import {
+  ActionButtons,
+  EmptyState,
+  ListCard,
+  LoadingState,
+  PageHeader,
+} from '@/components/AdvancedMode';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import {
-  PageHeader,
-  EmptyState,
-  ListCard,
-  ActionButtons,
-  LoadingState,
-} from '@/components/AdvancedMode';
 import { useCategories, useCategoryMutations } from '@/hooks/useCategories';
 import useAuthStore from '../../../store/authStore';
 import { CategoryFormModal } from './components/CategoryFormModal';
@@ -19,8 +19,12 @@ import { DeleteCategoryDialog } from './components/DeleteCategoryDialog';
 
 const Categories = () => {
   const token = useAuthStore((state) => state.token);
-  const { data: categories = [], isLoading, isPending, error: queryError } =
-    useCategories();
+  const {
+    data: categories = [],
+    isLoading,
+    isPending,
+    error: queryError,
+  } = useCategories();
   const { saveCategory, deleteCategory } = useCategoryMutations();
   const [error, setError] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -29,8 +33,7 @@ const Categories = () => {
   const [categoryToDelete, setCategoryToDelete] = useState(null);
 
   const loading = isLoading || isPending;
-  const displayError =
-    error || (queryError ? 'Failed to load categories' : '');
+  const displayError = error || (queryError ? 'Failed to load categories' : '');
 
   const handleCreate = () => {
     setEditingCategory(null);
@@ -128,10 +131,7 @@ const Categories = () => {
                 <ListCard
                   title={category.name}
                   badges={
-                    <Badge
-                      variant="secondary"
-                      className="text-sm"
-                    >
+                    <Badge variant="secondary" className="text-sm">
                       ID: {category.id}
                     </Badge>
                   }

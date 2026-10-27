@@ -1,16 +1,16 @@
 import { Edit, PlusCircle, Trash2 } from 'lucide-react';
 import React, { useState } from 'react';
 import { toast } from 'sonner';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import {
-  PageHeader,
+  ActionButtons,
   EmptyState,
   ListCard,
-  ActionButtons,
   LoadingState,
+  PageHeader,
 } from '@/components/AdvancedMode';
-import { useGlassMutations, useGlassesList } from '@/hooks/useGlassesList';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { useGlassesList, useGlassMutations } from '@/hooks/useGlassesList';
 import GlassModal from './components/GlassModal';
 
 function Glasses() {
@@ -49,7 +49,11 @@ function Glasses() {
       );
       setShowModal(false);
     } catch (error) {
-      toast.error('Failed to save glass');
+      const message =
+        error?.response?.data?.message ||
+        error?.message ||
+        'Failed to save glass';
+      toast.error(message);
     }
   };
 
@@ -88,10 +92,7 @@ function Glasses() {
                   description={glass.description}
                   badges={
                     glass.sizeInMl && (
-                      <Badge
-                        variant="secondary"
-                        className="text-sm"
-                      >
+                      <Badge variant="secondary" className="text-sm">
                         {glass.sizeInMl}ml
                       </Badge>
                     )
@@ -99,10 +100,7 @@ function Glasses() {
                   metadata={
                     <>
                       {glass.type && (
-                        <Badge
-                          variant="outline"
-                          className="text-sm"
-                        >
+                        <Badge variant="outline" className="text-sm">
                           {glass.type}
                         </Badge>
                       )}

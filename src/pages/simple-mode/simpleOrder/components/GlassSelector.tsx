@@ -12,8 +12,8 @@ import {
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { useGlasses } from '@/hooks/useGlasses';
-import { getGlassSizeMl } from '@/pages/Shared/order';
 import type { Glass } from '@/pages/Shared/order';
+import { getGlassSizeMl } from '@/pages/Shared/order';
 
 interface GlassSelectorProps {
   selectedGlass: Glass | null;

@@ -11,7 +11,7 @@ import useThemeStore from '@/store/themeStore';
 const Toaster = ({ ...props }: ToasterProps) => {
   const theme = useThemeStore((state) => state.theme);
   const toasterTheme: ToasterProps['theme'] =
-    theme === 'night' ? 'dark' : 'light';
+    theme === 'dark' ? 'dark' : 'light';
 
   return (
     <Sonner

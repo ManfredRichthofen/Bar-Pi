@@ -13,7 +13,6 @@ const DrinkCard = ({ recipe }) => {
   const { toggleFavorite, isFavorite } = useFavoritesStore();
   const favorited = isFavorite(recipe.id);
 
-  // Lazy load image
   const {
     imageUrl,
     loading: imageLoading,
@@ -48,7 +47,6 @@ const DrinkCard = ({ recipe }) => {
         className="group cursor-pointer h-full overflow-hidden border-border hover:border-border hover:shadow-lg transition-colors p-0"
       >
         <div className="flex flex-col h-full">
-          {/* Image Section with Gradient Overlay */}
           <div
             ref={elementRef}
             className="relative aspect-[4/3] overflow-hidden bg-surface-sunken flex-shrink-0"
@@ -58,15 +56,11 @@ const DrinkCard = ({ recipe }) => {
                 <Loader2 className="h-8 w-8 animate-spin text-foreground-muted" />
               </div>
             ) : imageUrl ? (
-              <>
-                <img
-                  src={imageUrl}
-                  alt={recipe.name}
-                  className="w-full h-full object-cover transition-transform  "
-                />
-                {/* Gradient overlay for better text readability */}
-                <div className="absolute inset-0 " />
-              </>
+              <img
+                src={imageUrl}
+                alt={recipe.name}
+                className="w-full h-full object-cover transition-transform  "
+              />
             ) : (
               <div className="w-full h-full flex flex-col items-center justify-center gap-2">
                 <GlassWater className="h-12 w-12 text-foreground-muted" />
@@ -76,7 +70,6 @@ const DrinkCard = ({ recipe }) => {
               </div>
             )}
 
-            {/* Favorite Button */}
             <div className="absolute top-3 right-3 z-10">
               <Button
                 type="button"
@@ -97,19 +90,14 @@ const DrinkCard = ({ recipe }) => {
               </Button>
             </div>
 
-            {/* Alcoholic Badge */}
             {recipe.alcoholic && (
               <div className="absolute top-3 left-3 z-10">
-                <Badge
-                  variant="destructive"
-                  className="font-semibold"
-                >
+                <Badge variant="destructive" className="font-semibold">
                   21+
                 </Badge>
               </div>
             )}
 
-            {/* Ingredient Count Badge */}
             <div className="absolute bottom-3 right-3 z-10">
               <Badge
                 variant="secondary"
@@ -120,21 +108,17 @@ const DrinkCard = ({ recipe }) => {
             </div>
           </div>
 
-          {/* Content Section */}
           <CardContent className="flex flex-col flex-1 p-4">
-            {/* Title */}
             <h3 className="text-base sm:text-lg font-bold text-foreground leading-tight mb-2 line-clamp-2 min-h-[2.5rem]">
               {recipe.name}
             </h3>
 
-            {/* Description */}
             {recipe.description && (
               <p className="text-sm text-foreground-muted line-clamp-2 mb-3 flex-1">
                 {recipe.description}
               </p>
             )}
 
-            {/* Ingredients Preview */}
             <div className="mt-auto pt-3 border-t border-border">
               <div className="flex items-center gap-2 text-sm text-foreground-muted mb-2">
                 <GlassWater className="h-3.5 w-3.5" />

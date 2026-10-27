@@ -54,7 +54,6 @@ function RootComponent() {
   useEffect(() => {
     const savedLanguage = localStorage.getItem('i18nextLng') || 'en-US';
     i18n.changeLanguage(savedLanguage);
-
   }, [i18n]);
 
   // Show nothing while initializing to prevent flash of incorrect content

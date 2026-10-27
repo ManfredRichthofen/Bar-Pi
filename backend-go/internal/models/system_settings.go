@@ -19,14 +19,15 @@ type AppearanceSettings struct {
 
 // GlobalSettings represents global system settings
 type GlobalSettings struct {
-	AppName            string `json:"appName"`
-	AppVersion         string `json:"appVersion"`
-	DisableDonation    bool   `json:"disableDonation"`
-	HideProjectLinks   bool   `json:"hideProjectLinks"`
-	DisableUpdater     bool   `json:"disableUpdater"`
-	DonationDisclaimer bool   `json:"donationDisclaimer"`
-	Donated            bool   `json:"donated"`
-	AllowReversePumping bool  `json:"allowReversePumping"`
+	Backend             string `json:"backend"`
+	AppName             string `json:"appName"`
+	AppVersion          string `json:"appVersion"`
+	DisableDonation     bool   `json:"disableDonation"`
+	HideProjectLinks    bool   `json:"hideProjectLinks"`
+	DisableUpdater      bool   `json:"disableUpdater"`
+	DonationDisclaimer  bool   `json:"donationDisclaimer"`
+	Donated             bool   `json:"donated"`
+	AllowReversePumping bool   `json:"allowReversePumping"`
 }
 
 // I2CSettings represents I2C configuration

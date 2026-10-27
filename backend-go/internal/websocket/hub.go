@@ -56,13 +56,3 @@ func (h *Hub) Run() {
 		}
 	}
 }
-
-func (h *Hub) Broadcast(message []byte) {
-	h.broadcast <- message
-}
-
-func (h *Hub) ClientCount() int {
-	h.mu.RLock()
-	defer h.mu.RUnlock()
-	return len(h.clients)
-}

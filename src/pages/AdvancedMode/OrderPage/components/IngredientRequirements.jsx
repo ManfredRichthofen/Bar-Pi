@@ -1,4 +1,4 @@
-import { CheckCircle, AlertTriangle, Beaker } from 'lucide-react';
+import { AlertTriangle, Beaker, CheckCircle } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -106,9 +106,7 @@ const IngredientRequirements = ({ requiredIngredients }) => {
                 <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
                   <div
                     className={`w-2 h-2 rounded-full shrink-0 ${
-                      item.amountMissing === 0
-                        ? 'bg-success'
-                        : 'bg-warning'
+                      item.amountMissing === 0 ? 'bg-success' : 'bg-warning'
                     }`}
                   />
                   <div className="min-w-0">

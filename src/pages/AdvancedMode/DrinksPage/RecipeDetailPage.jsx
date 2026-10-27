@@ -1,4 +1,4 @@
-import { useNavigate, useLocation } from '@tanstack/react-router';
+import { useLocation, useNavigate } from '@tanstack/react-router';
 import {
   ArrowLeft,
   BeakerIcon,
@@ -9,11 +9,11 @@ import {
   PencilIcon,
 } from 'lucide-react';
 import React, { useMemo } from 'react';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { useLazyImage } from '@/hooks/useLazyImage';
-import useFavoritesStore from '@/store/favoritesStore';
 import useAuthStore from '@/store/authStore';
+import useFavoritesStore from '@/store/favoritesStore';
 import { calculateRecipeStats } from '@/utils/recipeStats';
 
 const RecipeDetailPage = () => {
@@ -26,7 +26,6 @@ const RecipeDetailPage = () => {
   const { toggleFavorite, isFavorite } = useFavoritesStore();
   const token = useAuthStore((state) => state.token);
 
-  // Lazy load image
   const {
     imageUrl,
     loading: imageLoading,
@@ -75,7 +74,6 @@ const RecipeDetailPage = () => {
   };
 
   const handleEditRecipe = () => {
-    // TODO: edit recipe
     console.log('Edit recipe:', recipe?.id);
   };
 
@@ -108,8 +106,7 @@ const RecipeDetailPage = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
-      <div className="sticky top-16 z-40 border-b-hairline border-border bg-background">
+      <div className="sticky top-16 z-30 border-b-hairline border-border bg-background">
         <div className="container mx-auto px-3 sm:px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -122,9 +119,7 @@ const RecipeDetailPage = () => {
                 <ArrowLeft className="size-6" />
               </Button>
               <div className="min-w-0">
-                <h1 className="truncate text-3xl sm:text-4xl">
-                  {recipe.name}
-                </h1>
+                <h1 className="truncate text-3xl sm:text-4xl">{recipe.name}</h1>
                 <div className="flex flex-wrap items-center gap-3 text-sm sm:text-sm text-foreground-muted mt-1">
                   <div className="flex items-center gap-1">
                     <GlassWater className="size-4 sm:h-4 sm:w-4" />
@@ -149,7 +144,6 @@ const RecipeDetailPage = () => {
             </div>
 
             <div className="flex items-center gap-2">
-              {/* Subtle favorite button */}
               <Button
                 variant="ghost"
                 size="icon"
@@ -175,12 +169,9 @@ const RecipeDetailPage = () => {
         </div>
       </div>
 
-      {/* Content */}
       <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-6">
         <div className="grid grid-cols-1 xl:grid-cols-4 gap-4 sm:gap-6">
-          {/* Image and Stats Column */}
           <div className="xl:col-span-1 space-y-4">
-            {/* Image */}
             {(imageUrl || imageLoading) && (
               <div className="relative aspect-[4/3] sm:aspect-[16/9] rounded-lg overflow-hidden bg-surface-sunken border">
                 {imageLoading ? (
@@ -188,19 +179,15 @@ const RecipeDetailPage = () => {
                     <Loader2 className="h-8 w-8 animate-spin text-foreground-muted" />
                   </div>
                 ) : (
-                  <>
-                    <img
-                      className="w-full h-full object-cover"
-                      src={imageUrl}
-                      alt={recipe.name}
-                    />
-                    <div className="absolute inset-0  pointer-events-none" />
-                  </>
+                  <img
+                    className="w-full h-full object-cover"
+                    src={imageUrl}
+                    alt={recipe.name}
+                  />
                 )}
               </div>
             )}
 
-            {/* Stats Grid */}
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-3">
               <div className="bg-surface border rounded-lg p-2 sm:p-3 text-center">
                 <div className="text-lg sm:text-xl font-bold text-primary">
@@ -240,7 +227,6 @@ const RecipeDetailPage = () => {
               </div>
             </div>
 
-            {/* Description */}
             {recipe.description && (
               <div className="bg-surface-sunken rounded-lg p-3 sm:p-4">
                 <h4 className="font-semibold text-sm mb-2 flex items-center gap-2">
@@ -254,9 +240,7 @@ const RecipeDetailPage = () => {
             )}
           </div>
 
-          {/* Ingredients and Instructions Column */}
           <div className="xl:col-span-3 space-y-4 sm:space-y-6">
-            {/* Ingredients Section */}
             <div className="bg-surface border rounded-lg p-3 sm:p-4">
               <h4 className="font-semibold text-base mb-3 sm:mb-4 flex items-center gap-2">
                 <GlassWater className="size-6 text-primary" />
@@ -320,7 +304,6 @@ const RecipeDetailPage = () => {
               </div>
             </div>
 
-            {/* Instructions Section */}
             {recipe.productionSteps && recipe.productionSteps.length > 0 && (
               <div className="bg-surface border rounded-lg p-3 sm:p-4">
                 <h4 className="font-semibold text-base mb-3 sm:mb-4 flex items-center gap-2">
@@ -374,7 +357,6 @@ const RecipeDetailPage = () => {
               </div>
             )}
 
-            {/* Recipe Details Section */}
             <div className="bg-surface border rounded-lg p-3 sm:p-4">
               <h4 className="font-semibold text-base mb-3 sm:mb-4">
                 Recipe Details
@@ -431,7 +413,6 @@ const RecipeDetailPage = () => {
           </div>
         </div>
 
-        {/* Action Buttons */}
         <div className="mt-6 sm:mt-8 flex flex-col sm:flex-row gap-3 sticky bottom-0 bg-background border-t p-4">
           <Button
             onClick={handleMakeDrink}

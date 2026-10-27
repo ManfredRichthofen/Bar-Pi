@@ -1,5 +1,5 @@
-import { Navigate } from '@tanstack/react-router';
 import { useQuery } from '@tanstack/react-query';
+import { Navigate } from '@tanstack/react-router';
 import { Edit, PlusCircle, Trash2 } from 'lucide-react';
 import React, {
   useCallback,
@@ -9,18 +9,18 @@ import React, {
   useState,
 } from 'react';
 import { toast } from 'sonner';
+import {
+  ActionButtons,
+  EmptyState,
+  ListCard,
+  LoadingState,
+  PageHeader,
+  ScrollToTopButton,
+  VirtualizedList,
+} from '@/components/AdvancedMode';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import SearchInput from '@/components/ui/search-input.jsx';
-import {
-  PageHeader,
-  EmptyState,
-  ListCard,
-  ActionButtons,
-  ScrollToTopButton,
-  LoadingState,
-  VirtualizedList,
-} from '@/components/AdvancedMode';
 import ingredientService from '../../../services/ingredient.service';
 import useAuthStore from '../../../store/authStore';
 import { IngredientFormDialog } from './components/IngredientFormDialog';
@@ -214,10 +214,7 @@ const Ingredients = () => {
                               : 'Manual'}
                           </Badge>
                           {parentGroup && (
-                            <Badge
-                              variant="outline"
-                              className="text-sm"
-                            >
+                            <Badge variant="outline" className="text-sm">
                               {parentGroup.name}
                             </Badge>
                           )}
@@ -240,9 +237,7 @@ const Ingredients = () => {
                               },
                             },
                             {
-                              icon: (
-                                <Trash2 className="size-6 text-danger" />
-                              ),
+                              icon: <Trash2 className="size-6 text-danger" />,
                               label: 'Delete ingredient',
                               onClick: (e) => {
                                 e.stopPropagation();

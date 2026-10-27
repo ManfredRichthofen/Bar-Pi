@@ -4,12 +4,16 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { Slider } from '@/components/ui/slider';
 import { useDrinkCustomizerActions } from '@/hooks/useDrinkCustomizerActions';
-import type {
-  Ingredient,
-  OrderCustomizations,
-} from '@/pages/Shared/order';
+import type { Ingredient, OrderCustomizations } from '@/pages/Shared/order';
 
 interface DrinkCustomizerProps {
   disableBoosting?: boolean;
@@ -163,30 +167,33 @@ const DrinkCustomizer = ({
                     <Label className="font-medium text-base">
                       Select Ingredient
                     </Label>
-                    <select
-                      className="min-h-control-md w-full rounded-md border border-border-strong bg-surface px-4 text-base shadow-inset focus-visible:outline-3 focus-visible:outline-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                    <Select
                       value={selectedIngredient?.id || ''}
-                      onChange={(e) => {
+                      onValueChange={(value) => {
                         const ingredient = automatedIngredients.find(
-                          (ing) => ing.id === e.target.value,
+                          (ing) => ing.id === value,
                         );
                         setSelectedIngredient(ingredient || null);
                       }}
                     >
-                      <option value="">Choose an ingredient...</option>
-                      {automatedIngredients
-                        .filter(
-                          (ing) =>
-                            !additionalIngredients.some(
-                              (added) => added.ingredient.id === ing.id,
-                            ),
-                        )
-                        .map((ing) => (
-                          <option key={ing.id} value={ing.id}>
-                            {ing.name}
-                          </option>
-                        ))}
-                    </select>
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Choose an ingredient..." />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {automatedIngredients
+                          .filter(
+                            (ing) =>
+                              !additionalIngredients.some(
+                                (added) => added.ingredient.id === ing.id,
+                              ),
+                          )
+                          .map((ing) => (
+                            <SelectItem key={ing.id} value={ing.id}>
+                              {ing.name}
+                            </SelectItem>
+                          ))}
+                      </SelectContent>
+                    </Select>
                     <div className="flex gap-2">
                       <Button
                         onClick={handleAddIngredient}

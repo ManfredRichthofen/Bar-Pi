@@ -24,7 +24,7 @@ import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import { EmptyState, PageHeader } from '@/components/AdvancedMode';
-import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
@@ -119,6 +119,7 @@ export const StatisticsPage: React.FC = () => {
     statistics,
     loading,
     fetching,
+    isLegacyBackend,
     error,
     refetch,
     clearHistory,
@@ -223,6 +224,24 @@ export const StatisticsPage: React.FC = () => {
       />
 
       <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-8 space-y-6">
+        {isLegacyBackend && (
+          <Alert variant="warning">
+            <AlertTriangle className="size-6" />
+            <AlertTitle>
+              {t(
+                'statistics.legacy_backend_title',
+                'Original CocktailPi Service Detected',
+              )}
+            </AlertTitle>
+            <AlertDescription>
+              {t(
+                'statistics.legacy_backend_warning',
+                'You are currently connected to the original CocktailPi backend service. Statistics tracking, order history, and volume telemetry are only supported by the new Bar-Pi Go backend.',
+              )}
+            </AlertDescription>
+          </Alert>
+        )}
+
         {error && (
           <Alert variant="destructive">
             <AlertCircle className="size-6" />
@@ -256,7 +275,6 @@ export const StatisticsPage: React.FC = () => {
           </div>
         ) : (
           <>
-            {/* Top-level KPI Summary Grid */}
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
               <Card>
                 <CardHeader className="pb-2">
@@ -369,7 +387,6 @@ export const StatisticsPage: React.FC = () => {
               </Card>
             </div>
 
-            {/* Section Tabs */}
             <Tabs defaultValue="overview" className="space-y-6">
               <div className="overflow-x-auto pb-1">
                 <TabsList>
@@ -392,10 +409,8 @@ export const StatisticsPage: React.FC = () => {
                 </TabsList>
               </div>
 
-              {/* TAB 1: OVERVIEW */}
               <TabsContent value="overview" className="space-y-6">
                 <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-                  {/* Daily Timeline Chart */}
                   <Card className="lg:col-span-2">
                     <CardHeader>
                       <CardTitle className="flex items-center gap-2">
@@ -479,7 +494,6 @@ export const StatisticsPage: React.FC = () => {
                     </CardContent>
                   </Card>
 
-                  {/* Peak Hours Chart */}
                   <Card>
                     <CardHeader>
                       <CardTitle className="flex items-center gap-2">
@@ -533,7 +547,6 @@ export const StatisticsPage: React.FC = () => {
                   </Card>
                 </div>
 
-                {/* Top Drinks & Top Users */}
                 <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
                   <Card>
                     <CardHeader>
@@ -560,7 +573,10 @@ export const StatisticsPage: React.FC = () => {
                                   )
                                 : 0;
                             return (
-                              <div key={recipe.recipeId} className="space-y-1.5">
+                              <div
+                                key={recipe.recipeId}
+                                className="space-y-1.5"
+                              >
                                 <div className="flex items-center justify-between gap-2">
                                   <div className="flex items-center gap-2.5 min-w-0">
                                     <span className="font-mono text-sm text-foreground-muted w-6">
@@ -641,10 +657,8 @@ export const StatisticsPage: React.FC = () => {
                 </div>
               </TabsContent>
 
-              {/* TAB 2: DRINKS & INGREDIENTS */}
               <TabsContent value="drinks" className="space-y-6">
                 <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-                  {/* Ingredient Usage & Coverage */}
                   <Card>
                     <CardHeader>
                       <CardTitle className="flex items-center gap-2">
@@ -718,7 +732,6 @@ export const StatisticsPage: React.FC = () => {
                     </CardContent>
                   </Card>
 
-                  {/* Category Breakdown + Full Recipe Ranking */}
                   <div className="space-y-6">
                     <Card>
                       <CardHeader>
@@ -818,7 +831,6 @@ export const StatisticsPage: React.FC = () => {
                 </div>
               </TabsContent>
 
-              {/* TAB 3: PUMPS & INVENTORY */}
               <TabsContent value="pumps" className="space-y-6">
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
                   <Card>
@@ -875,11 +887,14 @@ export const StatisticsPage: React.FC = () => {
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
                       <Gauge className="size-5 text-primary" />
-                      {t('statistics.pump_telemetry', 'Pump Fill Levels & Status')}
+                      {t(
+                        'statistics.pump_telemetry',
+                        'Pump Fill Levels & Status',
+                      )}
                     </CardTitle>
                     <CardDescription>
-                      Current liquid volume remaining per pump relative to bottle
-                      capacity
+                      Current liquid volume remaining per pump relative to
+                      bottle capacity
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
@@ -954,7 +969,6 @@ export const StatisticsPage: React.FC = () => {
                 </Card>
               </TabsContent>
 
-              {/* TAB 4: ORDER HISTORY */}
               <TabsContent value="history" className="space-y-6">
                 <Card>
                   <CardHeader>

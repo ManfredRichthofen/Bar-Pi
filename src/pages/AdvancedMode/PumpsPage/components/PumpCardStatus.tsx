@@ -31,12 +31,8 @@ export const PumpCardStatus: React.FC<PumpCardStatusProps> = ({
   return (
     <div className="space-y-3">
       <div className="flex gap-2">
-        <Badge variant={pumpState.variant}>
-          {pumpState.label}
-        </Badge>
-        <Badge variant={pumpedUpState.variant}>
-          {pumpedUpState.label}
-        </Badge>
+        <Badge variant={pumpState.variant}>{pumpState.label}</Badge>
+        <Badge variant={pumpedUpState.variant}>{pumpedUpState.label}</Badge>
       </div>
 
       <div className="space-y-2">

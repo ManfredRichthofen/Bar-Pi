@@ -21,7 +21,6 @@ const DrinkInfo = ({
   const { t } = useTranslation();
   return (
     <>
-      {/* Description */}
       {description && (
         <Card className="bg-surface-sunken">
           <CardContent className="p-3 sm:p-4">
@@ -36,7 +35,6 @@ const DrinkInfo = ({
         </Card>
       )}
 
-      {/* Additional Info */}
       <Card className="bg-surface-sunken">
         <CardContent className="p-3 sm:p-4">
           <h2 className="text-base font-semibold mb-2 sm:mb-3 flex items-center gap-2">

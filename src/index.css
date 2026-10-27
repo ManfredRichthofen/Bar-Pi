@@ -4,8 +4,8 @@
 
 @plugin "tailwindcss-animate";
 
-/* dark: utilities apply to the Night theme only */
-@custom-variant dark (&:where([data-theme="night"], [data-theme="night"] *));
+/* dark: utilities apply to Dark Mode only */
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
 
 /*
  * Bar-Pi design system. Source of truth: the design system artifact (tokens.json).
@@ -14,7 +14,7 @@
  * and the display face all change per theme, so components never branch on the theme.
  */
 :root,
-[data-theme="daylight"] {
+[data-theme="light"] {
   --background: #ffffff;
   --surface: #f6f6f6;
   --surface-sunken: #ececec;
@@ -50,7 +50,7 @@
   --shadow-pressed: inset 0 1px 3px #00000026;
 }
 :root,
-[data-theme="daylight"] {
+[data-theme="light"] {
   --radius-sm: 8px;
   --radius-md: 12px;
   --radius-lg: 20px;
@@ -63,7 +63,7 @@
   --display-tracking: -0.025em;
 }
 
-[data-theme="night"] {
+[data-theme="dark"] {
   --background: #0b0b0b;
   --surface: #151515;
   --surface-sunken: #212121;
@@ -98,61 +98,13 @@
   --shadow-inset: none;
   --shadow-pressed: inset 0 1px 3px #000000cc;
 }
-[data-theme="night"] {
+[data-theme="dark"] {
   --radius-sm: 8px;
   --radius-md: 12px;
   --radius-lg: 20px;
   --radius-xl: 28px;
   --radius-control: 14px;
   --border-w: 1px;
-  --control-border-w: 1px;
-  --font-display: "Geist Variable", system-ui, sans-serif;
-  --display-weight: 650;
-  --display-tracking: -0.025em;
-}
-
-[data-theme="soft"] {
-  --background: #e7e9ed;
-  --surface: #e7e9ed;
-  --surface-sunken: #d9dce2;
-  --foreground: #1a1a1a;
-  --foreground-muted: #555a64;
-  --border: #f3f4f7;
-  --border-strong: #6b717d;
-  --primary: #1a1a1a;
-  --on-primary: #ffffff;
-  --primary-tint: #d3d6dd;
-  --primary-tint-ink: #1a1a1a;
-  --success: #1a6c3f;
-  --success-tint: #cfe6d8;
-  --success-tint-ink: #124a2a;
-  --warning: #7a4f06;
-  --warning-tint: #eee0b4;
-  --warning-tint-ink: #5f3d06;
-  --danger: #b3261e;
-  --on-danger: #ffffff;
-  --danger-tint: #f1d3d0;
-  --danger-tint-ink: #7a1b15;
-  --info: #245aa8;
-  --info-tint: #d0dcf0;
-  --info-tint-ink: #1a4478;
-  --focus-ring: #1a1a1a;
-  --overlay: #1a1a1a80;
-  --state-hover: #1a1a1a10;
-  --state-press: #1a1a1a1f;
-  --shadow-sm: 4px 4px 10px #bfc3cc, -4px -4px 10px #ffffff;
-  --shadow-md: 8px 8px 18px #bfc3cc, -8px -8px 18px #ffffff;
-  --shadow-lg: 18px 18px 36px #b3b8c2, -18px -18px 36px #ffffff;
-  --shadow-inset: inset 3px 3px 7px #bfc3cc, inset -3px -3px 7px #ffffff;
-  --shadow-pressed: inset 3px 3px 7px #bfc3cc, inset -3px -3px 7px #ffffff;
-}
-[data-theme="soft"] {
-  --radius-sm: 12px;
-  --radius-md: 18px;
-  --radius-lg: 26px;
-  --radius-xl: 34px;
-  --radius-control: 18px;
-  --border-w: 0px;
   --control-border-w: 1px;
   --font-display: "Geist Variable", system-ui, sans-serif;
   --display-weight: 650;
@@ -175,8 +127,10 @@
   --z-nav: 10;
   --z-overlay: 50;
   --z-toast: 60;
-  --font-sans: "Geist Variable", system-ui, -apple-system, "Segoe UI", sans-serif;
-  --font-mono: "Geist Mono Variable", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  --font-sans:
+    "Geist Variable", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono:
+    "Geist Mono Variable", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
 }
 
 @theme inline {
@@ -207,7 +161,7 @@
   --color-ring: var(--focus-ring);
   --color-overlay: var(--overlay);
 
-  /* shadcn / Base UI names, mapped onto the tokens so generated components stay on-system */
+  /* Component surface aliases mapped onto design-system tokens */
   --color-card: var(--surface);
   --color-card-foreground: var(--foreground);
   --color-popover: var(--surface);
@@ -235,9 +189,11 @@
   --color-sidebar-border: var(--border);
   --color-sidebar-ring: var(--focus-ring);
 
-  --font-sans: "Geist Variable", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-sans:
+    "Geist Variable", system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-display: var(--font-display);
-  --font-mono: "Geist Mono Variable", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  --font-mono:
+    "Geist Mono Variable", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
 
   --radius-sm: var(--radius-sm);
   --radius-md: var(--radius-md);
@@ -295,16 +251,31 @@
 
 @layer base {
   :root,
-  [data-theme="daylight"],
-  [data-theme="soft"] {
+  [data-theme="light"] {
     color-scheme: light;
   }
-  [data-theme="night"] {
+  [data-theme="dark"] {
     color-scheme: dark;
   }
   * {
     border-color: var(--border);
     outline-color: var(--focus-ring);
+    scrollbar-width: thin;
+    scrollbar-color: var(--border-strong) transparent;
+  }
+  /* Safari ignores scrollbar-color; Chromium ignores these once scrollbar-color is set */
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--border-strong);
+    border: 2px solid transparent;
+    border-radius: 9999px;
+    background-clip: padding-box;
   }
   body {
     background: var(--background);
@@ -323,7 +294,9 @@
     touch-action: manipulation;
     -webkit-tap-highlight-color: transparent;
   }
-  h1, h2, h3 {
+  h1,
+  h2,
+  h3 {
     font-family: var(--font-display);
     font-weight: var(--display-weight);
     letter-spacing: var(--display-tracking);
@@ -332,7 +305,9 @@
 
 @layer utilities {
   @keyframes dots-march {
-    to { background-position: 8px 0; }
+    to {
+      background-position: 8px 0;
+    }
   }
   /* A running pump or order: the dots of the progress indicator march */
   .running-progress [data-slot="progress-indicator"] {

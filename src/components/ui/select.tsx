@@ -19,7 +19,7 @@ function SelectValue({ className, ...props }: SelectPrimitive.Value.Props) {
   return (
     <SelectPrimitive.Value
       data-slot="select-value"
-      className={cn('flex flex-1 text-left', className)}
+      className={cn('flex min-w-0 flex-1 truncate text-left', className)}
       {...props}
     />
   );
@@ -38,7 +38,7 @@ function SelectTrigger({
       data-slot="select-trigger"
       data-size={size}
       className={cn(
-        "group/select flex w-fit items-center justify-between gap-2 rounded-md border-control border-border-strong bg-surface px-4 text-base whitespace-nowrap shadow-sm transition-[box-shadow] outline-none data-[placeholder]:text-foreground-muted data-[size=default]:min-h-control-md data-[size=sm]:min-h-control-sm aria-invalid:border-2 aria-invalid:border-danger disabled:cursor-not-allowed disabled:opacity-45 *:data-[slot=select-value]:line-clamp-1 *:data-[slot=select-value]:flex *:data-[slot=select-value]:items-center *:data-[slot=select-value]:gap-2 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-6",
+        "group/select flex w-full min-w-0 items-center justify-between gap-2 rounded-md border-control border-border-strong bg-surface px-4 text-base whitespace-nowrap shadow-sm transition-[box-shadow] outline-none data-[placeholder]:text-foreground-muted data-[size=default]:min-h-control-md data-[size=sm]:min-h-control-sm aria-invalid:border-2 aria-invalid:border-danger disabled:cursor-not-allowed disabled:opacity-45 *:data-[slot=select-value]:line-clamp-1 *:data-[slot=select-value]:flex *:data-[slot=select-value]:items-center *:data-[slot=select-value]:gap-2 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-6",
         className,
       )}
       {...props}

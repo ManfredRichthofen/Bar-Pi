@@ -7,7 +7,6 @@ import { useLazyImage } from '@/hooks/useLazyImage';
 import { cn } from '@/lib/utils';
 
 const SimpleDrinkCard = ({ recipe, onCardClick }) => {
-  // Lazy load image
   const {
     imageUrl,
     loading: imageLoading,
@@ -15,7 +14,6 @@ const SimpleDrinkCard = ({ recipe, onCardClick }) => {
     elementRef,
   } = useLazyImage(recipe.id, recipe.hasImage);
 
-  // Determine recipe characteristics
   const isAutomatic =
     recipe?.ingredients?.every(
       (ingredient) => ingredient.type === 'automated',
@@ -32,7 +30,7 @@ const SimpleDrinkCard = ({ recipe, onCardClick }) => {
       return (isOnPump || isInBar) && hasNoMissingAmount;
     }) || false;
 
-  // Special case: automatic AND available (all automated ingredients on pumps with no missing amounts)
+  // Auto + on-pump with no missing amounts
   const isAutomaticAndAvailable =
     recipe?.ingredients?.every(
       (ingredient) =>
@@ -41,7 +39,6 @@ const SimpleDrinkCard = ({ recipe, onCardClick }) => {
         (!ingredient.amountMissing || ingredient.amountMissing <= 0),
     ) || false;
 
-  // Determine availability text and color
   let availabilityText = 'Available';
   let availabilityColor = 'bg-success';
 
@@ -80,7 +77,6 @@ const SimpleDrinkCard = ({ recipe, onCardClick }) => {
         onClick={() => onCardClick(recipe)}
       >
         <div className="flex flex-col">
-          {/* Image section - fixed aspect ratio */}
           <figure
             ref={elementRef}
             className="relative w-full aspect-[4/3] overflow-hidden bg-surface-sunken flex-shrink-0"
@@ -90,15 +86,11 @@ const SimpleDrinkCard = ({ recipe, onCardClick }) => {
                 <Loader2 className="h-8 w-8 animate-spin text-foreground-muted" />
               </div>
             ) : imageUrl ? (
-              <>
-                <img
-                  src={imageUrl}
-                  alt={recipe.name}
-                  className="w-full h-full object-cover transition-transform  "
-                />
-                {/* Gradient overlay for better badge visibility */}
-                <div className="absolute inset-0 " />
-              </>
+              <img
+                src={imageUrl}
+                alt={recipe.name}
+                className="w-full h-full object-cover transition-transform  "
+              />
             ) : (
               <div className="w-full h-full flex flex-col items-center justify-center gap-2">
                 <GlassWater className="h-12 w-12 text-foreground-muted" />
@@ -108,19 +100,14 @@ const SimpleDrinkCard = ({ recipe, onCardClick }) => {
               </div>
             )}
 
-            {/* Alcoholic Badge - positioned on image */}
             {recipe.alcoholic && (
               <div className="absolute top-3 left-3 z-10">
-                <Badge
-                  variant="destructive"
-                  className=""
-                >
+                <Badge variant="destructive" className="">
                   21+
                 </Badge>
               </div>
             )}
 
-            {/* Availability indicator - positioned on image */}
             <div className="absolute bottom-3 right-3 z-10">
               <div className="flex items-center gap-2 px-3 py-1.5 rounded-sm bg-background shadow-sm">
                 <div
@@ -133,9 +120,7 @@ const SimpleDrinkCard = ({ recipe, onCardClick }) => {
             </div>
           </figure>
 
-          {/* Content section */}
           <CardContent className="px-4 pt-3 pb-3">
-            {/* Title */}
             <h3 className="text-base sm:text-lg font-bold text-foreground leading-tight line-clamp-2">
               {recipe.name}
             </h3>

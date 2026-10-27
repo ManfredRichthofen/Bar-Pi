@@ -80,9 +80,7 @@ function GlassModal({ show, onHide, onSave, glass }) {
               />
             </div>
             <div className="grid gap-2">
-              <Label htmlFor="size">
-                {t('glass_modal.size', 'Size (ml)')}
-              </Label>
+              <Label htmlFor="size">{t('glass_modal.size', 'Size (ml)')}</Label>
               <Input
                 id="size"
                 name="size"

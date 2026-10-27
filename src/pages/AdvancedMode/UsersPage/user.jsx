@@ -10,15 +10,15 @@ import {
   Wrench,
 } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
+import {
+  ActionButtons,
+  EmptyState,
+  ListCard,
+  PageHeader,
+} from '@/components/AdvancedMode';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import {
-  PageHeader,
-  EmptyState,
-  ListCard,
-  ActionButtons,
-} from '@/components/AdvancedMode';
 import UserService from '@/services/user.service';
 import { getRoleDisplayName, mapAdminLevelToRole } from '@/utils/roleAccess';
 import { DeleteUserDialog } from './components/DeleteUserDialog';
@@ -201,10 +201,7 @@ const UserPage = () => {
                     badges={
                       <>
                         {getRoleIcon(user.adminLevel)}
-                        <Badge
-                          variant="default"
-                          className="text-sm"
-                        >
+                        <Badge variant="default" className="text-sm">
                           {getRoleDisplayName(
                             mapAdminLevelToRole(user.adminLevel),
                           )}
@@ -214,10 +211,7 @@ const UserPage = () => {
                     metadata={
                       <>
                         {user.accountNonLocked === false ? (
-                          <Badge
-                            variant="destructive"
-                            className="text-sm"
-                          >
+                          <Badge variant="destructive" className="text-sm">
                             <Lock className="size-4 mr-1" />
                             Locked
                           </Badge>
@@ -244,9 +238,7 @@ const UserPage = () => {
                             },
                           },
                           {
-                            icon: (
-                              <Trash2 className="size-6 text-danger" />
-                            ),
+                            icon: <Trash2 className="size-6 text-danger" />,
                             label: 'Delete user',
                             onClick: (e) => {
                               e.stopPropagation();

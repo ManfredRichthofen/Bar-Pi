@@ -175,28 +175,6 @@ func (s *PumpService) Update(pump *models.Pump) error {
 	return nil
 }
 
-// PatchPumpRequest represents the JSON body sent by EditPumpPage / PumpDtoMapper
-type PatchPumpRequest struct {
-	Name                *string        `json:"name"`
-	Type                *string        `json:"type"`
-	DType               *string        `json:"dtype"`
-	Pin                 *models.PinDto `json:"pin"`
-	EnablePin           *models.PinDto `json:"enablePin"`
-	StepPin             *models.PinDto `json:"stepPin"`
-	TimePerClInMs       *int           `json:"timePerClInMs"`
-	IsPowerStateHigh    *bool          `json:"isPowerStateHigh"`
-	TubeCapacity        *float64       `json:"tubeCapacity"`
-	TubeCapacityInMl    *float64       `json:"tubeCapacityInMl"`
-	FillingLevelInMl    *int           `json:"fillingLevelInMl"`
-	IsPumpedUp          *bool          `json:"isPumpedUp"`
-	PumpedUp            *bool          `json:"pumpedUp"`
-	CurrentIngredientID *int64         `json:"currentIngredientId"`
-	Acceleration        *int           `json:"acceleration"`
-	MaxStepsPerSecond   *int           `json:"maxStepsPerSecond"`
-	StepsPerCl          *int           `json:"stepsPerCl"`
-	RemoveFields        []string       `json:"removeFields"`
-}
-
 func toInt(v any) (int, bool) {
 	switch val := v.(type) {
 	case float64:
@@ -465,23 +443,6 @@ func (s *PumpService) Delete(id int64) error {
 	}
 	s.broadcastLayout()
 	return nil
-}
-
-// SetIngredient sets the current ingredient for a pump
-func (s *PumpService) SetIngredient(pumpID int64, ingredientID *int64) error {
-	return s.UpdateFields(pumpID, map[string]any{
-		"currentIngredientId": ingredientID,
-	})
-}
-
-// SetFillingLevel sets the filling level of a pump
-func (s *PumpService) SetFillingLevel(pumpID int64, level int) error {
-	if level < 0 {
-		return errors.New("filling level cannot be negative")
-	}
-	return s.UpdateFields(pumpID, map[string]any{
-		"fillingLevelInMl": level,
-	})
 }
 
 // SetPumpedUp sets the pumped up status and broadcasts running state

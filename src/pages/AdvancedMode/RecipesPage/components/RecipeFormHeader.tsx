@@ -13,7 +13,7 @@ export const RecipeFormHeader: React.FC<RecipeFormHeaderProps> = ({
   const navigate = useNavigate({ from: '/recipes' });
 
   return (
-    <div className="sticky top-16 z-40 border-b-hairline border-border bg-background">
+    <div className="sticky top-16 z-30 border-b-hairline border-border bg-background">
       <div className="container mx-auto px-3 sm:px-4 py-3 sm:py-4">
         <div className="flex items-center gap-2 sm:gap-3">
           <Button

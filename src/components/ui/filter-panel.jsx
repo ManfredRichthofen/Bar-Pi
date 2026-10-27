@@ -12,7 +12,6 @@ const FilterPanel = React.memo(
     showCloseButton = true,
     className = '',
   }) => {
-    // Unified filter options for both modes
     const allFilters = [
       'automatic',
       'manual',
@@ -23,7 +22,6 @@ const FilterPanel = React.memo(
       'fabricable',
     ];
 
-    // Mode-specific filters
     const simpleFilters = ['automatic', 'manual', 'available'];
     const advancedFilters = [
       'alcoholic',
@@ -56,14 +54,12 @@ const FilterPanel = React.memo(
       fabricable: 'Show drinks you can make with available ingredients',
     };
 
-    // Consistent button styling for both variants
     const getButtonClassName = (isActive) => {
       const baseClasses =
         'min-h-control-sm';
       return `${baseClasses} ${isActive ? '' : ''}`;
     };
 
-    // Consistent filter button component
     const FilterButton = ({ filter, isActive }) => (
       <Button
         key={filter}
@@ -76,8 +72,8 @@ const FilterPanel = React.memo(
         <span className="flex items-center gap-1.5">
           {variant === 'simple' && (
             <span
-              className={`w-2 h-2 rounded-full ${isActive ? 'bg-primary' : 'bg-surface-sunken-foreground'}`}
-            ></span>
+              className={`size-2 rounded-full ${isActive ? 'bg-primary-foreground' : 'bg-foreground-muted'}`}
+            />
           )}
           {filterLabels[filter]}
         </span>

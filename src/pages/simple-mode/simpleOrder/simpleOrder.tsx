@@ -35,28 +35,27 @@ const SimpleOrder = () => {
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      <div className="sticky top-0 z-20 bg-background border-b border-border shadow-sm pt-2">
-        <div className="px-3 sm:px-4 py-3 sm:py-4 flex items-center justify-between">
+      <header className="sticky top-0 z-20 border-b-hairline border-border bg-background">
+        <div className="mx-auto max-w-7xl px-4 py-4 sm:px-6 flex items-center justify-between">
           <Button
             type="button"
             variant="ghost"
             size="icon"
-            className="rounded-xl transition-colors"
             onClick={() => navigate({ to: '/simple/drinks' })}
           >
             <ArrowLeft className="size-6" />
           </Button>
-          <h1 className="text-base sm:text-lg font-bold truncate flex-1 mx-2 sm:mx-3 text-center">
+          <h1 className="text-xl font-bold truncate flex-1 mx-3 text-center text-foreground">
             Order Drink
           </h1>
           <div className="size-control-md" />
         </div>
-      </div>
+      </header>
 
       <div className="flex-1 overflow-y-auto">
-        <div className="p-3 sm:p-4 lg:p-6 max-w-7xl mx-auto">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-3 sm:gap-4 lg:gap-5 auto-rows-[minmax(140px,auto)]">
-            <Card className="sm:col-span-2 lg:col-span-5 lg:row-span-2 bg-surface-sunken border-border-strong hover:shadow-lg hover:border-border-strong transition-colors">
+        <div className="mx-auto max-w-7xl px-4 pt-6 pb-40 sm:px-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-4 lg:gap-5 auto-rows-[minmax(140px,auto)]">
+            <Card className="sm:col-span-2 lg:col-span-5 lg:row-span-2 bg-surface-sunken border-border-strong transition-colors">
               <CardContent className="p-5 sm:p-6 lg:p-8 h-full flex flex-col justify-center gap-4">
                 <div className="flex items-center gap-2 mb-2">
                   <BeakerIcon className="size-6 text-primary" />
@@ -64,7 +63,7 @@ const SimpleOrder = () => {
                     {recipe.name}
                   </h3>
                   {recipe.alcoholic && (
-                    <Badge variant="destructive" className="shrink-0 text-base">
+                    <Badge variant="destructive" className="shrink-0">
                       21+
                     </Badge>
                   )}
@@ -72,26 +71,6 @@ const SimpleOrder = () => {
                 {recipe.description && (
                   <p className="text-base text-foreground-muted line-clamp-2 sm:line-clamp-3">
                     {recipe.description}
-                  </p>
-                )}
-                <Button
-                  type="button"
-                  size="lg"
-                  className="w-full lg:h-16 gap-2 sm:gap-3 text-base sm:text-lg font-bold hover: transition-colors"
-                  onClick={handleMakeDrink}
-                  disabled={!canOrderDrink || loading}
-                >
-                  {loading && <Spinner className="size-6" />}
-                  {!loading && <BeakerIcon className="size-6" />}
-                  {loading ? 'Making...' : 'Make Drink'}
-                </Button>
-                {!canOrderDrink && !loading && !checking && (
-                  <p className="text-base text-error text-center font-medium">
-                    {feasibilityResult?.requiredIngredients?.some(
-                      (item) => item.amountMissing > 0,
-                    )
-                      ? 'Missing ingredients'
-                      : 'Select a glass to continue'}
                   </p>
                 )}
               </CardContent>
@@ -159,16 +138,41 @@ const SimpleOrder = () => {
         </div>
       </div>
 
-      <div className="bg-background border-t border-border p-3 sm:p-4 shadow-lg">
-        <Button
-          type="button"
-          variant="ghost"
-          size="lg"
-          className="w-full text-base font-semibold"
-          onClick={() => navigate({ to: '/simple/drinks' })}
-        >
-          Back to Drinks
-        </Button>
+      <div className="fixed inset-x-0 bottom-[calc(var(--control-lg)+1rem+1px)] z-40 border-t-hairline border-border bg-background shadow-lg">
+        <div className="mx-auto max-w-7xl px-4 py-3 sm:px-6 space-y-2">
+          {!canOrderDrink && !loading && !checking && (
+            <p className="text-base text-danger text-center font-medium">
+              {feasibilityResult?.requiredIngredients?.some(
+                (item) => item.amountMissing > 0,
+              )
+                ? 'Missing ingredients'
+                : 'Select a glass to continue'}
+            </p>
+          )}
+          <div className="flex gap-3">
+            <Button
+              type="button"
+              variant="outline"
+              size="lg"
+              className="shrink-0"
+              onClick={() => navigate({ to: '/simple/drinks' })}
+            >
+              <ArrowLeft className="size-6" />
+              Back
+            </Button>
+            <Button
+              type="button"
+              size="lg"
+              className="flex-1"
+              onClick={handleMakeDrink}
+              disabled={!canOrderDrink || loading}
+            >
+              {loading && <Spinner className="size-6" />}
+              {!loading && <BeakerIcon className="size-6" />}
+              {loading ? 'Making...' : 'Make Drink'}
+            </Button>
+          </div>
+        </div>
       </div>
     </div>
   );

@@ -80,10 +80,6 @@ func (s *UserService) GetByID(id int64) (*models.User, error) {
 	return s.repo.FindByID(id)
 }
 
-func (s *UserService) GetByUsername(username string) (*models.User, error) {
-	return s.repo.FindByUsername(username)
-}
-
 func (s *UserService) GetAll() ([]models.User, error) {
 	return s.repo.FindAll()
 }

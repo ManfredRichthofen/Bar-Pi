@@ -28,18 +28,16 @@ axios.interceptors.request.use(
   (error) => Promise.reject(error),
 );
 
-/** Flat auth headers for `{ headers: authHeaders(token) }`. */
+/** Auth-only headers. Do not set Content-Type — axios sets it from the body
+ *  (JSON vs multipart FormData with boundary). */
 export function authHeaders(token: string | null | undefined = null) {
   const authToken = token ?? localStorage.getItem('token');
   if (authToken) {
     return {
       Authorization: `Bearer ${authToken}`,
-      'Content-Type': 'application/json',
     };
   }
-  return {
-    'Content-Type': 'application/json',
-  };
+  return {};
 }
 
 export default axios;

@@ -94,9 +94,7 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed, onCollapse }) => {
     },
   ];
 
-  // Remove the body scroll effect since we don't want to prevent page scrolling
   useEffect(() => {
-    // Only prevent scroll on the backdrop element
     const backdrop = document.querySelector('.sidebar-backdrop');
     if (backdrop) {
       backdrop.addEventListener('touchmove', (e) => e.preventDefault());
@@ -105,20 +103,19 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed, onCollapse }) => {
 
   return (
     <>
-      {/* Backdrop only shows on mobile */}
       {!collapsed && (
         <div
-          className="sidebar-backdrop fixed inset-0 bg-overlay sm:hidden z-10"
+          className="sidebar-backdrop fixed inset-0 bg-overlay sm:hidden z-40"
           onClick={() => onCollapse(true)}
         />
       )}
 
       <aside
-        className={`fixed top-16 left-0 h-[calc(100vh-64px)] transition-colors z-20 
+        className={`fixed top-16 left-0 h-[calc(100vh-64px)] transition-transform z-40 
           ${collapsed ? 'w-0 -translate-x-full' : 'w-[280px] sm:w-72 translate-x-0'}`}
       >
         <div
-          className={`transition-colors h-full flex flex-col bg-background relative border-r border-border shadow-sm
+          className={`transition-opacity h-full flex flex-col bg-background relative border-r border-border shadow-sm
             ${collapsed ? 'opacity-0' : 'opacity-100'}`}
         >
           <div className="h-14 flex-none flex items-center justify-between px-4 sm:px-6 transition-colors bg-surface-sunken border-b border-border">

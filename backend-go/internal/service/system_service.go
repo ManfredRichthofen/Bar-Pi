@@ -38,6 +38,7 @@ func NewSystemService(cfg *config.Config, db ...*gorm.DB) *SystemService {
 			Theme:          "light",
 		},
 		globalSettings: models.GlobalSettings{
+			Backend:             "go",
 			AppName:             cfg.App.Name,
 			AppVersion:          cfg.App.Version,
 			DisableDonation:     cfg.App.DisableDonation,

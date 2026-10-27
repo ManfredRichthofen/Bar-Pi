@@ -1,3 +1,4 @@
+import { useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from '@tanstack/react-router';
 import { Download, Loader2, Plus } from 'lucide-react';
 import type React from 'react';
@@ -105,6 +106,7 @@ interface RecipeFormProps {
 
 export const RecipeForm: React.FC<RecipeFormProps> = ({ mode, recipeId }) => {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const token = useAuthStore((state) => state.token);
 
   const [loading, setLoading] = useState(true);
@@ -228,10 +230,13 @@ export const RecipeForm: React.FC<RecipeFormProps> = ({ mode, recipeId }) => {
         toast.success('Recipe created successfully');
       }
 
+      await queryClient.invalidateQueries({ queryKey: ['recipes'] });
       navigate({ to: '/recipes' });
     } catch (error) {
       console.error(
-        mode === 'edit' ? 'Failed to update recipe:' : 'Failed to create recipe:',
+        mode === 'edit'
+          ? 'Failed to update recipe:'
+          : 'Failed to create recipe:',
         error,
       );
       toast.error(
@@ -447,7 +452,7 @@ export const RecipeForm: React.FC<RecipeFormProps> = ({ mode, recipeId }) => {
 
         <form
           onSubmit={handleSubmit}
-          className="space-y-4 sm:space-y-6 pb-20 sm:pb-0"
+          className="space-y-4 sm:space-y-6"
         >
           <div id="basic-info">
             <RecipeBasicInfo
@@ -647,7 +652,7 @@ export const RecipeForm: React.FC<RecipeFormProps> = ({ mode, recipeId }) => {
           </div>
 
           {/* Mobile sticky action bar */}
-          <div className="sm:hidden fixed bottom-0 left-0 right-0 bg-background border-t shadow-lg z-50 p-3">
+          <div className="sm:hidden fixed bottom-0 left-0 right-0 bg-background border-t shadow-lg z-30 p-3">
             <div className="flex gap-3">
               <Button
                 type="submit"

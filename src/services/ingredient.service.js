@@ -1,5 +1,4 @@
-import axios from '../lib/apiClient';
-import { authHeaders } from '../lib/apiClient';
+import axios, { authHeaders } from '../lib/apiClient';
 
 const API_PATH = 'api/ingredient/';
 
@@ -81,10 +80,8 @@ class IngredientService {
       API_PATH + String(id) + '?removeImage=' + String(removeImage),
       uploadData,
       {
-        headers: {
-          ...this.getAuthHeader(token),
-          'Content-Type': 'multipart/form-data',
-        },
+        // Let axios set multipart Content-Type with boundary
+        headers: this.getAuthHeader(token),
       },
     );
   }
@@ -102,10 +99,8 @@ class IngredientService {
 
     return axios
       .post(API_PATH, uploadData, {
-        headers: {
-          ...this.getAuthHeader(token),
-          'Content-Type': 'multipart/form-data',
-        },
+        // Let axios set multipart Content-Type with boundary
+        headers: this.getAuthHeader(token),
       })
       .then((response) => response)
       .catch((error) => {

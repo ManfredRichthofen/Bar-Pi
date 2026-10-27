@@ -124,16 +124,6 @@ func (r *RecipeRepository) FindAll() ([]models.Recipe, error) {
 	return recipes, nil
 }
 
-func (r *RecipeRepository) FindByOwnerID(ownerID int64) ([]models.Recipe, error) {
-	var recipes []models.Recipe
-	err := r.basePreload(r.db).Where("owner_id = ?", ownerID).Find(&recipes).Error
-	if err != nil {
-		return nil, err
-	}
-	r.populateOnPump(recipes)
-	return recipes, nil
-}
-
 func (r *RecipeRepository) Update(recipe *models.Recipe) error {
 	return r.db.Transaction(func(tx *gorm.DB) error {
 		steps := recipe.ProductionSteps
@@ -272,17 +262,3 @@ func (r *RecipeRepository) FindByFilter(
 	return recipes, nil
 }
 
-// FindByName returns a recipe by name
-func (r *RecipeRepository) FindByName(name string) (*models.Recipe, error) {
-	var recipe models.Recipe
-	err := r.basePreload(r.db).Where("name = ?", name).First(&recipe).Error
-	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, nil
-		}
-		return nil, err
-	}
-	slice := []models.Recipe{recipe}
-	r.populateOnPump(slice)
-	return &slice[0], nil
-}

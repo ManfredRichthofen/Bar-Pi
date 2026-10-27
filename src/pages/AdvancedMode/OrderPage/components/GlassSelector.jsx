@@ -52,10 +52,7 @@ const GlassSelector = ({
         Glass Size
       </Label>
 
-      <Select
-        value={selectedGlass?.id || ''}
-        onValueChange={selectGlassById}
-      >
+      <Select value={selectedGlass?.id || ''} onValueChange={selectGlassById}>
         <SelectTrigger className="w-full">
           <SelectValue placeholder="Select a glass">
             {selectedGlass ? (

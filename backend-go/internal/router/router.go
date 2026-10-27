@@ -22,11 +22,6 @@ import (
 	"gorm.io/gorm"
 )
 
-func Setup(cfg *config.Config, db *gorm.DB) *gin.Engine {
-	r, _ := SetupWithCleanup(cfg, db)
-	return r
-}
-
 func SetupWithCleanup(cfg *config.Config, db *gorm.DB) (*gin.Engine, func()) {
 	if cfg.Server.Port != 8080 {
 		gin.SetMode(gin.ReleaseMode)
@@ -49,7 +44,7 @@ func SetupWithCleanup(cfg *config.Config, db *gorm.DB) (*gin.Engine, func()) {
 	go wsHub.Run()
 
 	// STOMP server for SockJS compatibility
-	stompServer := websocket.NewStompServer(wsHub)
+	stompServer := websocket.NewStompServer()
 	wsService := websocket.NewService(stompServer)
 
 	// Initialize GPIO service (may fail on non-Raspberry Pi systems)
@@ -282,6 +277,7 @@ func SetupWithCleanup(cfg *config.Config, db *gorm.DB) (*gin.Engine, func()) {
 		systemGroup := api.Group("/system")
 		systemGroup.Use(middleware.AuthMiddleware(jwtService))
 		{
+			systemGroup.GET("/version", systemHandler.GetVersion)
 			systemGroup.GET("/settings/appearance", systemHandler.GetAppearance)
 			systemGroup.PUT("/settings/appearance", middleware.RequireRole(models.RoleAdmin), systemHandler.SetAppearance)
 			systemGroup.GET("/settings/appearance/language", systemHandler.GetLanguages)
@@ -332,6 +328,7 @@ func SetupWithCleanup(cfg *config.Config, db *gorm.DB) (*gin.Engine, func()) {
 	r.GET("/health", func(c *gin.Context) {
 		c.JSON(200, gin.H{
 			"status":  "ok",
+			"backend": "go",
 			"version": cfg.App.Version,
 			"name":    cfg.App.Name,
 		})

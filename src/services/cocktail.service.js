@@ -1,6 +1,6 @@
+import { API_PATHS } from '../constants';
 import axios from '../lib/apiClient';
 import { BaseService } from './base.service';
-import { API_PATHS } from '../constants';
 import JsUtils from './JsUtils.js';
 
 const API_PATH = API_PATHS.COCKTAIL;

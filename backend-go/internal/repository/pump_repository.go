@@ -82,16 +82,3 @@ func (r *PumpRepository) Delete(id int64) error {
 	return r.db.Delete(&models.Pump{}, id).Error
 }
 
-// FindByIngredientID returns pumps containing a specific ingredient
-func (r *PumpRepository) FindByIngredientID(ingredientID int64) ([]models.Pump, error) {
-	var pumps []models.Pump
-	err := r.db.Where("current_ingredient_id = ?", ingredientID).
-		Preload("CurrentIngredient").
-		Preload("CurrentIngredient.ParentGroup").
-		Find(&pumps).Error
-	if err != nil {
-		return nil, err
-	}
-	r.enrichPumps(pumps)
-	return pumps, nil
-}

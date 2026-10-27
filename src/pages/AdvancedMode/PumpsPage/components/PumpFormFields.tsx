@@ -79,9 +79,7 @@ export const PumpFormFields: React.FC<PumpFormFieldsProps> = ({
 
   const filteredIngredients = enableIngredientSearch
     ? ingredients.filter((ingredient) =>
-        ingredient.name
-          .toLowerCase()
-          .includes(ingredientSearch.toLowerCase()),
+        ingredient.name.toLowerCase().includes(ingredientSearch.toLowerCase()),
       )
     : ingredients;
 
@@ -92,7 +90,6 @@ export const PumpFormFields: React.FC<PumpFormFieldsProps> = ({
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 lg:gap-6">
-      {/* Basic Information */}
       <Card>
         <CardHeader>
           <CardTitle>Basic Information</CardTitle>
@@ -177,7 +174,6 @@ export const PumpFormFields: React.FC<PumpFormFieldsProps> = ({
         </CardContent>
       </Card>
 
-      {/* Hardware Configuration */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -227,7 +223,6 @@ export const PumpFormFields: React.FC<PumpFormFieldsProps> = ({
         </CardContent>
       </Card>
 
-      {/* Timing Configuration */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -237,7 +232,9 @@ export const PumpFormFields: React.FC<PumpFormFieldsProps> = ({
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="timePerCl">{t('add_pump_modal.time_per_cl_ms')}</Label>
+            <Label htmlFor="timePerCl">
+              {t('add_pump_modal.time_per_cl_ms')}
+            </Label>
             <Input
               id="timePerCl"
               type="number"
@@ -288,9 +285,7 @@ export const PumpFormFields: React.FC<PumpFormFieldsProps> = ({
                   {...register('maxStepsPerSecond', {
                     min: { value: 1, message: 'Must be at least 1' },
                   })}
-                  className={
-                    errors.maxStepsPerSecond ? 'border-danger' : ''
-                  }
+                  className={errors.maxStepsPerSecond ? 'border-danger' : ''}
                 />
                 {errors.maxStepsPerSecond && (
                   <p className="text-sm text-danger">
@@ -323,7 +318,6 @@ export const PumpFormFields: React.FC<PumpFormFieldsProps> = ({
         </CardContent>
       </Card>
 
-      {/* Capacity Configuration */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">

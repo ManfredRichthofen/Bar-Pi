@@ -1,4 +1,9 @@
-import { CornerUpLeft, CornerUpRight, PlayCircle, StopCircle } from 'lucide-react';
+import {
+  CornerUpLeft,
+  CornerUpRight,
+  PlayCircle,
+  StopCircle,
+} from 'lucide-react';
 import type React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';

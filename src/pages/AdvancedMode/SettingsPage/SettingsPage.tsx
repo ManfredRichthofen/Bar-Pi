@@ -1,14 +1,8 @@
-import { PageHeader } from '@/components/AdvancedMode/PageHeader';
 import { useNavigate } from '@tanstack/react-router';
-import {
-  Bell,
-  Globe,
-  LogOut,
-  Smartphone,
-  Volume2,
-} from 'lucide-react';
+import { Globe, LogOut, Smartphone } from 'lucide-react';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
+import { PageHeader } from '@/components/AdvancedMode/PageHeader';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
@@ -19,20 +13,16 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
-import { Switch } from '@/components/ui/switch';
 import UpdateChecker from '../../../components/UpdateChecker';
 import useAuthStore from '../../../store/authStore';
-import ThemeSelector from '../../simple-mode/simpleSettings/components/ThemeSelector';
 import useUIModeStore from '../../../store/uiModeStore';
+import ThemeSelector from '../../simple-mode/simpleSettings/components/ThemeSelector';
 
 export const SettingsPage: React.FC = () => {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate({ from: '/settings' });
   const logoutUser = useAuthStore((state) => state.logoutUser);
   const setAdvancedMode = useUIModeStore((state) => state.setAdvancedMode);
-
-  const [notifications, setNotifications] = React.useState(false);
-  const [soundEffects, setSoundEffects] = React.useState(false);
 
   const languages = [
     { code: 'en-US', name: 'English' },
@@ -86,7 +76,7 @@ export const SettingsPage: React.FC = () => {
                   value={i18n.language}
                   onValueChange={handleLanguageChange}
                 >
-                  <SelectTrigger>
+                  <SelectTrigger className="w-full">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -97,46 +87,6 @@ export const SettingsPage: React.FC = () => {
                     ))}
                   </SelectContent>
                 </Select>
-              </div>
-
-              <Separator />
-
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <Bell className="size-6 text-foreground-muted" />
-                    <div>
-                      <p className="font-medium">
-                        {t('settings.general.notifications', 'Notifications')}
-                      </p>
-                      <p className="text-sm text-foreground-muted">
-                        Receive system notifications
-                      </p>
-                    </div>
-                  </div>
-                  <Switch
-                    checked={notifications}
-                    onCheckedChange={setNotifications}
-                  />
-                </div>
-
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <Volume2 className="size-6 text-foreground-muted" />
-                    <div>
-                      <p className="font-medium">
-                        {t('settings.general.sound_effects', 'Sound Effects')}
-                      </p>
-                      <p className="text-sm text-foreground-muted">
-                        Play sounds for actions
-                      </p>
-                    </div>
-                  </div>
-                  <Switch
-                    checked={soundEffects}
-                    onCheckedChange={setSoundEffects}
-                  />
-                </div>
               </div>
 
               <Separator />

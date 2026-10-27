@@ -16,7 +16,7 @@ const DrinkImage = ({ recipeId, hasImage, name }: DrinkImageProps) => {
   return (
     <figure
       ref={elementRef}
-      className="relative aspect-[4/3] rounded-xl overflow-hidden shadow-sm sm:shadow-lg bg-base-200"
+      className="relative aspect-[4/3] rounded-xl overflow-hidden border-hairline border-border bg-surface-sunken shadow-sm"
     >
       {loading ? (
         <div className="w-full h-full bg-surface-sunken flex items-center justify-center">

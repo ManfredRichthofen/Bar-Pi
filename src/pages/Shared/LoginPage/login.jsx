@@ -44,13 +44,9 @@ const Login = () => {
 
   const onSubmit = async (values) => {
     try {
-      // Format the URL only on submit
       const formattedUrl = formatUrlForSubmit(apiBaseUrl);
-
-      // Save the formatted URL
       setApiBaseUrl(formattedUrl);
 
-      // Use the formatted URL for login
       const success = await loginUser(values, formattedUrl);
       if (success) {
         const redirectTo = new URLSearchParams(location.search).get(
@@ -72,13 +68,11 @@ const Login = () => {
 
   return (
     <div className="flex h-screen w-full">
-      {/* Left Side - Background Image (Hidden on Mobile) */}
       <div
         className="w-full hidden md:flex bg-cover bg-center"
         style={{ backgroundImage: `url(${getBackgroundImage()})` }}
       />
 
-      {/* Right Side - Login Form */}
       <div className="w-full flex flex-col items-center justify-center bg-background p-6">
         <form
           name="login"
@@ -93,7 +87,6 @@ const Login = () => {
           }}
           className="md:w-96 w-80 flex flex-col items-center justify-center"
         >
-          {/* Logo */}
           <div className="mb-6">
             <div className="w-16 h-16 rounded-full overflow-hidden">
               <img
@@ -104,7 +97,6 @@ const Login = () => {
             </div>
           </div>
 
-          {/* Header */}
           <h2 className="text-4xl font-medium">
             {t('login.headline_short') || 'Sign in'}
           </h2>
@@ -112,14 +104,12 @@ const Login = () => {
             {t('login.subtitle')}
           </p>
 
-          {/* Error Alert */}
           {error && (
             <Alert variant="destructive" className="w-full mt-6">
               <AlertDescription className="text-sm">{error}</AlertDescription>
             </Alert>
           )}
 
-          {/* Divider */}
           <div className="flex items-center gap-4 w-full my-8">
             <div className="w-full h-px bg-border"></div>
             <p className="text-nowrap text-sm text-foreground-muted">
@@ -128,7 +118,6 @@ const Login = () => {
             <div className="w-full h-px bg-border"></div>
           </div>
 
-          {/* Username Input */}
           <div className="flex items-center w-full bg-surface border-control border-border-strong min-h-control-md rounded-md shadow-inset overflow-hidden pl-4 gap-3">
             <User className="size-6 text-foreground-muted" />
             <input
@@ -143,7 +132,6 @@ const Login = () => {
             />
           </div>
 
-          {/* Password Input */}
           <div className="flex items-center mt-6 w-full bg-surface border-control border-border-strong min-h-control-md rounded-md shadow-inset overflow-hidden pl-4 gap-3">
             <KeyRound className="size-6 text-foreground-muted" />
             <input
@@ -156,8 +144,7 @@ const Login = () => {
             />
           </div>
 
-          {/* Remember Me & Forgot Password */}
-          <div className="w-full flex items-center justify-between mt-8">
+          <div className="w-full flex items-center mt-8">
             <div className="flex items-center gap-2">
               <Checkbox id="remember-checkbox" name="remember" />
               <Label
@@ -167,15 +154,8 @@ const Login = () => {
                 {t('login.remember_me')}
               </Label>
             </div>
-            <a
-              className="text-sm hover:underline text-foreground-muted"
-              href="/forgot-password"
-            >
-              {t('login.forgot_password')}
-            </a>
           </div>
 
-          {/* Advanced Settings */}
           {showAdvanced && (
             <div className="w-full mt-6">
               <div className="flex items-center w-full bg-surface border-control border-border-strong min-h-control-md rounded-md shadow-inset overflow-hidden pl-4 gap-3">
@@ -216,12 +196,7 @@ const Login = () => {
             {t('login.advanced_settings')}
           </Button>
 
-          {/* Sign In Button */}
-          <Button
-            type="submit"
-            className="mt-8 w-full"
-            disabled={loading}
-          >
+          <Button type="submit" className="mt-8 w-full" disabled={loading}>
             {loading ? (
               <>
                 <Loader2 className="mr-2 size-6 animate-spin" />
@@ -231,14 +206,6 @@ const Login = () => {
               t('login.btn_label_short') || t('login.btn_label')
             )}
           </Button>
-
-          {/* Sign Up Link */}
-          <p className="text-foreground-muted text-sm mt-4">
-            {t('login.no_account')}{' '}
-            <a className="text-primary hover:underline" href="/register">
-              {t('login.create_account_short') || t('login.create_account')}
-            </a>
-          </p>
         </form>
       </div>
     </div>

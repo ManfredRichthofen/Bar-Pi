@@ -10,18 +10,18 @@ import React, {
 } from 'react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
+import {
+  ActionButtons,
+  EmptyState,
+  ListCard,
+  LoadingState,
+  PageHeader,
+  ScrollToTopButton,
+  VirtualizedList,
+} from '@/components/AdvancedMode';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import SearchInput from '@/components/ui/search-input.jsx';
-import {
-  PageHeader,
-  EmptyState,
-  ListCard,
-  ActionButtons,
-  ScrollToTopButton,
-  LoadingState,
-  VirtualizedList,
-} from '@/components/AdvancedMode';
 import RecipeService from '../../../services/recipe.service.js';
 import useAuthStore from '../../../store/authStore.js';
 import useFavoritesStore from '../../../store/favoritesStore.js';
@@ -283,19 +283,13 @@ const Recipes = ({ sidebarCollapsed = false }) => {
                       metadata={
                         <>
                           {ingredientCount > 0 && (
-                            <Badge
-                              variant="secondary"
-                              className="text-sm"
-                            >
+                            <Badge variant="secondary" className="text-sm">
                               {ingredientCount} ingredient
                               {ingredientCount !== 1 ? 's' : ''}
                             </Badge>
                           )}
                           {recipe.defaultGlass && (
-                            <Badge
-                              variant="outline"
-                              className="text-sm"
-                            >
+                            <Badge variant="outline" className="text-sm">
                               {recipe.defaultGlass.name}
                             </Badge>
                           )}
@@ -334,9 +328,7 @@ const Recipes = ({ sidebarCollapsed = false }) => {
                               },
                             },
                             {
-                              icon: (
-                                <Trash2 className="size-6 text-danger" />
-                              ),
+                              icon: <Trash2 className="size-6 text-danger" />,
                               label: t('recipes.delete', 'Delete recipe'),
                               onClick: (e) => {
                                 e.stopPropagation();

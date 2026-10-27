@@ -202,230 +202,187 @@ export const IngredientFormDialog: React.FC<IngredientFormDialogProps> = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
+      <DialogContent className="flex max-h-[90vh] w-full flex-col gap-0 overflow-hidden p-0 sm:max-w-2xl">
+        <DialogHeader className="shrink-0 border-b border-border px-6 py-4 pr-12">
           <DialogTitle className="text-xl">
             {editingIngredient ? 'Edit Ingredient' : 'Add Ingredient'}
           </DialogTitle>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit(handleAddEdit)} className="space-y-8">
-          <div className="space-y-4">
-            <h3 className="text-sm font-semibold text-foreground-muted uppercase tracking-wide">
-              Basic Information
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="name" className="text-sm font-medium">
-                  Name <span className="text-danger">*</span>
-                </Label>
-                <Input
-                  id="name"
-                  type="text"
-                  placeholder="e.g., Vodka, Lime Juice"
-                  {...register('name', { required: true })}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="parentGroup" className="text-sm font-medium">
-                  Parent Group
-                </Label>
-                <Select
-                  value={watch('parentGroupId')?.toString() || ''}
-                  onValueChange={(value) =>
-                    setValue('parentGroupId', value ? parseInt(value) : null)
-                  }
-                >
-                  <SelectTrigger id="parentGroup">
-                    <SelectValue placeholder="Select a group (optional)" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="">None</SelectItem>
-                    {ingredients
-                      .filter((ing) => ing.type === 'group')
-                      .map((group) => (
-                        <SelectItem key={group.id} value={group.id.toString()}>
-                          {group.name}
-                        </SelectItem>
-                      ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-          </div>
-
-          <div className="space-y-4">
-            <h3 className="text-sm font-semibold text-foreground-muted uppercase tracking-wide">
-              Image
-            </h3>
-            <div className="flex items-start gap-6">
-              {watch('imagePreview') ? (
-                <div className="relative w-40 h-40 flex-shrink-0">
-                  <img
-                    src={watch('imagePreview') ?? undefined}
-                    alt="Ingredient preview"
-                    className="w-full h-full object-cover rounded-lg border-2 border-border"
-                  />
-                  <Button
-                    type="button"
-                    size="icon"
-                    variant="destructive"
-                    className="absolute -top-3 -right-3"
-                    onClick={() => {
-                      setValue('image', null);
-                      setValue('imagePreview', null);
-                    }}
-                  >
-                    <X className="size-6" />
-                  </Button>
-                </div>
-              ) : (
-                <label className="flex flex-col items-center justify-center w-40 h-40 border-2 border-dashed rounded-lg cursor-pointer hover:bg-primary-tint hover:border-primary transition-colors flex-shrink-0">
-                  <div className="flex flex-col items-center justify-center p-4">
-                    <ImageIcon
-                      size={32}
-                      className="mb-2 text-foreground-muted"
-                    />
-                    <p className="text-sm text-center text-foreground-muted">
-                      <span className="font-semibold">Click to upload</span>
-                      <br />
-                      PNG, JPG (max 5MB)
-                    </p>
-                  </div>
-                  <input
-                    type="file"
-                    className="hidden"
-                    accept="image/*"
-                    onChange={(e) => {
-                      const file = e.target.files?.[0];
-                      if (file) {
-                        setValue('image', file);
-                        const reader = new FileReader();
-                        reader.onloadend = () => {
-                          setValue(
-                            'imagePreview',
-                            typeof reader.result === 'string'
-                              ? reader.result
-                              : null,
-                          );
-                        };
-                        reader.readAsDataURL(file);
-                      }
-                    }}
-                  />
-                </label>
-              )}
-              {editingIngredient?.hasImage && !watch('imagePreview') && (
-                <div className="flex items-center gap-2 mt-4">
-                  <Checkbox
-                    id="removeImage"
-                    checked={watch('removeImage')}
-                    onCheckedChange={(checked) =>
-                      setValue('removeImage', Boolean(checked))
-                    }
-                  />
-                  <Label
-                    htmlFor="removeImage"
-                    className="text-sm font-normal cursor-pointer"
-                  >
-                    Remove existing image
-                  </Label>
-                </div>
-              )}
-            </div>
-          </div>
-
-          <div className="space-y-4">
-            <h3 className="text-sm font-semibold text-foreground-muted uppercase tracking-wide">
-              Ingredient Type
-            </h3>
-            <Tabs
-              value={watch('type')}
-              onValueChange={(value) => setValue('type', value)}
-              className="w-full"
-            >
-              <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="manual" className="gap-2">
-                  <span>Manual</span>
-                </TabsTrigger>
-                <TabsTrigger value="automated" className="gap-2">
-                  <span>Automated</span>
-                </TabsTrigger>
-              </TabsList>
-            </Tabs>
-            <p className="text-sm text-foreground-muted">
-              {watch('type') === 'manual'
-                ? 'Manually added ingredients (e.g., garnishes, ice)'
-                : 'Automated dispensing via pump system'}
-            </p>
-          </div>
-
-          <div className="space-y-4 bg-surface-sunken p-4 rounded-lg">
-            <h3 className="text-sm font-semibold text-foreground-muted uppercase tracking-wide">
-              Properties
-            </h3>
-            {watch('type') === 'manual' ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <form
+          onSubmit={handleSubmit(handleAddEdit)}
+          className="flex min-h-0 flex-1 flex-col"
+        >
+          <div className="min-h-0 flex-1 space-y-5 overflow-y-auto overscroll-contain px-6 py-5">
+            <div className="space-y-3">
+              <h3 className="text-sm font-semibold uppercase tracking-wide text-foreground-muted">
+                Basic Information
+              </h3>
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div className="space-y-2">
-                  <Label
-                    htmlFor="alcoholContent"
-                    className="text-sm font-medium"
-                  >
-                    Alcohol Content (%){' '}
-                    <span className="text-danger">*</span>
+                  <Label htmlFor="name" className="text-sm font-medium">
+                    Name <span className="text-danger">*</span>
                   </Label>
                   <Input
-                    id="alcoholContent"
-                    type="number"
-                    step="0.1"
-                    min="0"
-                    max="100"
-                    placeholder="e.g., 40"
-                    {...register('alcoholContent', {
-                      required: true,
-                      valueAsNumber: true,
-                      min: 0,
-                      max: 100,
-                    })}
+                    id="name"
+                    type="text"
+                    placeholder="e.g., Vodka, Lime Juice"
+                    {...register('name', { required: true })}
                   />
                 </div>
+
                 <div className="space-y-2">
-                  <Label htmlFor="unit" className="text-sm font-medium">
-                    Unit <span className="text-danger">*</span>
+                  <Label htmlFor="parentGroup" className="text-sm font-medium">
+                    Parent Group
                   </Label>
                   <Select
-                    value={watch('unit')}
+                    value={watch('parentGroupId')?.toString() || ''}
                     onValueChange={(value) =>
-                      setValue('unit', value ?? 'ml')
+                      setValue('parentGroupId', value ? parseInt(value) : null)
                     }
                   >
-                    <SelectTrigger id="unit">
-                      <SelectValue placeholder="Select unit" />
+                    <SelectTrigger id="parentGroup">
+                      <SelectValue placeholder="Select a group (optional)" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="ml">Milliliter (ml)</SelectItem>
-                      <SelectItem value="cl">Centiliter (cl)</SelectItem>
-                      <SelectItem value="oz">Ounce (oz)</SelectItem>
-                      <SelectItem value="dash">Dash</SelectItem>
-                      <SelectItem value="piece">Piece</SelectItem>
+                      <SelectItem value="">None</SelectItem>
+                      {ingredients
+                        .filter((ing) => ing.type === 'group')
+                        .map((group) => (
+                          <SelectItem
+                            key={group.id}
+                            value={group.id.toString()}
+                          >
+                            {group.name}
+                          </SelectItem>
+                        ))}
                     </SelectContent>
                   </Select>
                 </div>
               </div>
-            ) : (
-              <div className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            </div>
+
+            <div className="space-y-3">
+              <h3 className="text-sm font-semibold uppercase tracking-wide text-foreground-muted">
+                Image
+              </h3>
+              <div className="flex items-start gap-4">
+                {watch('imagePreview') ? (
+                  <div className="relative h-28 w-28 shrink-0">
+                    <img
+                      src={watch('imagePreview') ?? undefined}
+                      alt="Ingredient preview"
+                      className="h-full w-full rounded-lg border-2 border-border object-cover"
+                    />
+                    <Button
+                      type="button"
+                      size="icon"
+                      variant="destructive"
+                      className="absolute -top-2 -right-2 size-7"
+                      onClick={() => {
+                        setValue('image', null);
+                        setValue('imagePreview', null);
+                      }}
+                    >
+                      <X className="size-4" />
+                    </Button>
+                  </div>
+                ) : (
+                  <label className="flex h-28 w-full max-w-xs shrink-0 cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed transition-colors hover:border-primary hover:bg-primary-tint">
+                    <div className="flex flex-col items-center justify-center px-3 py-2">
+                      <ImageIcon
+                        size={24}
+                        className="mb-1.5 text-foreground-muted"
+                      />
+                      <p className="text-center text-sm text-foreground-muted">
+                        <span className="font-semibold">Click to upload</span>
+                        <br />
+                        PNG, JPG (max 5MB)
+                      </p>
+                    </div>
+                    <input
+                      type="file"
+                      className="hidden"
+                      accept="image/*"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          setValue('image', file);
+                          const reader = new FileReader();
+                          reader.onloadend = () => {
+                            setValue(
+                              'imagePreview',
+                              typeof reader.result === 'string'
+                                ? reader.result
+                                : null,
+                            );
+                          };
+                          reader.readAsDataURL(file);
+                        }
+                      }}
+                    />
+                  </label>
+                )}
+                {editingIngredient?.hasImage && !watch('imagePreview') && (
+                  <div className="mt-2 flex items-center gap-2">
+                    <Checkbox
+                      id="removeImage"
+                      checked={watch('removeImage')}
+                      onCheckedChange={(checked) =>
+                        setValue('removeImage', Boolean(checked))
+                      }
+                    />
+                    <Label
+                      htmlFor="removeImage"
+                      className="cursor-pointer text-sm font-normal"
+                    >
+                      Remove existing image
+                    </Label>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div className="space-y-3">
+              <h3 className="text-sm font-semibold uppercase tracking-wide text-foreground-muted">
+                Ingredient Type
+              </h3>
+              <Tabs
+                value={watch('type')}
+                onValueChange={(value) => setValue('type', value)}
+                className="w-full"
+              >
+                <TabsList className="grid w-full grid-cols-2">
+                  <TabsTrigger value="manual" className="gap-2">
+                    <span>Manual</span>
+                  </TabsTrigger>
+                  <TabsTrigger value="automated" className="gap-2">
+                    <span>Automated</span>
+                  </TabsTrigger>
+                </TabsList>
+              </Tabs>
+              <p className="text-sm text-foreground-muted">
+                {watch('type') === 'manual'
+                  ? 'Manually added ingredients (e.g., garnishes, ice)'
+                  : 'Automated dispensing via pump system'}
+              </p>
+            </div>
+
+            <div className="space-y-3 rounded-lg bg-surface-sunken p-4">
+              <h3 className="text-sm font-semibold uppercase tracking-wide text-foreground-muted">
+                Properties
+              </h3>
+              {watch('type') === 'manual' ? (
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                   <div className="space-y-2">
                     <Label
-                      htmlFor="alcoholContentAuto"
+                      htmlFor="alcoholContent"
                       className="text-sm font-medium"
                     >
-                      Alcohol Content (%){' '}
-                      <span className="text-danger">*</span>
+                      Alcohol Content (%) <span className="text-danger">*</span>
                     </Label>
                     <Input
-                      id="alcoholContentAuto"
+                      id="alcoholContent"
                       type="number"
                       step="0.1"
                       min="0"
@@ -440,53 +397,103 @@ export const IngredientFormDialog: React.FC<IngredientFormDialogProps> = ({
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="bottleSize" className="text-sm font-medium">
-                      Bottle Size (ml){' '}
+                    <Label htmlFor="unit" className="text-sm font-medium">
+                      Unit <span className="text-danger">*</span>
+                    </Label>
+                    <Select
+                      value={watch('unit')}
+                      onValueChange={(value) => setValue('unit', value ?? 'ml')}
+                    >
+                      <SelectTrigger id="unit">
+                        <SelectValue placeholder="Select unit" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="ml">Milliliter (ml)</SelectItem>
+                        <SelectItem value="cl">Centiliter (cl)</SelectItem>
+                        <SelectItem value="oz">Ounce (oz)</SelectItem>
+                        <SelectItem value="dash">Dash</SelectItem>
+                        <SelectItem value="piece">Piece</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                    <div className="space-y-2">
+                      <Label
+                        htmlFor="alcoholContentAuto"
+                        className="text-sm font-medium"
+                      >
+                        Alcohol Content (%){' '}
+                        <span className="text-danger">*</span>
+                      </Label>
+                      <Input
+                        id="alcoholContentAuto"
+                        type="number"
+                        step="0.1"
+                        min="0"
+                        max="100"
+                        placeholder="e.g., 40"
+                        {...register('alcoholContent', {
+                          required: true,
+                          valueAsNumber: true,
+                          min: 0,
+                          max: 100,
+                        })}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label
+                        htmlFor="bottleSize"
+                        className="text-sm font-medium"
+                      >
+                        Bottle Size (ml) <span className="text-danger">*</span>
+                      </Label>
+                      <Input
+                        id="bottleSize"
+                        type="number"
+                        step="1"
+                        min="0"
+                        placeholder="e.g., 750"
+                        {...register('bottleSize', {
+                          required: true,
+                          valueAsNumber: true,
+                          min: 0,
+                        })}
+                      />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label
+                      htmlFor="pumpTimeMultiplier"
+                      className="text-sm font-medium"
+                    >
+                      Pump Time Multiplier{' '}
                       <span className="text-danger">*</span>
                     </Label>
                     <Input
-                      id="bottleSize"
+                      id="pumpTimeMultiplier"
                       type="number"
-                      step="1"
+                      step="0.1"
                       min="0"
-                      placeholder="e.g., 750"
-                      {...register('bottleSize', {
+                      placeholder="e.g., 1.0"
+                      {...register('pumpTimeMultiplier', {
                         required: true,
                         valueAsNumber: true,
                         min: 0,
                       })}
                     />
+                    <p className="text-sm text-foreground-muted">
+                      Adjusts pump timing for viscosity differences
+                    </p>
                   </div>
                 </div>
-                <div className="space-y-2">
-                  <Label
-                    htmlFor="pumpTimeMultiplier"
-                    className="text-sm font-medium"
-                  >
-                    Pump Time Multiplier{' '}
-                    <span className="text-danger">*</span>
-                  </Label>
-                  <Input
-                    id="pumpTimeMultiplier"
-                    type="number"
-                    step="0.1"
-                    min="0"
-                    placeholder="e.g., 1.0"
-                    {...register('pumpTimeMultiplier', {
-                      required: true,
-                      valueAsNumber: true,
-                      min: 0,
-                    })}
-                  />
-                  <p className="text-sm text-foreground-muted">
-                    Adjusts pump timing for viscosity differences
-                  </p>
-                </div>
-              </div>
-            )}
+              )}
+            </div>
           </div>
 
-          <DialogFooter className="pt-6 border-t gap-2">
+          <DialogFooter className="shrink-0 gap-2 border-t border-border px-6 py-4">
             <Button
               type="button"
               variant="outline"

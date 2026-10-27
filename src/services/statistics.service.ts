@@ -120,63 +120,48 @@ export interface StatisticsOverview {
 
 const API_PATH = API_PATHS.STATISTICS || 'api/statistics';
 
+export class LegacyBackendStatisticsError extends Error {
+  readonly isLegacyBackendError = true;
+  constructor(
+    message = 'Statistics endpoint is not supported by the original CocktailPi backend',
+  ) {
+    super(message);
+    this.name = 'LegacyBackendStatisticsError';
+  }
+}
+
+export function isLegacyBackendStatisticsError(error: unknown): boolean {
+  if (!error) return false;
+  if (
+    error instanceof LegacyBackendStatisticsError ||
+    (error as any)?.isLegacyBackendError === true
+  ) {
+    return true;
+  }
+  const status = (error as any)?.response?.status;
+  return status === 404 || status === 405 || status === 501;
+}
+
 class StatisticsService extends BaseService {
-  /**
-   * Fetch aggregated statistics overview
-   * @param days - Timeline window in days (default: 14)
-   * @param token - Optional JWT token
-   */
-  getOverview(
+  async getOverview(
     days = 14,
     token: string | null = null,
   ): Promise<StatisticsOverview> {
-    return this.get(API_PATH, (token ?? undefined) as any, {
+    const data = await this.get(API_PATH, (token ?? undefined) as any, {
       params: { days },
     });
+    if (
+      !data ||
+      typeof data !== 'object' ||
+      !('summary' in data) ||
+      !('inventory' in data)
+    ) {
+      throw new LegacyBackendStatisticsError();
+    }
+    return data as StatisticsOverview;
   }
 
-  /**
-   * Fetch top recipes by orders and volume
-   */
-  getTopRecipes(
-    limit = 15,
-    token: string | null = null,
-  ): Promise<RecipeStat[]> {
-    return this.get(`${API_PATH}/recipes`, (token ?? undefined) as any, {
-      params: { limit },
-    });
-  }
-
-  /**
-   * Fetch top ingredients by usage and recipe coverage
-   */
-  getTopIngredients(
-    limit = 20,
-    token: string | null = null,
-  ): Promise<IngredientUsageStat[]> {
-    return this.get(`${API_PATH}/ingredients`, (token ?? undefined) as any, {
-      params: { limit },
-    });
-  }
-
-  /**
-   * Fetch recent cocktail order records
-   */
-  getRecentOrders(
-    limit = 30,
-    token: string | null = null,
-  ): Promise<CocktailOrderRecord[]> {
-    return this.get(`${API_PATH}/orders`, (token ?? undefined) as any, {
-      params: { limit },
-    });
-  }
-
-  /**
-   * Clear all recorded cocktail order history (requires admin role)
-   */
-  clearOrderHistory(
-    token: string | null = null,
-  ): Promise<{ message: string }> {
+  clearOrderHistory(token: string | null = null): Promise<{ message: string }> {
     return this.delete(`${API_PATH}/orders`, (token ?? undefined) as any);
   }
 }

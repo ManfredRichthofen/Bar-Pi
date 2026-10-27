@@ -16,7 +16,6 @@ const UpdateChecker: React.FC = () => {
   const [isUpdating, setIsUpdating] = useState(false);
   const [lastChecked, setLastChecked] = useState<Date | null>(null);
 
-  // Auto-check for updates on component mount
   useEffect(() => {
     checkForUpdates();
   }, []);
@@ -34,7 +33,6 @@ const UpdateChecker: React.FC = () => {
     }
   };
 
-  // Enhanced release notes parsing with categorization
   const parseReleaseNotes = (notes: string) => {
     if (!notes) return [];
 
@@ -58,15 +56,12 @@ const UpdateChecker: React.FC = () => {
         const content = contentLines
           .filter((line) => line.trim())
           .map((line) => {
-            // Convert markdown lists to bullet points
             if (line.trim().startsWith('- ')) {
               return `• ${line.trim().substring(2)}`;
             }
-            // Remove markdown links
             return line.replace(/\[([^\]]+)\]\([^)]+\)/g, '$1');
           });
 
-        // Categorize section based on title keywords
         let type: 'feature' | 'bug' | 'improvement' | 'other' = 'other';
 
         const titleLower = title.toLowerCase();

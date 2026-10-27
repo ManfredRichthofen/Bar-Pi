@@ -63,17 +63,6 @@ func (r *IngredientRepository) FindAll() ([]models.Ingredient, error) {
 	return ingredients, nil
 }
 
-func (r *IngredientRepository) FindInBar() ([]models.Ingredient, error) {
-	var ingredients []models.Ingredient
-	inBar := true
-	err := r.db.Where("in_bar = ?", inBar).Preload("ParentGroup").Order("LOWER(name)").Find(&ingredients).Error
-	if err != nil {
-		return nil, err
-	}
-	r.populateOnPump(ingredients)
-	return ingredients, nil
-}
-
 func (r *IngredientRepository) FindBoostable() ([]models.Ingredient, error) {
 	var ingredients []models.Ingredient
 	err := r.db.Where("dtype = ? AND alcohol_content > 0", "AutomatedIngredient").

@@ -1,8 +1,8 @@
-import { PageHeader } from '@/components/AdvancedMode/PageHeader';
 import { Navigate } from '@tanstack/react-router';
 import { debounce } from 'es-toolkit';
 import { ArrowUp, Filter } from 'lucide-react';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { PageHeader } from '@/components/AdvancedMode/PageHeader';
 import { Button } from '@/components/ui/button';
 import FilterPanel from '@/components/ui/filter-panel.jsx';
 import SearchInput from '@/components/ui/search-input.jsx';
@@ -74,7 +74,6 @@ const Drinks = ({ sidebarCollapsed = false }) => {
     e?.stopPropagation();
     console.log('Filter toggle clicked, current state:', isFilterPanelOpen);
     setIsFilterPanelOpen(!isFilterPanelOpen);
-    // Make sure header is visible when opening filters
     if (!isFilterPanelOpen) {
       setIsHeaderVisible(true);
     }
@@ -88,7 +87,6 @@ const Drinks = ({ sidebarCollapsed = false }) => {
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
 
-      // Don't hide header if filter panel is open
       if (isFilterPanelOpen) {
         setIsHeaderVisible(true);
         setLastScrollY(currentScrollY);
@@ -96,7 +94,6 @@ const Drinks = ({ sidebarCollapsed = false }) => {
         return;
       }
 
-      // Hide header when scrolling down, show when scrolling up
       if (currentScrollY > lastScrollY && currentScrollY > 100) {
         setIsHeaderVisible(false);
       } else {
@@ -177,7 +174,6 @@ const Drinks = ({ sidebarCollapsed = false }) => {
         )}
       </PageHeader>
 
-      {/* Main Content */}
       <VirtualDrinksGrid
         token={token}
         searchTerm={searchTerm}
@@ -188,12 +184,11 @@ const Drinks = ({ sidebarCollapsed = false }) => {
         onFilterRecipes={handleFilterRecipes}
       />
 
-      {/* Scroll to Top Button */}
       {showScrollTop && (
         <Button
           onClick={scrollToTop}
           size="icon"
-          className="fixed bottom-8 right-8 z-50"
+          className="fixed bottom-8 right-8 z-30"
           aria-label="Scroll to top"
         >
           <ArrowUp className="size-6" />

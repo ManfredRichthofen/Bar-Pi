@@ -15,7 +15,6 @@ import (
 )
 
 type StompServer struct {
-	hub         *Hub
 	upgrader    websocket.Upgrader
 	clients     map[*StompClient]bool
 	mu          sync.RWMutex
@@ -40,9 +39,8 @@ type Subscription struct {
 	Client      *StompClient
 }
 
-func NewStompServer(hub *Hub) *StompServer {
+func NewStompServer() *StompServer {
 	return &StompServer{
-		hub: hub,
 		upgrader: websocket.Upgrader{
 			ReadBufferSize:  1024,
 			WriteBufferSize: 1024,
@@ -311,44 +309,6 @@ func (s *StompServer) Broadcast(destination string, message string) {
 			Command: "MESSAGE",
 			Headers: map[string]string{
 				"destination":  t.dest,
-				"message-id":   generateMessageID(),
-				"subscription": t.subID,
-			},
-			Body: message,
-		}
-		_ = t.client.sendFrame(frame)
-	}
-}
-
-// BroadcastToUser sends a message to a specific user's destination
-func (s *StompServer) BroadcastToUser(username string, destination string, message string) {
-	userDestination := destination
-	if !strings.HasPrefix(destination, "/user") {
-		userDestination = "/user" + destination
-	}
-
-	type target struct {
-		client *StompClient
-		subID  string
-	}
-	var targets []target
-
-	s.mu.RLock()
-	if subscribers, ok := s.topics[userDestination]; ok {
-		for client, sub := range subscribers {
-			targets = append(targets, target{
-				client: client,
-				subID:  sub.ID,
-			})
-		}
-	}
-	s.mu.RUnlock()
-
-	for _, t := range targets {
-		frame := &StompFrame{
-			Command: "MESSAGE",
-			Headers: map[string]string{
-				"destination":  userDestination,
 				"message-id":   generateMessageID(),
 				"subscription": t.subID,
 			},

@@ -113,10 +113,7 @@ const HeaderBar: React.FC<HeaderBarProps> = ({ collapsed, onToggle }) => {
               <span>Simple mode</span>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem
-              onClick={handleLogout}
-              variant="destructive"
-            >
+            <DropdownMenuItem onClick={handleLogout} variant="destructive">
               <LogOut />
               <span>Log out</span>
             </DropdownMenuItem>

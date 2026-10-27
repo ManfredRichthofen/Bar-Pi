@@ -20,7 +20,7 @@ const ThemeSelector = () => {
         <div
           role="radiogroup"
           aria-label="Theme"
-          className="grid grid-cols-1 gap-3 sm:grid-cols-3"
+          className="grid grid-cols-1 gap-3 sm:grid-cols-2"
         >
           {THEMES.map((t) => {
             const selected = theme === t.id;
