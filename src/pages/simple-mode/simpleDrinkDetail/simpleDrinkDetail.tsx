@@ -3,6 +3,7 @@ import { useLocation, useNavigate, useParams } from '@tanstack/react-router';
 import { ArrowLeft, Beaker, Loader2 } from 'lucide-react';
 import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import SimplePageEnter from '@/components/simple-mode/SimplePageEnter';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { useBackNavigation } from '@/hooks/useBackNavigation';
@@ -100,7 +101,7 @@ const SimpleDrinkDetail = () => {
       </header>
 
       <div className="flex-1 overflow-y-auto">
-        <div className="mx-auto max-w-4xl px-4 pt-6 pb-32 sm:px-6 space-y-6">
+        <SimplePageEnter className="mx-auto max-w-4xl px-4 pt-6 pb-32 sm:px-6 space-y-6">
           <DrinkImage
             recipeId={recipe.id}
             hasImage={recipe.hasImage || false}
@@ -114,7 +115,7 @@ const SimpleDrinkDetail = () => {
           />
 
           <IngredientsList ingredients={recipe.ingredients} />
-        </div>
+        </SimplePageEnter>
       </div>
 
       <div className="fixed inset-x-0 bottom-[var(--dock-height)] z-40 border-t-hairline border-border bg-background shadow-lg">

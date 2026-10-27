@@ -1,5 +1,6 @@
 import { ArrowLeft, BeakerIcon, GlassWater, Info } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import SimplePageEnter from '@/components/simple-mode/SimplePageEnter';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -85,7 +86,7 @@ const SimpleOrder = () => {
       </header>
 
       <div className="flex-1 overflow-y-auto">
-        <div className="mx-auto max-w-7xl px-4 pt-6 pb-48 sm:px-6">
+        <SimplePageEnter className="mx-auto max-w-7xl px-4 pt-6 pb-48 sm:px-6">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-4 lg:gap-5">
             <Card className="sm:col-span-1 lg:col-span-7 bg-surface-sunken border-border-strong">
               <CardContent className="p-5 sm:p-6 h-full flex flex-col justify-center gap-2">
@@ -166,7 +167,7 @@ const SimpleOrder = () => {
               />
             </div>
           </div>
-        </div>
+        </SimplePageEnter>
       </div>
 
       <div className="fixed inset-x-0 bottom-[var(--dock-height)] z-40 border-t-hairline border-border bg-background shadow-lg">

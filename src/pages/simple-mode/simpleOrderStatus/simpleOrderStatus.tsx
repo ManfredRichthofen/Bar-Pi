@@ -10,6 +10,7 @@ import {
 import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
+import SimplePageEnter from '@/components/simple-mode/SimplePageEnter';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ConfirmationDialog } from '@/components/ui/confirmation-dialog';
@@ -137,7 +138,7 @@ const SimpleOrderStatus = () => {
     return (
       <div className="min-h-screen bg-background flex flex-col">
         {header}
-        <div className="flex-1 flex flex-col items-center justify-center p-4">
+        <SimplePageEnter className="flex-1 flex flex-col items-center justify-center p-4">
           <Loader2 className="size-12 animate-spin text-primary mb-4" />
           <h2 className="text-xl font-semibold mb-2">
             {t('simple_status.connecting', 'Connecting...')}
@@ -145,7 +146,7 @@ const SimpleOrderStatus = () => {
           <p className="text-sm text-foreground-muted">
             {t('simple_status.connecting_hint', 'Fetching your order status')}
           </p>
-        </div>
+        </SimplePageEnter>
       </div>
     );
   }
@@ -154,7 +155,7 @@ const SimpleOrderStatus = () => {
     return (
       <div className="min-h-screen bg-background flex flex-col">
         {header}
-        <div className="flex-1 flex items-center justify-center p-4">
+        <SimplePageEnter className="flex-1 flex items-center justify-center p-4">
           <Card className="w-full max-w-md">
             <CardContent className="pt-6 text-center">
               <Clock className="size-16 mx-auto mb-4 text-foreground-muted" />
@@ -173,7 +174,7 @@ const SimpleOrderStatus = () => {
               </Button>
             </CardContent>
           </Card>
-        </div>
+        </SimplePageEnter>
       </div>
     );
   }
@@ -188,7 +189,7 @@ const SimpleOrderStatus = () => {
       {header}
 
       <div className="flex-1 overflow-y-auto pb-8">
-        <div className="mx-auto max-w-2xl px-4 py-6 sm:px-6 space-y-6">
+        <SimplePageEnter className="mx-auto max-w-2xl px-4 py-6 sm:px-6 space-y-6">
           <Card>
             <CardHeader>
               <div className="flex items-center justify-between gap-3">
@@ -341,7 +342,7 @@ const SimpleOrderStatus = () => {
               )}
             </CardContent>
           </Card>
-        </div>
+        </SimplePageEnter>
       </div>
 
       <ConfirmationDialog

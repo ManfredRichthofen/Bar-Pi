@@ -1,6 +1,12 @@
 import { GlassWater, Loader2 } from 'lucide-react';
+import { motion, useReducedMotion } from 'motion/react';
 import { useTranslation } from 'react-i18next';
 import { useLazyImage } from '@/hooks/useLazyImage';
+import {
+  enterTransition,
+  imageFadeVariants,
+  noneTransition,
+} from '@/lib/simpleMotion';
 
 interface DrinkImageProps {
   recipeId: string;
@@ -10,6 +16,7 @@ interface DrinkImageProps {
 
 const DrinkImage = ({ recipeId, hasImage, name }: DrinkImageProps) => {
   const { t } = useTranslation();
+  const reduceMotion = useReducedMotion();
   const { imageUrl, loading, error, elementRef } = useLazyImage(
     recipeId,
     hasImage,
@@ -25,7 +32,16 @@ const DrinkImage = ({ recipeId, hasImage, name }: DrinkImageProps) => {
           <Loader2 className="w-10 h-10 sm:w-12 sm:h-12 text-foreground-muted animate-spin" />
         </div>
       ) : imageUrl ? (
-        <img src={imageUrl} alt={name} className="w-full h-full object-cover" />
+        <motion.img
+          key={imageUrl}
+          src={imageUrl}
+          alt={name}
+          className="w-full h-full object-cover"
+          variants={imageFadeVariants}
+          initial={reduceMotion ? false : 'hidden'}
+          animate="visible"
+          transition={reduceMotion ? noneTransition : enterTransition}
+        />
       ) : (
         <div className="w-full h-full bg-surface-sunken flex items-center justify-center">
           <div className="text-center p-4">

@@ -1,9 +1,11 @@
 import { GlassWater, Loader2 } from 'lucide-react';
-import { motion } from 'motion/react';
+import { motion, useReducedMotion } from 'motion/react';
 import { useTranslation } from 'react-i18next';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { useLazyImage } from '@/hooks/useLazyImage';
+import { useSimplePress } from '@/hooks/useSimplePress';
+import { imageFadeVariants } from '@/lib/simpleMotion';
 import { isAvailable, requiresManual } from '@/utils/recipeFilters.js';
 
 const getAvailability = (recipe, t) => {
@@ -27,6 +29,8 @@ const getAvailability = (recipe, t) => {
 
 const SimpleDrinkCard = ({ recipe, onCardClick }) => {
   const { t } = useTranslation();
+  const reduceMotion = useReducedMotion();
+  const press = useSimplePress({ lift: true });
   const {
     imageUrl,
     loading: imageLoading,
@@ -39,14 +43,12 @@ const SimpleDrinkCard = ({ recipe, onCardClick }) => {
   return (
     <motion.button
       type="button"
-      whileHover={{ y: -4, scale: 1.02 }}
-      whileTap={{ scale: 0.98 }}
-      transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+      {...press}
       onClick={() => onCardClick(recipe)}
       aria-label={`${recipe.name}, ${availability.label}`}
       className="h-full w-full cursor-pointer rounded-lg text-left focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-ring"
     >
-      <Card className="overflow-hidden w-full h-full shadow-md [@media(hover:hover)]:hover:border-border-strong transition-colors p-0 gap-0">
+      <Card className="overflow-hidden w-full h-full shadow-md [@media(hover:hover)]:hover:border-border-strong transition-colors duration-150 ease-out p-0 gap-0">
         <figure
           ref={elementRef}
           className="relative w-full aspect-[4/3] overflow-hidden bg-surface-sunken flex-shrink-0"
@@ -56,7 +58,15 @@ const SimpleDrinkCard = ({ recipe, onCardClick }) => {
               <Loader2 className="size-8 animate-spin text-foreground-muted" />
             </div>
           ) : imageUrl ? (
-            <img src={imageUrl} alt="" className="w-full h-full object-cover" />
+            <motion.img
+              key={imageUrl}
+              src={imageUrl}
+              alt=""
+              className="w-full h-full object-cover"
+              variants={imageFadeVariants}
+              initial={reduceMotion ? false : 'hidden'}
+              animate="visible"
+            />
           ) : (
             <div className="w-full h-full flex flex-col items-center justify-center gap-2">
               <GlassWater className="size-12 text-foreground-muted" />

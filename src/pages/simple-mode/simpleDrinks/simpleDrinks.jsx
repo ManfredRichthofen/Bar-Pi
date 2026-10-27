@@ -1,7 +1,7 @@
 import { useIsFetching } from '@tanstack/react-query';
 import { Navigate, useNavigate } from '@tanstack/react-router';
 import { ArrowUp, Filter } from 'lucide-react';
-import { AnimatePresence, motion } from 'motion/react';
+import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 import React, {
   useCallback,
   useEffect,
@@ -14,6 +14,12 @@ import { Button } from '@/components/ui/button';
 import FilterPanel from '@/components/ui/filter-panel.jsx';
 import SearchInput from '@/components/ui/search-input.jsx';
 import { useFabricableRecipes } from '@/hooks/useFabricableRecipes';
+import {
+  enterTransition,
+  fadeAnimate,
+  fadeInitial,
+  noneTransition,
+} from '@/lib/simpleMotion';
 import useAuthStore from '../../../store/authStore.js';
 import useFilterStore from '../../../store/filterStore.js';
 import { filterRecipes } from '../../../utils/recipeFilters.js';
@@ -23,6 +29,7 @@ const SIMPLE_FILTER_KEYS = ['automatic', 'manual', 'available'];
 
 function SimpleDrinks() {
   const { t } = useTranslation();
+  const reduceMotion = useReducedMotion();
   const [searchTerm, setSearchTerm] = useState('');
   const [isFilterPanelOpen, setIsFilterPanelOpen] = useState(false);
   const [isHeaderVisible, setIsHeaderVisible] = useState(true);
@@ -34,6 +41,7 @@ function SimpleDrinks() {
   const navigate = useNavigate({ from: '/simple/drinks' });
   const isFetchingRecipes =
     useIsFetching({ queryKey: ['recipes', 'simple'] }) > 0;
+  const fabTransition = reduceMotion ? noneTransition : enterTransition;
 
   // Advanced-mode filters live in the same store; simple mode only shows and applies these.
   const filters = useMemo(
@@ -153,7 +161,7 @@ function SimpleDrinks() {
     <div className="min-h-screen bg-background">
       <header
         ref={headerRef}
-        className={`sticky top-0 z-20 border-b-hairline border-border bg-background transition-transform ${
+        className={`sticky top-0 z-20 border-b-hairline border-border bg-background transition-transform duration-150 ease-out ${
           isHeaderVisible ? 'translate-y-0' : '-translate-y-full'
         }`}
       >
@@ -217,10 +225,10 @@ function SimpleDrinks() {
       <AnimatePresence>
         {showScrollTop && (
           <motion.div
-            initial={{ opacity: 0, scale: 0.8, y: 20 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.8, y: 20 }}
-            transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+            initial={reduceMotion ? false : fadeInitial}
+            animate={fadeAnimate}
+            exit={reduceMotion ? undefined : fadeInitial}
+            transition={fabTransition}
             className="fixed bottom-[calc(var(--dock-height)+1rem)] right-4 z-[100]"
           >
             <Button

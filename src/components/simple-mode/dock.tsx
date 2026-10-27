@@ -1,7 +1,9 @@
 import { Link, useLocation } from '@tanstack/react-router';
 import { Clock, GlassWater, Settings } from 'lucide-react';
+import { motion } from 'motion/react';
 import type React from 'react';
 import { useTranslation } from 'react-i18next';
+import { useSimplePress } from '@/hooks/useSimplePress';
 import { cn } from '@/lib/utils';
 
 const NAV = [
@@ -10,10 +12,13 @@ const NAV = [
   { to: '/simple/settings', icon: Settings, label: 'navigation.settings' },
 ] as const;
 
+const MotionLink = motion.create(Link);
+
 /** Bottom navigation: three 56px targets; the current page is an ink pill. */
 const Dock: React.FC = () => {
   const { t } = useTranslation();
   const { pathname } = useLocation();
+  const press = useSimplePress({ lift: false });
 
   return (
     <nav
@@ -25,11 +30,12 @@ const Dock: React.FC = () => {
           const active = pathname.startsWith(to);
           return (
             <li key={to} className="max-w-44 flex-1">
-              <Link
+              <MotionLink
                 to={to}
                 aria-current={active ? 'page' : undefined}
+                {...press}
                 className={cn(
-                  'flex min-h-control-lg w-full flex-col items-center justify-center gap-0.5 rounded-full px-4 text-sm font-semibold transition-colors',
+                  'flex min-h-control-lg w-full flex-col items-center justify-center gap-0.5 rounded-full px-4 text-sm font-semibold transition-colors duration-150 ease-out',
                   active
                     ? 'bg-primary text-primary-foreground'
                     : 'text-foreground-muted [@media(hover:hover)]:hover:bg-surface-sunken [@media(hover:hover)]:hover:text-foreground',
@@ -37,7 +43,7 @@ const Dock: React.FC = () => {
               >
                 <Icon className="size-6" />
                 <span>{t(label)}</span>
-              </Link>
+              </MotionLink>
             </li>
           );
         })}

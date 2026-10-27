@@ -1,6 +1,7 @@
 import { useNavigate } from '@tanstack/react-router';
 import { ArrowLeft } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import SimplePageEnter from '@/components/simple-mode/SimplePageEnter';
 import { Button } from '@/components/ui/button';
 import UpdateChecker from '../../../components/UpdateChecker';
 import useAuthStore from '../../../store/authStore';
@@ -55,7 +56,7 @@ const SimpleSettings = () => {
       </header>
 
       <div className="flex-1 overflow-y-auto">
-        <div className="mx-auto max-w-3xl px-4 py-6 sm:px-6 space-y-6">
+        <SimplePageEnter className="mx-auto max-w-3xl px-4 py-6 sm:px-6 space-y-6">
           <UpdateChecker />
 
           <GeneralSettings
@@ -67,7 +68,7 @@ const SimpleSettings = () => {
           />
 
           <ThemeSelector />
-        </div>
+        </SimplePageEnter>
       </div>
     </div>
   );
