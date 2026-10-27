@@ -7,9 +7,7 @@ const SimpleLayout = ({ children }) => {
 
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col">
-      <main
-        className={`flex-1 overflow-auto ${showDock ? 'pb-[var(--dock-height)]' : ''}`}
-      >
+      <main className={`flex-1 ${showDock ? 'pb-[var(--dock-height)]' : ''}`}>
         {children}
       </main>
       {showDock && <Dock />}

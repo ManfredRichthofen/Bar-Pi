@@ -7,6 +7,10 @@
 /* dark: utilities apply to Dark Mode only */
 @custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
 
+/* Base UI marks orientation with data-orientation, not a bare data-horizontal/vertical */
+@custom-variant data-horizontal (&[data-orientation="horizontal"]);
+@custom-variant data-vertical (&[data-orientation="vertical"]);
+
 /*
  * Bar-Pi design system. Source of truth: the design system artifact (tokens.json).
  * Theme is set with data-theme on <html> (src/store/themeStore.ts).
@@ -328,5 +332,16 @@
 
   .scrollbar-thin {
     scrollbar-width: thin;
+  }
+
+  /* Sonner injects [data-styled] rules at runtime; !important keeps app type scale. */
+  [data-sonner-toaster][data-sonner-theme] [data-sonner-toast][data-styled='true'] {
+    font-size: 16px !important;
+    line-height: 24px !important;
+    gap: 10px !important;
+  }
+  [data-sonner-toaster][data-sonner-theme] [data-sonner-toast][data-styled='true'] [data-icon] {
+    width: 24px !important;
+    height: 24px !important;
   }
 }
