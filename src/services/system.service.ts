@@ -24,6 +24,19 @@ export interface GlobalSystemSettings {
   projectUrls?: Record<string, string>;
 }
 
+export interface I2CPin {
+  boardId: number | null;
+  nr: number | null;
+}
+
+export interface I2CSettings {
+  enable: boolean;
+  enabled?: boolean;
+  busId?: number;
+  sdaPin?: I2CPin | null;
+  sclPin?: I2CPin | null;
+}
+
 export interface OrderingPolicySettings {
   requirePinAfterDrink: boolean;
 }
@@ -40,6 +53,21 @@ class SystemService extends BaseService {
     token: string | null = null,
   ): Promise<GlobalSystemSettings> {
     return this.get(`${API_PATH}settings/global`, (token ?? undefined) as any);
+  }
+
+  getI2CSettings(token: string | null = null): Promise<I2CSettings> {
+    return this.get(`${API_PATH}settings/i2c`, (token ?? undefined) as any);
+  }
+
+  setI2CSettings(
+    settings: I2CSettings,
+    token: string | null = null,
+  ): Promise<I2CSettings> {
+    return this.put(
+      `${API_PATH}settings/i2c`,
+      settings,
+      (token ?? undefined) as any,
+    );
   }
 
   getOrderingPolicy(

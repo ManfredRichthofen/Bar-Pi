@@ -1,5 +1,5 @@
 import { useNavigate } from '@tanstack/react-router';
-import { Globe, KeyRound, LogOut, Smartphone } from 'lucide-react';
+import { KeyRound, LogOut, Smartphone, UserRound } from 'lucide-react';
 import type React from 'react';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -120,13 +120,34 @@ export const SettingsPage: React.FC = () => {
     <div className="min-h-screen bg-background">
       <PageHeader
         title={t('settings.title', 'Settings')}
-        subtitle="Language, updates and appearance"
+        subtitle="Appearance, ordering, updates and account"
       />
 
       <div className="container mx-auto px-4 py-6 sm:py-8 max-w-3xl">
         <div className="space-y-6">
-          <UpdateChecker />
-          <AppUpdateChecker />
+          <ThemeSelector>
+            <div className="space-y-2">
+              <label className="text-sm font-medium">
+                {t('settings.general.language_label', 'Language')}
+              </label>
+              <Select
+                value={i18n.resolvedLanguage ?? 'en'}
+                onValueChange={handleLanguageChange}
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {languages.map((lang) => (
+                    <SelectItem key={lang.code} value={lang.code}>
+                      {lang.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <Separator />
+          </ThemeSelector>
 
           <Card>
             <CardHeader>
@@ -190,37 +211,17 @@ export const SettingsPage: React.FC = () => {
             </CardContent>
           </Card>
 
+          <UpdateChecker />
+          <AppUpdateChecker />
+
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Globe className="size-6" />
-                {t('settings.general.title', 'General Settings')}
+                <UserRound className="size-6" />
+                {t('settings.account.title', 'Account')}
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
-              <div className="space-y-2">
-                <label className="text-sm font-medium">
-                  {t('settings.general.language_label', 'Language')}
-                </label>
-                <Select
-                  value={i18n.resolvedLanguage ?? 'en'}
-                  onValueChange={handleLanguageChange}
-                >
-                  <SelectTrigger className="w-full">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {languages.map((lang) => (
-                      <SelectItem key={lang.code} value={lang.code}>
-                        {lang.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <Separator />
-
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <Smartphone className="size-6 text-foreground-muted" />
@@ -254,8 +255,6 @@ export const SettingsPage: React.FC = () => {
               </div>
             </CardContent>
           </Card>
-
-          <ThemeSelector />
         </div>
       </div>
     </div>

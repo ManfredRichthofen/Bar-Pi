@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"errors"
 	"net/http"
 	"strconv"
 
@@ -24,6 +25,15 @@ func NewGPIOHandler(gpioService *service.GPIOService, repos ...*repository.GPIOR
 		gpioService: gpioService,
 		gpioRepo:    repo,
 	}
+}
+
+func respondGPIOError(c *gin.Context, err error) {
+	var verr *repository.ErrGPIOValidation
+	if errors.As(err, &verr) {
+		c.JSON(http.StatusBadRequest, gin.H{"error": verr.Msg, "message": verr.Msg})
+		return
+	}
+	c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error(), "message": err.Error()})
 }
 
 // GetBoards handles GET /api/gpio
@@ -74,7 +84,7 @@ func (h *GPIOHandler) CreateBoard(c *gin.Context) {
 		return
 	}
 	if err := h.gpioRepo.CreateBoard(&board); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error(), "message": err.Error()})
+		respondGPIOError(c, err)
 		return
 	}
 	c.JSON(http.StatusCreated, board)
@@ -98,7 +108,7 @@ func (h *GPIOHandler) UpdateBoard(c *gin.Context) {
 		return
 	}
 	if err := h.gpioRepo.UpdateBoard(&board); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error(), "message": err.Error()})
+		respondGPIOError(c, err)
 		return
 	}
 	c.JSON(http.StatusOK, board)
@@ -111,13 +121,9 @@ func (h *GPIOHandler) DeleteBoard(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid board ID", "message": "Invalid board ID"})
 		return
 	}
-	if id == 1 {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Cannot delete local Raspberry Pi GPIO board", "message": "Cannot delete local Raspberry Pi GPIO board"})
-		return
-	}
 	if h.gpioRepo != nil {
 		if err := h.gpioRepo.DeleteBoard(id); err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error(), "message": err.Error()})
+			respondGPIOError(c, err)
 			return
 		}
 	}

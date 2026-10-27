@@ -18,6 +18,7 @@ import { Route as AdvancedCategoriesRouteImport } from './routes/_advanced.categ
 import { Route as AdvancedDrinksRouteImport } from './routes/_advanced.drinks'
 import { Route as AdvancedFavoritesRouteImport } from './routes/_advanced.favorites'
 import { Route as AdvancedGlassesRouteImport } from './routes/_advanced.glasses'
+import { Route as AdvancedGpioRouteImport } from './routes/_advanced.gpio'
 import { Route as AdvancedIngredientsRouteImport } from './routes/_advanced.ingredients'
 import { Route as AdvancedOrderRouteImport } from './routes/_advanced.order'
 import { Route as AdvancedPumpsRouteImport } from './routes/_advanced.pumps'
@@ -77,6 +78,11 @@ const AdvancedFavoritesRoute = AdvancedFavoritesRouteImport.update({
 const AdvancedGlassesRoute = AdvancedGlassesRouteImport.update({
   id: '/glasses',
   path: '/glasses',
+  getParentRoute: () => AdvancedRoute,
+} as any)
+const AdvancedGpioRoute = AdvancedGpioRouteImport.update({
+  id: '/gpio',
+  path: '/gpio',
   getParentRoute: () => AdvancedRoute,
 } as any)
 const AdvancedIngredientsRoute = AdvancedIngredientsRouteImport.update({
@@ -170,6 +176,7 @@ export interface FileRoutesByFullPath {
   '/drinks': typeof AdvancedDrinksRouteWithChildren
   '/favorites': typeof AdvancedFavoritesRoute
   '/glasses': typeof AdvancedGlassesRoute
+  '/gpio': typeof AdvancedGpioRoute
   '/ingredients': typeof AdvancedIngredientsRoute
   '/order': typeof AdvancedOrderRoute
   '/pumps': typeof AdvancedPumpsRouteWithChildren
@@ -196,6 +203,7 @@ export interface FileRoutesByTo {
   '/drinks': typeof AdvancedDrinksRouteWithChildren
   '/favorites': typeof AdvancedFavoritesRoute
   '/glasses': typeof AdvancedGlassesRoute
+  '/gpio': typeof AdvancedGpioRoute
   '/ingredients': typeof AdvancedIngredientsRoute
   '/order': typeof AdvancedOrderRoute
   '/pumps': typeof AdvancedPumpsRouteWithChildren
@@ -224,6 +232,7 @@ export interface FileRoutesById {
   '/_advanced/drinks': typeof AdvancedDrinksRouteWithChildren
   '/_advanced/favorites': typeof AdvancedFavoritesRoute
   '/_advanced/glasses': typeof AdvancedGlassesRoute
+  '/_advanced/gpio': typeof AdvancedGpioRoute
   '/_advanced/ingredients': typeof AdvancedIngredientsRoute
   '/_advanced/order': typeof AdvancedOrderRoute
   '/_advanced/pumps': typeof AdvancedPumpsRouteWithChildren
@@ -252,6 +261,7 @@ export interface FileRouteTypes {
     | '/drinks'
     | '/favorites'
     | '/glasses'
+    | '/gpio'
     | '/ingredients'
     | '/order'
     | '/pumps'
@@ -278,6 +288,7 @@ export interface FileRouteTypes {
     | '/drinks'
     | '/favorites'
     | '/glasses'
+    | '/gpio'
     | '/ingredients'
     | '/order'
     | '/pumps'
@@ -305,6 +316,7 @@ export interface FileRouteTypes {
     | '/_advanced/drinks'
     | '/_advanced/favorites'
     | '/_advanced/glasses'
+    | '/_advanced/gpio'
     | '/_advanced/ingredients'
     | '/_advanced/order'
     | '/_advanced/pumps'
@@ -394,6 +406,13 @@ declare module '@tanstack/react-router' {
       path: '/glasses'
       fullPath: '/glasses'
       preLoaderRoute: typeof AdvancedGlassesRouteImport
+      parentRoute: typeof AdvancedRoute
+    }
+    '/_advanced/gpio': {
+      id: '/_advanced/gpio'
+      path: '/gpio'
+      fullPath: '/gpio'
+      preLoaderRoute: typeof AdvancedGpioRouteImport
       parentRoute: typeof AdvancedRoute
     }
     '/_advanced/ingredients': {
@@ -554,6 +573,7 @@ interface AdvancedRouteChildren {
   AdvancedDrinksRoute: typeof AdvancedDrinksRouteWithChildren
   AdvancedFavoritesRoute: typeof AdvancedFavoritesRoute
   AdvancedGlassesRoute: typeof AdvancedGlassesRoute
+  AdvancedGpioRoute: typeof AdvancedGpioRoute
   AdvancedIngredientsRoute: typeof AdvancedIngredientsRoute
   AdvancedOrderRoute: typeof AdvancedOrderRoute
   AdvancedPumpsRoute: typeof AdvancedPumpsRouteWithChildren
@@ -568,6 +588,7 @@ const AdvancedRouteChildren: AdvancedRouteChildren = {
   AdvancedDrinksRoute: AdvancedDrinksRouteWithChildren,
   AdvancedFavoritesRoute: AdvancedFavoritesRoute,
   AdvancedGlassesRoute: AdvancedGlassesRoute,
+  AdvancedGpioRoute: AdvancedGpioRoute,
   AdvancedIngredientsRoute: AdvancedIngredientsRoute,
   AdvancedOrderRoute: AdvancedOrderRoute,
   AdvancedPumpsRoute: AdvancedPumpsRouteWithChildren,

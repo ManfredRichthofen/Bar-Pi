@@ -3,6 +3,7 @@ import {
   ArrowLeftToLine,
   BarChart3,
   BookText,
+  Cpu,
   FlaskConical,
   Gauge,
   GlassWater,
@@ -43,7 +44,7 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed, onCollapse }) => {
       ],
     },
     {
-      group: 'Configuration',
+      group: 'Catalog',
       items: [
         {
           key: '/recipes',
@@ -60,10 +61,30 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed, onCollapse }) => {
           icon: <GlassWater size={16} />,
           label: 'Glasses',
         },
+        {
+          key: '/categories',
+          icon: <Tag size={16} />,
+          label: 'Categories',
+        },
       ],
     },
     {
-      group: 'Administration',
+      group: 'Hardware',
+      items: [
+        {
+          key: '/pumps',
+          icon: <Gauge size={16} />,
+          label: 'Pumps',
+        },
+        {
+          key: '/gpio',
+          icon: <Cpu size={16} />,
+          label: 'GPIO',
+        },
+      ],
+    },
+    {
+      group: 'System',
       items: [
         {
           key: '/users',
@@ -71,24 +92,14 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed, onCollapse }) => {
           label: 'Users',
         },
         {
-          key: '/settings',
-          icon: <Settings size={16} />,
-          label: 'Settings',
-        },
-        {
-          key: '/categories',
-          icon: <Tag size={16} />,
-          label: 'Categories',
-        },
-        {
-          key: '/pumps',
-          icon: <Gauge size={16} />,
-          label: 'Pumps',
-        },
-        {
           key: '/statistics',
           icon: <BarChart3 size={16} />,
           label: 'Statistics',
+        },
+        {
+          key: '/settings',
+          icon: <Settings size={16} />,
+          label: 'Settings',
         },
       ],
     },

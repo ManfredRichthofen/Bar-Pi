@@ -1,0 +1,220 @@
+name: Create Pre-release
+
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: prerelease
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  meta:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.get_version.outputs.version }}
+      notes: ${{ steps.release_notes.outputs.notes }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+        with:
+          ref: dev
+          fetch-depth: 0
+          fetch-tags: true
+
+      - name: Get pre-release version
+        id: get_version
+        run: |
+          base=$(node -p "require('./package.json').version")
+          version="${base}-pre.${{ github.run_number }}"
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "Building version: $version"
+
+      - name: Generate Release Notes
+        id: release_notes
+        run: |
+          previous_tag=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
+
+          if [ -z "$previous_tag" ]; then
+            git log --pretty=format:"* %s (%h)" > release_notes.txt
+          else
+            git log --pretty=format:"* %s (%h)" "$previous_tag"..HEAD > release_notes.txt
+          fi
+
+          delimiter="NOTES_$(openssl rand -hex 16)"
+          {
+            echo "notes<<$delimiter"
+            tr -d '\r' < release_notes.txt
+            echo
+            echo "$delimiter"
+          } >> "$GITHUB_OUTPUT"
+
+  build-frontend:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+        with:
+          ref: dev
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version-file: package.json
+
+      - name: Cache Bun install
+        uses: actions/cache@v6
+        with:
+          path: ~/.bun/install/cache
+          key: ${{ runner.os }}-bun-${{ hashFiles('bun.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-bun-
+
+      - name: Install frontend dependencies
+        run: bun ci
+
+      - name: Build frontend
+        run: bun run build
+
+      - name: Upload frontend dist
+        uses: actions/upload-artifact@v7
+        with:
+          name: frontend-dist
+          path: dist/
+          retention-days: 3
+          if-no-files-found: error
+
+  test-backend:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+        with:
+          ref: dev
+
+      - name: Set up Go
+        uses: actions/setup-go@v7
+        with:
+          go-version-file: backend-go/go.mod
+          cache-dependency-path: backend-go/go.sum
+
+      - name: Run backend tests
+        working-directory: backend-go
+        run: go test ./...
+
+  build-bundle:
+    needs: [ meta, build-frontend, test-backend ]
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - goarch: amd64
+            outfile: bar-pi-bundle-linux-amd64
+          - goarch: arm64
+            outfile: bar-pi-bundle-linux-arm64
+          - goarch: arm
+            goarm: "7"
+            outfile: bar-pi-bundle-linux-arm
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+        with:
+          ref: dev
+
+      - name: Set up Go
+        uses: actions/setup-go@v7
+        with:
+          go-version-file: backend-go/go.mod
+          cache-dependency-path: backend-go/go.sum
+
+      - name: Download frontend
+        uses: actions/download-artifact@v8
+        with:
+          name: frontend-dist
+          path: dist
+
+      - name: Embed frontend
+        run: |
+          rm -rf backend-go/internal/static/dist
+          mkdir -p backend-go/internal/static/dist
+          cp -r dist/* backend-go/internal/static/dist/
+
+      - name: Build ${{ matrix.outfile }}
+        working-directory: backend-go
+        env:
+          GOOS: linux
+          GOARCH: ${{ matrix.goarch }}
+          GOARM: ${{ matrix.goarm }}
+          CGO_ENABLED: 0
+        run: |
+          mkdir -p ../dist-backend
+          go build -tags=bundle \
+            -ldflags="-s -w -X github.com/ManfredRichthofen/Bar-Pi/backend-go/internal/version.Version=${{ needs.meta.outputs.version }}" \
+            -o "../dist-backend/${{ matrix.outfile }}" \
+            ./cmd/server/main.go
+
+      - name: Upload binary
+        uses: actions/upload-artifact@v7
+        with:
+          name: bundle-${{ matrix.outfile }}
+          path: dist-backend/${{ matrix.outfile }}
+          if-no-files-found: error
+          retention-days: 3
+
+  release:
+    needs: [ meta, build-bundle ]
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    steps:
+      - name: Download binaries
+        uses: actions/download-artifact@v8
+        with:
+          pattern: bundle-*
+          path: artifacts
+          merge-multiple: true
+
+      - name: Generate checksums
+        working-directory: artifacts
+        run: |
+          sha256sum bar-pi-bundle-* > SHA256SUMS
+          ls -lh
+          cat SHA256SUMS
+
+      - name: Create GitHub Pre-release
+        uses: softprops/action-gh-release@v3
+        with:
+          tag_name: v${{ needs.meta.outputs.version }}
+          name: Pre-release v${{ needs.meta.outputs.version }}
+          body: |
+            ## Bar-Pi Pre-release v${{ needs.meta.outputs.version }}
+
+            Testing build. Not recommended for production use.
+
+            ### Bundle
+            Single binary with embedded frontend - download and run.
+            - `bar-pi-bundle-linux-amd64` - Linux x86_64
+            - `bar-pi-bundle-linux-arm64` - Raspberry Pi 64-bit
+            - `bar-pi-bundle-linux-arm` - Raspberry Pi 32-bit
+
+            `SHA256SUMS` contains checksums for the binaries (used by the built-in auto updater).
+
+            ### Changes
+            ${{ needs.meta.outputs.notes }}
+          files: |
+            artifacts/bar-pi-bundle-linux-amd64
+            artifacts/bar-pi-bundle-linux-arm64
+            artifacts/bar-pi-bundle-linux-arm
+            artifacts/SHA256SUMS
+          target_commitish: dev
+          draft: false
+          prerelease: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

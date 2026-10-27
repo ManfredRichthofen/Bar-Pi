@@ -2,6 +2,7 @@ package repository
 
 import (
 	"errors"
+	"strings"
 
 	"github.com/ManfredRichthofen/Bar-Pi/backend-go/internal/models"
 	"gorm.io/gorm"
@@ -37,24 +38,89 @@ func (r *GPIORepository) FindBoardByID(id int64) (*models.GPIOBoard, error) {
 	return &board, nil
 }
 
-func (r *GPIORepository) CreateBoard(board *models.GPIOBoard) error {
-	return r.db.Transaction(func(tx *gorm.DB) error {
-		if board.DType == "" {
-			board.DType = "local"
+type ErrGPIOValidation struct{ Msg string }
+
+func (e *ErrGPIOValidation) Error() string { return e.Msg }
+
+func validationErr(msg string) error { return &ErrGPIOValidation{Msg: msg} }
+
+func normalizeBoard(board *models.GPIOBoard) error {
+	board.Name = strings.TrimSpace(board.Name)
+	if board.Name == "" {
+		return validationErr("Board name must not be empty")
+	}
+	board.DType = strings.ToLower(board.DType)
+	if board.DType == "" {
+		board.DType = models.GPIOTypeLocal
+	}
+	switch board.DType {
+	case models.GPIOTypeLocal:
+		board.BoardModel = nil
+		board.I2CAddress = nil
+	case models.GPIOTypeI2C:
+		if board.I2CAddress == nil || *board.I2CAddress < 0x03 || *board.I2CAddress > 0x77 {
+			return validationErr("I2C address must be between 0x03 and 0x77")
 		}
+		if board.BoardModel == nil {
+			return validationErr("Board model is required for I2C boards")
+		}
+		model := strings.ToUpper(strings.TrimSpace(*board.BoardModel))
+		if _, ok := models.I2CBoardModelPins[model]; !ok {
+			return validationErr("Unsupported I2C board model: " + *board.BoardModel)
+		}
+		board.BoardModel = &model
+	default:
+		return validationErr("Unknown board type: " + board.DType)
+	}
+	return nil
+}
+
+func (r *GPIORepository) checkUnique(board *models.GPIOBoard) error {
+	var n int64
+	q := r.db.Model(&models.GPIOBoard{}).Where("LOWER(name) = LOWER(?)", board.Name)
+	if board.ID != 0 {
+		q = q.Where("id != ?", board.ID)
+	}
+	if err := q.Count(&n).Error; err != nil {
+		return err
+	}
+	if n > 0 {
+		return validationErr("A board with this name already exists")
+	}
+	if board.DType == models.GPIOTypeI2C {
+		q = r.db.Model(&models.GPIOBoard{}).Where("dtype = ? AND i2c_address = ?", models.GPIOTypeI2C, *board.I2CAddress)
+		if board.ID != 0 {
+			q = q.Where("id != ?", board.ID)
+		}
+		if err := q.Count(&n).Error; err != nil {
+			return err
+		}
+		if n > 0 {
+			return validationErr("An I2C board with this address already exists")
+		}
+	}
+	return nil
+}
+
+func (r *GPIORepository) CreateBoard(board *models.GPIOBoard) error {
+	board.ID = 0
+	board.Pins = nil
+	if err := normalizeBoard(board); err != nil {
+		return err
+	}
+	if err := r.checkUnique(board); err != nil {
+		return err
+	}
+	return r.db.Transaction(func(tx *gorm.DB) error {
 		if err := tx.Create(board).Error; err != nil {
 			return err
 		}
-		pinCount := 28
-		if board.DType == "i2c" {
-			pinCount = 16
+		pinCount := models.LocalPinCount
+		if board.DType == models.GPIOTypeI2C {
+			pinCount = models.I2CBoardModelPins[*board.BoardModel]
 		}
 		for i := 0; i < pinCount; i++ {
-			pin := models.GPIOPin{
-				BoardID: board.ID,
-				PinNr:   i,
-			}
-			if err := tx.Create(&pin).Error; err != nil {
+			if err := tx.Create(&models.GPIOPin{BoardID: board.ID, PinNr: i}).Error; err != nil {
 				return err
 			}
 		}
@@ -62,12 +128,75 @@ func (r *GPIORepository) CreateBoard(board *models.GPIOBoard) error {
 	})
 }
 
+// UpdateBoard updates an I2C board. The board type is immutable and the pin
+// layout is rebuilt if the model changes (rejected when removed pins are in use).
 func (r *GPIORepository) UpdateBoard(board *models.GPIOBoard) error {
-	return r.db.Save(board).Error
+	existing, err := r.FindBoardByID(board.ID)
+	if err != nil {
+		return err
+	}
+	if existing == nil {
+		return validationErr("Board not found")
+	}
+	if existing.DType != models.GPIOTypeI2C {
+		return validationErr("Only I2C boards can be edited")
+	}
+	board.DType = existing.DType
+	board.Pins = nil
+	if err := normalizeBoard(board); err != nil {
+		return err
+	}
+	if err := r.checkUnique(board); err != nil {
+		return err
+	}
+	newCount := models.I2CBoardModelPins[*board.BoardModel]
+	return r.db.Transaction(func(tx *gorm.DB) error {
+		if err := tx.Model(&models.GPIOBoard{}).Where("id = ?", board.ID).Updates(map[string]any{
+			"name":        board.Name,
+			"board_model": board.BoardModel,
+			"i2c_address": board.I2CAddress,
+		}).Error; err != nil {
+			return err
+		}
+		oldCount := len(existing.Pins)
+		if newCount < oldCount {
+			if err := tx.Where("board = ? AND pin_nr >= ?", board.ID, newCount).Delete(&models.GPIOPin{}).Error; err != nil {
+				return validationErr("Cannot change model: pins that would be removed are in use")
+			}
+		}
+		for i := oldCount; i < newCount; i++ {
+			if err := tx.Create(&models.GPIOPin{BoardID: board.ID, PinNr: i}).Error; err != nil {
+				return err
+			}
+		}
+		return nil
+	})
 }
 
 func (r *GPIORepository) DeleteBoard(id int64) error {
-	return r.db.Delete(&models.GPIOBoard{}, id).Error
+	board, err := r.FindBoardByID(id)
+	if err != nil {
+		return err
+	}
+	if board == nil {
+		return validationErr("Board not found")
+	}
+	if board.DType != models.GPIOTypeI2C {
+		return validationErr("Cannot delete local Raspberry Pi GPIO board")
+	}
+	pins, err := r.FindBoardPins(id)
+	if err != nil {
+		return err
+	}
+	for _, p := range pins {
+		if p.InUse {
+			return validationErr("Cannot delete board: some of its pins are still in use by pumps")
+		}
+	}
+	if err := r.db.Delete(&models.GPIOBoard{}, id).Error; err != nil {
+		return validationErr("Cannot delete board: some of its pins are still in use")
+	}
+	return nil
 }
 
 func (r *GPIORepository) FindBoardPins(boardID int64) ([]models.GPIOPin, error) {
