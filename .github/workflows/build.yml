@@ -49,11 +49,13 @@ jobs:
             git log --pretty=format:"* %s (%h)" $previous_tag..HEAD > release_notes.txt
           fi
 
-          # Read the content and escape it for GitHub Actions
-          notes=$(cat release_notes.txt)
-          echo "notes<<EOF" >> $GITHUB_OUTPUT
-          echo "$notes" >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
+          delimiter="NOTES_$(openssl rand -hex 16)"
+          {
+            echo "notes<<$delimiter"
+            tr -d '\r' < release_notes.txt
+            echo
+            echo "$delimiter"
+          } >> "$GITHUB_OUTPUT"
 
       - name: Zip dist folder
         if: github.event_name == 'workflow_dispatch'
