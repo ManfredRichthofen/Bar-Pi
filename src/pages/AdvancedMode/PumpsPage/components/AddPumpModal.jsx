@@ -173,7 +173,7 @@ const AddPumpModal = ({ show, onClose, pumpType = null }) => {
             {getPumpTypeIcon(pumpTypeValue)}
             <div>
               <DialogTitle>Add New Pump</DialogTitle>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-sm text-foreground-muted">
                 {getPumpTypeName(pumpTypeValue)}
               </p>
             </div>
@@ -182,14 +182,14 @@ const AddPumpModal = ({ show, onClose, pumpType = null }) => {
 
         {success && (
           <Alert className="mb-4">
-            <CheckCircle className="h-4 w-4" />
+            <CheckCircle className="size-6" />
             <AlertDescription>{success}</AlertDescription>
           </Alert>
         )}
 
         {error && (
           <Alert variant="destructive" className="mb-4">
-            <AlertCircle className="h-4 w-4" />
+            <AlertCircle className="size-6" />
             <AlertDescription>{error}</AlertDescription>
           </Alert>
         )}
@@ -223,9 +223,9 @@ const AddPumpModal = ({ show, onClose, pumpType = null }) => {
               </Button>
               <Button type="submit" disabled={saving}>
                 {saving ? (
-                  <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                  <Loader2 className="size-6 animate-spin mr-2" />
                 ) : (
-                  <Save className="h-4 w-4 mr-2" />
+                  <Save className="size-6 mr-2" />
                 )}
                 {t('add_pump_modal.create_pump')}
               </Button>

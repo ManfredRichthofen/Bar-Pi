@@ -1,5 +1,5 @@
-import { BaseService } from './base.service';
 import { API_PATHS } from '../constants';
+import { BaseService } from './base.service';
 
 const API_PATH = API_PATHS.USER;
 

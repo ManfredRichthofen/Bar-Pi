@@ -6,10 +6,8 @@ const useFavoritesStore = create(
     (set, get) => ({
       favorites: [],
 
-      // Add a recipe to favorites
       addFavorite: (recipe) =>
         set((state) => {
-          // Check if already exists
           if (state.favorites.some((fav) => fav.id === recipe.id)) {
             return state;
           }
@@ -21,13 +19,11 @@ const useFavoritesStore = create(
           };
         }),
 
-      // Remove a recipe from favorites
       removeFavorite: (recipeId) =>
         set((state) => ({
           favorites: state.favorites.filter((fav) => fav.id !== recipeId),
         })),
 
-      // Toggle favorite status
       toggleFavorite: (recipe) => {
         const { favorites } = get();
         const isFavorite = favorites.some((fav) => fav.id === recipe.id);
@@ -39,13 +35,11 @@ const useFavoritesStore = create(
         }
       },
 
-      // Check if a recipe is favorited
       isFavorite: (recipeId) => {
         const { favorites } = get();
         return favorites.some((fav) => fav.id === recipeId);
       },
 
-      // Clear all favorites
       clearFavorites: () => set({ favorites: [] }),
     }),
     {

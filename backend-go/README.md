@@ -26,8 +26,8 @@ curl -L https://raw.githubusercontent.com/ManfredRichthofen/Bar-Pi/main/scripts/
 # Make it executable
 chmod +x install-go.sh
 
-# Run the installer
-sudo ./install-go.sh
+# Run the installer (do not run with sudo)
+./install-go.sh
 ```
 
 The installer will guide you through:

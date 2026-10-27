@@ -3,8 +3,8 @@ import { ArrowLeft, CheckCircle2, Clock, Loader2 } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Progress } from '@/components/ui/progress';
 import { ConfirmationDialog } from '@/components/ui/confirmation-dialog';
+import { Progress } from '@/components/ui/progress';
 import { useWebSocket } from '../../../hooks/useWebSocket';
 import CocktailService from '../../../services/cocktail.service';
 import useAuthStore from '../../../store/authStore';
@@ -20,10 +20,9 @@ const SimpleOrderStatus = () => {
   const progress = useCocktailProgressStore((state) => state.progress);
   const token = useAuthStore((state) => state.token);
 
-  // Maintain WebSocket connection
   useWebSocket(token, { keepAlive: true });
 
-  // Stop loading once we have progress or after timeout
+  // Fallback if WS never delivers progress
   useEffect(() => {
     if (progress) {
       setIsLoading(false);
@@ -32,7 +31,7 @@ const SimpleOrderStatus = () => {
 
     const timer = setTimeout(() => {
       setIsLoading(false);
-    }, 10000); // Wait 10 seconds for WebSocket to receive progress
+    }, 10000);
 
     return () => clearTimeout(timer);
   }, [progress]);
@@ -72,51 +71,50 @@ const SimpleOrderStatus = () => {
       PUMPING: { label: 'Pumping', color: 'text-primary' },
       MANUAL_INGREDIENT_ADD: {
         label: 'Manual Add Required',
-        color: 'text-accent-foreground',
+        color: 'text-primary-tint-ink',
       },
       COMPLETED: { label: 'Completed', color: 'text-primary' },
-      CANCELLED: { label: 'Cancelled', color: 'text-destructive' },
+      CANCELLED: { label: 'Cancelled', color: 'text-danger' },
     };
-    return stateMap[state] || { label: state, color: 'text-muted-foreground' };
+    return stateMap[state] || { label: state, color: 'text-foreground-muted' };
   };
 
-  // Loading state
   if (isLoading) {
     return (
       <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4">
         <Loader2 className="w-12 h-12 animate-spin text-primary mb-4" />
         <h2 className="text-xl font-semibold mb-2">Connecting...</h2>
-        <p className="text-sm text-muted-foreground">
+        <p className="text-sm text-foreground-muted">
           Fetching your order status
         </p>
       </div>
     );
   }
 
-  // No active order
   if (!progress) {
     return (
       <div className="min-h-screen bg-background flex flex-col">
-        <div className="sticky top-0 z-20 bg-background/95 backdrop-blur-md border-b border-border shadow-sm pt-2">
-          <div className="px-4 py-4 flex items-center justify-between">
+        <header className="sticky top-0 z-20 border-b-hairline border-border bg-background">
+          <div className="mx-auto max-w-4xl px-4 py-4 sm:px-6 flex items-center justify-between">
             <Button
               variant="ghost"
               size="icon"
-              className="rounded-xl"
               onClick={() => navigate({ to: '/simple/drinks' })}
             >
-              <ArrowLeft className="w-5 h-5" />
+              <ArrowLeft className="size-6" />
             </Button>
-            <h1 className="text-lg font-bold">Order Status</h1>
-            <div className="w-10" />
+            <h1 className="text-xl font-bold truncate flex-1 mx-3 text-center text-foreground">
+              Order Status
+            </h1>
+            <div className="size-control-md" />
           </div>
-        </div>
+        </header>
         <div className="flex-1 flex items-center justify-center p-4">
           <Card className="w-full max-w-md">
             <CardContent className="pt-6 text-center">
-              <Clock className="w-16 h-16 mx-auto mb-4 text-muted-foreground/60" />
+              <Clock className="w-16 h-16 mx-auto mb-4 text-foreground-muted" />
               <h2 className="text-xl font-bold mb-2">No Active Order</h2>
-              <p className="text-muted-foreground mb-6">
+              <p className="text-foreground-muted mb-6">
                 There is currently no cocktail being prepared
               </p>
               <Button
@@ -137,27 +135,25 @@ const SimpleOrderStatus = () => {
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      {/* Header */}
-      <div className="sticky top-0 z-20 bg-background/95 backdrop-blur-md border-b border-border shadow-sm pt-2">
-        <div className="px-4 py-4 flex items-center justify-between">
+      <header className="sticky top-0 z-20 border-b-hairline border-border bg-background">
+        <div className="mx-auto max-w-4xl px-4 py-4 sm:px-6 flex items-center justify-between">
           <Button
             variant="ghost"
             size="icon"
-            className="rounded-xl"
             onClick={() => navigate({ to: '/simple/drinks' })}
           >
-            <ArrowLeft className="w-5 h-5" />
+            <ArrowLeft className="size-6" />
           </Button>
-          <h1 className="text-lg font-bold">Order Status</h1>
-          <div className="w-10" />
+          <h1 className="text-xl font-bold truncate flex-1 mx-3 text-center text-foreground">
+            Order Status
+          </h1>
+          <div className="size-control-md" />
         </div>
-      </div>
+      </header>
 
-      {/* Main Content */}
       <div className="flex-1 overflow-y-auto pb-32">
-        <div className="p-4 max-w-2xl mx-auto space-y-4">
-          {/* Status Card */}
-          <Card className="border-2">
+        <div className="mx-auto max-w-2xl px-4 py-6 sm:px-6 space-y-6">
+          <Card>
             <CardHeader>
               <div className="flex items-center justify-between">
                 <CardTitle className="text-2xl">
@@ -174,23 +170,27 @@ const SimpleOrderStatus = () => {
               </div>
             </CardHeader>
             <CardContent className="space-y-4">
-              {/* Progress Bar */}
-              <div className="space-y-2">
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Progress</span>
-                  <span className="font-semibold">
+              <div
+                className={`space-y-2 ${
+                  progress.state === 'PREPARING' || progress.state === 'PUMPING'
+                    ? 'running-progress'
+                    : ''
+                }`}
+              >
+                <div className="flex justify-between text-base">
+                  <span className="text-foreground-muted">Progress</span>
+                  <span className="font-mono font-semibold">
                     {Math.round(progress.progress)}%
                   </span>
                 </div>
-                <Progress value={progress.progress} className="h-3" />
+                <Progress value={progress.progress} />
               </div>
 
-              {/* Manual Ingredient Prompt */}
               {progress.state === 'MANUAL_INGREDIENT_ADD' &&
                 progress.currentIngredientsToAddManually && (
-                  <Card className="bg-accent/10 border-accent/20">
+                  <Card className="bg-primary-tint border-border-strong">
                     <CardContent className="pt-6">
-                      <h3 className="font-semibold mb-3 text-accent-foreground">
+                      <h3 className="font-semibold mb-3 text-primary-tint-ink">
                         Please add the following ingredients manually:
                       </h3>
                       <ul className="space-y-2 mb-4">
@@ -198,11 +198,11 @@ const SimpleOrderStatus = () => {
                           (ing: any, idx: number) => (
                             <li
                               key={idx}
-                              className="flex items-center gap-2 text-sm"
+                              className="flex items-center gap-2 text-base"
                             >
-                              <div className="w-2 h-2 rounded-full bg-accent" />
+                              <div className="w-2 h-2 rounded-full bg-primary-tint" />
                               <span className="font-medium">{ing.name}</span>
-                              <span className="text-muted-foreground">
+                              <span className="text-foreground-muted">
                                 - {ing.amount}ml
                               </span>
                             </li>
@@ -217,7 +217,7 @@ const SimpleOrderStatus = () => {
                       >
                         {confirming ? (
                           <>
-                            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                            <Loader2 className="size-6 mr-2 animate-spin" />
                             Confirming...
                           </>
                         ) : (
@@ -228,21 +228,19 @@ const SimpleOrderStatus = () => {
                   </Card>
                 )}
 
-              {/* Recipe Details */}
               {progress.recipe.description && (
                 <div className="pt-2">
-                  <h3 className="font-semibold mb-2 text-sm text-muted-foreground">
+                  <h3 className="font-semibold mb-2 text-sm text-foreground-muted">
                     About
                   </h3>
-                  <p className="text-sm">{progress.recipe.description}</p>
+                  <p className="text-base">{progress.recipe.description}</p>
                 </div>
               )}
 
-              {/* Ingredients */}
               {progress.recipe.ingredients &&
                 progress.recipe.ingredients.length > 0 && (
                   <div className="pt-2">
-                    <h3 className="font-semibold mb-2 text-sm text-muted-foreground">
+                    <h3 className="font-semibold mb-2 text-sm text-foreground-muted">
                       Ingredients
                     </h3>
                     <div className="grid grid-cols-2 gap-2">
@@ -250,7 +248,7 @@ const SimpleOrderStatus = () => {
                         (ing: any, idx: number) => (
                           <div
                             key={idx}
-                            className="flex items-center gap-2 text-sm bg-muted/50 rounded-lg p-2"
+                            className="flex items-center gap-2 text-base bg-surface-sunken rounded-lg p-2"
                           >
                             <div className="w-1.5 h-1.5 rounded-full bg-primary" />
                             <span className="truncate">{ing.name}</span>
@@ -261,7 +259,6 @@ const SimpleOrderStatus = () => {
                   </div>
                 )}
 
-              {/* Cancel Button */}
               {progress.state !== 'COMPLETED' &&
                 progress.state !== 'CANCELLED' && (
                   <Button
@@ -273,7 +270,7 @@ const SimpleOrderStatus = () => {
                   >
                     {canceling ? (
                       <>
-                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        <Loader2 className="size-6 mr-2 animate-spin" />
                         Canceling...
                       </>
                     ) : (
@@ -286,7 +283,6 @@ const SimpleOrderStatus = () => {
         </div>
       </div>
 
-      {/* Confirmation Dialog */}
       <ConfirmationDialog
         open={showCancelDialog}
         onOpenChange={setShowCancelDialog}

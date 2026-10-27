@@ -36,15 +36,21 @@ type JWTConfig struct {
 }
 
 type AppConfig struct {
-	Name            string
-	Version         string
-	DisableDonation bool
+	Name             string
+	Version          string
+	ImagesDir        string
+	DisableDonation  bool
 	HideProjectLinks bool
-	DisableUpdater  bool
+	DisableUpdater   bool
 }
 
 func Load() (*Config, error) {
 	_ = godotenv.Load()
+
+	dbPath := getEnv("DATABASE_PATH", "")
+	if dbPath == "" {
+		dbPath = getEnv("DB_PATH", "cocktailpi-data.db")
+	}
 
 	cfg := &Config{
 		Server: ServerConfig{
@@ -54,7 +60,7 @@ func Load() (*Config, error) {
 			IdleTimeout:  getEnvAsDuration("SERVER_IDLE_TIMEOUT", 60*time.Second),
 		},
 		Database: DatabaseConfig{
-			Path:            getEnv("DATABASE_PATH", "cocktailpi-data.db"),
+			Path:            dbPath,
 			MaxOpenConns:    getEnvAsInt("DATABASE_MAX_OPEN_CONNS", 1),
 			MaxIdleConns:    getEnvAsInt("DATABASE_MAX_IDLE_CONNS", 1),
 			ConnMaxLifetime: getEnvAsDuration("DATABASE_CONN_MAX_LIFETIME", 0),
@@ -64,11 +70,12 @@ func Load() (*Config, error) {
 			ExpirationTime: getEnvAsDuration("JWT_EXPIRATION", 24*time.Hour),
 		},
 		App: AppConfig{
-			Name:            getEnv("APP_NAME", "CocktailPi"),
-			Version:         getEnv("APP_VERSION", "2.0.0"),
-			DisableDonation: getEnvAsBool("APP_DISABLE_DONATION", false),
+			Name:             getEnv("APP_NAME", "CocktailPi"),
+			Version:          getEnv("APP_VERSION", "2.0.0"),
+			ImagesDir:        getEnv("IMAGES_DIR", "./images"),
+			DisableDonation:  getEnvAsBool("APP_DISABLE_DONATION", false),
 			HideProjectLinks: getEnvAsBool("APP_HIDE_PROJECT_LINKS", false),
-			DisableUpdater:  getEnvAsBool("APP_DISABLE_UPDATER", false),
+			DisableUpdater:   getEnvAsBool("APP_DISABLE_UPDATER", false),
 		},
 	}
 

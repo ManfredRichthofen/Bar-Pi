@@ -28,7 +28,7 @@ func (h *SystemHandler) GetAppearance(c *gin.Context) {
 func (h *SystemHandler) SetAppearance(c *gin.Context) {
 	var settings models.AppearanceSettings
 	if err := c.ShouldBindJSON(&settings); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error(), "message": err.Error()})
 		return
 	}
 
@@ -48,13 +48,23 @@ func (h *SystemHandler) GetGlobalSettings(c *gin.Context) {
 	c.JSON(http.StatusOK, settings)
 }
 
+// GetVersion handles GET /api/system/version
+func (h *SystemHandler) GetVersion(c *gin.Context) {
+	settings := h.service.GetGlobalSettings()
+	c.JSON(http.StatusOK, gin.H{
+		"version": settings.AppVersion,
+		"appName": settings.AppName,
+		"backend": "go",
+	})
+}
+
 // SetDonated handles PUT /api/system/settings/donated
 func (h *SystemHandler) SetDonated(c *gin.Context) {
 	var req struct {
 		Donated bool `json:"donated"`
 	}
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error(), "message": err.Error()})
 		return
 	}
 
@@ -78,7 +88,7 @@ func (h *SystemHandler) GetI2CSettings(c *gin.Context) {
 func (h *SystemHandler) SetI2CSettings(c *gin.Context) {
 	var settings models.I2CSettings
 	if err := c.ShouldBindJSON(&settings); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error(), "message": err.Error()})
 		return
 	}
 
@@ -96,7 +106,7 @@ func (h *SystemHandler) GetDefaultFilter(c *gin.Context) {
 func (h *SystemHandler) SetDefaultFilter(c *gin.Context) {
 	var settings models.DefaultFilterSettings
 	if err := c.ShouldBindJSON(&settings); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error(), "message": err.Error()})
 		return
 	}
 
@@ -107,13 +117,11 @@ func (h *SystemHandler) SetDefaultFilter(c *gin.Context) {
 // Shutdown handles PUT /api/system/shutdown
 func (h *SystemHandler) Shutdown(c *gin.Context) {
 	isReboot := c.Query("isReboot") == "true"
-	
+
 	action := "shutdown"
 	if isReboot {
 		action = "reboot"
 	}
 
-	// In production, this would trigger actual system shutdown/reboot
-	// For now, just return success
 	c.JSON(http.StatusOK, gin.H{"message": "System " + action + " initiated"})
 }

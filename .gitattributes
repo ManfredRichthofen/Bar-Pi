@@ -1,2 +1,5 @@
 # Auto detect text files and perform LF normalization
 * text=auto
+
+# cmd.exe requires CRLF; LF-only .bat files produce garbled command errors
+*.bat text eol=crlf

@@ -81,7 +81,8 @@
     "cancel": "Cancel",
     "description": "Description",
     "name": "Name",
-    "save": "Save"
+    "save": "Save",
+    "size": "Size (ml)"
   },
   "glass_selector": {
     "glass_size": "Glass Size",
@@ -234,6 +235,42 @@
       "title": "Updates",
       "update_now": "Update Now"
     }
+  },
+  "statistics": {
+    "categories": "Categories Distribution",
+    "charts": {
+      "daily_orders": "Daily Orders",
+      "hourly": "Hourly Activity"
+    },
+    "clear_failed": "Failed to clear statistics",
+    "clear_history": "Reset History",
+    "confirm_clear_btn": "Reset History",
+    "confirm_clear_description": "This will permanently delete all recorded cocktail order history and reset volume counters to zero. Recipes, ingredients, and pumps will not be affected.",
+    "confirm_clear_title": "Reset Order Statistics?",
+    "history_cleared": "Order statistics cleared",
+    "ingredient_usage": "Ingredient Consumption & Coverage",
+    "legacy_backend_title": "Original CocktailPi Service Detected",
+    "legacy_backend_warning": "You are currently connected to the original CocktailPi backend service. Statistics tracking, order history, and volume telemetry are only supported by the new Bar-Pi Go backend.",
+    "kpi": {
+      "bar_catalog": "Bar Catalog",
+      "drinks_served": "Drinks Served",
+      "pump_system": "Pump Readiness",
+      "volume_dispensed": "Volume Dispensed"
+    },
+    "pump_telemetry": "Pump Fill Levels & Status",
+    "recent_orders": "Recent Cocktail Orders",
+    "recipe_leaderboard": "Recipe Leaderboard",
+    "refresh": "Refresh",
+    "subtitle": "Cocktail production metrics, ingredient usage, and pump telemetry",
+    "tabs": {
+      "drinks": "Drinks & Ingredients",
+      "history": "Order History",
+      "overview": "Overview",
+      "pumps": "Pumps & Inventory"
+    },
+    "title": "Statistics",
+    "top_recipes": "Most Popular Drinks",
+    "top_users": "Top Users"
   },
   "virtual_drinks_grid": {
     "loading_drinks": "Loading drinks...",

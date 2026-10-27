@@ -1,5 +1,13 @@
 import { useNavigate } from '@tanstack/react-router';
-import { LogOut, Menu, Settings, Smartphone, User } from 'lucide-react';
+import {
+  ChevronDown,
+  GlassWater,
+  LogOut,
+  Menu,
+  Settings,
+  Smartphone,
+  User,
+} from 'lucide-react';
 import type React from 'react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
@@ -42,73 +50,75 @@ const HeaderBar: React.FC<HeaderBarProps> = ({ collapsed, onToggle }) => {
     navigate({ to: '/simple/drinks', replace: true });
   };
 
+  const username = loading ? '' : userData?.username || 'Guest';
+  const role = loading
+    ? ''
+    : getRoleDisplayName(mapAdminLevelToRole(userData?.adminLevel));
+
   return (
-    <header className="fixed top-0 right-0 left-0 h-16 bg-background border-b z-50">
-      <div className="flex items-center justify-between h-full px-3 sm:px-4">
-        <div className="flex items-center gap-2 sm:gap-4">
+    <header className="fixed top-0 right-0 left-0 z-50 h-16 border-b-hairline border-border bg-background">
+      <div className="flex h-full items-center justify-between gap-4 px-3 sm:px-4">
+        <div className="flex items-center gap-2 sm:gap-3">
           <Button
             onClick={onToggle}
             variant="ghost"
             size="icon"
             aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
           >
-            <Menu size={20} />
+            <Menu />
           </Button>
 
-          <h1
-            className={`text-lg sm:text-xl font-semibold ${!collapsed && 'lg:hidden'}`}
-          >
-            BarPi
-          </h1>
+          <div className="flex items-center gap-3">
+            <span className="flex size-10 items-center justify-center rounded-md bg-primary text-primary-foreground">
+              <GlassWater className="size-6" />
+            </span>
+            <span className="text-xl font-bold tracking-tight">Bar-Pi</span>
+            <span className="hidden rounded-full bg-surface-sunken px-3 py-0.5 font-mono text-sm text-foreground-muted sm:inline">
+              advanced
+            </span>
+          </div>
         </div>
 
-        <div className="flex items-center gap-2">
-          <DropdownMenu>
-            <DropdownMenuTrigger
-              render={(props) => (
-                <Button
-                  {...props}
-                  variant="ghost"
-                  className="flex items-center gap-2 px-2 sm:px-3"
-                >
-                  <div className="w-8 h-8 flex items-center justify-center">
-                    <User size={20} />
-                  </div>
-                  <div className="hidden sm:block text-left">
-                    <p className="text-sm font-semibold m-0">
-                      {loading ? 'Loading...' : userData?.username || 'Guest'}
-                    </p>
-                    <p className="text-xs text-muted-foreground m-0">
-                      {loading
-                        ? ''
-                        : getRoleDisplayName(
-                            mapAdminLevelToRole(userData?.adminLevel),
-                          )}
-                    </p>
-                  </div>
-                </Button>
-              )}
-            />
-            <DropdownMenuContent align="end" className="w-52">
-              <DropdownMenuItem onClick={() => navigate({ to: '/settings' })}>
-                <Settings className="mr-2 h-4 w-4" />
-                <span>Settings</span>
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={handleSimpleModeSwitch}>
-                <Smartphone className="mr-2 h-4 w-4" />
-                <span>Simple Mode</span>
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem
-                onClick={handleLogout}
-                className="text-destructive"
+        <DropdownMenu>
+          <DropdownMenuTrigger
+            render={(props) => (
+              <Button
+                {...props}
+                variant="ghost"
+                className="gap-3 pr-3 pl-2"
+                aria-label="Account menu"
               >
-                <LogOut className="mr-2 h-4 w-4" />
-                <span>Logout</span>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
+                <span className="flex size-10 items-center justify-center rounded-full bg-primary text-base font-bold text-primary-foreground uppercase">
+                  {username.slice(0, 1) || <User className="size-6" />}
+                </span>
+                <span className="hidden text-left sm:block">
+                  <span className="block text-base leading-5 font-semibold">
+                    {loading ? 'Loading…' : username}
+                  </span>
+                  <span className="block text-sm leading-4 font-normal text-foreground-muted">
+                    {role}
+                  </span>
+                </span>
+                <ChevronDown className="hidden size-5 text-foreground-muted sm:block" />
+              </Button>
+            )}
+          />
+          <DropdownMenuContent align="end" className="w-56">
+            <DropdownMenuItem onClick={() => navigate({ to: '/settings' })}>
+              <Settings />
+              <span>Settings</span>
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={handleSimpleModeSwitch}>
+              <Smartphone />
+              <span>Simple mode</span>
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={handleLogout} variant="destructive">
+              <LogOut />
+              <span>Log out</span>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
     </header>
   );

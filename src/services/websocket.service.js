@@ -34,7 +34,7 @@ class WebsocketService {
 
   async connectWebsocket(token) {
     const baseUrl = useConfigStore.getState().apiBaseUrl.replace(/\/$/, '');
-    
+
     const sockJsUrl = baseUrl + '/websocket';
 
     this.stompClient = new Client({
@@ -121,7 +121,7 @@ class WebsocketService {
     const callbackDataPath = this.callbackData.get(path);
     callbackDataPath.subscribers.set(component, callback);
 
-    if (getLastMsg && !!callbackDataPath.lastMsg) {
+    if (getLastMsg && callbackDataPath.lastMsg) {
       callback(callbackDataPath.lastMsg);
     }
 

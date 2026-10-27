@@ -23,7 +23,7 @@ func NewGlassHandler(service *service.GlassService) *GlassHandler {
 func (h *GlassHandler) GetAll(c *gin.Context) {
 	glasses, err := h.service.GetAll()
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch glasses"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch glasses", "message": "Failed to fetch glasses"})
 		return
 	}
 
@@ -34,17 +34,17 @@ func (h *GlassHandler) GetAll(c *gin.Context) {
 func (h *GlassHandler) GetByID(c *gin.Context) {
 	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid glass ID"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid glass ID", "message": "Invalid glass ID"})
 		return
 	}
 
 	glass, err := h.service.GetByID(id)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch glass"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch glass", "message": "Failed to fetch glass"})
 		return
 	}
 	if glass == nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "Glass not found"})
+		c.JSON(http.StatusNotFound, gin.H{"error": "Glass not found", "message": "Glass not found"})
 		return
 	}
 
@@ -55,12 +55,12 @@ func (h *GlassHandler) GetByID(c *gin.Context) {
 func (h *GlassHandler) Create(c *gin.Context) {
 	var glass models.Glass
 	if err := c.ShouldBindJSON(&glass); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error(), "message": err.Error()})
 		return
 	}
 
 	if err := h.service.Create(&glass); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error(), "message": err.Error()})
 		return
 	}
 
@@ -71,13 +71,13 @@ func (h *GlassHandler) Create(c *gin.Context) {
 func (h *GlassHandler) Update(c *gin.Context) {
 	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid glass ID"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid glass ID", "message": "Invalid glass ID"})
 		return
 	}
 
 	var glass models.Glass
 	if err := c.ShouldBindJSON(&glass); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error(), "message": err.Error()})
 		return
 	}
 
@@ -85,10 +85,10 @@ func (h *GlassHandler) Update(c *gin.Context) {
 
 	if err := h.service.Update(&glass); err != nil {
 		if err.Error() == "glass not found" {
-			c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+			c.JSON(http.StatusNotFound, gin.H{"error": err.Error(), "message": err.Error()})
 			return
 		}
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error(), "message": err.Error()})
 		return
 	}
 
@@ -99,16 +99,16 @@ func (h *GlassHandler) Update(c *gin.Context) {
 func (h *GlassHandler) Delete(c *gin.Context) {
 	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid glass ID"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid glass ID", "message": "Invalid glass ID"})
 		return
 	}
 
 	if err := h.service.Delete(id); err != nil {
 		if err.Error() == "glass not found" {
-			c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+			c.JSON(http.StatusNotFound, gin.H{"error": err.Error(), "message": err.Error()})
 			return
 		}
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete glass"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete glass", "message": "Failed to delete glass"})
 		return
 	}
 

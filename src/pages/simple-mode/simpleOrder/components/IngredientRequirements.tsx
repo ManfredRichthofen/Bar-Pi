@@ -1,10 +1,10 @@
 import { AlertCircle, CheckCircle, XCircle } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import type { RequiredIngredient } from '@/pages/Shared/order';
 import {
   isAutomatedIngredient,
   isManualIngredient,
 } from '@/pages/Shared/order';
-import type { RequiredIngredient } from '@/pages/Shared/order';
 
 interface IngredientRequirementsProps {
   requiredIngredients: RequiredIngredient[];
@@ -33,10 +33,8 @@ const IngredientRequirements = ({
       {automaticIngredients.length > 0 && (
         <div>
           <div className="flex items-center gap-2 mb-3 sm:mb-4">
-            <h3 className="font-semibold text-sm sm:text-base">
-              Automated Ingredients
-            </h3>
-            <CheckCircle className="w-4 h-4 text-success" />
+            <h3 className="font-semibold text-base">Automated Ingredients</h3>
+            <CheckCircle className="size-6 text-success" />
           </div>
           <div className="space-y-2 sm:space-y-3">
             {automaticIngredients.map((item) => (
@@ -44,18 +42,18 @@ const IngredientRequirements = ({
                 key={item.ingredient.id}
                 className={`flex justify-between items-center w-full p-3 sm:p-4 rounded-lg transition-colors ${
                   item.amountMissing > 0 || !item.ingredient.onPump
-                    ? 'bg-error/10 border border-error/20'
-                    : 'bg-success/10 border border-success/20'
+                    ? 'bg-danger-tint border-hairline border-danger'
+                    : 'bg-success-tint border-hairline border-success'
                 }`}
               >
                 <div className="flex-1 pr-2 sm:pr-3 min-w-0">
-                  <span className="break-words font-medium text-sm sm:text-base block">
+                  <span className="break-words font-medium text-base block">
                     {item.ingredient.name}
                   </span>
                   {(item.amountMissing > 0 || !item.ingredient.onPump) && (
                     <div className="flex items-center gap-1 mt-1">
-                      <XCircle className="w-3 h-3 text-error shrink-0" />
-                      <span className="text-error text-xs">
+                      <XCircle className="size-4 text-danger shrink-0" />
+                      <span className="text-danger text-base">
                         {item.amountMissing > 0
                           ? `Missing: ${item.amountMissing} ${item.ingredient.unit}`
                           : 'Not on pump system'}
@@ -64,7 +62,7 @@ const IngredientRequirements = ({
                   )}
                 </div>
                 <div className="text-right shrink-0">
-                  <span className="font-semibold whitespace-nowrap text-sm sm:text-base">
+                  <span className="font-semibold whitespace-nowrap text-base">
                     {item.amountRequired} {item.ingredient.unit}
                   </span>
                 </div>
@@ -77,9 +75,7 @@ const IngredientRequirements = ({
       {manualIngredients.length > 0 && (
         <div>
           <div className="flex items-center gap-2 mb-3 sm:mb-4">
-            <h3 className="font-semibold text-sm sm:text-base">
-              Manual Ingredients
-            </h3>
+            <h3 className="font-semibold text-base">Manual Ingredients</h3>
             <AlertCircle className="text-warning" size={16} />
           </div>
           <div className="space-y-2 sm:space-y-3">
@@ -88,23 +84,25 @@ const IngredientRequirements = ({
                 key={item.ingredient.id}
                 className={`flex justify-between items-center w-full p-3 sm:p-4 rounded-lg transition-colors ${
                   !item.ingredient.inBar
-                    ? 'bg-yellow-500/10 border border-yellow-500/20'
-                    : 'bg-muted border border-border'
+                    ? 'bg-warning-tint border-hairline border-warning'
+                    : 'bg-surface-sunken border-hairline border-border'
                 }`}
               >
                 <div className="flex-1 pr-2 sm:pr-3 min-w-0">
-                  <span className="break-words font-medium text-sm sm:text-base block">
+                  <span className="break-words font-medium text-base block">
                     {item.ingredient.name}
                   </span>
                   {!item.ingredient.inBar && (
                     <div className="flex items-center gap-1 mt-1">
-                      <AlertCircle className="w-3 h-3 text-warning shrink-0" />
-                      <span className="text-warning text-xs">Add manually</span>
+                      <AlertCircle className="size-4 text-warning shrink-0" />
+                      <span className="text-warning text-base">
+                        Add manually
+                      </span>
                     </div>
                   )}
                 </div>
                 <div className="text-right shrink-0">
-                  <span className="font-semibold whitespace-nowrap text-sm sm:text-base">
+                  <span className="font-semibold whitespace-nowrap text-base">
                     {item.amountRequired} {item.ingredient.unit}
                   </span>
                 </div>
@@ -117,9 +115,9 @@ const IngredientRequirements = ({
       {requiredIngredients.length > 0 &&
         automaticIngredients.length === 0 &&
         manualIngredients.length === 0 && (
-          <Alert className="bg-accent/10 border-accent/30">
-            <AlertCircle className="h-4 w-4 text-accent-foreground" />
-            <AlertDescription className="text-sm sm:text-base">
+          <Alert className="bg-primary-tint border-border-strong">
+            <AlertCircle className="size-6 text-primary-tint-ink" />
+            <AlertDescription className="text-base">
               Could not determine ingredient types. Please check the recipe
               configuration.
             </AlertDescription>

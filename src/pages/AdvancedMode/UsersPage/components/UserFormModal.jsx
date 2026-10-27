@@ -105,9 +105,9 @@ export const UserFormModal = ({
             </Select>
           </div>
 
-          <div className="space-y-3 p-4 border rounded-lg bg-muted/30">
+          <div className="space-y-3 p-4 border rounded-lg bg-surface-sunken">
             <Label className="text-base font-semibold flex items-center gap-2">
-              <Shield className="h-4 w-4" />
+              <Shield className="size-6" />
               Account Security Settings
             </Label>
 
@@ -118,7 +118,7 @@ export const UserFormModal = ({
                 name="accountLocked"
                 checked={formData.accountLocked}
                 onChange={onChange}
-                className="h-5 w-5 text-primary focus:ring-primary border-gray-300 rounded"
+                className="size-6 text-primary focus:ring-primary border-border rounded"
               />
               <div className="flex-1">
                 <Label
@@ -127,7 +127,7 @@ export const UserFormModal = ({
                 >
                   Lock Account
                 </Label>
-                <p className="text-xs text-muted-foreground mt-1">
+                <p className="text-sm text-foreground-muted mt-1">
                   {formData.accountLocked
                     ? 'User will be unable to log in'
                     : 'User can log in and access the system'}
@@ -136,10 +136,10 @@ export const UserFormModal = ({
             </div>
 
             {formData.accountLocked && (
-              <div className="flex items-center gap-2 p-2 bg-red-50 border border-red-200 rounded-md">
-                <Lock className="h-4 w-4 text-red-600" />
-                <span className="text-xs text-red-800">
-                  ⚠️ This user will be completely locked out and unable to access
+              <div className="flex items-center gap-2 p-2 bg-danger-tint border border-danger rounded-md">
+                <Lock className="size-6 text-danger" />
+                <span className="text-sm text-danger">
+                  This user will be completely locked out and unable to access
                   the system
                 </span>
               </div>

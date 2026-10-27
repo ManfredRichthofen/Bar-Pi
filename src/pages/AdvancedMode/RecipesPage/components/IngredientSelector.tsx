@@ -1,5 +1,6 @@
 import { X } from 'lucide-react';
 import type React from 'react';
+import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
@@ -46,7 +47,18 @@ export const IngredientSelector: React.FC<IngredientSelectorProps> = ({
     onUpdate('ingredient', ingredient);
   };
 
+  const [amountDraft, setAmountDraft] = useState(
+    String(stepIngredient.amount ?? ''),
+  );
+
+  useEffect(() => {
+    if ((parseFloat(amountDraft) || 0) !== stepIngredient.amount) {
+      setAmountDraft(String(stepIngredient.amount ?? ''));
+    }
+  }, [stepIngredient.amount]);
+
   const updateAmount = (value: string) => {
+    setAmountDraft(value);
     onUpdate('amount', parseFloat(value) || 0);
   };
 
@@ -56,20 +68,14 @@ export const IngredientSelector: React.FC<IngredientSelectorProps> = ({
   };
 
   return (
-    <div
-      className={`grid grid-cols-1 gap-2 sm:gap-3 items-end ${
-        showBoostable
-          ? 'sm:grid-cols-[1fr_96px_80px_auto_auto]'
-          : 'sm:grid-cols-[1fr_96px_80px_auto]'
-      }`}
-    >
-      <div>
-        <Label className="text-xs sm:text-sm">Ingredient</Label>
+    <div className="grid grid-cols-2 gap-2 sm:gap-3 items-end @2xl:grid-cols-[minmax(0,1fr)_6rem_10rem_auto]">
+      <div className="col-span-2 min-w-0 @2xl:col-span-1">
+        <Label className="text-sm sm:text-sm">Ingredient</Label>
         <Select
           value={stepIngredient.ingredient?.id?.toString() || ''}
           onValueChange={updateIngredient}
         >
-          <SelectTrigger className="h-10 sm:h-11">
+          <SelectTrigger>
             <SelectValue>
               {stepIngredient.ingredient
                 ? stepIngredient.ingredient.name
@@ -86,21 +92,22 @@ export const IngredientSelector: React.FC<IngredientSelectorProps> = ({
         </Select>
       </div>
 
-      <div>
-        <Label className="text-xs sm:text-sm">Amount</Label>
+      <div className="min-w-0">
+        <Label className="text-sm sm:text-sm">Amount</Label>
         <Input
           type="number"
-          value={stepIngredient.amount}
+          value={amountDraft}
           onChange={(e) => updateAmount(e.target.value)}
           min="0"
+          step="any"
           className="h-10 sm:h-11"
         />
       </div>
 
-      <div>
-        <Label className="text-xs sm:text-sm">Unit</Label>
+      <div className="min-w-0">
+        <Label className="text-sm sm:text-sm">Unit</Label>
         <Select value={stepIngredient.scale || ''} onValueChange={updateScale}>
-          <SelectTrigger className="h-10 sm:h-11">
+          <SelectTrigger>
             <SelectValue>{stepIngredient.scale || 'Select unit'}</SelectValue>
           </SelectTrigger>
           <SelectContent>
@@ -113,25 +120,28 @@ export const IngredientSelector: React.FC<IngredientSelectorProps> = ({
         </Select>
       </div>
 
-      {showBoostable && (
-        <div className="flex items-center gap-2 h-10 sm:h-11">
-          <Checkbox
-            checked={stepIngredient.boostable || false}
-            onCheckedChange={(checked) => onUpdate('boostable', checked)}
-          />
-          <Label className="text-xs cursor-pointer">Boostable</Label>
-        </div>
-      )}
+      <div className="col-span-2 flex items-center justify-between gap-3 @2xl:col-span-1">
+        {showBoostable && (
+          <Label className="text-sm cursor-pointer whitespace-nowrap">
+            <Checkbox
+              checked={stepIngredient.boostable || false}
+              onCheckedChange={(checked) => onUpdate('boostable', checked)}
+            />
+            Boostable
+          </Label>
+        )}
 
-      <Button
-        type="button"
-        variant="ghost"
-        size="icon"
-        className="h-10 w-10 sm:h-11 sm:w-11"
-        onClick={onRemove}
-      >
-        <X className="h-4 w-4" />
-      </Button>
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon"
+          className="ml-auto shrink-0"
+          aria-label="Remove ingredient"
+          onClick={onRemove}
+        >
+          <X className="size-6" />
+        </Button>
+      </div>
     </div>
   );
 };

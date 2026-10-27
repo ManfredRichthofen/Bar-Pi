@@ -10,7 +10,6 @@ const CURRENT_VERSION = pkg.version;
 class UpdateService {
   async checkForUpdates() {
     try {
-      // Get latest release from GitHub
       const response = await axios.get(
         `${GITHUB_API_BASE}/repos/${REPO_OWNER}/${REPO_NAME}/releases/latest`,
       );
@@ -18,11 +17,9 @@ class UpdateService {
       const latestRelease = response.data;
       const latestVersion = latestRelease.tag_name.replace('v', '');
 
-      // Compare versions
       const hasUpdate =
         this.compareVersions(CURRENT_VERSION, latestVersion) < 0;
 
-      // Format release notes
       const formattedReleaseNotes = this.formatReleaseNotes(latestRelease.body);
 
       return {
@@ -67,7 +64,6 @@ class UpdateService {
           const level = header.match(/^#+/)[0].length;
           const title = header.replace(/^#+\s+/, '');
 
-          // Format the content
           const formattedContent = content
             .join('\n')
             .trim()
@@ -98,14 +94,12 @@ class UpdateService {
 
   async performUpdate() {
     try {
-      // Get the latest release info
       const updateInfo = await this.checkForUpdates();
 
       if (!updateInfo.hasUpdate) {
         throw new Error('No update available');
       }
 
-      // Find the dist.zip asset
       const distAsset = updateInfo.assets.find(
         (asset) => asset.name === `${updateInfo.latestVersion}.zip`,
       );
@@ -114,24 +108,18 @@ class UpdateService {
         throw new Error('Update package not found');
       }
 
-      // Download the update package
       const response = await axios.get(distAsset.browser_download_url, {
         responseType: 'blob',
       });
 
-      // Convert blob to array buffer
       const arrayBuffer = await response.data.arrayBuffer();
 
-      // Create a JSZip instance
       const zip = new JSZip();
 
-      // Load the zip content
       const zipContent = await zip.loadAsync(arrayBuffer);
 
-      // Extract all files
       const files = zipContent.files;
 
-      // Create a map of file paths to their content
       const fileMap = new Map();
 
       for (const [path, file] of Object.entries(files)) {
@@ -141,17 +129,14 @@ class UpdateService {
         }
       }
 
-      // Store the files in IndexedDB for later use
       const db = await this.openUpdateDB();
       await this.storeFiles(db, fileMap);
 
-      // Store update metadata
       await this.storeUpdateMetadata(db, {
         version: updateInfo.latestVersion,
         timestamp: Date.now(),
       });
 
-      // Reload the page to apply the update
       window.location.reload();
 
       return true;
@@ -171,7 +156,6 @@ class UpdateService {
       request.onupgradeneeded = (event) => {
         const db = event.target.result;
 
-        // Create object stores
         if (!db.objectStoreNames.contains('files')) {
           db.createObjectStore('files');
         }
@@ -214,18 +198,14 @@ class UpdateService {
       const transaction = db.transaction(['files'], 'readonly');
       const store = transaction.objectStore('files');
 
-      // Get all files
       const files = await store.getAll();
 
-      // Apply each file
       for (const file of files) {
         const path = file.path;
         const content = file.content;
 
-        // Create a blob URL
         const blobUrl = URL.createObjectURL(content);
 
-        // Fetch and replace the file
         await fetch(path, {
           method: 'PUT',
           body: content,
@@ -234,7 +214,6 @@ class UpdateService {
         URL.revokeObjectURL(blobUrl);
       }
 
-      // Clear the update database
       await this.clearUpdateDB();
 
       return true;

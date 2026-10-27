@@ -1,16 +1,16 @@
 import { Edit, PlusCircle, Trash2 } from 'lucide-react';
 import React, { useState } from 'react';
 import { toast } from 'sonner';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import {
-  PageHeader,
+  ActionButtons,
   EmptyState,
   ListCard,
-  ActionButtons,
   LoadingState,
+  PageHeader,
 } from '@/components/AdvancedMode';
-import { useGlassMutations, useGlassesList } from '@/hooks/useGlassesList';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { useGlassesList, useGlassMutations } from '@/hooks/useGlassesList';
 import GlassModal from './components/GlassModal';
 
 function Glasses() {
@@ -49,7 +49,11 @@ function Glasses() {
       );
       setShowModal(false);
     } catch (error) {
-      toast.error('Failed to save glass');
+      const message =
+        error?.response?.data?.message ||
+        error?.message ||
+        'Failed to save glass';
+      toast.error(message);
     }
   };
 
@@ -59,7 +63,7 @@ function Glasses() {
         title="Glasses"
         action={
           <Button onClick={handleAdd} className="w-full sm:w-auto">
-            <PlusCircle className="mr-2 h-4 w-4" />
+            <PlusCircle className="mr-2 size-6" />
             Add Glass
           </Button>
         }
@@ -88,10 +92,7 @@ function Glasses() {
                   description={glass.description}
                   badges={
                     glass.sizeInMl && (
-                      <Badge
-                        variant="secondary"
-                        className="text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5"
-                      >
+                      <Badge variant="secondary" className="text-sm">
                         {glass.sizeInMl}ml
                       </Badge>
                     )
@@ -99,15 +100,12 @@ function Glasses() {
                   metadata={
                     <>
                       {glass.type && (
-                        <Badge
-                          variant="outline"
-                          className="text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5"
-                        >
+                        <Badge variant="outline" className="text-sm">
                           {glass.type}
                         </Badge>
                       )}
                       {glass.sizeInMl && (
-                        <span className="text-xs text-muted-foreground">
+                        <span className="text-sm text-foreground-muted">
                           Capacity: {glass.sizeInMl}ml
                         </span>
                       )}
@@ -117,7 +115,7 @@ function Glasses() {
                     <ActionButtons
                       actions={[
                         {
-                          icon: <Edit className="h-4 w-4" />,
+                          icon: <Edit className="size-6" />,
                           label: 'Edit glass',
                           onClick: (e) => {
                             e.stopPropagation();
@@ -125,7 +123,7 @@ function Glasses() {
                           },
                         },
                         {
-                          icon: <Trash2 className="h-4 w-4 text-destructive" />,
+                          icon: <Trash2 className="size-6 text-danger" />,
                           label: 'Delete glass',
                           onClick: (e) => {
                             e.stopPropagation();

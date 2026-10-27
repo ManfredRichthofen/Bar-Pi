@@ -19,10 +19,10 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
 }) => {
   const iconColor =
     variant === 'error'
-      ? 'text-destructive'
+      ? 'text-danger'
       : variant === 'search'
-        ? 'text-muted-foreground'
-        : 'text-muted-foreground';
+        ? 'text-foreground-muted'
+        : 'text-foreground-muted';
 
   return (
     <div className="flex flex-col items-center justify-center py-16 px-4 min-h-[400px]">
@@ -30,7 +30,7 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
         {icon || <AlertCircle className="h-16 w-16" />}
       </div>
       <h3 className="text-xl font-semibold mb-2">{title}</h3>
-      <p className="text-muted-foreground text-center mb-6 max-w-sm">
+      <p className="text-foreground-muted text-center mb-6 max-w-sm">
         {description}
       </p>
       {actions && (

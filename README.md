@@ -93,7 +93,7 @@ The codebase is organized for clarity:
 ## Technology Stack
 
 - React for the UI
-- Tailwind CSS and Shadcn for styling and components
+- Tailwind CSS and Base UI for styling and components
 - Vite and Bun for building
 - Zustand for state management
 - Tauri 2 for Windows desktop and Android APK

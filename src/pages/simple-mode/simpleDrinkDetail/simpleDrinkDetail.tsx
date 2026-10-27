@@ -34,12 +34,10 @@ const SimpleDrinkDetail = () => {
   const navigate = useNavigate();
   const recipe = (location.state as any)?.recipe as Recipe | undefined;
 
-  // Scroll to top when component mounts
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
 
-  // Redirect if no recipe data
   useEffect(() => {
     if (!recipe) {
       navigate({ to: '/simple/drinks' });
@@ -51,45 +49,54 @@ const SimpleDrinkDetail = () => {
   }
 
   return (
-    <div className="min-h-screen bg-base-100 flex flex-col pb-20 sm:pb-0">
-      {/* Header */}
-      <div className="sticky top-0 z-20 bg-base-100/95 backdrop-blur-md border-b border-base-200 shadow-sm">
-        <div className="px-3 sm:px-4 py-3 sm:py-4 flex items-center justify-between">
+    <div className="min-h-screen bg-background flex flex-col">
+      <header className="sticky top-0 z-20 border-b-hairline border-border bg-background">
+        <div className="mx-auto max-w-4xl px-4 py-4 sm:px-6 flex items-center justify-between gap-3">
           <Button
             type="button"
             variant="ghost"
             size="icon"
-            className="rounded-xl transition-all duration-200"
             onClick={() => navigate({ to: '/simple/drinks' })}
           >
-            <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5" />
+            <ArrowLeft className="size-6" />
           </Button>
-          <h1 className="text-base sm:text-lg font-bold truncate flex-1 mx-2 sm:mx-3 text-center">
+          <h1 className="text-xl font-bold truncate flex-1 text-center text-foreground">
             {recipe.name}
           </h1>
-          {recipe.alcoholic && (
-            <Badge variant="destructive" className="shrink-0 text-xs">
+          {recipe.alcoholic ? (
+            <Badge variant="destructive" className="shrink-0">
               21+
             </Badge>
+          ) : (
+            <div className="size-control-md" />
           )}
         </div>
-      </div>
+      </header>
 
-      {/* Scrollable content */}
       <div className="flex-1 overflow-y-auto">
-        <div className="p-3 sm:p-4 space-y-4 sm:space-y-6 max-w-4xl mx-auto">
-          {/* Image */}
+        <div className="mx-auto max-w-4xl px-4 pt-6 pb-32 sm:px-6 space-y-6">
           <DrinkImage
             recipeId={recipe.id}
             hasImage={recipe.hasImage || false}
             name={recipe.name}
           />
 
-          {/* Make Drink Button - Below Image */}
+          <DrinkInfo
+            description={recipe.description}
+            alcoholic={recipe.alcoholic}
+            defaultGlass={recipe.defaultGlass}
+          />
+
+          <IngredientsList ingredients={recipe.ingredients} />
+        </div>
+      </div>
+
+      <div className="fixed inset-x-0 bottom-[calc(var(--control-lg)+1rem+1px)] z-40 border-t-hairline border-border bg-background shadow-lg">
+        <div className="mx-auto max-w-4xl px-4 py-3 sm:px-6">
           <Button
             type="button"
             size="lg"
-            className="w-full h-12 sm:h-14 gap-2 sm:gap-3 text-sm sm:text-base font-semibold shadow-lg hover:shadow-xl transition-all duration-200 active:scale-95"
+            className="w-full"
             onClick={() => {
               navigate({
                 to: '/simple/order',
@@ -97,19 +104,9 @@ const SimpleDrinkDetail = () => {
               } as any);
             }}
           >
-            <Beaker className="w-4 h-4 sm:w-5 sm:h-5" />
+            <Beaker className="size-6" />
             Make Drink
           </Button>
-
-          {/* Description and Info */}
-          <DrinkInfo
-            description={recipe.description}
-            alcoholic={recipe.alcoholic}
-            defaultGlass={recipe.defaultGlass}
-          />
-
-          {/* Ingredients */}
-          <IngredientsList ingredients={recipe.ingredients} />
         </div>
       </div>
     </div>

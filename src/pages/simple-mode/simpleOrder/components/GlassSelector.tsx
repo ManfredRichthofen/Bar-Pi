@@ -12,8 +12,8 @@ import {
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { useGlasses } from '@/hooks/useGlasses';
-import { getGlassSizeMl } from '@/pages/Shared/order';
 import type { Glass } from '@/pages/Shared/order';
+import { getGlassSizeMl } from '@/pages/Shared/order';
 
 interface GlassSelectorProps {
   selectedGlass: Glass | null;
@@ -46,10 +46,10 @@ const GlassSelector = ({
           <GlassWater size={16} />
           Glass Size
         </Label>
-        <div className="flex items-center gap-3 p-4 bg-card rounded-lg border">
-          <GlassWater size={20} className="text-muted-foreground" />
-          <Loader2 className="h-4 w-4 animate-spin" />
-          <span className="text-muted-foreground text-sm sm:text-base">
+        <div className="flex items-center gap-3 p-4 bg-surface rounded-lg border">
+          <GlassWater size={24} className="text-foreground-muted" />
+          <Loader2 className="size-6 animate-spin" />
+          <span className="text-foreground-muted text-base">
             Loading glass...
           </span>
         </div>
@@ -74,12 +74,12 @@ const GlassSelector = ({
           {selectedGlass ? (
             <div className="flex items-center justify-between w-full gap-3">
               <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
-                <GlassWater size={18} className="shrink-0 sm:w-5 sm:h-5" />
+                <GlassWater size={24} className="shrink-0 sm:w-5 sm:h-5" />
                 <div className="min-w-0 flex-1">
-                  <div className="font-semibold text-sm sm:text-base truncate">
+                  <div className="font-semibold text-base truncate">
                     {selectedGlass.name}
                   </div>
-                  <div className="text-xs sm:text-sm text-muted-foreground">
+                  <div className="text-sm text-foreground-muted">
                     {getGlassSizeMl(selectedGlass)}ml capacity
                   </div>
                 </div>
@@ -89,9 +89,9 @@ const GlassSelector = ({
               </Badge>
             </div>
           ) : (
-            <div className="flex items-center gap-2 text-muted-foreground">
-              <GlassWater size={18} />
-              <span className="text-sm sm:text-base">Select a glass</span>
+            <div className="flex items-center gap-2 text-foreground-muted">
+              <GlassWater size={24} />
+              <span className="text-base">Select a glass</span>
             </div>
           )}
         </Button>
@@ -101,7 +101,7 @@ const GlassSelector = ({
         <DialogContent className="max-w-2xl">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <GlassWater size={20} />
+              <GlassWater size={24} />
               Select Glass Size
             </DialogTitle>
           </DialogHeader>
@@ -118,11 +118,11 @@ const GlassSelector = ({
               <label
                 key={glass.id}
                 className={`
-                  cursor-pointer transition-all duration-200 rounded-lg border p-4
+                  cursor-pointer transition-colors rounded-lg border p-4
                   ${
                     selectedGlass?.id === glass.id
                       ? 'bg-primary text-primary-foreground shadow-lg ring-2 ring-primary'
-                      : 'bg-card hover:bg-accent hover:border-primary/50'
+                      : 'bg-surface hover:bg-primary-tint hover:border-border-strong'
                   }
                 `}
               >
@@ -145,7 +145,7 @@ const GlassSelector = ({
                       </Badge>
                     </div>
                     {glass.description && (
-                      <p className="text-sm mt-1 opacity-90">
+                      <p className="text-base mt-1 opacity-90">
                         {glass.description}
                       </p>
                     )}
@@ -157,7 +157,7 @@ const GlassSelector = ({
 
           {glasses.length === 0 && (
             <Alert>
-              <GlassWater className="w-4 h-4" />
+              <GlassWater className="size-6" />
               <AlertDescription>No glasses available</AlertDescription>
             </Alert>
           )}

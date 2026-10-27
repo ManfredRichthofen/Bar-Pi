@@ -5,16 +5,16 @@ import { Button } from '@/components/ui/button';
 
 const ErrorMessage = React.memo(({ error, onDismiss }) => (
   <Alert variant="destructive" className="mb-3">
-    <AlertCircle className="w-4 h-4" />
+    <AlertCircle className="size-6" />
     <AlertDescription className="flex items-center justify-between">
       <span className="text-sm">{error}</span>
       <Button
         variant="ghost"
         size="sm"
-        className="h-auto p-0 hover:bg-destructive/10"
+        className="h-auto hover:bg-danger-tint"
         onClick={onDismiss}
       >
-        <X className="w-4 h-4" />
+        <X className="size-6" />
       </Button>
     </AlertDescription>
   </Alert>

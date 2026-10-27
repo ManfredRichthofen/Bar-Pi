@@ -20,16 +20,16 @@ function RadioGroupItem({ className, ...props }: RadioPrimitive.Root.Props) {
     <RadioPrimitive.Root
       data-slot="radio-group-item"
       className={cn(
-        'border-input text-primary dark:bg-input/30 focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive dark:aria-invalid:border-destructive/50 flex size-4 rounded-full shadow-xs focus-visible:ring-[3px] aria-invalid:ring-[3px] group/radio-group-item peer relative aspect-square shrink-0 border outline-none after:absolute after:-inset-x-3 after:-inset-y-2 disabled:cursor-not-allowed disabled:opacity-50',
+        'group/radio-group-item peer relative flex aspect-square size-6 shrink-0 rounded-full border-2 border-border-strong bg-surface text-primary shadow-inset after:absolute after:-inset-3 data-checked:border-primary aria-invalid:border-danger disabled:cursor-not-allowed disabled:opacity-45',
         className,
       )}
       {...props}
     >
       <RadioPrimitive.Indicator
         data-slot="radio-group-indicator"
-        className="group-aria-invalid/radio-group-item:text-destructive text-primary flex size-4 items-center justify-center"
+        className="group-aria-invalid/radio-group-item:text-danger text-primary flex size-5 items-center justify-center"
       >
-        <CircleIcon className="absolute top-1/2 left-1/2 size-2 -translate-x-1/2 -translate-y-1/2 fill-current" />
+        <CircleIcon className="absolute top-1/2 left-1/2 size-3 -translate-x-1/2 -translate-y-1/2 fill-current" />
       </RadioPrimitive.Indicator>
     </RadioPrimitive.Root>
   );

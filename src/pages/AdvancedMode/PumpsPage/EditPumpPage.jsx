@@ -224,13 +224,13 @@ const EditPumpPage = () => {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
-          <AlertCircle className="h-12 w-12 text-destructive mx-auto mb-4" />
+          <AlertCircle className="h-12 w-12 text-danger mx-auto mb-4" />
           <h2 className="text-xl font-semibold mb-2">Pump Not Found</h2>
-          <p className="text-muted-foreground mb-4">
+          <p className="text-foreground-muted mb-4">
             The pump you're looking for doesn't exist.
           </p>
           <Button onClick={() => navigate({ to: '/pumps' })}>
-            <ArrowLeft className="h-4 w-4 mr-2" />
+            <ArrowLeft className="size-6 mr-2" />
             Back to Pumps
           </Button>
         </div>
@@ -242,7 +242,7 @@ const EditPumpPage = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="sticky top-0 z-20 bg-background/95 backdrop-blur-md border-b shadow-sm pt-2">
+      <div className="sticky top-0 z-20 bg-background border-b shadow-sm pt-2">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-5">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <div className="flex items-center gap-3">
@@ -252,16 +252,16 @@ const EditPumpPage = () => {
                 size="icon-sm"
                 title="Back to Pumps"
               >
-                <ArrowLeft className="h-4 w-4" />
+                <ArrowLeft className="size-6" />
               </Button>
               <div>
                 <h1 className="text-3xl font-bold tracking-tight">Edit Pump</h1>
-                <p className="text-sm text-muted-foreground flex items-center gap-2 mt-1">
+                <p className="text-sm text-foreground-muted flex items-center gap-2 mt-1">
                   {getPumpTypeIcon(pump.type)}
                   <span>{getPumpTypeName(pump.type)}</span>
                   {pump.name && (
                     <>
-                      <span className="text-muted-foreground/40">•</span>
+                      <span className="text-foreground-muted">•</span>
                       <span>{pump.name}</span>
                     </>
                   )}
@@ -279,9 +279,9 @@ const EditPumpPage = () => {
                 className="gap-2"
               >
                 {deleting ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
+                  <Loader2 className="size-6 animate-spin" />
                 ) : (
-                  <Trash2 className="h-4 w-4" />
+                  <Trash2 className="size-6" />
                 )}
                 Delete
               </Button>
@@ -293,9 +293,9 @@ const EditPumpPage = () => {
                 className="gap-2"
               >
                 {saving ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
+                  <Loader2 className="size-6 animate-spin" />
                 ) : (
-                  <Save className="h-4 w-4" />
+                  <Save className="size-6" />
                 )}
                 Save Changes
               </Button>
@@ -307,14 +307,14 @@ const EditPumpPage = () => {
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
         {success && (
           <Alert className="mb-6">
-            <CheckCircle className="h-4 w-4" />
+            <CheckCircle className="size-6" />
             <AlertDescription>{success}</AlertDescription>
           </Alert>
         )}
 
         {error && (
           <Alert variant="destructive" className="mb-6">
-            <AlertCircle className="h-4 w-4" />
+            <AlertCircle className="size-6" />
             <AlertDescription>{error}</AlertDescription>
           </Alert>
         )}
@@ -346,9 +346,9 @@ const EditPumpPage = () => {
             </Button>
             <Button type="submit" disabled={saving} size="lg" className="gap-2">
               {saving ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
+                <Loader2 className="size-6 animate-spin" />
               ) : (
-                <Save className="h-4 w-4" />
+                <Save className="size-6" />
               )}
               Save Changes
             </Button>

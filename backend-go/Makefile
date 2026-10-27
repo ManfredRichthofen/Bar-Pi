@@ -3,7 +3,7 @@
 
 # Default build for current platform
 build:
-	go build -ldflags="-s -w" -o bin/server cmd/server/main.go
+	CGO_ENABLED=0 go build -ldflags="-s -w" -o bin/server cmd/server/main.go
 
 # Run the server
 run: build
@@ -35,12 +35,12 @@ lint:
 # Build for all platforms
 build-all: build-linux
 
-# Linux builds
+# Linux builds (pure Go, no CGO required)
 build-linux:
-	GOOS=linux GOARCH=arm64 CGO_ENABLED=1 go build -ldflags="-s -w" -o ../dist-backend/bar-pi-server-linux-arm64 cmd/server/main.go
-	GOOS=linux GOARCH=arm GOARM=7 CGO_ENABLED=1 go build -ldflags="-s -w" -o ../dist-backend/bar-pi-server-linux-arm cmd/server/main.go
+	GOOS=linux GOARCH=arm64 CGO_ENABLED=0 go build -ldflags="-s -w" -o ../dist-backend/bar-pi-server-linux-arm64 cmd/server/main.go
+	GOOS=linux GOARCH=arm GOARM=7 CGO_ENABLED=0 go build -ldflags="-s -w" -o ../dist-backend/bar-pi-server-linux-arm cmd/server/main.go
 
 # Raspberry Pi optimized build
 build-arm:
-	GOOS=linux GOARCH=arm GOARM=7 CGO_ENABLED=1 go build -ldflags="-s -w" -o ../dist-backend/bar-pi-server-linux-arm cmd/server/main.go
-	GOOS=linux GOARCH=arm64 CGO_ENABLED=1 go build -ldflags="-s -w" -o ../dist-backend/bar-pi-server-linux-arm64 cmd/server/main.go
+	GOOS=linux GOARCH=arm GOARM=7 CGO_ENABLED=0 go build -ldflags="-s -w" -o ../dist-backend/bar-pi-server-linux-arm cmd/server/main.go
+	GOOS=linux GOARCH=arm64 CGO_ENABLED=0 go build -ldflags="-s -w" -o ../dist-backend/bar-pi-server-linux-arm64 cmd/server/main.go

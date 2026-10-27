@@ -2,6 +2,7 @@ import { Navigate } from '@tanstack/react-router';
 import { debounce } from 'es-toolkit';
 import { ArrowUp, Filter } from 'lucide-react';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { PageHeader } from '@/components/AdvancedMode/PageHeader';
 import { Button } from '@/components/ui/button';
 import FilterPanel from '@/components/ui/filter-panel.jsx';
 import SearchInput from '@/components/ui/search-input.jsx';
@@ -73,7 +74,6 @@ const Drinks = ({ sidebarCollapsed = false }) => {
     e?.stopPropagation();
     console.log('Filter toggle clicked, current state:', isFilterPanelOpen);
     setIsFilterPanelOpen(!isFilterPanelOpen);
-    // Make sure header is visible when opening filters
     if (!isFilterPanelOpen) {
       setIsHeaderVisible(true);
     }
@@ -87,7 +87,6 @@ const Drinks = ({ sidebarCollapsed = false }) => {
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
 
-      // Don't hide header if filter panel is open
       if (isFilterPanelOpen) {
         setIsHeaderVisible(true);
         setLastScrollY(currentScrollY);
@@ -95,7 +94,6 @@ const Drinks = ({ sidebarCollapsed = false }) => {
         return;
       }
 
-      // Hide header when scrolling down, show when scrolling up
       if (currentScrollY > lastScrollY && currentScrollY > 100) {
         setIsHeaderVisible(false);
       } else {
@@ -135,33 +133,25 @@ const Drinks = ({ sidebarCollapsed = false }) => {
 
   return (
     <div className="min-h-screen bg-background">
-      <div
-        className={`sticky top-16 z-40 bg-background/95 backdrop-blur-sm border-b shadow-sm transition-all duration-300 ${
-          isHeaderVisible
-            ? 'translate-y-0 opacity-100'
-            : '-translate-y-full opacity-0'
-        }`}
-      >
-        <div className="px-3 sm:px-4 py-3 sm:py-4 space-y-4">
-          {/* Header Section */}
-          <div className="flex items-center justify-between">
-            <h1 className="text-xl sm:text-2xl font-bold">Available Drinks</h1>
-            <Button
-              variant={isFilterPanelOpen ? 'default' : 'ghost'}
-              size="icon"
-              onClick={handleFilterToggle}
-              className="rounded-lg transition-all duration-200"
-            >
-              <Filter className="h-4 w-4 sm:h-5 sm:w-5" />
-              {Object.values(filters).some(Boolean) && (
-                <span className="absolute -top-1 -right-1 bg-primary text-primary-foreground rounded-full w-4 h-4 text-xs font-medium flex items-center justify-center">
-                  {Object.values(filters).filter(Boolean).length}
-                </span>
-              )}
-            </Button>
-          </div>
-
-          {/* Search Bar */}
+      <PageHeader
+        title="Drinks"
+        isVisible={isHeaderVisible}
+        action={
+          <Button
+            variant={isFilterPanelOpen ? 'default' : 'outline'}
+            onClick={handleFilterToggle}
+            className="relative"
+          >
+            <Filter />
+            Filters
+            {Object.values(filters).some(Boolean) && (
+              <span className="flex size-6 items-center justify-center rounded-full bg-primary-tint font-mono text-sm text-primary-tint-ink">
+                {Object.values(filters).filter(Boolean).length}
+              </span>
+            )}
+          </Button>
+        }
+        searchComponent={
           <SearchInput
             value={searchValue}
             onChange={handleSearchInput}
@@ -169,26 +159,21 @@ const Drinks = ({ sidebarCollapsed = false }) => {
             loading={searchLoading}
             placeholder="Search drinks..."
             debounceMs={500}
-            className="max-w-2xl mx-auto"
-            inputClassName="rounded-lg border-2 focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all duration-200"
-            buttonClassName="rounded-lg"
           />
+        }
+      >
+        {isFilterPanelOpen && (
+          <FilterPanel
+            filters={filters}
+            onFilterChange={handleFilterChange}
+            onTogglePanel={() => setIsFilterPanelOpen(false)}
+            isOpen={isFilterPanelOpen}
+            variant="advanced"
+            showCloseButton={true}
+          />
+        )}
+      </PageHeader>
 
-          {/* Filter Panel */}
-          {isFilterPanelOpen && (
-            <FilterPanel
-              filters={filters}
-              onFilterChange={handleFilterChange}
-              onTogglePanel={() => setIsFilterPanelOpen(false)}
-              isOpen={isFilterPanelOpen}
-              variant="advanced"
-              showCloseButton={true}
-            />
-          )}
-        </div>
-      </div>
-
-      {/* Main Content */}
       <VirtualDrinksGrid
         token={token}
         searchTerm={searchTerm}
@@ -199,15 +184,14 @@ const Drinks = ({ sidebarCollapsed = false }) => {
         onFilterRecipes={handleFilterRecipes}
       />
 
-      {/* Scroll to Top Button */}
       {showScrollTop && (
         <Button
           onClick={scrollToTop}
           size="icon"
-          className="fixed bottom-8 right-8 z-50 rounded-full shadow-lg"
+          className="fixed bottom-8 right-8 z-30"
           aria-label="Scroll to top"
         >
-          <ArrowUp className="h-4 w-4" />
+          <ArrowUp className="size-6" />
         </Button>
       )}
     </div>

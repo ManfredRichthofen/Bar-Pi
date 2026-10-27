@@ -1,6 +1,7 @@
 import { useLocation, useNavigate } from '@tanstack/react-router';
 import {
   ArrowLeftToLine,
+  BarChart3,
   BookText,
   FlaskConical,
   Gauge,
@@ -84,13 +85,16 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed, onCollapse }) => {
           icon: <Gauge size={16} />,
           label: 'Pumps',
         },
+        {
+          key: '/statistics',
+          icon: <BarChart3 size={16} />,
+          label: 'Statistics',
+        },
       ],
     },
   ];
 
-  // Remove the body scroll effect since we don't want to prevent page scrolling
   useEffect(() => {
-    // Only prevent scroll on the backdrop element
     const backdrop = document.querySelector('.sidebar-backdrop');
     if (backdrop) {
       backdrop.addEventListener('touchmove', (e) => e.preventDefault());
@@ -99,27 +103,26 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed, onCollapse }) => {
 
   return (
     <>
-      {/* Backdrop only shows on mobile */}
       {!collapsed && (
         <div
-          className="sidebar-backdrop fixed inset-0 bg-black/30 sm:hidden z-10"
+          className="sidebar-backdrop fixed inset-0 bg-overlay sm:hidden z-40"
           onClick={() => onCollapse(true)}
         />
       )}
 
       <aside
-        className={`fixed top-16 left-0 h-[calc(100vh-64px)] transition-all duration-300 z-20 
+        className={`fixed top-16 left-0 h-[calc(100vh-64px)] transition-transform z-40 
           ${collapsed ? 'w-0 -translate-x-full' : 'w-[280px] sm:w-72 translate-x-0'}`}
       >
         <div
-          className={`transition-all duration-300 h-full flex flex-col bg-background relative border-r border-border shadow-sm
+          className={`transition-opacity h-full flex flex-col bg-background relative border-r border-border shadow-sm
             ${collapsed ? 'opacity-0' : 'opacity-100'}`}
         >
-          <div className="h-14 flex-none flex items-center justify-between px-4 sm:px-6 transition-colors duration-300 bg-muted/30 border-b border-border">
+          <div className="h-14 flex-none flex items-center justify-between px-4 sm:px-6 transition-colors bg-surface-sunken border-b border-border">
             <span className="text-base font-semibold">Menu</span>
             <button
               onClick={() => onCollapse(true)}
-              className="inline-flex items-center justify-center rounded-md h-8 w-8 hover:bg-accent hover:text-accent-foreground transition-colors"
+              className="inline-flex items-center justify-center rounded-md size-control-sm hover:bg-primary-tint hover:text-primary-tint-ink transition-colors"
             >
               <ArrowLeftToLine size={16} />
             </button>
@@ -148,18 +151,18 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed, onCollapse }) => {
 
                 return (
                   <div key={group.group}>
-                    <h2 className="text-xs font-semibold tracking-wider text-muted-foreground px-2 mb-2 uppercase">
+                    <h2 className="text-sm font-semibold tracking-wider text-foreground-muted px-2 mb-2 uppercase">
                       {group.group}
                     </h2>
                     <div className="space-y-1">
                       {accessibleItems.map((item) => (
                         <button
                           key={item.key}
-                          className={`w-full flex items-center gap-3 px-3 sm:px-4 py-2.5 rounded-lg transition-all duration-200 text-left
+                          className={`w-full flex items-center gap-3 px-4 min-h-control-md rounded-lg transition-colors text-left
                             ${
                               location.pathname === item.key
-                                ? 'bg-primary/10 text-primary hover:bg-primary/15 font-medium'
-                                : 'text-muted-foreground hover:text-foreground hover:bg-accent'
+                                ? 'bg-primary-tint text-primary hover:bg-primary-tint font-medium'
+                                : 'text-foreground-muted hover:text-foreground hover:bg-primary-tint'
                             }
                             active:scale-[0.98]`}
                           onClick={() => {
@@ -172,13 +175,13 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed, onCollapse }) => {
                           {React.cloneElement(item.icon, {
                             size: 18,
                             strokeWidth: 2,
-                            className: `transition-colors duration-200 ${
+                            className: `transition-colors  ${
                               location.pathname === item.key
                                 ? 'text-primary'
                                 : ''
                             }`,
                           })}
-                          <span className="text-sm whitespace-nowrap">
+                          <span className="text-base font-medium whitespace-nowrap">
                             {item.label}
                           </span>
                         </button>

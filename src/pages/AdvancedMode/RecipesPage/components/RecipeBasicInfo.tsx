@@ -86,7 +86,7 @@ export const RecipeBasicInfo: React.FC<RecipeBasicInfoProps> = ({
                 updateField('defaultGlass', glass || null);
               }}
             >
-              <SelectTrigger className="h-10 sm:h-11">
+              <SelectTrigger>
                 <SelectValue>
                   {defaultGlass
                     ? `${defaultGlass.name} (${defaultGlass.size}ml)`

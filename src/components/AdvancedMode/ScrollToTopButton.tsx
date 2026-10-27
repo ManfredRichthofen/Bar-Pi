@@ -33,10 +33,10 @@ export const ScrollToTopButton: React.FC<ScrollToTopButtonProps> = ({
     <Button
       onClick={scrollToTop}
       size="icon"
-      className={`fixed bottom-20 sm:bottom-24 right-3 sm:right-4 z-[100] rounded-full shadow-lg hover:shadow-xl transition-all duration-200 h-11 w-11 sm:h-12 sm:w-12 ${className}`}
+      className={`fixed bottom-20 sm:bottom-24 right-3 sm:right-4 z-[100] shadow-lg transition-colors h-11 w-11 sm:h-12 sm:w-12 ${className}`}
       aria-label="Scroll to top"
     >
-      <ArrowUp className="w-4 h-4 sm:w-5 sm:h-5" />
+      <ArrowUp className="size-6 sm:w-5 sm:h-5" />
     </Button>
   );
 };

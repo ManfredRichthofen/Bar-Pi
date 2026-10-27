@@ -4,12 +4,16 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { Slider } from '@/components/ui/slider';
 import { useDrinkCustomizerActions } from '@/hooks/useDrinkCustomizerActions';
-import type {
-  Ingredient,
-  OrderCustomizations,
-} from '@/pages/Shared/order';
+import type { Ingredient, OrderCustomizations } from '@/pages/Shared/order';
 
 interface DrinkCustomizerProps {
   disableBoosting?: boolean;
@@ -45,7 +49,7 @@ const DrinkCustomizer = ({
   return (
     <div className="space-y-4 sm:space-y-5">
       <div className="flex items-center gap-3 mb-4">
-        <Settings className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
+        <Settings className="size-6 text-primary" />
         <h2 className="text-lg sm:text-xl lg:text-2xl font-bold">
           Customize Your Drink
         </h2>
@@ -53,20 +57,20 @@ const DrinkCustomizer = ({
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 lg:gap-5">
         <Card
-          className={`${automatedIngredients.length > 0 ? 'sm:col-span-1' : 'sm:col-span-2'} hover:shadow-md hover:border-primary/20 transition-all duration-300`}
+          className={`${automatedIngredients.length > 0 ? 'sm:col-span-1' : 'sm:col-span-2'} hover:shadow-md hover:border-border-strong transition-colors`}
         >
           <CardContent className="p-4 sm:p-5 lg:p-6">
             <div className="flex items-center gap-2 mb-4">
-              <BeakerIcon className="w-5 h-5 text-primary" />
+              <BeakerIcon className="size-6 text-primary" />
               <h3 className="text-base sm:text-lg font-bold">
                 Alcohol Strength
               </h3>
             </div>
 
             {disableBoosting ? (
-              <Alert className="bg-accent/10 border-accent/30">
-                <AlertTriangle className="h-4 w-4 text-accent-foreground" />
-                <AlertDescription className="text-sm">
+              <Alert className="bg-primary-tint border-border-strong">
+                <AlertTriangle className="size-6 text-primary-tint-ink" />
+                <AlertDescription className="text-base">
                   This drink's strength cannot be adjusted
                 </AlertDescription>
               </Alert>
@@ -78,7 +82,7 @@ const DrinkCustomizer = ({
                       ? 'Normal'
                       : `${customisations?.boost > 100 ? '+' : ''}${(customisations?.boost || 100) - 100}%`}
                   </div>
-                  <p className="text-xs sm:text-sm text-muted-foreground">
+                  <p className="text-sm text-foreground-muted">
                     Alcohol content adjustment
                   </p>
                 </div>
@@ -94,7 +98,7 @@ const DrinkCustomizer = ({
                   />
                 </div>
 
-                <div className="flex justify-between text-xs sm:text-sm text-muted-foreground px-1">
+                <div className="flex justify-between text-sm text-foreground-muted px-1">
                   <span className="font-medium text-center">
                     <span className="block text-base sm:text-lg font-bold text-foreground">
                       0%
@@ -120,16 +124,16 @@ const DrinkCustomizer = ({
         </Card>
 
         {automatedIngredients.length > 0 && (
-          <Card className="sm:col-span-1 hover:shadow-md hover:border-primary/20 transition-all duration-300">
+          <Card className="sm:col-span-1 hover:shadow-md hover:border-border-strong transition-colors">
             <CardContent className="p-4 sm:p-5 lg:p-6">
               <div className="flex items-center gap-2 mb-4">
-                <PlusCircle className="w-5 h-5 text-primary" />
+                <PlusCircle className="size-6 text-primary" />
                 <h3 className="text-base sm:text-lg font-bold">
                   Extra Ingredients
                 </h3>
               </div>
 
-              <p className="text-sm text-muted-foreground mb-4">
+              <p className="text-sm text-foreground-muted mb-4">
                 Add extra ingredients to personalize your drink
               </p>
 
@@ -137,9 +141,9 @@ const DrinkCustomizer = ({
                 {additionalIngredients.map(({ ingredient, amount }) => (
                   <div
                     key={ingredient.id}
-                    className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg"
+                    className="flex items-center gap-3 p-3 bg-surface-sunken rounded-lg"
                   >
-                    <Label className="font-medium text-sm flex-1">
+                    <Label className="font-medium text-base flex-1">
                       {ingredient.name}
                     </Label>
                     <Input
@@ -153,52 +157,53 @@ const DrinkCustomizer = ({
                           parseFloat(e.target.value),
                         )
                       }
-                      className="w-20 text-sm"
+                      className="w-24 text-base"
                     />
                   </div>
                 ))}
 
                 {addingIngredient ? (
-                  <div className="space-y-3 p-3 border-2 border-dashed border-primary/30 rounded-lg">
-                    <Label className="font-medium text-sm">
+                  <div className="space-y-3 p-3 border-2 border-dashed border-border-strong rounded-lg">
+                    <Label className="font-medium text-base">
                       Select Ingredient
                     </Label>
-                    <select
-                      className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                    <Select
                       value={selectedIngredient?.id || ''}
-                      onChange={(e) => {
+                      onValueChange={(value) => {
                         const ingredient = automatedIngredients.find(
-                          (ing) => ing.id === e.target.value,
+                          (ing) => ing.id === value,
                         );
                         setSelectedIngredient(ingredient || null);
                       }}
                     >
-                      <option value="">Choose an ingredient...</option>
-                      {automatedIngredients
-                        .filter(
-                          (ing) =>
-                            !additionalIngredients.some(
-                              (added) => added.ingredient.id === ing.id,
-                            ),
-                        )
-                        .map((ing) => (
-                          <option key={ing.id} value={ing.id}>
-                            {ing.name}
-                          </option>
-                        ))}
-                    </select>
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Choose an ingredient..." />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {automatedIngredients
+                          .filter(
+                            (ing) =>
+                              !additionalIngredients.some(
+                                (added) => added.ingredient.id === ing.id,
+                              ),
+                          )
+                          .map((ing) => (
+                            <SelectItem key={ing.id} value={ing.id}>
+                              {ing.name}
+                            </SelectItem>
+                          ))}
+                      </SelectContent>
+                    </Select>
                     <div className="flex gap-2">
                       <Button
                         onClick={handleAddIngredient}
                         disabled={!selectedIngredient}
-                        size="sm"
                         className="flex-1"
                       >
                         Add
                       </Button>
                       <Button
                         variant="outline"
-                        size="sm"
                         onClick={() => {
                           setAddingIngredient(false);
                           setSelectedIngredient(null);
@@ -214,9 +219,8 @@ const DrinkCustomizer = ({
                     variant="outline"
                     onClick={() => setAddingIngredient(true)}
                     className="w-full gap-2"
-                    size="sm"
                   >
-                    <PlusCircle className="w-4 h-4" />
+                    <PlusCircle className="size-6" />
                     Add Ingredient
                   </Button>
                 )}

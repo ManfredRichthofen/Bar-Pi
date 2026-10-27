@@ -10,18 +10,18 @@ import React, {
 } from 'react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
+import {
+  ActionButtons,
+  EmptyState,
+  ListCard,
+  LoadingState,
+  PageHeader,
+  ScrollToTopButton,
+  VirtualizedList,
+} from '@/components/AdvancedMode';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import SearchInput from '@/components/ui/search-input.jsx';
-import {
-  PageHeader,
-  EmptyState,
-  ListCard,
-  ActionButtons,
-  ScrollToTopButton,
-  LoadingState,
-  VirtualizedList,
-} from '@/components/AdvancedMode';
 import RecipeService from '../../../services/recipe.service.js';
 import useAuthStore from '../../../store/authStore.js';
 import useFavoritesStore from '../../../store/favoritesStore.js';
@@ -183,7 +183,7 @@ const Recipes = ({ sidebarCollapsed = false }) => {
             className="w-full sm:w-auto"
             size="default"
           >
-            <PlusCircle className="mr-2 h-4 w-4" />
+            <PlusCircle className="mr-2 size-6" />
             Add Recipe
           </Button>
         }
@@ -194,10 +194,10 @@ const Recipes = ({ sidebarCollapsed = false }) => {
               onChange={handleSearch}
               placeholder="Search recipes..."
               debounceMs={300}
-              inputClassName="pl-10 h-10 sm:h-11"
+              inputClassName="pl-10"
             />
             {totalCount > 0 && (
-              <p className="text-xs sm:text-sm text-muted-foreground mt-2">
+              <p className="text-sm text-foreground-muted mt-2">
                 Showing {allRecipes.length} of {totalCount} recipes
               </p>
             )}
@@ -277,25 +277,19 @@ const Recipes = ({ sidebarCollapsed = false }) => {
                       description={recipe.description}
                       badges={
                         isFavorite && (
-                          <Heart className="h-3.5 w-3.5 sm:h-4 sm:w-4 fill-destructive text-destructive flex-shrink-0" />
+                          <Heart className="h-3.5 w-3.5 sm:h-4 sm:w-4 fill-destructive text-danger flex-shrink-0" />
                         )
                       }
                       metadata={
                         <>
                           {ingredientCount > 0 && (
-                            <Badge
-                              variant="secondary"
-                              className="text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5"
-                            >
+                            <Badge variant="secondary" className="text-sm">
                               {ingredientCount} ingredient
                               {ingredientCount !== 1 ? 's' : ''}
                             </Badge>
                           )}
                           {recipe.defaultGlass && (
-                            <Badge
-                              variant="outline"
-                              className="text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5"
-                            >
+                            <Badge variant="outline" className="text-sm">
                               {recipe.defaultGlass.name}
                             </Badge>
                           )}
@@ -307,9 +301,9 @@ const Recipes = ({ sidebarCollapsed = false }) => {
                             {
                               icon: (
                                 <Heart
-                                  className={`h-4 w-4 ${
+                                  className={`size-6 ${
                                     isFavorite
-                                      ? 'fill-destructive text-destructive'
+                                      ? 'fill-destructive text-danger'
                                       : ''
                                   }`}
                                 />
@@ -326,7 +320,7 @@ const Recipes = ({ sidebarCollapsed = false }) => {
                               },
                             },
                             {
-                              icon: <Edit className="h-4 w-4" />,
+                              icon: <Edit className="size-6" />,
                               label: t('recipes.edit', 'Edit recipe'),
                               onClick: (e) => {
                                 e.stopPropagation();
@@ -334,9 +328,7 @@ const Recipes = ({ sidebarCollapsed = false }) => {
                               },
                             },
                             {
-                              icon: (
-                                <Trash2 className="h-4 w-4 text-destructive" />
-                              ),
+                              icon: <Trash2 className="size-6 text-danger" />,
                               label: t('recipes.delete', 'Delete recipe'),
                               onClick: (e) => {
                                 e.stopPropagation();
@@ -358,7 +350,7 @@ const Recipes = ({ sidebarCollapsed = false }) => {
 
             {!hasNextPage && !isFetching && allRecipes.length > 0 && (
               <div className="flex items-center justify-center py-8">
-                <p className="text-center text-muted-foreground text-sm">
+                <p className="text-center text-foreground-muted text-sm">
                   Showing all {allRecipes.length} recipes
                 </p>
               </div>

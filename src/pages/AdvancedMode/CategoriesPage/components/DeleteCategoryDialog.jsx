@@ -1,5 +1,5 @@
-import React from 'react';
 import { AlertCircle } from 'lucide-react';
+import React from 'react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import {
@@ -31,7 +31,7 @@ export const DeleteCategoryDialog = ({
 
         {error && (
           <Alert variant="destructive">
-            <AlertCircle className="h-4 w-4" />
+            <AlertCircle className="size-6" />
             <AlertDescription>{error}</AlertDescription>
           </Alert>
         )}

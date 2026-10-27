@@ -15,10 +15,10 @@ interface IngredientsListProps {
 const IngredientsList = ({ ingredients }: IngredientsListProps) => {
   const { t } = useTranslation();
   return (
-    <Card className="bg-muted/50">
+    <Card className="bg-surface-sunken">
       <CardContent className="p-3 sm:p-4">
-        <h2 className="text-sm sm:text-base font-semibold mb-3 sm:mb-4 flex items-center gap-2">
-          <Beaker className="w-3 h-3 sm:w-4 sm:h-4" />
+        <h2 className="text-base font-semibold mb-3 sm:mb-4 flex items-center gap-2">
+          <Beaker className="size-6" />
           {t('ingredients_list.title')}
         </h2>
         <ul className="space-y-2 sm:space-y-3">
@@ -27,13 +27,13 @@ const IngredientsList = ({ ingredients }: IngredientsListProps) => {
               key={`${ingredient.name}-${index}`}
               className="flex items-center gap-3 sm:gap-4 p-2 sm:p-3 bg-background rounded-lg shadow-sm hover:shadow-md transition-shadow"
             >
-              <span className="w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-primary/20 text-primary flex items-center justify-center text-xs sm:text-sm font-semibold shrink-0">
+              <span className="w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-primary-tint text-primary flex items-center justify-center text-base font-semibold shrink-0">
                 {index + 1}
               </span>
-              <span className="flex-1 font-medium text-sm sm:text-base min-w-0 break-words">
+              <span className="flex-1 font-medium text-base min-w-0 break-words">
                 {ingredient.name}
               </span>
-              <span className="text-muted-foreground font-semibold shrink-0 text-xs sm:text-sm">
+              <span className="text-foreground-muted font-semibold shrink-0 text-sm">
                 {ingredient.amount} {ingredient.unit}
               </span>
             </li>
