@@ -1,6 +1,5 @@
 import type React from 'react';
 import { useEffect, useState } from 'react';
-import { toast } from 'sonner';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import {
@@ -20,6 +19,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { toast } from '@/components/ui/toast';
 import GpioService, {
   gpioBoardDtoMapper,
 } from '../../../../services/gpio.service';
@@ -29,6 +29,7 @@ import {
   type GpioBoard,
   getErrorMessage,
   I2C_BOARD_MODELS,
+  i2cModelLabel,
 } from '../types';
 
 interface I2cBoardDialogProps {
@@ -143,12 +144,12 @@ export const I2cBoardDialog: React.FC<I2cBoardDialogProps> = ({
             <Label>Board model</Label>
             <Select value={model} onValueChange={(v) => v && setModel(v)}>
               <SelectTrigger>
-                <SelectValue>{model}</SelectValue>
+                <SelectValue>{i2cModelLabel(model)}</SelectValue>
               </SelectTrigger>
               <SelectContent>
                 {I2C_BOARD_MODELS.map((m) => (
-                  <SelectItem key={m} value={m}>
-                    {m}
+                  <SelectItem key={m.value} value={m.value}>
+                    {m.label}
                   </SelectItem>
                 ))}
               </SelectContent>

@@ -20,6 +20,8 @@ type CocktailService struct {
 	pumpRepo       *repository.PumpRepository
 	userService    *UserService
 	gpioService    *GPIOService
+	events         EventDispatcher
+	onProgress     func(*models.CocktailProgress)
 	wsService      *websocket.Service
 	db             *gorm.DB
 
@@ -27,6 +29,22 @@ type CocktailService struct {
 	continueCh   chan struct{}
 	cancelCh     chan struct{}
 	mu           sync.RWMutex
+}
+
+// SetEventDispatcher wires in the event engine fired on production start, finish and cancel.
+func (s *CocktailService) SetEventDispatcher(d EventDispatcher) {
+	s.events = d
+}
+
+// SetProgressObserver registers a callback for every progress change, including nil when idle.
+func (s *CocktailService) SetProgressObserver(f func(*models.CocktailProgress)) {
+	s.onProgress = f
+}
+
+func (s *CocktailService) dispatchEvent(trigger string, recipeID int64) {
+	if s.events != nil {
+		s.events.Dispatch(trigger, recipeID)
+	}
 }
 
 // NewCocktailService creates a new cocktail service
@@ -342,6 +360,7 @@ func (s *CocktailService) OrderCocktail(userID int64, username string, recipeID 
 	s.mu.Unlock()
 
 	s.broadcastProgress(&progressSnap)
+	s.dispatchEvent(models.EventTriggerProductionStarted, recipeID)
 
 	go s.produceCocktail(recipe, config, feasibility)
 
@@ -349,6 +368,9 @@ func (s *CocktailService) OrderCocktail(userID int64, username string, recipeID 
 }
 
 func (s *CocktailService) broadcastProgress(progress *models.CocktailProgress) {
+	if s.onProgress != nil {
+		s.onProgress(progress)
+	}
 	if s.wsService == nil {
 		return
 	}
@@ -454,6 +476,7 @@ func (s *CocktailService) produceCocktail(
 			snap := *s.currentOrder
 			s.mu.Unlock()
 			s.broadcastProgress(&snap)
+			s.dispatchEvent(models.EventTriggerManualInteractionRequested, recipe.ID)
 
 			select {
 			case <-cancelCh:
@@ -509,6 +532,7 @@ func (s *CocktailService) produceCocktail(
 			snap := *s.currentOrder
 			s.mu.Unlock()
 			s.broadcastProgress(&snap)
+			s.dispatchEvent(models.EventTriggerManualInteractionRequested, recipe.ID)
 
 			select {
 			case <-cancelCh:
@@ -682,6 +706,7 @@ func (s *CocktailService) produceCocktail(
 	s.mu.Unlock()
 
 	s.broadcastProgress(&snap)
+	s.dispatchEvent(models.EventTriggerProductionFinished, recipe.ID)
 	s.recordOrder(recipe, snap.UserID, snap.Username, feasibility.TotalAmountInMl, "completed", snap.StartedAt, now, feasibility.RequiredIngredients)
 
 	// Clear progress after a brief display window so clients see 100% COMPLETED
@@ -748,6 +773,7 @@ func (s *CocktailService) CancelOrder(userID int64, isAdmin ...bool) error {
 	s.mu.Unlock()
 
 	s.broadcastProgress(&snap)
+	s.dispatchEvent(models.EventTriggerProductionCancelled, snap.RecipeID)
 	if recipe != nil {
 		s.recordOrder(recipe, snap.UserID, snap.Username, recipe.DefaultAmountToFill, "cancelled", snap.StartedAt, now, nil)
 	}
@@ -788,6 +814,7 @@ func (s *CocktailService) ContinueProduction() error {
 	s.mu.Unlock()
 
 	s.broadcastProgress(&snap)
+	s.dispatchEvent(models.EventTriggerManualInteractionCompleted, snap.RecipeID)
 
 	if ch != nil {
 		select {

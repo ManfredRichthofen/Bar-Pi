@@ -2,24 +2,34 @@ import { Filter } from 'lucide-react';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { useCollectionsList } from '@/hooks/useCollections';
+import { CLIENT_FILTER_KEYS, hasActiveClientFilters } from '@/utils/recipeFilters';
 
-const SIMPLE_FILTERS = ['automatic', 'manual', 'available'];
-const ADVANCED_FILTERS = ['alcoholic', 'nonAlcoholic', 'favorited', 'fabricable'];
+const ALL_COLLECTIONS = 'all';
 
 const FilterPanel = React.memo(
   ({
     filters,
     onFilterChange,
+    onCollectionChange,
     onTogglePanel,
-    variant = 'simple', // 'simple' or 'advanced'
+    variant = 'simple', // layout only: 'simple' or 'advanced'
     showCloseButton = true,
     className = '',
     id,
   }) => {
     const { t } = useTranslation();
-    const activeFilters =
-      variant === 'simple' ? SIMPLE_FILTERS : ADVANCED_FILTERS;
-    const hasActiveFilters = activeFilters.some((filter) => filters[filter]);
+    const { data: collections = [] } = useCollectionsList();
+    const isSimple = variant === 'simple';
+    const hasActiveFilters =
+      hasActiveClientFilters(filters) || filters.collectionId != null;
 
     const filterLabels = {
       automatic: t('filters.automatic', 'Automatic'),
@@ -58,7 +68,6 @@ const FilterPanel = React.memo(
 
     const renderFilterButton = (filter) => {
       const isActive = !!filters[filter];
-      const isSimple = variant === 'simple';
       return (
         <Button
           key={filter}
@@ -70,7 +79,7 @@ const FilterPanel = React.memo(
           aria-pressed={isActive}
         >
           <span className="flex items-center gap-1.5">
-            {variant === 'simple' && (
+            {isSimple && (
               <span
                 className={`size-2 rounded-full ${isActive ? 'bg-primary-foreground' : 'bg-foreground-muted'}`}
               />
@@ -81,8 +90,47 @@ const FilterPanel = React.memo(
       );
     };
 
-    if (variant === 'simple') {
-      const selected = activeFilters.filter((filter) => filters[filter]);
+    const selectedCollection = collections.find(
+      (collection) => collection.id === filters.collectionId,
+    );
+
+    const collectionSelect = collections.length > 0 && (
+      <div className="flex items-center gap-3">
+        <span className="text-sm font-medium">
+          {t('filters.collection', 'Collection')}
+        </span>
+        <Select
+          value={
+            filters.collectionId != null
+              ? String(filters.collectionId)
+              : ALL_COLLECTIONS
+          }
+          onValueChange={(value) =>
+            onCollectionChange(value === ALL_COLLECTIONS ? null : Number(value))
+          }
+        >
+          <SelectTrigger className="w-56">
+            <SelectValue>
+              {selectedCollection?.name ??
+                t('filters.all_collections', 'All collections')}
+            </SelectValue>
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value={ALL_COLLECTIONS}>
+              {t('filters.all_collections', 'All collections')}
+            </SelectItem>
+            {collections.map((collection) => (
+              <SelectItem key={collection.id} value={String(collection.id)}>
+                {collection.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+    );
+
+    if (isSimple) {
+      const selected = CLIENT_FILTER_KEYS.filter((filter) => filters[filter]);
       return (
         <section
           id={id}
@@ -90,17 +138,20 @@ const FilterPanel = React.memo(
           className={`flex flex-col gap-3 ${className}`}
         >
           <div className="flex flex-wrap gap-2">
-            {activeFilters.map(renderFilterButton)}
+            {CLIENT_FILTER_KEYS.map(renderFilterButton)}
           </div>
+          {collectionSelect}
           <ul className="space-y-1 text-sm text-foreground-muted">
-            {(selected.length > 0 ? selected : activeFilters).map((filter) => (
-              <li key={filter}>
-                <span className="font-semibold text-foreground">
-                  {filterLabels[filter]}:
-                </span>{' '}
-                {filterDescriptions[filter]}
-              </li>
-            ))}
+            {(selected.length > 0 ? selected : CLIENT_FILTER_KEYS).map(
+              (filter) => (
+                <li key={filter}>
+                  <span className="font-semibold text-foreground">
+                    {filterLabels[filter]}:
+                  </span>{' '}
+                  {filterDescriptions[filter]}
+                </li>
+              ),
+            )}
           </ul>
           {hasActiveFilters && (
             <Button
@@ -117,6 +168,7 @@ const FilterPanel = React.memo(
 
     return (
       <div
+        id={id}
         className={`bg-surface border-control border-border-strong rounded-lg px-4 sm:px-6 py-6 space-y-4 shadow-lg animate-in slide-in-from-top-2 ${className}`}
       >
         <div className="flex items-center justify-between">
@@ -149,8 +201,9 @@ const FilterPanel = React.memo(
           </div>
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          {activeFilters.map(renderFilterButton)}
+          {CLIENT_FILTER_KEYS.map(renderFilterButton)}
         </div>
+        {collectionSelect}
       </div>
     );
   },

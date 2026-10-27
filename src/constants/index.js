@@ -4,6 +4,7 @@ export const API_PATHS = {
   COCKTAIL: 'api/cocktail/',
   GLASS: 'api/glass/',
   CATEGORY: 'api/category/',
+  COLLECTION: 'api/collection/',
   SYSTEM: 'api/system/',
   STATISTICS: 'api/statistics',
   HEALTH: 'health',

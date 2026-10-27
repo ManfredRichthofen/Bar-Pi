@@ -33,7 +33,7 @@ const Layout: React.FC<MainLayoutProps> = ({ children }) => {
       />
       <Sidebar collapsed={collapsed} onCollapse={setCollapsed} />
       <main
-        className={`transition-[margin] min-h-screen ${
+        className={`min-h-screen transition-[margin] ${
           collapsed ? 'ml-0' : 'ml-0 sm:ml-72'
         }`}
       >

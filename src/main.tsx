@@ -3,8 +3,10 @@ import { createRouter, RouterProvider } from '@tanstack/react-router';
 import { TanStackRouterDevtools } from '@tanstack/react-router-devtools';
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import { Toaster } from './components/ui/sonner';
+import { Toaster } from './components/ui/toast';
 import './lib/apiClient';
+// Applies the saved theme to <html> on startup, not only when Settings opens.
+import './store/themeStore';
 import { queryClient } from './lib/queryClient';
 import './index.css';
 import './i18n';

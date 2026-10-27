@@ -1,5 +1,6 @@
 import { useInfiniteQuery } from '@tanstack/react-query';
 import RecipeService from '../services/recipe.service.js';
+import useFavoritesStore from '../store/favoritesStore';
 
 /** Stable query key for paginated recipe browsing across modes. */
 export function recipesInfiniteQueryKey({
@@ -25,18 +26,24 @@ export function useRecipesInfinite({
   extraKey,
   enabled = true,
 }) {
+  const favorites = useFavoritesStore((state) => state.favorites);
+  // Only key on favorites while that filter is active so other queries stay cached.
+  const favoriteIds = filters?.favorited
+    ? favorites.map((fav) => fav.id)
+    : null;
+
   return useInfiniteQuery({
     queryKey: recipesInfiniteQueryKey({
       searchTerm,
       filters,
       mode,
-      extraKey,
+      extraKey: [extraKey, favoriteIds],
     }),
     queryFn: async ({ pageParam = 0 }) => {
       const response = await RecipeService.getRecipes(
         pageParam,
         null, // ownerId
-        null, // inCollection
+        filters?.collectionId ?? null, // inCollection
         null, // fabricable
         null, // containsIngredients
         searchTerm, // searchName
@@ -50,14 +57,16 @@ export function useRecipesInfinite({
         const newRecipes = response.content.filter(
           (recipe) => !fabricableRecipes.has(recipe.id),
         );
+        let fabricable = fabricableRecipes;
         if (newRecipes.length > 0 && onCheckFabricability) {
-          await onCheckFabricability(newRecipes);
+          fabricable = (await onCheckFabricability(newRecipes)) ?? fabricable;
         }
         if (onFilterRecipes) {
           response.content = onFilterRecipes(
             response.content,
             filters,
-            fabricableRecipes,
+            fabricable,
+            new Set(favoriteIds ?? []),
           );
         }
       }

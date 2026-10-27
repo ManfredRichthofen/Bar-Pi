@@ -3,7 +3,7 @@ import { useLocation, useNavigate, useParams } from '@tanstack/react-router';
 import { ArrowLeft, Beaker, GlassWater } from 'lucide-react';
 import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { toast } from 'sonner';
+import { toast } from '@/components/ui/toast';
 import SimplePageEnter from '@/components/simple-mode/SimplePageEnter';
 import SimpleStateCard from '@/components/simple-mode/SimpleStateCard';
 import { Badge } from '@/components/ui/badge';

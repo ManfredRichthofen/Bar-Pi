@@ -28,7 +28,7 @@ func NewGPIOHandler(gpioService *service.GPIOService, repos ...*repository.GPIOR
 }
 
 func respondGPIOError(c *gin.Context, err error) {
-	var verr *repository.ErrGPIOValidation
+	var verr *repository.ErrValidation
 	if errors.As(err, &verr) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": verr.Msg, "message": verr.Msg})
 		return

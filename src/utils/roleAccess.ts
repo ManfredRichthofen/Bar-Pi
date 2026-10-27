@@ -14,6 +14,7 @@ export interface RolePermissions {
   canManageCategories: boolean;
   canManagePumps: boolean;
   canManageGpio: boolean;
+  canManageEvents: boolean;
   canManageSettings: boolean;
   canViewStatistics: boolean;
 }
@@ -48,6 +49,7 @@ export const ROLE_PERMISSIONS: Record<UserRole, RolePermissions> = {
     canManageCategories: true,
     canManagePumps: true,
     canManageGpio: true,
+    canManageEvents: true,
     canManageSettings: true,
     canViewStatistics: true,
   },
@@ -60,6 +62,7 @@ export const ROLE_PERMISSIONS: Record<UserRole, RolePermissions> = {
     canManageCategories: true,
     canManagePumps: true,
     canManageGpio: true,
+    canManageEvents: true,
     canManageSettings: true,
     canViewStatistics: true,
   },
@@ -72,6 +75,7 @@ export const ROLE_PERMISSIONS: Record<UserRole, RolePermissions> = {
     canManageCategories: false,
     canManagePumps: true,
     canManageGpio: false,
+    canManageEvents: false,
     canManageSettings: false,
     canViewStatistics: true,
   },
@@ -84,6 +88,7 @@ export const ROLE_PERMISSIONS: Record<UserRole, RolePermissions> = {
     canManageCategories: false,
     canManagePumps: false,
     canManageGpio: false,
+    canManageEvents: false,
     canManageSettings: false,
     canViewStatistics: true,
   },
@@ -96,6 +101,7 @@ export const ROLE_PERMISSIONS: Record<UserRole, RolePermissions> = {
     canManageCategories: false,
     canManagePumps: false,
     canManageGpio: false,
+    canManageEvents: false,
     canManageSettings: false,
     canViewStatistics: true,
   },
@@ -142,6 +148,8 @@ export const canAccessRoute = (
     case '/pumps':
     case '/pumps/$pumpId/edit':
       return permissions.canManagePumps;
+    case '/events':
+      return permissions.canManageEvents;
     case '/gpio':
       return permissions.canManageGpio;
     case '/settings':

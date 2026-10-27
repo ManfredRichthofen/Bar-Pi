@@ -3,7 +3,7 @@ import { useNavigate } from '@tanstack/react-router';
 import { Download, Loader2, Plus } from 'lucide-react';
 import type React from 'react';
 import { useEffect, useState } from 'react';
-import { toast } from 'sonner';
+import { toast } from '@/components/ui/toast';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import cocktailDBService from '@/services/cocktaildb.service';

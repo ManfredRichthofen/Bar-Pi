@@ -65,45 +65,61 @@ export const isAvailable = (recipe) => {
   });
 };
 
+export const CLIENT_FILTER_KEYS = [
+  'automatic',
+  'manual',
+  'available',
+  'alcoholic',
+  'nonAlcoholic',
+  'favorited',
+  'fabricable',
+];
+
+export const DEFAULT_FILTERS = {
+  ...Object.fromEntries(CLIENT_FILTER_KEYS.map((key) => [key, false])),
+  collectionId: null,
+};
+
+export const countActiveFilters = (filters) =>
+  Object.values(filters ?? {}).filter(Boolean).length;
+
+export const hasActiveClientFilters = (filters) =>
+  CLIENT_FILTER_KEYS.some((key) => filters?.[key]);
+
+const isAlcoholic = (recipe) =>
+  recipe.alcoholic ??
+  recipe.ingredients?.some((ingredient) => ingredient.alcoholContent > 0) ??
+  false;
+
 /**
- * Filters recipes based on the provided filters
- * @param {Array} recipes - Array of recipes to filter
- * @param {Object} filters - Filter options (automatic, manual, available)
- * @param {Set} fabricableRecipes - Set of fabricable recipe IDs (unused but kept for compatibility)
- * @returns {Array} - Filtered array of recipes
+ * Filters one page of recipes by the client-side filters. The collection filter
+ * is applied by the server and is not handled here.
+ * @param {Array} recipes
+ * @param {Object} filters
+ * @param {Set<number>} fabricableRecipes - IDs of recipes confirmed makeable
+ * @param {Set<number>} favoriteIds
  */
-export const filterRecipes = (recipes, filters, fabricableRecipes) => {
+export const filterRecipes = (
+  recipes,
+  filters,
+  fabricableRecipes = new Set(),
+  favoriteIds = new Set(),
+) => {
   if (!recipes?.length) return [];
+  if (!hasActiveClientFilters(filters)) return recipes;
 
-  // Early return if no filters are active
-  if (!filters.automatic && !filters.manual && !filters.available) {
-    return recipes;
-  }
+  const predicates = {
+    automatic: isAutomatic,
+    manual: requiresManual,
+    available: isAvailable,
+    alcoholic: isAlcoholic,
+    nonAlcoholic: (recipe) => !isAlcoholic(recipe),
+    favorited: (recipe) => favoriteIds.has(recipe.id),
+    fabricable: (recipe) => fabricableRecipes.has(recipe.id),
+  };
+  const active = CLIENT_FILTER_KEYS.filter((key) => filters[key]);
 
-  // Filter recipes based on active filters
-  return recipes
-    .filter((recipe) => {
-      if (!recipe) return false;
-
-      const recipeIsAutomatic = isAutomatic(recipe);
-      const recipeRequiresManual = requiresManual(recipe);
-      const recipeIsAvailable = isAvailable(recipe);
-
-      // Apply filters - all active filters must be satisfied
-      const activeFilters = [];
-
-      if (filters.automatic) activeFilters.push(recipeIsAutomatic);
-      if (filters.manual) activeFilters.push(recipeRequiresManual);
-      if (filters.available) activeFilters.push(recipeIsAvailable);
-
-      // If no filters are active, show all recipes
-      if (activeFilters.length === 0) return true;
-
-      // All active filters must be true (AND logic)
-      return activeFilters.every((filter) => filter === true);
-    })
-    .sort((a, b) => {
-      // Sort by name for consistent ordering
-      return a.name.localeCompare(b.name);
-    });
+  return recipes.filter(
+    (recipe) => recipe && active.every((key) => predicates[key](recipe)),
+  );
 };

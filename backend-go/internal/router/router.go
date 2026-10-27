@@ -15,6 +15,7 @@ import (
 	"github.com/ManfredRichthofen/Bar-Pi/backend-go/internal/handlers"
 	"github.com/ManfredRichthofen/Bar-Pi/backend-go/internal/middleware"
 	"github.com/ManfredRichthofen/Bar-Pi/backend-go/internal/models"
+	"github.com/ManfredRichthofen/Bar-Pi/backend-go/internal/mqtt"
 	"github.com/ManfredRichthofen/Bar-Pi/backend-go/internal/process"
 	"github.com/ManfredRichthofen/Bar-Pi/backend-go/internal/repository"
 	"github.com/ManfredRichthofen/Bar-Pi/backend-go/internal/service"
@@ -52,6 +53,7 @@ func SetupWithOptions(cfg *config.Config, db *gorm.DB, opts Options) (*gin.Engin
 	categoryRepo := repository.NewCategoryRepository(db)
 	pumpRepo := repository.NewPumpRepository(db)
 	gpioRepo := repository.NewGPIORepository(db)
+	eventRepo := repository.NewEventRepository(db)
 	collectionRepo := repository.NewCollectionRepository(db)
 
 	wsHub := websocket.NewHub()
@@ -80,6 +82,15 @@ func SetupWithOptions(cfg *config.Config, db *gorm.DB, opts Options) (*gin.Engin
 	systemService := service.NewSystemService(cfg, db)
 	pumpService := service.NewPumpService(pumpRepo, ingredientRepo, gpioRepo, gpioService, wsService, systemService)
 	cocktailService := service.NewCocktailService(recipeRepo, ingredientRepo, pumpRepo, gpioService, wsService, db, userService)
+	var pinController interface {
+		SetupOutputPin(pin int) error
+		SetPinHigh(pin int) error
+		SetPinLow(pin int) error
+	}
+	if gpioService != nil {
+		pinController = gpioService
+	}
+	eventService := service.NewEventService(eventRepo, pinController)
 	statisticsService := service.NewStatisticsService(db)
 	imageService := service.NewImageService(imagesDir)
 	updateService := service.NewUpdateService(service.UpdateServiceOptions{
@@ -97,6 +108,16 @@ func SetupWithOptions(cfg *config.Config, db *gorm.DB, opts Options) (*gin.Engin
 		Broadcast: func(st service.UpdateStatus) { wsService.BroadcastUpdateStatus(st) },
 		Restart:   opts.OnRestart,
 	})
+	mqttService := mqtt.New(mqtt.Config{
+		Stats:           statisticsService,
+		Pumps:           pumpRepo,
+		Version:         version.Version,
+		UpdateAvailable: func() bool { return updateService.Status().HasUpdate },
+	})
+	cocktailService.SetEventDispatcher(service.MultiDispatcher{eventService, mqttService})
+	cocktailService.SetProgressObserver(mqttService.PublishProgress)
+	go mqttService.Apply(systemService.GetMQTTSettings())
+
 	updaterCtx, stopUpdater := context.WithCancel(context.Background())
 	updateService.Start(updaterCtx)
 
@@ -140,6 +161,7 @@ func SetupWithOptions(cfg *config.Config, db *gorm.DB, opts Options) (*gin.Engin
 
 	cleanup := func() {
 		stopUpdater()
+		mqttService.Close()
 		_ = cocktailService.CancelOrder(0, true)
 		_ = pumpService.StopPump(nil)
 		if gpioService != nil {
@@ -161,9 +183,11 @@ func SetupWithOptions(cfg *config.Config, db *gorm.DB, opts Options) (*gin.Engin
 	categoryHandler := handlers.NewCategoryHandler(categoryService)
 	pumpHandler := handlers.NewPumpHandler(pumpService, systemService)
 	systemHandler := handlers.NewSystemHandler(systemService)
+	systemHandler.SetMQTT(mqttService)
 	updateHandler := handlers.NewUpdateHandler(updateService, systemService)
 	cocktailHandler := handlers.NewCocktailHandler(cocktailService)
 	gpioHandler := handlers.NewGPIOHandler(gpioService, gpioRepo)
+	eventHandler := handlers.NewEventHandler(eventRepo, eventService)
 	statisticsHandler := handlers.NewStatisticsHandler(statisticsService)
 	collectionHandler := handlers.NewCollectionHandler(collectionRepo)
 
@@ -327,6 +351,9 @@ func SetupWithOptions(cfg *config.Config, db *gorm.DB, opts Options) (*gin.Engin
 			systemGroup.PUT("/settings/sawdonationdisclaimer", systemHandler.SetDonationDisclaimer)
 			systemGroup.GET("/settings/i2c", middleware.RequireRole(models.RoleAdmin), systemHandler.GetI2CSettings)
 			systemGroup.PUT("/settings/i2c", middleware.RequireRole(models.RoleAdmin), systemHandler.SetI2CSettings)
+			systemGroup.GET("/settings/mqtt", middleware.RequireRole(models.RoleAdmin), systemHandler.GetMQTTSettings)
+			systemGroup.PUT("/settings/mqtt", middleware.RequireRole(models.RoleAdmin), systemHandler.SetMQTTSettings)
+			systemGroup.GET("/settings/mqtt/status", middleware.RequireRole(models.RoleAdmin), systemHandler.GetMQTTStatus)
 			systemGroup.GET("/settings/defaultfilter", systemHandler.GetDefaultFilter)
 			systemGroup.PUT("/settings/defaultfilter", middleware.RequireRole(models.RoleAdmin), systemHandler.SetDefaultFilter)
 			systemGroup.GET("/settings/ordering", systemHandler.GetOrderingPolicy)
@@ -357,6 +384,20 @@ func SetupWithOptions(cfg *config.Config, db *gorm.DB, opts Options) (*gin.Engin
 			gpioGroup.PUT("/:id", middleware.RequireRole(models.RoleAdmin), gpioHandler.UpdateBoard)
 			gpioGroup.DELETE("/:id", middleware.RequireRole(models.RoleAdmin), gpioHandler.DeleteBoard)
 			gpioGroup.GET("/:id/pin", gpioHandler.GetBoardPins)
+		}
+
+		eventGroup := api.Group("/eventaction")
+		eventGroup.Use(middleware.AuthMiddleware(jwtService), middleware.RequireRole(models.RoleAdmin))
+		{
+			eventGroup.GET("", eventHandler.GetAll)
+			eventGroup.GET("/", eventHandler.GetAll)
+			eventGroup.GET("/executiongroup", eventHandler.GetExecutionGroups)
+			eventGroup.POST("", eventHandler.Create)
+			eventGroup.POST("/", eventHandler.Create)
+			eventGroup.PUT("/:id", eventHandler.Update)
+			eventGroup.DELETE("/:id", eventHandler.Delete)
+			eventGroup.POST("/:id/start", eventHandler.Start)
+			eventGroup.DELETE("/process/:processId", eventHandler.KillProcess)
 		}
 
 		statisticsGroup := api.Group("/statistics")
@@ -391,6 +432,7 @@ func SetupWithOptions(cfg *config.Config, db *gorm.DB, opts Options) (*gin.Engin
 		log.Println("Running in standalone mode - API-only, no frontend serving")
 	}
 
+	eventService.Dispatch(models.EventTriggerApplicationStartup, 0)
 	return r, cleanup
 }
 

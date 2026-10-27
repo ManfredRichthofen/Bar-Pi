@@ -1,7 +1,7 @@
 import { AlertCircle, PlayCircle, PlusCircle, StopCircle } from 'lucide-react';
 import type React from 'react';
 import { useState } from 'react';
-import { toast } from 'sonner';
+import { toast } from '@/components/ui/toast';
 import { PageHeader } from '@/components/AdvancedMode/PageHeader';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';

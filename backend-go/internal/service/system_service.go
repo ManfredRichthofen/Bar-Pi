@@ -21,6 +21,7 @@ type SystemService struct {
 	reversePumpSettings    models.ReversePumpSettings
 	loadCellSettings       *models.LoadCellSettings
 	updaterSettings        models.UpdaterSettings
+	mqttSettings           models.MQTTSettings
 	orderingPolicySettings models.OrderingPolicySettings
 	loginSettings          models.LoginSettings
 }
@@ -94,6 +95,7 @@ func (s *SystemService) loadFromDB() {
 	s.loadJSON("default_filter", &s.defaultFilterSettings)
 	s.loadJSON("reverse_pump", &s.reversePumpSettings)
 	s.loadJSON("updater", &s.updaterSettings)
+	s.loadJSON("mqtt", &s.mqttSettings)
 	s.loadJSON("ordering_policy", &s.orderingPolicySettings)
 	s.loadJSON("login", &s.loginSettings)
 
@@ -264,6 +266,21 @@ func (s *SystemService) SetUpdaterSettings(settings models.UpdaterSettings) mode
 	s.updaterSettings = settings
 	s.saveJSON("updater", s.updaterSettings)
 	return s.updaterSettings
+}
+
+// GetMQTTSettings returns the MQTT connector settings, including the password.
+func (s *SystemService) GetMQTTSettings() models.MQTTSettings {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	return s.mqttSettings
+}
+
+// SetMQTTSettings persists the MQTT connector settings.
+func (s *SystemService) SetMQTTSettings(settings models.MQTTSettings) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	s.mqttSettings = settings
+	s.saveJSON("mqtt", s.mqttSettings)
 }
 
 func clampHour(h int) int {

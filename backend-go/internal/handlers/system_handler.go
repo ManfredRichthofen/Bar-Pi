@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/ManfredRichthofen/Bar-Pi/backend-go/internal/models"
+	"github.com/ManfredRichthofen/Bar-Pi/backend-go/internal/mqtt"
 	"github.com/ManfredRichthofen/Bar-Pi/backend-go/internal/service"
 	"github.com/gin-gonic/gin"
 )
@@ -11,11 +12,23 @@ import (
 // SystemHandler handles HTTP requests for system settings
 type SystemHandler struct {
 	service *service.SystemService
+	mqtt    MQTTController
+}
+
+// MQTTController applies MQTT settings to the running connector.
+type MQTTController interface {
+	Apply(settings models.MQTTSettings) mqtt.Status
+	Status() mqtt.Status
 }
 
 // NewSystemHandler creates a new system handler
 func NewSystemHandler(service *service.SystemService) *SystemHandler {
 	return &SystemHandler{service: service}
+}
+
+// SetMQTT wires in the connector so settings changes take effect immediately.
+func (h *SystemHandler) SetMQTT(m MQTTController) {
+	h.mqtt = m
 }
 
 // GetAppearance handles GET /api/system/settings/appearance
@@ -156,4 +169,83 @@ func (h *SystemHandler) Shutdown(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"message": "System " + action + " initiated"})
+}
+
+type mqttSettingsResponse struct {
+	Enabled         bool        `json:"enabled"`
+	BrokerURL       string      `json:"brokerUrl"`
+	Username        string      `json:"username"`
+	PasswordSet     bool        `json:"passwordSet"`
+	BaseTopic       string      `json:"baseTopic"`
+	DiscoveryPrefix string      `json:"discoveryPrefix"`
+	Status          mqtt.Status `json:"status"`
+}
+
+func (h *SystemHandler) mqttResponse(settings models.MQTTSettings, status mqtt.Status) mqttSettingsResponse {
+	settings, _ = mqtt.Normalize(settings)
+	return mqttSettingsResponse{
+		Enabled:         settings.Enabled,
+		BrokerURL:       settings.BrokerURL,
+		Username:        settings.Username,
+		PasswordSet:     settings.Password != "",
+		BaseTopic:       settings.BaseTopic,
+		DiscoveryPrefix: settings.DiscoveryPrefix,
+		Status:          status,
+	}
+}
+
+func (h *SystemHandler) mqttStatus() mqtt.Status {
+	if h.mqtt == nil {
+		return mqtt.Status{}
+	}
+	return h.mqtt.Status()
+}
+
+// GetMQTTSettings handles GET /api/system/settings/mqtt
+func (h *SystemHandler) GetMQTTSettings(c *gin.Context) {
+	c.JSON(http.StatusOK, h.mqttResponse(h.service.GetMQTTSettings(), h.mqttStatus()))
+}
+
+// SetMQTTSettings handles PUT /api/system/settings/mqtt.
+// A missing password keeps the stored one; an empty string clears it.
+func (h *SystemHandler) SetMQTTSettings(c *gin.Context) {
+	var body struct {
+		Enabled         bool    `json:"enabled"`
+		BrokerURL       string  `json:"brokerUrl"`
+		Username        string  `json:"username"`
+		Password        *string `json:"password"`
+		BaseTopic       string  `json:"baseTopic"`
+		DiscoveryPrefix string  `json:"discoveryPrefix"`
+	}
+	if err := c.ShouldBindJSON(&body); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error(), "message": err.Error()})
+		return
+	}
+	settings := models.MQTTSettings{
+		Enabled:         body.Enabled,
+		BrokerURL:       body.BrokerURL,
+		Username:        body.Username,
+		Password:        h.service.GetMQTTSettings().Password,
+		BaseTopic:       body.BaseTopic,
+		DiscoveryPrefix: body.DiscoveryPrefix,
+	}
+	if body.Password != nil {
+		settings.Password = *body.Password
+	}
+	settings, err := mqtt.Normalize(settings)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error(), "message": err.Error()})
+		return
+	}
+	h.service.SetMQTTSettings(settings)
+	status := h.mqttStatus()
+	if h.mqtt != nil {
+		status = h.mqtt.Apply(settings)
+	}
+	c.JSON(http.StatusOK, h.mqttResponse(settings, status))
+}
+
+// GetMQTTStatus handles GET /api/system/settings/mqtt/status
+func (h *SystemHandler) GetMQTTStatus(c *gin.Context) {
+	c.JSON(http.StatusOK, h.mqttStatus())
 }

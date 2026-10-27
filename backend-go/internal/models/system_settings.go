@@ -39,6 +39,17 @@ type I2CSettings struct {
 	SclPin  *PinDto `json:"sclPin,omitempty"`
 }
 
+// MQTTSettings configures the Home Assistant / MQTT connector.
+// Password is stored but never returned by the API.
+type MQTTSettings struct {
+	Enabled         bool   `json:"enabled"`
+	BrokerURL       string `json:"brokerUrl"`
+	Username        string `json:"username"`
+	Password        string `json:"password"`
+	BaseTopic       string `json:"baseTopic"`
+	DiscoveryPrefix string `json:"discoveryPrefix"`
+}
+
 // DefaultFilterSettings represents default filter preferences
 type DefaultFilterSettings struct {
 	Enable             bool    `json:"enable"`

@@ -15,7 +15,9 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as ReversepumpsettingsRouteImport } from './routes/reversepumpsettings'
 import { Route as SimpleRouteImport } from './routes/simple'
 import { Route as AdvancedCategoriesRouteImport } from './routes/_advanced.categories'
+import { Route as AdvancedCollectionsRouteImport } from './routes/_advanced.collections'
 import { Route as AdvancedDrinksRouteImport } from './routes/_advanced.drinks'
+import { Route as AdvancedEventsRouteImport } from './routes/_advanced.events'
 import { Route as AdvancedFavoritesRouteImport } from './routes/_advanced.favorites'
 import { Route as AdvancedGlassesRouteImport } from './routes/_advanced.glasses'
 import { Route as AdvancedGpioRouteImport } from './routes/_advanced.gpio'
@@ -65,9 +67,19 @@ const AdvancedCategoriesRoute = AdvancedCategoriesRouteImport.update({
   path: '/categories',
   getParentRoute: () => AdvancedRoute,
 } as any)
+const AdvancedCollectionsRoute = AdvancedCollectionsRouteImport.update({
+  id: '/collections',
+  path: '/collections',
+  getParentRoute: () => AdvancedRoute,
+} as any)
 const AdvancedDrinksRoute = AdvancedDrinksRouteImport.update({
   id: '/drinks',
   path: '/drinks',
+  getParentRoute: () => AdvancedRoute,
+} as any)
+const AdvancedEventsRoute = AdvancedEventsRouteImport.update({
+  id: '/events',
+  path: '/events',
   getParentRoute: () => AdvancedRoute,
 } as any)
 const AdvancedFavoritesRoute = AdvancedFavoritesRouteImport.update({
@@ -173,7 +185,9 @@ export interface FileRoutesByFullPath {
   '/reversepumpsettings': typeof ReversepumpsettingsRoute
   '/simple': typeof SimpleRouteWithChildren
   '/categories': typeof AdvancedCategoriesRoute
+  '/collections': typeof AdvancedCollectionsRoute
   '/drinks': typeof AdvancedDrinksRouteWithChildren
+  '/events': typeof AdvancedEventsRoute
   '/favorites': typeof AdvancedFavoritesRoute
   '/glasses': typeof AdvancedGlassesRoute
   '/gpio': typeof AdvancedGpioRoute
@@ -200,7 +214,9 @@ export interface FileRoutesByTo {
   '/reversepumpsettings': typeof ReversepumpsettingsRoute
   '/simple': typeof SimpleRouteWithChildren
   '/categories': typeof AdvancedCategoriesRoute
+  '/collections': typeof AdvancedCollectionsRoute
   '/drinks': typeof AdvancedDrinksRouteWithChildren
+  '/events': typeof AdvancedEventsRoute
   '/favorites': typeof AdvancedFavoritesRoute
   '/glasses': typeof AdvancedGlassesRoute
   '/gpio': typeof AdvancedGpioRoute
@@ -229,7 +245,9 @@ export interface FileRoutesById {
   '/reversepumpsettings': typeof ReversepumpsettingsRoute
   '/simple': typeof SimpleRouteWithChildren
   '/_advanced/categories': typeof AdvancedCategoriesRoute
+  '/_advanced/collections': typeof AdvancedCollectionsRoute
   '/_advanced/drinks': typeof AdvancedDrinksRouteWithChildren
+  '/_advanced/events': typeof AdvancedEventsRoute
   '/_advanced/favorites': typeof AdvancedFavoritesRoute
   '/_advanced/glasses': typeof AdvancedGlassesRoute
   '/_advanced/gpio': typeof AdvancedGpioRoute
@@ -258,7 +276,9 @@ export interface FileRouteTypes {
     | '/reversepumpsettings'
     | '/simple'
     | '/categories'
+    | '/collections'
     | '/drinks'
+    | '/events'
     | '/favorites'
     | '/glasses'
     | '/gpio'
@@ -285,7 +305,9 @@ export interface FileRouteTypes {
     | '/reversepumpsettings'
     | '/simple'
     | '/categories'
+    | '/collections'
     | '/drinks'
+    | '/events'
     | '/favorites'
     | '/glasses'
     | '/gpio'
@@ -313,7 +335,9 @@ export interface FileRouteTypes {
     | '/reversepumpsettings'
     | '/simple'
     | '/_advanced/categories'
+    | '/_advanced/collections'
     | '/_advanced/drinks'
+    | '/_advanced/events'
     | '/_advanced/favorites'
     | '/_advanced/glasses'
     | '/_advanced/gpio'
@@ -387,11 +411,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdvancedCategoriesRouteImport
       parentRoute: typeof AdvancedRoute
     }
+    '/_advanced/collections': {
+      id: '/_advanced/collections'
+      path: '/collections'
+      fullPath: '/collections'
+      preLoaderRoute: typeof AdvancedCollectionsRouteImport
+      parentRoute: typeof AdvancedRoute
+    }
     '/_advanced/drinks': {
       id: '/_advanced/drinks'
       path: '/drinks'
       fullPath: '/drinks'
       preLoaderRoute: typeof AdvancedDrinksRouteImport
+      parentRoute: typeof AdvancedRoute
+    }
+    '/_advanced/events': {
+      id: '/_advanced/events'
+      path: '/events'
+      fullPath: '/events'
+      preLoaderRoute: typeof AdvancedEventsRouteImport
       parentRoute: typeof AdvancedRoute
     }
     '/_advanced/favorites': {
@@ -570,7 +608,9 @@ const AdvancedRecipesRouteWithChildren = AdvancedRecipesRoute._addFileChildren(
 
 interface AdvancedRouteChildren {
   AdvancedCategoriesRoute: typeof AdvancedCategoriesRoute
+  AdvancedCollectionsRoute: typeof AdvancedCollectionsRoute
   AdvancedDrinksRoute: typeof AdvancedDrinksRouteWithChildren
+  AdvancedEventsRoute: typeof AdvancedEventsRoute
   AdvancedFavoritesRoute: typeof AdvancedFavoritesRoute
   AdvancedGlassesRoute: typeof AdvancedGlassesRoute
   AdvancedGpioRoute: typeof AdvancedGpioRoute
@@ -585,7 +625,9 @@ interface AdvancedRouteChildren {
 
 const AdvancedRouteChildren: AdvancedRouteChildren = {
   AdvancedCategoriesRoute: AdvancedCategoriesRoute,
+  AdvancedCollectionsRoute: AdvancedCollectionsRoute,
   AdvancedDrinksRoute: AdvancedDrinksRouteWithChildren,
+  AdvancedEventsRoute: AdvancedEventsRoute,
   AdvancedFavoritesRoute: AdvancedFavoritesRoute,
   AdvancedGlassesRoute: AdvancedGlassesRoute,
   AdvancedGpioRoute: AdvancedGpioRoute,

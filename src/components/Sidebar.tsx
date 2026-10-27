@@ -8,10 +8,12 @@ import {
   Gauge,
   GlassWater,
   Heart,
+  Library,
   Martini,
   Settings,
   Tag,
   Users,
+  Zap,
 } from 'lucide-react';
 import React, { useEffect } from 'react';
 import { useCurrentUser } from '../hooks/useCurrentUser';
@@ -40,6 +42,11 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed, onCollapse }) => {
           key: '/favorites',
           icon: <Heart size={16} />,
           label: 'Favorites',
+        },
+        {
+          key: '/collections',
+          icon: <Library size={16} />,
+          label: 'Collections',
         },
       ],
     },
@@ -90,6 +97,11 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed, onCollapse }) => {
           key: '/users',
           icon: <Users size={16} />,
           label: 'Users',
+        },
+        {
+          key: '/events',
+          icon: <Zap size={16} />,
+          label: 'Events',
         },
         {
           key: '/statistics',
