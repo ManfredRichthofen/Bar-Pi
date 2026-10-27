@@ -15,11 +15,12 @@ type GPIOBoard struct {
 }
 
 var I2CBoardModelPins = map[string]int{
-	"PCF8574":  8,
-	"PCF8574A": 8,
-	"PCF8575":  16,
-	"MCP23008": 8,
-	"MCP23017": 16,
+	"MCP23017":           16,
+	"XL9535_K1V5_RELAY":  1,
+	"XL9535_K2V5_RELAY":  2,
+	"XL9535_K4V5_RELAY":  4,
+	"XL9535_K8V5_RELAY":  8,
+	"XL9535_K16V5_RELAY": 16,
 }
 
 const (

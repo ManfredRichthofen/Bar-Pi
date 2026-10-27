@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import type React from 'react';
 import { useEffect, useState } from 'react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -21,16 +22,17 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
-import type {
-  EventAction,
-  EventActionInput,
-  EventTrigger,
+import EventService, {
+  type EventAction,
+  type EventActionInput,
+  type EventActionType,
+  type EventTrigger,
+  type RequestMethod,
 } from '../../../../services/event.service';
 import GpioService from '../../../../services/gpio.service';
-import RecipeService from '../../../../services/recipe.service';
 import useAuthStore from '../../../../store/authStore';
 import type { GpioBoard } from '../../GpioPage/types';
-import { EVENT_TRIGGERS } from '../types';
+import { EVENT_TRIGGERS, EVENT_TYPES } from '../types';
 
 interface EventFormDialogProps {
   open: boolean;
@@ -41,7 +43,8 @@ interface EventFormDialogProps {
   onSave: (input: EventActionInput) => void;
 }
 
-const ALL_RECIPES = 'all';
+const REQUEST_METHODS: RequestMethod[] = ['GET', 'POST', 'PUT', 'DELETE'];
+const MAX_COMMENT_LENGTH = 40;
 
 export const EventFormDialog: React.FC<EventFormDialogProps> = ({
   open,
@@ -52,12 +55,15 @@ export const EventFormDialog: React.FC<EventFormDialogProps> = ({
   onSave,
 }) => {
   const token = useAuthStore((state) => state.token);
-  const [name, setName] = useState('');
+  const [type, setType] = useState<EventActionType>('doNothing');
+  const [comment, setComment] = useState('');
   const [trigger, setTrigger] = useState<EventTrigger>(
     'COCKTAIL_PRODUCTION_STARTED',
   );
-  const [recipeId, setRecipeId] = useState<number | null>(null);
-  const [recipeSearch, setRecipeSearch] = useState('');
+  const [groups, setGroups] = useState<string[]>([]);
+  const [groupDraft, setGroupDraft] = useState('');
+  const [url, setUrl] = useState('');
+  const [requestMethod, setRequestMethod] = useState<RequestMethod>('GET');
   const [boardId, setBoardId] = useState<number | null>(null);
   const [pinNr, setPinNr] = useState<number | null>(null);
   const [powerStateHigh, setPowerStateHigh] = useState(true);
@@ -68,33 +74,22 @@ export const EventFormDialog: React.FC<EventFormDialogProps> = ({
     queryFn: () => GpioService.getBoards(token),
     enabled: open && !!token,
   });
-  const localBoards = boards.filter((b) => b.type === 'local');
-
-  const { data: recipePage } = useQuery({
-    queryKey: ['event-recipe-search', recipeSearch],
-    queryFn: () =>
-      RecipeService.getRecipes(
-        0,
-        null,
-        null,
-        null,
-        null,
-        recipeSearch.trim() || null,
-        null,
-        null,
-        token,
-        false,
-      ),
+  const { data: knownGroups = [] } = useQuery({
+    queryKey: ['events', 'execution-groups'],
+    queryFn: () => EventService.getExecutionGroups(),
     enabled: open && !!token,
   });
-  const recipes: { id: number; name: string }[] = recipePage?.content ?? [];
+  const localBoards = boards.filter((b) => b.type === 'local');
 
   useEffect(() => {
     if (!open) return;
-    setName(event?.name ?? '');
+    setType(event?.type ?? 'doNothing');
+    setComment(event?.comment ?? '');
     setTrigger(event?.trigger ?? 'COCKTAIL_PRODUCTION_STARTED');
-    setRecipeId(event?.recipeId ?? null);
-    setRecipeSearch('');
+    setGroups(event?.executionGroups ?? []);
+    setGroupDraft('');
+    setUrl(event?.url ?? '');
+    setRequestMethod(event?.requestMethod ?? 'GET');
     setBoardId(event?.pin?.boardId ?? null);
     setPinNr(event?.pin?.nr ?? null);
     setPowerStateHigh(event?.powerStateHigh ?? true);
@@ -102,26 +97,51 @@ export const EventFormDialog: React.FC<EventFormDialogProps> = ({
   }, [open, event]);
 
   useEffect(() => {
-    if (open && boardId === null && localBoards.length > 0) {
+    if (open && type === 'gpio' && boardId === null && localBoards.length > 0) {
       setBoardId(localBoards[0].id);
     }
-  }, [open, boardId, localBoards]);
+  }, [open, type, boardId, localBoards]);
+
+  const addGroup = (name: string) => {
+    const trimmed = name.trim();
+    if (trimmed && !groups.includes(trimmed)) setGroups([...groups, trimmed]);
+    setGroupDraft('');
+  };
 
   const durationMs = Number(duration);
   const durationValid =
     Number.isInteger(durationMs) && durationMs >= 0 && durationMs <= 3600000;
   const board = localBoards.find((b) => b.id === boardId);
   const pins = [...(board?.pins ?? [])].sort((a, b) => a.nr - b.nr);
-  const canSave =
-    name.trim().length > 0 &&
-    boardId !== null &&
-    pinNr !== null &&
-    durationValid &&
-    !saving;
 
-  const selectedRecipeName =
-    recipes.find((r) => r.id === recipeId)?.name ??
-    (recipeId !== null ? `Recipe #${recipeId}` : 'All recipes');
+  const typeValid =
+    type === 'doNothing' ||
+    (type === 'callUrl' && /^https?:\/\/\S+$/.test(url.trim())) ||
+    (type === 'gpio' && boardId !== null && pinNr !== null && durationValid);
+  const canSave = typeValid && !saving;
+
+  const buildInput = (): EventActionInput => {
+    const base = {
+      type,
+      comment: comment.trim(),
+      trigger,
+      executionGroups: groupDraft.trim()
+        ? [...new Set([...groups, groupDraft.trim()])]
+        : groups,
+    };
+    if (type === 'callUrl') {
+      return { ...base, url: url.trim(), requestMethod };
+    }
+    if (type === 'gpio') {
+      return {
+        ...base,
+        pin: { boardId, nr: pinNr },
+        powerStateHigh,
+        durationInMs: durationMs,
+      };
+    }
+    return base;
+  };
 
   return (
     <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
@@ -129,7 +149,7 @@ export const EventFormDialog: React.FC<EventFormDialogProps> = ({
         <DialogHeader>
           <DialogTitle>{event ? 'Edit event' : 'New event'}</DialogTitle>
           <DialogDescription>
-            Switch a GPIO pin when a drink starts, finishes or is cancelled.
+            Run an action when something happens during a drink.
           </DialogDescription>
         </DialogHeader>
 
@@ -139,15 +159,6 @@ export const EventFormDialog: React.FC<EventFormDialogProps> = ({
               <AlertDescription>{error}</AlertDescription>
             </Alert>
           )}
-          <div className="space-y-2">
-            <Label htmlFor="event-name">Name</Label>
-            <Input
-              id="event-name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="Turn on bar lights"
-            />
-          </div>
 
           <div className="space-y-2">
             <Label>Trigger</Label>
@@ -171,102 +182,188 @@ export const EventFormDialog: React.FC<EventFormDialogProps> = ({
           </div>
 
           <div className="space-y-2">
-            <Label>Recipe</Label>
+            <Label>Action type</Label>
             <Select
-              value={recipeId === null ? ALL_RECIPES : String(recipeId)}
-              onValueChange={(v) =>
-                setRecipeId(!v || v === ALL_RECIPES ? null : Number(v))
-              }
+              value={type}
+              onValueChange={(v) => v && setType(v as EventActionType)}
             >
               <SelectTrigger>
-                <SelectValue>{selectedRecipeName}</SelectValue>
+                <SelectValue>
+                  {EVENT_TYPES.find((t) => t.value === type)?.label}
+                </SelectValue>
               </SelectTrigger>
               <SelectContent>
-                <div className="p-2">
-                  <Input
-                    value={recipeSearch}
-                    onChange={(e) => setRecipeSearch(e.target.value)}
-                    onKeyDown={(e) => e.stopPropagation()}
-                    placeholder="Search recipes"
-                  />
-                </div>
-                <SelectItem value={ALL_RECIPES}>All recipes</SelectItem>
-                {recipes.map((r) => (
-                  <SelectItem key={r.id} value={String(r.id)}>
-                    {r.name}
+                {EVENT_TYPES.map((t) => (
+                  <SelectItem key={t.value} value={t.value}>
+                    {t.label}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-2">
-              <Label>Board</Label>
-              <Select
-                value={boardId === null ? '' : String(boardId)}
-                onValueChange={(v) => {
-                  setBoardId(v ? Number(v) : null);
-                  setPinNr(null);
-                }}
-              >
-                <SelectTrigger>
-                  <SelectValue>{board?.name ?? 'Select board'}</SelectValue>
-                </SelectTrigger>
-                <SelectContent>
-                  {localBoards.map((b) => (
-                    <SelectItem key={b.id} value={String(b.id)}>
-                      {b.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-2">
-              <Label>Pin</Label>
-              <Select
-                value={pinNr === null ? '' : String(pinNr)}
-                onValueChange={(v) => setPinNr(v ? Number(v) : null)}
-              >
-                <SelectTrigger>
-                  <SelectValue>
-                    {pinNr === null ? 'Select pin' : `BCM ${pinNr}`}
-                  </SelectValue>
-                </SelectTrigger>
-                <SelectContent>
-                  {pins.map((p) => (
-                    <SelectItem key={p.nr} value={String(p.nr)}>
-                      BCM {p.nr}
-                      {p.inUse ? ' (in use)' : ''}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
+          {type === 'callUrl' && (
+            <>
+              <div className="space-y-2">
+                <Label>Request method</Label>
+                <Select
+                  value={requestMethod}
+                  onValueChange={(v) =>
+                    v && setRequestMethod(v as RequestMethod)
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue>{requestMethod}</SelectValue>
+                  </SelectTrigger>
+                  <SelectContent>
+                    {REQUEST_METHODS.map((m) => (
+                      <SelectItem key={m} value={m}>
+                        {m}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="event-url">URL</Label>
+                <Input
+                  id="event-url"
+                  value={url}
+                  maxLength={255}
+                  onChange={(e) => setUrl(e.target.value)}
+                  placeholder="http://homeassistant.local:8123/api/webhook/..."
+                  aria-invalid={url !== '' && !typeValid}
+                />
+              </div>
+            </>
+          )}
 
-          <div className="flex items-center justify-between">
-            <Label>Set pin high</Label>
-            <Switch
-              checked={powerStateHigh}
-              onCheckedChange={setPowerStateHigh}
+          {type === 'gpio' && (
+            <>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-2">
+                  <Label>Board</Label>
+                  <Select
+                    value={boardId === null ? '' : String(boardId)}
+                    onValueChange={(v) => {
+                      setBoardId(v ? Number(v) : null);
+                      setPinNr(null);
+                    }}
+                  >
+                    <SelectTrigger>
+                      <SelectValue>{board?.name ?? 'Select board'}</SelectValue>
+                    </SelectTrigger>
+                    <SelectContent>
+                      {localBoards.map((b) => (
+                        <SelectItem key={b.id} value={String(b.id)}>
+                          {b.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label>Pin</Label>
+                  <Select
+                    value={pinNr === null ? '' : String(pinNr)}
+                    onValueChange={(v) => setPinNr(v ? Number(v) : null)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue>
+                        {pinNr === null ? 'Select pin' : `BCM ${pinNr}`}
+                      </SelectValue>
+                    </SelectTrigger>
+                    <SelectContent>
+                      {pins.map((p) => (
+                        <SelectItem key={p.nr} value={String(p.nr)}>
+                          BCM {p.nr}
+                          {p.inUse ? ' (in use)' : ''}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+              <div className="flex items-center justify-between">
+                <Label>Set pin high</Label>
+                <Switch
+                  checked={powerStateHigh}
+                  onCheckedChange={setPowerStateHigh}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="event-duration">Duration (ms)</Label>
+                <Input
+                  id="event-duration"
+                  type="number"
+                  min={0}
+                  value={duration}
+                  onChange={(e) => setDuration(e.target.value)}
+                  aria-invalid={!durationValid}
+                />
+                <p className="text-sm text-foreground-muted">
+                  The pin returns to its previous state afterwards. 0 keeps the
+                  new state until another event changes it.
+                </p>
+              </div>
+            </>
+          )}
+
+          <div className="space-y-2">
+            <Label htmlFor="event-comment">Comment</Label>
+            <Input
+              id="event-comment"
+              value={comment}
+              maxLength={MAX_COMMENT_LENGTH}
+              onChange={(e) => setComment(e.target.value)}
+              placeholder="Turn on bar lights"
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="event-duration">Duration (ms)</Label>
+            <Label htmlFor="event-groups">Execution groups</Label>
+            <div className="flex flex-wrap gap-2">
+              {groups.map((group) => (
+                <Badge key={group} variant="secondary">
+                  {group}
+                  <button
+                    type="button"
+                    aria-label={`Remove ${group}`}
+                    onClick={() => setGroups(groups.filter((g) => g !== group))}
+                  >
+                    ×
+                  </button>
+                </Badge>
+              ))}
+            </div>
             <Input
-              id="event-duration"
-              type="number"
-              min={0}
-              value={duration}
-              onChange={(e) => setDuration(e.target.value)}
-              aria-invalid={!durationValid}
+              id="event-groups"
+              value={groupDraft}
+              maxLength={MAX_COMMENT_LENGTH}
+              onChange={(e) => setGroupDraft(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault();
+                  addGroup(groupDraft);
+                }
+              }}
+              placeholder="Type a group and press Enter"
             />
-            <p className="text-sm text-foreground-muted">
-              The pin returns to its previous state afterwards. 0 keeps the new
-              state until another event changes it.
-            </p>
+            <div className="flex flex-wrap gap-2">
+              {knownGroups
+                .filter((g) => !groups.includes(g))
+                .map((group) => (
+                  <Button
+                    key={group}
+                    type="button"
+                    size="sm"
+                    variant="outline"
+                    onClick={() => addGroup(group)}
+                  >
+                    {group}
+                  </Button>
+                ))}
+            </div>
           </div>
         </div>
 
@@ -274,19 +371,7 @@ export const EventFormDialog: React.FC<EventFormDialogProps> = ({
           <Button variant="outline" onClick={onClose}>
             Cancel
           </Button>
-          <Button
-            disabled={!canSave}
-            onClick={() =>
-              onSave({
-                name: name.trim(),
-                trigger,
-                recipeId,
-                pin: { boardId, nr: pinNr },
-                powerStateHigh,
-                durationInMs: durationMs,
-              })
-            }
-          >
+          <Button disabled={!canSave} onClick={() => onSave(buildInput())}>
             Save
           </Button>
         </DialogFooter>

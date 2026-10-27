@@ -22,12 +22,16 @@ export interface GpioStatus {
 }
 
 export const I2C_BOARD_MODELS = [
-  'PCF8574',
-  'PCF8574A',
-  'PCF8575',
-  'MCP23008',
-  'MCP23017',
+  { value: 'MCP23017', label: 'MCP23017' },
+  { value: 'XL9535_K1V5_RELAY', label: 'XL9535-K1V5' },
+  { value: 'XL9535_K2V5_RELAY', label: 'XL9535-K2V5' },
+  { value: 'XL9535_K4V5_RELAY', label: 'XL9535-K4V5' },
+  { value: 'XL9535_K8V5_RELAY', label: 'XL9535-K8V5' },
+  { value: 'XL9535_K16V5_RELAY', label: 'XL9535-K16V5' },
 ] as const;
+
+export const i2cModelLabel = (model?: string): string =>
+  I2C_BOARD_MODELS.find((m) => m.value === model)?.label ?? model ?? '';
 
 export const getErrorMessage = (error: unknown, fallback: string): string => {
   const err = error as {

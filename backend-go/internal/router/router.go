@@ -371,18 +371,18 @@ func SetupWithOptions(cfg *config.Config, db *gorm.DB, opts Options) (*gin.Engin
 			gpioGroup.GET("/:id/pin", gpioHandler.GetBoardPins)
 		}
 
-		eventGroup := api.Group("/event")
+		eventGroup := api.Group("/eventaction")
 		eventGroup.Use(middleware.AuthMiddleware(jwtService), middleware.RequireRole(models.RoleAdmin))
 		{
 			eventGroup.GET("", eventHandler.GetAll)
 			eventGroup.GET("/", eventHandler.GetAll)
-			eventGroup.GET("/triggers", eventHandler.GetTriggers)
+			eventGroup.GET("/executiongroup", eventHandler.GetExecutionGroups)
 			eventGroup.POST("", eventHandler.Create)
 			eventGroup.POST("/", eventHandler.Create)
-			eventGroup.GET("/:id", eventHandler.GetByID)
 			eventGroup.PUT("/:id", eventHandler.Update)
 			eventGroup.DELETE("/:id", eventHandler.Delete)
-			eventGroup.POST("/:id/run", eventHandler.Run)
+			eventGroup.POST("/:id/start", eventHandler.Start)
+			eventGroup.DELETE("/process/:processId", eventHandler.KillProcess)
 		}
 
 		statisticsGroup := api.Group("/statistics")
@@ -417,6 +417,7 @@ func SetupWithOptions(cfg *config.Config, db *gorm.DB, opts Options) (*gin.Engin
 		log.Println("Running in standalone mode - API-only, no frontend serving")
 	}
 
+	eventService.Dispatch(models.EventTriggerApplicationStartup, 0)
 	return r, cleanup
 }
 

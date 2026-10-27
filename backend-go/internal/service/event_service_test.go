@@ -1,8 +1,11 @@
 package service
 
 import (
+	"net/http"
+	"net/http/httptest"
 	"path/filepath"
 	"sync"
+	"sync/atomic"
 	"testing"
 	"time"
 
@@ -65,7 +68,6 @@ func TestExecuteRestoresPinAfterDuration(t *testing.T) {
 	svc, _, pins := newEventTestService(t)
 	action := models.EventAction{
 		DType:          models.EventActionTypeGPIO,
-		Name:           "pulse",
 		GpioBoard:      eventPtr(int64(1)),
 		GpioPin:        eventPtr(17),
 		PowerStateHigh: eventPtr(true),
@@ -90,12 +92,12 @@ func TestExecuteRestoresPinAfterDuration(t *testing.T) {
 func TestDispatchOnlyRunsMatchingActions(t *testing.T) {
 	svc, repo, pins := newEventTestService(t)
 	for _, a := range []models.EventAction{
-		{Name: "all", Trigger: models.EventTriggerProductionStarted, GpioBoard: eventPtr(int64(1)), GpioPin: eventPtr(5)},
-		{Name: "other trigger", Trigger: models.EventTriggerProductionFinished, GpioBoard: eventPtr(int64(1)), GpioPin: eventPtr(6)},
+		{DType: models.EventActionTypeGPIO, Trigger: models.EventTriggerProductionStarted, GpioBoard: eventPtr(int64(1)), GpioPin: eventPtr(5)},
+		{DType: models.EventActionTypeGPIO, Trigger: models.EventTriggerProductionFinished, GpioBoard: eventPtr(int64(1)), GpioPin: eventPtr(6)},
 	} {
 		a := a
 		if err := repo.Create(&a); err != nil {
-			t.Fatalf("create %s: %v", a.Name, err)
+			t.Fatalf("create: %v", err)
 		}
 	}
 
@@ -112,6 +114,34 @@ func TestDispatchOnlyRunsMatchingActions(t *testing.T) {
 		time.Sleep(10 * time.Millisecond)
 	}
 	t.Fatalf("matching action did not run")
+}
+
+func TestCallURLActionSendsRequest(t *testing.T) {
+	svc, _, _ := newEventTestService(t)
+	var method atomic.Value
+	status := http.StatusOK
+	target := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		method.Store(r.Method)
+		w.WriteHeader(status)
+	}))
+	defer target.Close()
+
+	action := models.EventAction{
+		DType:         models.EventActionTypeCallURL,
+		URL:           eventPtr(target.URL),
+		RequestMethod: eventPtr("PUT"),
+	}
+	if err := svc.Execute(action); err != nil {
+		t.Fatalf("execute: %v", err)
+	}
+	if got := method.Load(); got != "PUT" {
+		t.Fatalf("expected a PUT request, got %v", got)
+	}
+
+	status = http.StatusInternalServerError
+	if err := svc.Execute(action); err == nil {
+		t.Fatalf("expected an error for a 500 response")
+	}
 }
 
 func TestExecuteRejectsMissingHardware(t *testing.T) {

@@ -467,6 +467,7 @@ func (s *CocktailService) produceCocktail(
 			snap := *s.currentOrder
 			s.mu.Unlock()
 			s.broadcastProgress(&snap)
+			s.dispatchEvent(models.EventTriggerManualInteractionRequested, recipe.ID)
 
 			select {
 			case <-cancelCh:
@@ -522,6 +523,7 @@ func (s *CocktailService) produceCocktail(
 			snap := *s.currentOrder
 			s.mu.Unlock()
 			s.broadcastProgress(&snap)
+			s.dispatchEvent(models.EventTriggerManualInteractionRequested, recipe.ID)
 
 			select {
 			case <-cancelCh:
@@ -803,6 +805,7 @@ func (s *CocktailService) ContinueProduction() error {
 	s.mu.Unlock()
 
 	s.broadcastProgress(&snap)
+	s.dispatchEvent(models.EventTriggerManualInteractionCompleted, snap.RecipeID)
 
 	if ch != nil {
 		select {

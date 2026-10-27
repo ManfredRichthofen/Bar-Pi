@@ -17,11 +17,11 @@ import type {
   EventActionInput,
 } from '../../../services/event.service';
 import { EventFormDialog } from './components/EventFormDialog';
-import { getErrorMessage, triggerLabel } from './types';
+import { getErrorMessage, triggerLabel, typeLabel } from './types';
 
 export const EventsPage: React.FC = () => {
   const { data: events = [], isLoading } = useEventsList();
-  const { saveEvent, deleteEvent, runEvent } = useEventMutations();
+  const { saveEvent, deleteEvent, startEvent } = useEventMutations();
 
   const [formOpen, setFormOpen] = useState(false);
   const [editing, setEditing] = useState<EventAction | null>(null);
@@ -56,12 +56,12 @@ export const EventsPage: React.FC = () => {
     }
   };
 
-  const handleRun = async (event: EventAction) => {
+  const handleStart = async (event: EventAction) => {
     try {
-      await runEvent.mutateAsync(event.id);
-      toast.success(`Ran "${event.name}"`);
+      await startEvent.mutateAsync(event.id);
+      toast.success('Event started');
     } catch (error) {
-      toast.error(getErrorMessage(error, 'Failed to run event'));
+      toast.error(getErrorMessage(error, 'Failed to start event'));
     }
   };
 
@@ -76,7 +76,7 @@ export const EventsPage: React.FC = () => {
     <div className="min-h-screen bg-background">
       <PageHeader
         title="Events"
-        subtitle="Run GPIO actions when drinks start, finish or are cancelled"
+        subtitle="Run actions when the app starts or a drink is made"
         action={newButton}
       />
 
@@ -87,7 +87,7 @@ export const EventsPage: React.FC = () => {
           <EmptyState
             icon={<Zap className="h-16 w-16" />}
             title="No Events Yet"
-            description="Create an event to switch lights, fans or relays during production"
+            description="Create an event to call a URL or switch a relay during production"
             actions={newButton}
           />
         ) : (
@@ -96,31 +96,39 @@ export const EventsPage: React.FC = () => {
               <Card key={event.id}>
                 <CardContent className="flex items-center justify-between gap-3 py-4">
                   <div className="min-w-0 space-y-1">
-                    <p className="truncate text-lg font-bold">{event.name}</p>
+                    <p className="truncate text-lg font-bold">
+                      {event.comment ||
+                        event.description ||
+                        typeLabel(event.type)}
+                    </p>
                     <div className="flex flex-wrap items-center gap-2">
                       <Badge variant="info">
                         {triggerLabel(event.trigger)}
                       </Badge>
-                      <Badge variant="secondary">
-                        BCM {event.pin?.nr}{' '}
-                        {event.powerStateHigh ? 'HIGH' : 'LOW'}
-                        {event.durationInMs
-                          ? ` for ${event.durationInMs} ms`
-                          : ''}
-                      </Badge>
-                      {event.recipeId !== null && (
+                      <Badge variant="secondary">{typeLabel(event.type)}</Badge>
+                      {event.recipeId != null && (
                         <Badge variant="outline">
                           Recipe #{event.recipeId}
                         </Badge>
                       )}
+                      {event.executionGroups.map((group) => (
+                        <Badge key={group} variant="outline">
+                          {group}
+                        </Badge>
+                      ))}
                     </div>
+                    {event.description && event.comment && (
+                      <p className="truncate text-sm text-foreground-muted">
+                        {event.description}
+                      </p>
+                    )}
                   </div>
                   <div className="flex shrink-0 items-center gap-1">
                     <Button
                       variant="ghost"
                       size="icon-sm"
-                      title="Run now"
-                      onClick={() => handleRun(event)}
+                      title="Start now"
+                      onClick={() => handleStart(event)}
                     >
                       <Play className="size-5" />
                     </Button>
@@ -160,7 +168,7 @@ export const EventsPage: React.FC = () => {
         open={!!toDelete}
         onOpenChange={(o) => !o && setToDelete(null)}
         title="Delete event"
-        description={`Delete "${toDelete?.name}"?`}
+        description={`Delete "${toDelete?.comment || toDelete?.description}"?`}
         confirmText="Delete"
         variant="destructive"
         onConfirm={handleDelete}

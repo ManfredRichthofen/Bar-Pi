@@ -9,7 +9,7 @@ import {
   CollapsibleTrigger,
 } from '@/components/ui/collapsible';
 import { cn } from '@/lib/utils';
-import { formatAddress, type GpioBoard } from '../types';
+import { formatAddress, type GpioBoard, i2cModelLabel } from '../types';
 
 interface GpioBoardCardProps {
   board: GpioBoard;
@@ -38,7 +38,8 @@ export const GpioBoardCard: React.FC<GpioBoardCardProps> = ({
                 </CardTitle>
                 {board.type === 'i2c' && (
                   <p className="text-sm text-foreground-muted">
-                    {board.boardModel} · {formatAddress(board.address)}
+                    {i2cModelLabel(board.boardModel)} ·{' '}
+                    {formatAddress(board.address)}
                   </p>
                 )}
               </div>

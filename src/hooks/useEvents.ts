@@ -35,9 +35,9 @@ export function useEventMutations() {
     onSuccess,
   });
 
-  const runEvent = useMutation({
-    mutationFn: (id: number) => EventService.runEvent(id),
+  const startEvent = useMutation({
+    mutationFn: (id: number) => EventService.startEvent(id),
   });
 
-  return { saveEvent, deleteEvent, runEvent };
+  return { saveEvent, deleteEvent, startEvent };
 }

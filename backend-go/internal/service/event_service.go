@@ -1,14 +1,18 @@
 package service
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"log"
+	"net/http"
 	"time"
 
 	"github.com/ManfredRichthofen/Bar-Pi/backend-go/internal/models"
 	"github.com/ManfredRichthofen/Bar-Pi/backend-go/internal/repository"
 )
+
+const callURLTimeout = 10 * time.Second
 
 // pinController is the part of GPIOService that event actions need.
 type pinController interface {
@@ -23,13 +27,14 @@ type EventDispatcher interface {
 }
 
 type EventService struct {
-	repo *repository.EventRepository
-	pins pinController
+	repo   *repository.EventRepository
+	pins   pinController
+	client *http.Client
 }
 
 // NewEventService creates the event engine. pins may be nil when no GPIO hardware is available.
 func NewEventService(repo *repository.EventRepository, pins pinController) *EventService {
-	return &EventService{repo: repo, pins: pins}
+	return &EventService{repo: repo, pins: pins, client: &http.Client{Timeout: callURLTimeout}}
 }
 
 // Dispatch runs the matching actions in the background so it never delays production.
@@ -42,17 +47,48 @@ func (s *EventService) Dispatch(trigger string, recipeID int64) {
 	for _, action := range actions {
 		go func(action models.EventAction) {
 			if err := s.Execute(action); err != nil {
-				log.Printf("events: action %q (%d) failed: %v", action.Name, action.ID, err)
+				log.Printf("events: action %d (%s) failed: %v", action.ID, action.Name, err)
 			}
 		}(action)
 	}
 }
 
-// Execute runs one action. For a timed action the pin is restored in the background.
+// Execute runs one action. A timed gpio action restores its pin in the background.
 func (s *EventService) Execute(action models.EventAction) error {
-	if action.DType != models.EventActionTypeGPIO {
+	switch action.DType {
+	case models.EventActionTypeDoNothing:
+		return nil
+	case models.EventActionTypeCallURL:
+		return s.callURL(action)
+	case models.EventActionTypeGPIO:
+		return s.setGPIO(action)
+	default:
 		return fmt.Errorf("unsupported action type %q", action.DType)
 	}
+}
+
+func (s *EventService) callURL(action models.EventAction) error {
+	if action.URL == nil || action.RequestMethod == nil {
+		return errors.New("action has no URL or request method")
+	}
+	ctx, cancel := context.WithTimeout(context.Background(), callURLTimeout)
+	defer cancel()
+	req, err := http.NewRequestWithContext(ctx, *action.RequestMethod, *action.URL, nil)
+	if err != nil {
+		return err
+	}
+	resp, err := s.client.Do(req)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode >= 400 {
+		return fmt.Errorf("request returned %s", resp.Status)
+	}
+	return nil
+}
+
+func (s *EventService) setGPIO(action models.EventAction) error {
 	if action.GpioBoard == nil || action.GpioPin == nil {
 		return errors.New("action has no GPIO pin")
 	}

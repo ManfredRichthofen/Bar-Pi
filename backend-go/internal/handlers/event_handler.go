@@ -1,8 +1,12 @@
 package handlers
 
 import (
+	"encoding/json"
+	"errors"
+	"io"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/ManfredRichthofen/Bar-Pi/backend-go/internal/models"
 	"github.com/ManfredRichthofen/Bar-Pi/backend-go/internal/repository"
@@ -32,22 +36,18 @@ func (h *EventHandler) GetAll(c *gin.Context) {
 	c.JSON(http.StatusOK, dtos)
 }
 
-func (h *EventHandler) GetTriggers(c *gin.Context) {
-	c.JSON(http.StatusOK, models.EventTriggers)
-}
-
-func (h *EventHandler) GetByID(c *gin.Context) {
-	action, ok := h.load(c)
-	if !ok {
+func (h *EventHandler) GetExecutionGroups(c *gin.Context) {
+	groups, err := h.repo.FindExecutionGroups()
+	if err != nil {
+		respondGPIOError(c, err)
 		return
 	}
-	c.JSON(http.StatusOK, action.ToDto())
+	c.JSON(http.StatusOK, groups)
 }
 
 func (h *EventHandler) Create(c *gin.Context) {
-	var dto models.EventActionDto
-	if err := c.ShouldBindJSON(&dto); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error(), "message": err.Error()})
+	dto, ok := bindEventAction(c)
+	if !ok {
 		return
 	}
 	action := dto.ToModel()
@@ -63,9 +63,8 @@ func (h *EventHandler) Update(c *gin.Context) {
 	if !ok {
 		return
 	}
-	var dto models.EventActionDto
-	if err := c.ShouldBindJSON(&dto); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error(), "message": err.Error()})
+	dto, ok := bindEventAction(c)
+	if !ok {
 		return
 	}
 	dto.ID = existing.ID
@@ -89,8 +88,8 @@ func (h *EventHandler) Delete(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "Event deleted"})
 }
 
-// Run executes an action immediately so it can be tested without producing a drink.
-func (h *EventHandler) Run(c *gin.Context) {
+// Start executes an action immediately, without waiting for its trigger.
+func (h *EventHandler) Start(c *gin.Context) {
 	action, ok := h.load(c)
 	if !ok {
 		return
@@ -100,6 +99,12 @@ func (h *EventHandler) Run(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{"message": "Event executed"})
+}
+
+// KillProcess exists for CocktailPi client compatibility. Actions here run to completion
+// without a long-lived process, so there is never one to kill.
+func (h *EventHandler) KillProcess(c *gin.Context) {
+	c.JSON(http.StatusNotFound, gin.H{"error": "Process not found", "message": "Process not found"})
 }
 
 func (h *EventHandler) load(c *gin.Context) (*models.EventAction, bool) {
@@ -118,4 +123,41 @@ func (h *EventHandler) load(c *gin.Context) (*models.EventAction, bool) {
 		return nil, false
 	}
 	return action, true
+}
+
+// bindEventAction reads the DTO from plain JSON or from CocktailPi's multipart form,
+// where it arrives as the "eventAction" part next to an optional "file" part.
+func bindEventAction(c *gin.Context) (models.EventActionDto, bool) {
+	var dto models.EventActionDto
+	fail := func(err error) (models.EventActionDto, bool) {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error(), "message": err.Error()})
+		return dto, false
+	}
+
+	if !strings.HasPrefix(c.ContentType(), "multipart/") {
+		if err := c.ShouldBindJSON(&dto); err != nil {
+			return fail(err)
+		}
+		return dto, true
+	}
+
+	var raw []byte
+	if header, err := c.FormFile("eventAction"); err == nil {
+		f, err := header.Open()
+		if err != nil {
+			return fail(err)
+		}
+		defer f.Close()
+		if raw, err = io.ReadAll(f); err != nil {
+			return fail(err)
+		}
+	} else if v := c.PostForm("eventAction"); v != "" {
+		raw = []byte(v)
+	} else {
+		return fail(errors.New("missing eventAction part"))
+	}
+	if err := json.Unmarshal(raw, &dto); err != nil {
+		return fail(err)
+	}
+	return dto, true
 }
