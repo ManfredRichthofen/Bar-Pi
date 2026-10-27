@@ -38,11 +38,11 @@ func (r *GPIORepository) FindBoardByID(id int64) (*models.GPIOBoard, error) {
 	return &board, nil
 }
 
-type ErrGPIOValidation struct{ Msg string }
+type ErrValidation struct{ Msg string }
 
-func (e *ErrGPIOValidation) Error() string { return e.Msg }
+func (e *ErrValidation) Error() string { return e.Msg }
 
-func validationErr(msg string) error { return &ErrGPIOValidation{Msg: msg} }
+func validationErr(msg string) error { return &ErrValidation{Msg: msg} }
 
 func normalizeBoard(board *models.GPIOBoard) error {
 	board.Name = strings.TrimSpace(board.Name)
@@ -190,7 +190,7 @@ func (r *GPIORepository) DeleteBoard(id int64) error {
 	}
 	for _, p := range pins {
 		if p.InUse {
-			return validationErr("Cannot delete board: some of its pins are still in use by pumps")
+			return validationErr("Cannot delete board: some of its pins are still in use by pumps or events")
 		}
 	}
 	if err := r.db.Delete(&models.GPIOBoard{}, id).Error; err != nil {
@@ -222,6 +222,14 @@ func (r *GPIORepository) FindBoardPins(boardID int64) ([]models.GPIOPin, error) 
 		}
 		if p.EnablePinBoard != nil && *p.EnablePinBoard == boardID && p.EnablePinNr != nil {
 			usedPins[*p.EnablePinNr] = true
+		}
+	}
+
+	var events []models.EventAction
+	r.db.Where("gpio_board = ?", boardID).Find(&events)
+	for _, e := range events {
+		if e.GpioPin != nil {
+			usedPins[*e.GpioPin] = true
 		}
 	}
 
@@ -276,6 +284,10 @@ func (r *GPIORepository) GetStatus() (*models.GPIOStatus, error) {
 			used++
 		}
 	}
+
+	var eventPins int64
+	r.db.Model(&models.EventAction{}).Count(&eventPins)
+	used += int(eventPins)
 
 	return &models.GPIOStatus{
 		PinsUsed:          used,

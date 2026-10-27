@@ -17,6 +17,7 @@ import { Route as SimpleRouteImport } from './routes/simple'
 import { Route as AdvancedCategoriesRouteImport } from './routes/_advanced.categories'
 import { Route as AdvancedCollectionsRouteImport } from './routes/_advanced.collections'
 import { Route as AdvancedDrinksRouteImport } from './routes/_advanced.drinks'
+import { Route as AdvancedEventsRouteImport } from './routes/_advanced.events'
 import { Route as AdvancedFavoritesRouteImport } from './routes/_advanced.favorites'
 import { Route as AdvancedGlassesRouteImport } from './routes/_advanced.glasses'
 import { Route as AdvancedGpioRouteImport } from './routes/_advanced.gpio'
@@ -74,6 +75,11 @@ const AdvancedCollectionsRoute = AdvancedCollectionsRouteImport.update({
 const AdvancedDrinksRoute = AdvancedDrinksRouteImport.update({
   id: '/drinks',
   path: '/drinks',
+  getParentRoute: () => AdvancedRoute,
+} as any)
+const AdvancedEventsRoute = AdvancedEventsRouteImport.update({
+  id: '/events',
+  path: '/events',
   getParentRoute: () => AdvancedRoute,
 } as any)
 const AdvancedFavoritesRoute = AdvancedFavoritesRouteImport.update({
@@ -181,6 +187,7 @@ export interface FileRoutesByFullPath {
   '/categories': typeof AdvancedCategoriesRoute
   '/collections': typeof AdvancedCollectionsRoute
   '/drinks': typeof AdvancedDrinksRouteWithChildren
+  '/events': typeof AdvancedEventsRoute
   '/favorites': typeof AdvancedFavoritesRoute
   '/glasses': typeof AdvancedGlassesRoute
   '/gpio': typeof AdvancedGpioRoute
@@ -209,6 +216,7 @@ export interface FileRoutesByTo {
   '/categories': typeof AdvancedCategoriesRoute
   '/collections': typeof AdvancedCollectionsRoute
   '/drinks': typeof AdvancedDrinksRouteWithChildren
+  '/events': typeof AdvancedEventsRoute
   '/favorites': typeof AdvancedFavoritesRoute
   '/glasses': typeof AdvancedGlassesRoute
   '/gpio': typeof AdvancedGpioRoute
@@ -239,6 +247,7 @@ export interface FileRoutesById {
   '/_advanced/categories': typeof AdvancedCategoriesRoute
   '/_advanced/collections': typeof AdvancedCollectionsRoute
   '/_advanced/drinks': typeof AdvancedDrinksRouteWithChildren
+  '/_advanced/events': typeof AdvancedEventsRoute
   '/_advanced/favorites': typeof AdvancedFavoritesRoute
   '/_advanced/glasses': typeof AdvancedGlassesRoute
   '/_advanced/gpio': typeof AdvancedGpioRoute
@@ -269,6 +278,7 @@ export interface FileRouteTypes {
     | '/categories'
     | '/collections'
     | '/drinks'
+    | '/events'
     | '/favorites'
     | '/glasses'
     | '/gpio'
@@ -297,6 +307,7 @@ export interface FileRouteTypes {
     | '/categories'
     | '/collections'
     | '/drinks'
+    | '/events'
     | '/favorites'
     | '/glasses'
     | '/gpio'
@@ -326,6 +337,7 @@ export interface FileRouteTypes {
     | '/_advanced/categories'
     | '/_advanced/collections'
     | '/_advanced/drinks'
+    | '/_advanced/events'
     | '/_advanced/favorites'
     | '/_advanced/glasses'
     | '/_advanced/gpio'
@@ -411,6 +423,13 @@ declare module '@tanstack/react-router' {
       path: '/drinks'
       fullPath: '/drinks'
       preLoaderRoute: typeof AdvancedDrinksRouteImport
+      parentRoute: typeof AdvancedRoute
+    }
+    '/_advanced/events': {
+      id: '/_advanced/events'
+      path: '/events'
+      fullPath: '/events'
+      preLoaderRoute: typeof AdvancedEventsRouteImport
       parentRoute: typeof AdvancedRoute
     }
     '/_advanced/favorites': {
@@ -591,6 +610,7 @@ interface AdvancedRouteChildren {
   AdvancedCategoriesRoute: typeof AdvancedCategoriesRoute
   AdvancedCollectionsRoute: typeof AdvancedCollectionsRoute
   AdvancedDrinksRoute: typeof AdvancedDrinksRouteWithChildren
+  AdvancedEventsRoute: typeof AdvancedEventsRoute
   AdvancedFavoritesRoute: typeof AdvancedFavoritesRoute
   AdvancedGlassesRoute: typeof AdvancedGlassesRoute
   AdvancedGpioRoute: typeof AdvancedGpioRoute
@@ -607,6 +627,7 @@ const AdvancedRouteChildren: AdvancedRouteChildren = {
   AdvancedCategoriesRoute: AdvancedCategoriesRoute,
   AdvancedCollectionsRoute: AdvancedCollectionsRoute,
   AdvancedDrinksRoute: AdvancedDrinksRouteWithChildren,
+  AdvancedEventsRoute: AdvancedEventsRoute,
   AdvancedFavoritesRoute: AdvancedFavoritesRoute,
   AdvancedGlassesRoute: AdvancedGlassesRoute,
   AdvancedGpioRoute: AdvancedGpioRoute,

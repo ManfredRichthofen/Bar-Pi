@@ -20,6 +20,7 @@ type CocktailService struct {
 	pumpRepo       *repository.PumpRepository
 	userService    *UserService
 	gpioService    *GPIOService
+	events         EventDispatcher
 	wsService      *websocket.Service
 	db             *gorm.DB
 
@@ -27,6 +28,17 @@ type CocktailService struct {
 	continueCh   chan struct{}
 	cancelCh     chan struct{}
 	mu           sync.RWMutex
+}
+
+// SetEventDispatcher wires in the event engine fired on production start, finish and cancel.
+func (s *CocktailService) SetEventDispatcher(d EventDispatcher) {
+	s.events = d
+}
+
+func (s *CocktailService) dispatchEvent(trigger string, recipeID int64) {
+	if s.events != nil {
+		s.events.Dispatch(trigger, recipeID)
+	}
 }
 
 // NewCocktailService creates a new cocktail service
@@ -342,6 +354,7 @@ func (s *CocktailService) OrderCocktail(userID int64, username string, recipeID 
 	s.mu.Unlock()
 
 	s.broadcastProgress(&progressSnap)
+	s.dispatchEvent(models.EventTriggerProductionStarted, recipeID)
 
 	go s.produceCocktail(recipe, config, feasibility)
 
@@ -682,6 +695,7 @@ func (s *CocktailService) produceCocktail(
 	s.mu.Unlock()
 
 	s.broadcastProgress(&snap)
+	s.dispatchEvent(models.EventTriggerProductionFinished, recipe.ID)
 	s.recordOrder(recipe, snap.UserID, snap.Username, feasibility.TotalAmountInMl, "completed", snap.StartedAt, now, feasibility.RequiredIngredients)
 
 	// Clear progress after a brief display window so clients see 100% COMPLETED
@@ -748,6 +762,7 @@ func (s *CocktailService) CancelOrder(userID int64, isAdmin ...bool) error {
 	s.mu.Unlock()
 
 	s.broadcastProgress(&snap)
+	s.dispatchEvent(models.EventTriggerProductionCancelled, snap.RecipeID)
 	if recipe != nil {
 		s.recordOrder(recipe, snap.UserID, snap.Username, recipe.DefaultAmountToFill, "cancelled", snap.StartedAt, now, nil)
 	}

@@ -52,6 +52,7 @@ func SetupWithOptions(cfg *config.Config, db *gorm.DB, opts Options) (*gin.Engin
 	categoryRepo := repository.NewCategoryRepository(db)
 	pumpRepo := repository.NewPumpRepository(db)
 	gpioRepo := repository.NewGPIORepository(db)
+	eventRepo := repository.NewEventRepository(db)
 	collectionRepo := repository.NewCollectionRepository(db)
 
 	wsHub := websocket.NewHub()
@@ -80,6 +81,16 @@ func SetupWithOptions(cfg *config.Config, db *gorm.DB, opts Options) (*gin.Engin
 	systemService := service.NewSystemService(cfg, db)
 	pumpService := service.NewPumpService(pumpRepo, ingredientRepo, gpioRepo, gpioService, wsService, systemService)
 	cocktailService := service.NewCocktailService(recipeRepo, ingredientRepo, pumpRepo, gpioService, wsService, db, userService)
+	var pinController interface {
+		SetupOutputPin(pin int) error
+		SetPinHigh(pin int) error
+		SetPinLow(pin int) error
+	}
+	if gpioService != nil {
+		pinController = gpioService
+	}
+	eventService := service.NewEventService(eventRepo, pinController)
+	cocktailService.SetEventDispatcher(eventService)
 	statisticsService := service.NewStatisticsService(db)
 	imageService := service.NewImageService(imagesDir)
 	updateService := service.NewUpdateService(service.UpdateServiceOptions{
@@ -164,6 +175,7 @@ func SetupWithOptions(cfg *config.Config, db *gorm.DB, opts Options) (*gin.Engin
 	updateHandler := handlers.NewUpdateHandler(updateService, systemService)
 	cocktailHandler := handlers.NewCocktailHandler(cocktailService)
 	gpioHandler := handlers.NewGPIOHandler(gpioService, gpioRepo)
+	eventHandler := handlers.NewEventHandler(eventRepo, eventService)
 	statisticsHandler := handlers.NewStatisticsHandler(statisticsService)
 	collectionHandler := handlers.NewCollectionHandler(collectionRepo)
 
@@ -357,6 +369,20 @@ func SetupWithOptions(cfg *config.Config, db *gorm.DB, opts Options) (*gin.Engin
 			gpioGroup.PUT("/:id", middleware.RequireRole(models.RoleAdmin), gpioHandler.UpdateBoard)
 			gpioGroup.DELETE("/:id", middleware.RequireRole(models.RoleAdmin), gpioHandler.DeleteBoard)
 			gpioGroup.GET("/:id/pin", gpioHandler.GetBoardPins)
+		}
+
+		eventGroup := api.Group("/event")
+		eventGroup.Use(middleware.AuthMiddleware(jwtService), middleware.RequireRole(models.RoleAdmin))
+		{
+			eventGroup.GET("", eventHandler.GetAll)
+			eventGroup.GET("/", eventHandler.GetAll)
+			eventGroup.GET("/triggers", eventHandler.GetTriggers)
+			eventGroup.POST("", eventHandler.Create)
+			eventGroup.POST("/", eventHandler.Create)
+			eventGroup.GET("/:id", eventHandler.GetByID)
+			eventGroup.PUT("/:id", eventHandler.Update)
+			eventGroup.DELETE("/:id", eventHandler.Delete)
+			eventGroup.POST("/:id/run", eventHandler.Run)
 		}
 
 		statisticsGroup := api.Group("/statistics")
