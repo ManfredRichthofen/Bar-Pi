@@ -37,6 +37,32 @@ export interface I2CSettings {
   sclPin?: I2CPin | null;
 }
 
+export interface MqttStatus {
+  enabled: boolean;
+  connected: boolean;
+  error?: string;
+}
+
+export interface MqttSettingsResponse {
+  enabled: boolean;
+  brokerUrl: string;
+  username: string;
+  passwordSet: boolean;
+  baseTopic: string;
+  discoveryPrefix: string;
+  status: MqttStatus;
+}
+
+/** Omit password to keep the stored one; send an empty string to clear it. */
+export interface MqttSettingsInput {
+  enabled: boolean;
+  brokerUrl: string;
+  username: string;
+  password?: string;
+  baseTopic: string;
+  discoveryPrefix: string;
+}
+
 export interface OrderingPolicySettings {
   requirePinAfterDrink: boolean;
 }
@@ -68,6 +94,14 @@ class SystemService extends BaseService {
       settings,
       (token ?? undefined) as any,
     );
+  }
+
+  getMqttSettings(): Promise<MqttSettingsResponse> {
+    return this.get(`${API_PATH}settings/mqtt`);
+  }
+
+  setMqttSettings(settings: MqttSettingsInput): Promise<MqttSettingsResponse> {
+    return this.put(`${API_PATH}settings/mqtt`, settings);
   }
 
   getOrderingPolicy(

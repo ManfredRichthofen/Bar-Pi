@@ -16,6 +16,7 @@ import {
 import { Separator } from '@/components/ui/separator';
 import { Switch } from '@/components/ui/switch';
 import AppUpdateChecker from '../../../components/AppUpdateChecker';
+import { MqttSettings } from '../../../components/mqtt/MqttSettings';
 import UpdateChecker from '../../../components/UpdateChecker';
 import SystemService from '../../../services/system.service';
 import useAuthStore from '../../../store/authStore';
@@ -210,6 +211,8 @@ export const SettingsPage: React.FC = () => {
               </div>
             </CardContent>
           </Card>
+
+          <MqttSettings />
 
           <UpdateChecker />
           <AppUpdateChecker />

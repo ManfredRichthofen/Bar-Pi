@@ -26,6 +26,15 @@ type EventDispatcher interface {
 	Dispatch(trigger string, recipeID int64)
 }
 
+// MultiDispatcher forwards every event to several dispatchers.
+type MultiDispatcher []EventDispatcher
+
+func (m MultiDispatcher) Dispatch(trigger string, recipeID int64) {
+	for _, d := range m {
+		d.Dispatch(trigger, recipeID)
+	}
+}
+
 type EventService struct {
 	repo   *repository.EventRepository
 	pins   pinController

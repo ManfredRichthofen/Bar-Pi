@@ -21,6 +21,7 @@ type CocktailService struct {
 	userService    *UserService
 	gpioService    *GPIOService
 	events         EventDispatcher
+	onProgress     func(*models.CocktailProgress)
 	wsService      *websocket.Service
 	db             *gorm.DB
 
@@ -33,6 +34,11 @@ type CocktailService struct {
 // SetEventDispatcher wires in the event engine fired on production start, finish and cancel.
 func (s *CocktailService) SetEventDispatcher(d EventDispatcher) {
 	s.events = d
+}
+
+// SetProgressObserver registers a callback for every progress change, including nil when idle.
+func (s *CocktailService) SetProgressObserver(f func(*models.CocktailProgress)) {
+	s.onProgress = f
 }
 
 func (s *CocktailService) dispatchEvent(trigger string, recipeID int64) {
@@ -362,6 +368,9 @@ func (s *CocktailService) OrderCocktail(userID int64, username string, recipeID 
 }
 
 func (s *CocktailService) broadcastProgress(progress *models.CocktailProgress) {
+	if s.onProgress != nil {
+		s.onProgress(progress)
+	}
 	if s.wsService == nil {
 		return
 	}
