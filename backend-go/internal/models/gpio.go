@@ -14,6 +14,20 @@ type GPIOBoard struct {
 	Pins       []GPIOPin `gorm:"foreignKey:BoardID;references:ID" json:"pins,omitempty"`
 }
 
+var I2CBoardModelPins = map[string]int{
+	"PCF8574":  8,
+	"PCF8574A": 8,
+	"PCF8575":  16,
+	"MCP23008": 8,
+	"MCP23017": 16,
+}
+
+const (
+	GPIOTypeLocal = "local"
+	GPIOTypeI2C   = "i2c"
+	LocalPinCount = 28
+)
+
 func (GPIOBoard) TableName() string {
 	return "gpio_boards"
 }

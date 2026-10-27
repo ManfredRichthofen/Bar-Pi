@@ -13,6 +13,7 @@ export interface RolePermissions {
   canManageGlasses: boolean;
   canManageCategories: boolean;
   canManagePumps: boolean;
+  canManageGpio: boolean;
   canManageSettings: boolean;
   canViewStatistics: boolean;
 }
@@ -46,6 +47,7 @@ export const ROLE_PERMISSIONS: Record<UserRole, RolePermissions> = {
     canManageGlasses: true,
     canManageCategories: true,
     canManagePumps: true,
+    canManageGpio: true,
     canManageSettings: true,
     canViewStatistics: true,
   },
@@ -57,7 +59,8 @@ export const ROLE_PERMISSIONS: Record<UserRole, RolePermissions> = {
     canManageGlasses: true,
     canManageCategories: true,
     canManagePumps: true,
-    canManageSettings: false,
+    canManageGpio: true,
+    canManageSettings: true,
     canViewStatistics: true,
   },
   'pump-ingredient-editor': {
@@ -68,6 +71,7 @@ export const ROLE_PERMISSIONS: Record<UserRole, RolePermissions> = {
     canManageGlasses: false,
     canManageCategories: false,
     canManagePumps: true,
+    canManageGpio: false,
     canManageSettings: false,
     canViewStatistics: true,
   },
@@ -79,6 +83,7 @@ export const ROLE_PERMISSIONS: Record<UserRole, RolePermissions> = {
     canManageGlasses: false,
     canManageCategories: false,
     canManagePumps: false,
+    canManageGpio: false,
     canManageSettings: false,
     canViewStatistics: true,
   },
@@ -90,6 +95,7 @@ export const ROLE_PERMISSIONS: Record<UserRole, RolePermissions> = {
     canManageGlasses: false,
     canManageCategories: false,
     canManagePumps: false,
+    canManageGpio: false,
     canManageSettings: false,
     canViewStatistics: true,
   },
@@ -136,6 +142,8 @@ export const canAccessRoute = (
     case '/pumps':
     case '/pumps/$pumpId/edit':
       return permissions.canManagePumps;
+    case '/gpio':
+      return permissions.canManageGpio;
     case '/settings':
       return permissions.canManageSettings;
     case '/statistics':
