@@ -7,35 +7,33 @@ on:
     branches: ['main']
   workflow_dispatch:
 
-jobs:
-  build-bundle:
-    runs-on: ubuntu-latest
+concurrency:
+  group: build-bundle-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
+permissions:
+  contents: read
+
+jobs:
+  build-frontend:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
-        with:
-          fetch-depth: 0
-          fetch-tags: true
 
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2
-
-      - name: Set up Go
-        uses: actions/setup-go@v7
         with:
-          go-version-file: backend-go/go.mod
-          cache-dependency-path: backend-go/go.sum
+          bun-version-file: package.json
 
-      - name: Cache Go modules
+      - name: Cache Bun install
         uses: actions/cache@v6
         with:
-          path: |
-            ~/.cache/go-build
-            ~/go/pkg/mod
-          key: ${{ runner.os }}-go-${{ hashFiles('backend-go/go.sum') }}
+          path: ~/.bun/install/cache
+          key: ${{ runner.os }}-bun-${{ hashFiles('bun.lock') }}
           restore-keys: |
-            ${{ runner.os }}-go-
+            ${{ runner.os }}-bun-
 
       - name: Install frontend dependencies
         run: bun ci
@@ -43,61 +41,121 @@ jobs:
       - name: Build frontend
         run: bun run build
 
-      - name: Prepare build directories
-        run: |
-          rm -rf dist-backend
-          mkdir -p dist-backend
-          rm -rf backend-go/internal/static/dist
-          mkdir -p backend-go/internal/static/dist
+      - name: Upload frontend dist
+        uses: actions/upload-artifact@v7
+        with:
+          name: frontend-dist
+          path: dist/
+          retention-days: 3
+          if-no-files-found: error
 
-      - name: Copy frontend to backend static folder
-        run: |
-          cp -r dist/* backend-go/internal/static/dist/
+  test-backend:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
 
-      - name: Install backend dependencies
+      - name: Set up Go
+        uses: actions/setup-go@v7
+        with:
+          go-version-file: backend-go/go.mod
+          cache-dependency-path: backend-go/go.sum
+
+      - name: Download modules
         working-directory: backend-go
-        run: |
-          go mod download
-          go mod tidy
+        run: go mod download
 
       - name: Run backend tests
         working-directory: backend-go
         run: go test -v ./...
 
-      - name: Build for Linux AMD64 with embedded frontend
+  build-bundle:
+    needs: [build-frontend, test-backend]
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - goarch: amd64
+            outfile: bar-pi-bundle-linux-amd64
+          - goarch: arm64
+            outfile: bar-pi-bundle-linux-arm64
+          - goarch: arm
+            goarm: "7"
+            outfile: bar-pi-bundle-linux-arm
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Set up Go
+        uses: actions/setup-go@v7
+        with:
+          go-version-file: backend-go/go.mod
+          cache-dependency-path: backend-go/go.sum
+
+      - name: Download frontend
+        uses: actions/download-artifact@v8
+        with:
+          name: frontend-dist
+          path: dist
+
+      - name: Embed frontend
+        run: |
+          rm -rf backend-go/internal/static/dist
+          mkdir -p backend-go/internal/static/dist
+          cp -r dist/* backend-go/internal/static/dist/
+
+      - name: Download modules
+        working-directory: backend-go
+        run: go mod download
+
+      - name: Build ${{ matrix.outfile }}
         working-directory: backend-go
         env:
           GOOS: linux
-          GOARCH: amd64
+          GOARCH: ${{ matrix.goarch }}
+          GOARM: ${{ matrix.goarm }}
           CGO_ENABLED: 0
         run: |
-          go build -tags=bundle -ldflags="-s -w" -o ../dist-backend/bar-pi-bundle-linux-amd64 ./cmd/server/main.go
+          mkdir -p ../dist-backend
+          go build -tags=bundle -ldflags="-s -w" \
+            -o "../dist-backend/${{ matrix.outfile }}" \
+            ./cmd/server/main.go
 
-      - name: Build for Linux ARM64 with embedded frontend
-        working-directory: backend-go
-        env:
-          GOOS: linux
-          GOARCH: arm64
-          CGO_ENABLED: 0
+      - name: Stage binary for upload
         run: |
-          go build -tags=bundle -ldflags="-s -w" -o ../dist-backend/bar-pi-bundle-linux-arm64 ./cmd/server/main.go
+          mkdir -p staged
+          cp "dist-backend/${{ matrix.outfile }}" "staged/${{ matrix.outfile }}"
 
-      - name: Build for Linux ARM with embedded frontend
-        working-directory: backend-go
-        env:
-          GOOS: linux
-          GOARCH: arm
-          GOARM: 7
-          CGO_ENABLED: 0
-        run: |
-          go build -tags=bundle -ldflags="-s -w" -o ../dist-backend/bar-pi-bundle-linux-arm ./cmd/server/main.go
+      - name: Upload binary
+        uses: actions/upload-artifact@v7
+        with:
+          name: bundle-${{ matrix.outfile }}
+          path: staged/
+          retention-days: 14
+          if-no-files-found: error
 
-      - name: Clean up embedded frontend
-        run: rm -rf backend-go/internal/static/dist
+  collect:
+    needs: build-bundle
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Download binaries
+        uses: actions/download-artifact@v8
+        with:
+          pattern: bundle-*
+          path: dist-backend
+          merge-multiple: true
 
-      - name: Upload bundle artifacts
+      - name: List artifacts
+        run: ls -lh dist-backend
+
+      - name: Upload combined artifacts
         uses: actions/upload-artifact@v7
         with:
           name: bundle-binaries
           path: dist-backend/
-          retention-days: 30
+          retention-days: 14
+          if-no-files-found: error

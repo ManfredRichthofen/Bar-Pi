@@ -7,30 +7,61 @@ on:
       - develop
   workflow_dispatch:
 
+concurrency:
+  group: build-android-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
 jobs:
   build:
     runs-on: ubuntu-latest
-
+    timeout-minutes: 90
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
 
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2
+        with:
+          bun-version-file: package.json
+
+      - name: Cache Bun install
+        uses: actions/cache@v6
+        with:
+          path: ~/.bun/install/cache
+          key: ${{ runner.os }}-bun-${{ hashFiles('bun.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-bun-
 
       - name: Install Rust stable
         uses: dtolnay/rust-toolchain@stable
         with:
           targets: aarch64-linux-android,armv7-linux-androideabi,i686-linux-android,x86_64-linux-android
 
+      - name: Cache Rust
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri
+          shared-key: android-debug
+          cache-on-failure: true
+
       - name: Setup Java JDK
         uses: actions/setup-java@v6
         with:
           distribution: temurin
           java-version: "21"
+          cache: gradle
 
       - name: Setup Android SDK
         uses: android-actions/setup-android@v4
+
+      - name: Cache Android NDK
+        uses: actions/cache@v6
+        with:
+          path: /usr/local/lib/android/sdk/ndk
+          key: ${{ runner.os }}-android-ndk-28.2.13676358
 
       - name: Setup Android NDK
         run: |
@@ -39,14 +70,16 @@ jobs:
             echo "NDK_HOME=${ANDROID_NDK_LATEST_HOME}" >> "$GITHUB_ENV"
           else
             NDK_VERSION="28.2.13676358"
-            for attempt in 1 2 3; do
-              rm -rf "${ANDROID_HOME}/.temp"
-              if sdkmanager --install "ndk;${NDK_VERSION}"; then
-                break
-              fi
-              echo "Attempt ${attempt} failed, retrying..."
-              sleep 5
-            done
+            if [ ! -d "${ANDROID_HOME}/ndk/${NDK_VERSION}" ]; then
+              for attempt in 1 2 3; do
+                rm -rf "${ANDROID_HOME}/.temp"
+                if sdkmanager --install "ndk;${NDK_VERSION}"; then
+                  break
+                fi
+                echo "Attempt ${attempt} failed, retrying..."
+                sleep 5
+              done
+            fi
             echo "NDK_HOME=${ANDROID_HOME}/ndk/${NDK_VERSION}" >> "$GITHUB_ENV"
           fi
 
@@ -62,5 +95,5 @@ jobs:
           name: app-debug
           path: |
             src-tauri/gen/android/app/build/outputs/apk/**/debug/*.apk
-          retention-days: 30
+          retention-days: 14
           if-no-files-found: error

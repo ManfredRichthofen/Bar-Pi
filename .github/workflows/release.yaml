@@ -3,6 +3,16 @@ name: Create Release
 on:
   workflow_dispatch:
 
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  BUN_VERSION_FILE: package.json
+
 jobs:
   meta:
     runs-on: ubuntu-latest
@@ -16,13 +26,10 @@ jobs:
           fetch-depth: 0
           fetch-tags: true
 
-      - name: Setup Bun
-        uses: oven-sh/setup-bun@v2
-
       - name: Get version from package.json
         id: get_version
         run: |
-          version=$(bun pm pkg get version | tr -d '"')
+          version=$(node -p "require('./package.json').version")
           echo "version=$version" >> "$GITHUB_OUTPUT"
           echo "Building version: $version"
 
@@ -45,21 +52,26 @@ jobs:
             echo "$delimiter"
           } >> "$GITHUB_OUTPUT"
 
-  build-backend:
+  build-frontend:
     needs: meta
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
 
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2
-
-      - name: Setup Go
-        uses: actions/setup-go@v7
         with:
-          go-version-file: backend-go/go.mod
-          cache-dependency-path: backend-go/go.sum
+          bun-version-file: ${{ env.BUN_VERSION_FILE }}
+
+      - name: Cache Bun install
+        uses: actions/cache@v6
+        with:
+          path: ~/.bun/install/cache
+          key: ${{ runner.os }}-bun-${{ hashFiles('bun.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-bun-
 
       - name: Install frontend dependencies
         run: bun ci
@@ -77,80 +89,130 @@ jobs:
           cd scripts/wait-for-app-html
           zip -r ../../wait-for-app-html.zip .
 
-      - name: Prepare backend build directory
-        run: |
-          rm -rf dist-backend
-          mkdir -p dist-backend
+      - name: Upload frontend artifacts
+        uses: actions/upload-artifact@v7
+        with:
+          name: frontend
+          path: |
+            dist/
+            frontend-${{ needs.meta.outputs.version }}.zip
+            wait-for-app-html.zip
+          if-no-files-found: error
+          retention-days: 3
 
-      - name: Install backend dependencies
-        working-directory: backend-go
-        run: |
-          go mod download
-          go mod tidy
+  build-go:
+    needs: [meta, build-frontend]
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - variant: server
+            goarch: amd64
+            outfile: bar-pi-server-linux-amd64
+          - variant: server
+            goarch: arm64
+            outfile: bar-pi-server-linux-arm64
+          - variant: server
+            goarch: arm
+            goarm: "7"
+            outfile: bar-pi-server-linux-arm
+          - variant: bundle
+            goarch: amd64
+            outfile: bar-pi-bundle-linux-amd64
+          - variant: bundle
+            goarch: arm64
+            outfile: bar-pi-bundle-linux-arm64
+          - variant: bundle
+            goarch: arm
+            goarm: "7"
+            outfile: bar-pi-bundle-linux-arm
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
 
-      - name: Build backend - Linux AMD64
-        working-directory: backend-go
-        env:
-          GOOS: linux
-          GOARCH: amd64
-          CGO_ENABLED: 0
-        run: go build -ldflags="-s -w -X github.com/ManfredRichthofen/Bar-Pi/backend-go/internal/version.Version=${{ needs.meta.outputs.version }}" -o ../dist-backend/bar-pi-server-linux-amd64 ./cmd/server/main.go
+      - name: Setup Go
+        uses: actions/setup-go@v7
+        with:
+          go-version-file: backend-go/go.mod
+          cache-dependency-path: backend-go/go.sum
 
-      - name: Build backend - Linux ARM64
-        working-directory: backend-go
-        env:
-          GOOS: linux
-          GOARCH: arm64
-          CGO_ENABLED: 0
-        run: go build -ldflags="-s -w -X github.com/ManfredRichthofen/Bar-Pi/backend-go/internal/version.Version=${{ needs.meta.outputs.version }}" -o ../dist-backend/bar-pi-server-linux-arm64 ./cmd/server/main.go
+      - name: Download frontend
+        if: matrix.variant == 'bundle'
+        uses: actions/download-artifact@v8
+        with:
+          name: frontend
+          path: .
 
-      - name: Build backend - Linux ARM
-        working-directory: backend-go
-        env:
-          GOOS: linux
-          GOARCH: arm
-          GOARM: 7
-          CGO_ENABLED: 0
-        run: go build -ldflags="-s -w -X github.com/ManfredRichthofen/Bar-Pi/backend-go/internal/version.Version=${{ needs.meta.outputs.version }}" -o ../dist-backend/bar-pi-server-linux-arm ./cmd/server/main.go
-
-      - name: Prepare bundle build
+      - name: Embed frontend for bundle
+        if: matrix.variant == 'bundle'
         run: |
           rm -rf backend-go/internal/static/dist
           mkdir -p backend-go/internal/static/dist
           cp -r dist/* backend-go/internal/static/dist/
 
-      - name: Build bundle - Linux AMD64
+      - name: Download Go modules
         working-directory: backend-go
-        env:
-          GOOS: linux
-          GOARCH: amd64
-          CGO_ENABLED: 0
-        run: go build -tags=bundle -ldflags="-s -w -X github.com/ManfredRichthofen/Bar-Pi/backend-go/internal/version.Version=${{ needs.meta.outputs.version }}" -o ../dist-backend/bar-pi-bundle-linux-amd64 ./cmd/server/main.go
+        run: go mod download
 
-      - name: Build bundle - Linux ARM64
+      - name: Build ${{ matrix.outfile }}
         working-directory: backend-go
         env:
           GOOS: linux
-          GOARCH: arm64
+          GOARCH: ${{ matrix.goarch }}
+          GOARM: ${{ matrix.goarm }}
           CGO_ENABLED: 0
-        run: go build -tags=bundle -ldflags="-s -w -X github.com/ManfredRichthofen/Bar-Pi/backend-go/internal/version.Version=${{ needs.meta.outputs.version }}" -o ../dist-backend/bar-pi-bundle-linux-arm64 ./cmd/server/main.go
+        run: |
+          mkdir -p ../dist-backend
+          tags_flag=""
+          if [ "${{ matrix.variant }}" = "bundle" ]; then
+            tags_flag="-tags=bundle"
+          fi
+          go build $tags_flag \
+            -ldflags="-s -w -X github.com/ManfredRichthofen/Bar-Pi/backend-go/internal/version.Version=${{ needs.meta.outputs.version }}" \
+            -o "../dist-backend/${{ matrix.outfile }}" \
+            ./cmd/server/main.go
 
-      - name: Build bundle - Linux ARM
-        working-directory: backend-go
-        env:
-          GOOS: linux
-          GOARCH: arm
-          GOARM: 7
-          CGO_ENABLED: 0
-        run: go build -tags=bundle -ldflags="-s -w -X github.com/ManfredRichthofen/Bar-Pi/backend-go/internal/version.Version=${{ needs.meta.outputs.version }}" -o ../dist-backend/bar-pi-bundle-linux-arm ./cmd/server/main.go
+      - name: Stage binary for upload
+        run: |
+          mkdir -p staged
+          cp "dist-backend/${{ matrix.outfile }}" "staged/${{ matrix.outfile }}"
+
+      - name: Upload binary
+        uses: actions/upload-artifact@v7
+        with:
+          name: go-${{ matrix.outfile }}
+          path: staged/
+          if-no-files-found: error
+          retention-days: 3
+
+  collect-backend:
+    needs: [meta, build-frontend, build-go]
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Download Go binaries
+        uses: actions/download-artifact@v8
+        with:
+          pattern: go-*
+          path: dist-backend
+          merge-multiple: true
+
+      - name: Download frontend zips
+        uses: actions/download-artifact@v8
+        with:
+          name: frontend
+          path: .
 
       - name: Generate checksums
         working-directory: dist-backend
         run: |
+          ls -lh
           sha256sum bar-pi-* > SHA256SUMS
           cat SHA256SUMS
 
-      - name: Upload backend artifacts
+      - name: Upload backend and frontend artifacts
         uses: actions/upload-artifact@v7
         with:
           name: backend-and-frontend
@@ -159,30 +221,56 @@ jobs:
             frontend-${{ needs.meta.outputs.version }}.zip
             wait-for-app-html.zip
           if-no-files-found: error
+          retention-days: 3
 
   build-android:
     needs: meta
     runs-on: ubuntu-latest
+    timeout-minutes: 90
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
 
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2
+        with:
+          bun-version-file: ${{ env.BUN_VERSION_FILE }}
+
+      - name: Cache Bun install
+        uses: actions/cache@v6
+        with:
+          path: ~/.bun/install/cache
+          key: ${{ runner.os }}-bun-${{ hashFiles('bun.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-bun-
 
       - name: Install Rust stable
         uses: dtolnay/rust-toolchain@stable
         with:
           targets: aarch64-linux-android,armv7-linux-androideabi,i686-linux-android,x86_64-linux-android
 
+      - name: Cache Rust
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri
+          shared-key: android-release
+          cache-on-failure: true
+
       - name: Setup Java JDK
         uses: actions/setup-java@v6
         with:
           distribution: temurin
           java-version: "21"
+          cache: gradle
 
       - name: Setup Android SDK
         uses: android-actions/setup-android@v4
+
+      - name: Cache Android NDK
+        uses: actions/cache@v6
+        with:
+          path: /usr/local/lib/android/sdk/ndk
+          key: ${{ runner.os }}-android-ndk-28.2.13676358
 
       - name: Setup Android NDK
         run: |
@@ -191,14 +279,16 @@ jobs:
             echo "NDK_HOME=${ANDROID_NDK_LATEST_HOME}" >> "$GITHUB_ENV"
           else
             NDK_VERSION="28.2.13676358"
-            for attempt in 1 2 3; do
-              rm -rf "${ANDROID_HOME}/.temp"
-              if sdkmanager --install "ndk;${NDK_VERSION}"; then
-                break
-              fi
-              echo "Attempt ${attempt} failed, retrying..."
-              sleep 5
-            done
+            if [ ! -d "${ANDROID_HOME}/ndk/${NDK_VERSION}" ]; then
+              for attempt in 1 2 3; do
+                rm -rf "${ANDROID_HOME}/.temp"
+                if sdkmanager --install "ndk;${NDK_VERSION}"; then
+                  break
+                fi
+                echo "Attempt ${attempt} failed, retrying..."
+                sleep 5
+              done
+            fi
             echo "NDK_HOME=${ANDROID_HOME}/ndk/${NDK_VERSION}" >> "$GITHUB_ENV"
           fi
 
@@ -232,19 +322,38 @@ jobs:
           name: android-apk
           path: release-apk/app-release.apk
           if-no-files-found: error
+          retention-days: 3
 
   build-windows:
     needs: meta
     runs-on: windows-latest
+    timeout-minutes: 60
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
 
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2
+        with:
+          bun-version-file: ${{ env.BUN_VERSION_FILE }}
+
+      - name: Cache Bun install
+        uses: actions/cache@v6
+        with:
+          path: ~/.bun/install/cache
+          key: ${{ runner.os }}-bun-${{ hashFiles('bun.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-bun-
 
       - name: Install Rust stable
         uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache Rust
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri
+          shared-key: windows-release
+          cache-on-failure: true
 
       - name: Install frontend dependencies
         run: bun ci
@@ -267,10 +376,12 @@ jobs:
           name: windows-installer
           path: release-windows/Bar-Pi-Setup.exe
           if-no-files-found: error
+          retention-days: 3
 
   release:
-    needs: [meta, build-backend, build-android, build-windows]
+    needs: [meta, collect-backend, build-android, build-windows]
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     permissions:
       contents: write
     steps:

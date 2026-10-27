@@ -7,19 +7,39 @@ on:
     branches: ['main']
   workflow_dispatch:
 
+concurrency:
+  group: build-frontend-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
 jobs:
   build:
     runs-on: ubuntu-latest
-
+    timeout-minutes: 15
+    permissions:
+      contents: write
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
         with:
-          fetch-depth: 0
-          fetch-tags: true
+          # fromJSON('0') needed — bare 0 is falsy in GitHub expressions
+          fetch-depth: ${{ github.event_name == 'workflow_dispatch' && fromJSON('0') || 1 }}
+          fetch-tags: ${{ github.event_name == 'workflow_dispatch' }}
 
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2
+        with:
+          bun-version-file: package.json
+
+      - name: Cache Bun install
+        uses: actions/cache@v6
+        with:
+          path: ~/.bun/install/cache
+          key: ${{ runner.os }}-bun-${{ hashFiles('bun.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-bun-
 
       - name: Install Dependencies
         run: bun ci
@@ -31,22 +51,19 @@ jobs:
         if: github.event_name == 'workflow_dispatch'
         id: get_version
         run: |
-          version=$(bun pm pkg get version | tr -d '"')
-          echo "version=$version" >> $GITHUB_OUTPUT
+          version=$(node -p "require('./package.json').version")
+          echo "version=$version" >> "$GITHUB_OUTPUT"
 
       - name: Generate Release Notes
         if: github.event_name == 'workflow_dispatch'
         id: release_notes
         run: |
-          # Get the previous tag
           previous_tag=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
 
           if [ -z "$previous_tag" ]; then
-            # If no previous tag, get all commits
             git log --pretty=format:"* %s (%h)" > release_notes.txt
           else
-            # Get commits since last tag
-            git log --pretty=format:"* %s (%h)" $previous_tag..HEAD > release_notes.txt
+            git log --pretty=format:"* %s (%h)" "$previous_tag"..HEAD > release_notes.txt
           fi
 
           delimiter="NOTES_$(openssl rand -hex 16)"
