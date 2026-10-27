@@ -40,6 +40,7 @@ export const orderDrink = async (
   setLoading,
   navigate,
   successRoute,
+  onBeforeNavigate,
 ) => {
   setLoading(true);
   try {
@@ -53,17 +54,21 @@ export const orderDrink = async (
 
     if (!isFeasible?.feasible) {
       toast.error('This drink cannot be made at the moment');
-      return;
+      return false;
     }
 
     if (!areAllIngredientsAvailable(isFeasible.requiredIngredients)) {
       toast.error('Some ingredients are missing or insufficient');
-      return;
+      return false;
     }
 
     await cocktailService.order(recipeId, orderConfig, false, token);
     toast.success('Drink ordered successfully');
+    // Run before navigate so callers can block race-condition redirects
+    // (e.g. simple mode losing recipe state mid-transition).
+    onBeforeNavigate?.();
     navigate({ to: successRoute });
+    return true;
   } catch (error) {
     if (error.response?.data?.message) {
       console.error('Order failed:', error.response.data);
@@ -79,6 +84,7 @@ export const orderDrink = async (
     } else {
       toast.error('Failed to order drink');
     }
+    return false;
   } finally {
     setLoading(false);
   }

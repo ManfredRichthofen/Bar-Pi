@@ -1,5 +1,4 @@
-import axios from '../lib/apiClient';
-import authHeader from './auth-header';
+import axios, { authHeaders } from '../lib/apiClient';
 import { pinDtoMapper } from './gpio.service';
 
 const API_PATH = 'api/pump/';
@@ -7,46 +6,30 @@ const API_PATH = 'api/pump/';
 class PumpService {
   getAllPumps(token) {
     return axios
-      .get(API_PATH, { headers: authHeader(token) })
+      .get(API_PATH, { headers: authHeaders(token) })
       .then((response) => response.data);
   }
 
   createPump(createPump, token) {
-    return axios.post(API_PATH, createPump, { headers: authHeader(token) });
+    return axios.post(API_PATH, createPump, { headers: authHeaders(token) });
   }
 
   pumpUp(id, token) {
     return axios.put(API_PATH + String(id) + '/pumpup', null, {
-      headers: authHeader(token),
+      headers: authHeaders(token),
     });
   }
 
   pumpDown(id, token) {
     return axios.put(API_PATH + String(id) + '/pumpback', null, {
-      headers: authHeader(token),
+      headers: authHeaders(token),
     });
-  }
-
-  dispatchPumpAdvice(id, advice, token) {
-    return axios
-      .put(API_PATH + String(id) + '/runjob', advice, {
-        headers: authHeader(token),
-      })
-      .then((response) => response.data);
-  }
-
-  getMetrics(jobId, token) {
-    return axios
-      .get(API_PATH + 'jobmetrics/' + String(jobId), {
-        headers: authHeader(token),
-      })
-      .then((response) => response.data);
   }
 
   startPump(id, token) {
     const config = {
       params: { id },
-      headers: authHeader(token),
+      headers: authHeaders(token),
     };
     return axios.put(API_PATH + 'start', null, config);
   }
@@ -54,7 +37,7 @@ class PumpService {
   stopPump(id, token) {
     const config = {
       params: { id },
-      headers: authHeader(token),
+      headers: authHeaders(token),
     };
     return axios.put(API_PATH + 'stop', null, config);
   }
@@ -62,21 +45,21 @@ class PumpService {
   patchPump(id, patchPump, token) {
     return axios
       .patch(API_PATH + String(id), patchPump, {
-        headers: authHeader(token),
+        headers: authHeaders(token),
       })
       .then((response) => response.data);
   }
 
   deletePump(id, token) {
     return axios.delete(API_PATH + String(id), {
-      headers: authHeader(token),
+      headers: authHeaders(token),
     });
   }
 
   getPump(id, token) {
     return axios
       .get(API_PATH + String(id), {
-        headers: authHeader(token),
+        headers: authHeaders(token),
       })
       .then((response) => response.data);
   }

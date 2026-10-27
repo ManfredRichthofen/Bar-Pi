@@ -1,5 +1,5 @@
-import { Navigate } from '@tanstack/react-router';
 import { useQuery } from '@tanstack/react-query';
+import { Navigate } from '@tanstack/react-router';
 import { Edit, PlusCircle, Trash2 } from 'lucide-react';
 import React, {
   useCallback,
@@ -9,18 +9,18 @@ import React, {
   useState,
 } from 'react';
 import { toast } from 'sonner';
+import {
+  ActionButtons,
+  EmptyState,
+  ListCard,
+  LoadingState,
+  PageHeader,
+  ScrollToTopButton,
+  VirtualizedList,
+} from '@/components/AdvancedMode';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import SearchInput from '@/components/ui/search-input.jsx';
-import {
-  PageHeader,
-  EmptyState,
-  ListCard,
-  ActionButtons,
-  ScrollToTopButton,
-  LoadingState,
-  VirtualizedList,
-} from '@/components/AdvancedMode';
 import ingredientService from '../../../services/ingredient.service';
 import useAuthStore from '../../../store/authStore';
 import { IngredientFormDialog } from './components/IngredientFormDialog';
@@ -113,7 +113,7 @@ const Ingredients = () => {
             className="w-full sm:w-auto"
             size="default"
           >
-            <PlusCircle className="mr-2 h-4 w-4" />
+            <PlusCircle className="mr-2 size-6" />
             Add Ingredient
           </Button>
         }
@@ -124,10 +124,10 @@ const Ingredients = () => {
               onChange={handleSearch}
               placeholder="Search ingredients..."
               debounceMs={300}
-              inputClassName="pl-10 h-10 sm:h-11"
+              inputClassName="pl-10"
             />
             {data && data.length > 0 && (
-              <p className="text-xs sm:text-sm text-muted-foreground mt-2">
+              <p className="text-sm text-foreground-muted mt-2">
                 Showing {ingredients.length} of {data.length} ingredients
               </p>
             )}
@@ -193,7 +193,7 @@ const Ingredients = () => {
                         ingredient.inBar && (
                           <Badge
                             variant="default"
-                            className="text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5 flex-shrink-0"
+                            className="text-sm flex-shrink-0"
                           >
                             In Bar
                           </Badge>
@@ -207,22 +207,19 @@ const Ingredients = () => {
                                 ? 'default'
                                 : 'secondary'
                             }
-                            className="text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5"
+                            className="text-sm"
                           >
                             {ingredient.type === 'automated'
                               ? 'Automated'
                               : 'Manual'}
                           </Badge>
                           {parentGroup && (
-                            <Badge
-                              variant="outline"
-                              className="text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5"
-                            >
+                            <Badge variant="outline" className="text-sm">
                               {parentGroup.name}
                             </Badge>
                           )}
                           {ingredient.alcoholContent > 0 && (
-                            <span className="text-xs text-muted-foreground">
+                            <span className="text-sm text-foreground-muted">
                               {ingredient.alcoholContent}% ABV
                             </span>
                           )}
@@ -232,7 +229,7 @@ const Ingredients = () => {
                         <ActionButtons
                           actions={[
                             {
-                              icon: <Edit className="h-4 w-4" />,
+                              icon: <Edit className="size-6" />,
                               label: 'Edit ingredient',
                               onClick: (e) => {
                                 e.stopPropagation();
@@ -240,9 +237,7 @@ const Ingredients = () => {
                               },
                             },
                             {
-                              icon: (
-                                <Trash2 className="h-4 w-4 text-destructive" />
-                              ),
+                              icon: <Trash2 className="size-6 text-danger" />,
                               label: 'Delete ingredient',
                               onClick: (e) => {
                                 e.stopPropagation();
@@ -260,7 +255,7 @@ const Ingredients = () => {
 
             {!isFetching && ingredients.length > 0 && (
               <div className="flex items-center justify-center py-8">
-                <p className="text-center text-muted-foreground text-sm">
+                <p className="text-center text-foreground-muted text-sm">
                   Showing all {ingredients.length} ingredients
                 </p>
               </div>

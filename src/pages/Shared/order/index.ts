@@ -1,3 +1,10 @@
+export { getGlassSizeMl } from './glassUtils';
+export {
+  getBoostLabel,
+  isAutomatedIngredient,
+  isManualIngredient,
+  organizeRequiredIngredients,
+} from './ingredientHelpers';
 export type {
   AdditionalIngredient,
   FeasibilityResult,
@@ -9,10 +16,3 @@ export type {
   RecipeIngredient,
   RequiredIngredient,
 } from './types';
-export { getGlassSizeMl } from './glassUtils';
-export {
-  getBoostLabel,
-  isAutomatedIngredient,
-  isManualIngredient,
-  organizeRequiredIngredients,
-} from './ingredientHelpers';

@@ -32,16 +32,29 @@ jobs:
       - name: Setup Android SDK
         uses: android-actions/setup-android@v4
 
-      - name: Install Android NDK
-        run: sdkmanager --install "ndk;28.2.13676358"
+      - name: Setup Android NDK
+        run: |
+          if [ -n "${ANDROID_NDK_LATEST_HOME:-}" ] && [ -d "${ANDROID_NDK_LATEST_HOME}" ]; then
+            echo "Using pre-installed NDK: ${ANDROID_NDK_LATEST_HOME}"
+            echo "NDK_HOME=${ANDROID_NDK_LATEST_HOME}" >> "$GITHUB_ENV"
+          else
+            NDK_VERSION="28.2.13676358"
+            for attempt in 1 2 3; do
+              rm -rf "${ANDROID_HOME}/.temp"
+              if sdkmanager --install "ndk;${NDK_VERSION}"; then
+                break
+              fi
+              echo "Attempt ${attempt} failed, retrying..."
+              sleep 5
+            done
+            echo "NDK_HOME=${ANDROID_HOME}/ndk/${NDK_VERSION}" >> "$GITHUB_ENV"
+          fi
 
       - name: Install frontend dependencies
         run: bun ci
 
       - name: Build Android Debug APK
-        run: |
-          export NDK_HOME="${ANDROID_HOME}/ndk/28.2.13676358"
-          bunx tauri android build --debug --apk
+        run: bunx tauri android build --debug --apk
 
       - name: Upload Debug APK artifact
         uses: actions/upload-artifact@v7

@@ -56,7 +56,7 @@ jobs:
       - name: Setup Go
         uses: actions/setup-go@v7
         with:
-          go-version: "1.27"
+          go-version-file: backend-go/go.mod
           cache-dependency-path: backend-go/go.sum
 
       - name: Install frontend dependencies
@@ -176,8 +176,23 @@ jobs:
       - name: Setup Android SDK
         uses: android-actions/setup-android@v4
 
-      - name: Install Android NDK
-        run: sdkmanager --install "ndk;28.2.13676358"
+      - name: Setup Android NDK
+        run: |
+          if [ -n "${ANDROID_NDK_LATEST_HOME:-}" ] && [ -d "${ANDROID_NDK_LATEST_HOME}" ]; then
+            echo "Using pre-installed NDK: ${ANDROID_NDK_LATEST_HOME}"
+            echo "NDK_HOME=${ANDROID_NDK_LATEST_HOME}" >> "$GITHUB_ENV"
+          else
+            NDK_VERSION="28.2.13676358"
+            for attempt in 1 2 3; do
+              rm -rf "${ANDROID_HOME}/.temp"
+              if sdkmanager --install "ndk;${NDK_VERSION}"; then
+                break
+              fi
+              echo "Attempt ${attempt} failed, retrying..."
+              sleep 5
+            done
+            echo "NDK_HOME=${ANDROID_HOME}/ndk/${NDK_VERSION}" >> "$GITHUB_ENV"
+          fi
 
       - name: Install frontend dependencies
         run: bun ci
@@ -193,9 +208,7 @@ jobs:
           RELEASE_STORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
           RELEASE_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
           RELEASE_KEY_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
-        run: |
-          export NDK_HOME="${ANDROID_HOME}/ndk/28.2.13676358"
-          bunx tauri android build --apk
+        run: bunx tauri android build --apk
 
       - name: Prepare APK artifact
         run: |

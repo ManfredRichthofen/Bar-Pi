@@ -1,14 +1,5 @@
 import { useLocation, useNavigate } from '@tanstack/react-router';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import ingredientService from '../services/ingredient.service';
-import useAuthStore from '../store/authStore';
-import {
-  areAllIngredientsAvailable,
-  checkFeasibility,
-  createAdvancedOrderConfig,
-  createSimpleOrderConfig,
-  orderDrink,
-} from '../utils/orderUtils';
 import { getGlassSizeMl } from '../pages/Shared/order/glassUtils';
 import type {
   FeasibilityResult,
@@ -18,6 +9,15 @@ import type {
   OrderFlowMode,
   Recipe,
 } from '../pages/Shared/order/types';
+import ingredientService from '../services/ingredient.service';
+import useAuthStore from '../store/authStore';
+import {
+  areAllIngredientsAvailable,
+  checkFeasibility,
+  createAdvancedOrderConfig,
+  createSimpleOrderConfig,
+  orderDrink,
+} from '../utils/orderUtils';
 
 export interface UseOrderFlowOptions {
   mode: OrderFlowMode;
@@ -36,7 +36,7 @@ export interface UseOrderFlowOptions {
 export function useOrderFlow({
   mode,
   successRoute,
-  missingRecipeRoute = '/drinks',
+  missingRecipeRoute = mode === 'simple' ? '/simple/drinks' : '/drinks',
   preventRedirectAfterOrder = mode === 'simple',
   scrollToTop = mode === 'simple',
   fetchAvailableIngredients = mode === 'advanced',
@@ -80,8 +80,7 @@ export function useOrderFlow({
       setRecipeIngredients(recipe.ingredients);
     }
 
-    // Advanced historically seeded amount from default glass here;
-    // Simple waits for GlassSelector onGlassChange. Keep both safe.
+    // Advanced seeds amount from default glass; Simple waits for GlassSelector
     if (mode === 'advanced') {
       if (recipe.defaultGlass) {
         setSelectedGlass(recipe.defaultGlass);
@@ -95,9 +94,7 @@ export function useOrderFlow({
 
   const getOrderConfig = useCallback(() => {
     const amount =
-      amountToProduce ||
-      getGlassSizeMl(recipe?.defaultGlass) ||
-      250;
+      amountToProduce || getGlassSizeMl(recipe?.defaultGlass) || 250;
 
     if (mode === 'simple') {
       return createSimpleOrderConfig(
@@ -110,7 +107,6 @@ export function useOrderFlow({
     return createAdvancedOrderConfig(amount, customizations);
   }, [amountToProduce, customizations, mode, recipe?.defaultGlass]);
 
-  // Debounced feasibility check
   useEffect(() => {
     const shouldCheck =
       mode === 'advanced'
@@ -200,11 +196,14 @@ export function useOrderFlow({
       setLoading,
       navigate,
       successRoute,
-    ).then(() => {
-      if (preventRedirectAfterOrder) {
-        setHasOrdered(true);
-      }
-    });
+      // Mark ordered before route change so the missing-recipe effect
+      // does not bounce away from the success page mid-navigation.
+      () => {
+        if (preventRedirectAfterOrder) {
+          setHasOrdered(true);
+        }
+      },
+    );
   }, [
     recipe,
     getOrderConfig,
@@ -236,8 +235,9 @@ export function useOrderFlow({
   const customizerIngredients: Ingredient[] =
     mode === 'advanced'
       ? availableIngredients.filter((ing) => ing.type === 'automated')
-      : feasibilityResult?.requiredIngredients?.map((item) => item.ingredient) ||
-        [];
+      : feasibilityResult?.requiredIngredients?.map(
+          (item) => item.ingredient,
+        ) || [];
 
   return {
     token,

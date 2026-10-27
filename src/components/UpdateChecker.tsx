@@ -16,7 +16,6 @@ const UpdateChecker: React.FC = () => {
   const [isUpdating, setIsUpdating] = useState(false);
   const [lastChecked, setLastChecked] = useState<Date | null>(null);
 
-  // Auto-check for updates on component mount
   useEffect(() => {
     checkForUpdates();
   }, []);
@@ -34,7 +33,6 @@ const UpdateChecker: React.FC = () => {
     }
   };
 
-  // Enhanced release notes parsing with categorization
   const parseReleaseNotes = (notes: string) => {
     if (!notes) return [];
 
@@ -58,15 +56,12 @@ const UpdateChecker: React.FC = () => {
         const content = contentLines
           .filter((line) => line.trim())
           .map((line) => {
-            // Convert markdown lists to bullet points
             if (line.trim().startsWith('- ')) {
               return `• ${line.trim().substring(2)}`;
             }
-            // Remove markdown links
             return line.replace(/\[([^\]]+)\]\([^)]+\)/g, '$1');
           });
 
-        // Categorize section based on title keywords
         let type: 'feature' | 'bug' | 'improvement' | 'other' = 'other';
 
         const titleLower = title.toLowerCase();
@@ -132,7 +127,7 @@ const UpdateChecker: React.FC = () => {
       <CardHeader className="pb-4">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
-            <Download className="h-5 w-5" />
+            <Download className="size-6" />
             {t('settings.updates.title', 'Updates')}
           </CardTitle>
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
@@ -145,7 +140,7 @@ const UpdateChecker: React.FC = () => {
               </Badge>
             )}
             {lastChecked && (
-              <span className="text-xs text-muted-foreground sm:ml-2">
+              <span className="text-sm text-foreground-muted sm:ml-2">
                 {formatLastChecked()}
               </span>
             )}
@@ -158,7 +153,7 @@ const UpdateChecker: React.FC = () => {
             <p className="text-sm font-medium">
               {t('settings.updates.current_version', 'Current Version')}
             </p>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-sm text-foreground-muted">
               {updateInfo?.currentVersion || 'Unknown'}
             </p>
             {updateInfo?.hasUpdate && (
@@ -177,12 +172,12 @@ const UpdateChecker: React.FC = () => {
           >
             {isChecking ? (
               <>
-                <RefreshCw className="h-4 w-4 animate-spin mr-2" />
+                <RefreshCw className="size-6 animate-spin mr-2" />
                 Checking...
               </>
             ) : (
               <>
-                <RefreshCw className="h-4 w-4 mr-2" />
+                <RefreshCw className="size-6 mr-2" />
                 {t('settings.updates.check', 'Check for Updates')}
               </>
             )}
@@ -195,10 +190,10 @@ const UpdateChecker: React.FC = () => {
             <div className="space-y-4">
               <div>
                 <h3 className="font-semibold mb-3 flex items-center gap-2">
-                  <AlertCircle className="h-4 w-4" />
+                  <AlertCircle className="size-6" />
                   {t('settings.updates.release_notes', 'Release Notes')}
                 </h3>
-                <div className="bg-muted rounded-lg p-4 space-y-4">
+                <div className="bg-surface-sunken rounded-lg p-4 space-y-4">
                   {parseReleaseNotes(updateInfo.releaseNotes).map(
                     (section, index) => (
                       <div key={index} className="space-y-2">
@@ -209,7 +204,7 @@ const UpdateChecker: React.FC = () => {
                           {section.content.map((line, lineIndex) => (
                             <div
                               key={lineIndex}
-                              className="text-sm text-muted-foreground"
+                              className="text-sm text-foreground-muted"
                             >
                               {line}
                             </div>
@@ -229,17 +224,17 @@ const UpdateChecker: React.FC = () => {
                 >
                   {isUpdating ? (
                     <>
-                      <RefreshCw className="h-4 w-4 animate-spin mr-2" />
+                      <RefreshCw className="size-6 animate-spin mr-2" />
                       Updating...
                     </>
                   ) : updateInfo.updateDownloaded ? (
                     <>
-                      <CheckCircle2 className="h-4 w-4 mr-2" />
+                      <CheckCircle2 className="size-6 mr-2" />
                       {t('settings.updates.downloaded', 'Update Downloaded')}
                     </>
                   ) : (
                     <>
-                      <Download className="h-4 w-4 mr-2" />
+                      <Download className="size-6 mr-2" />
                       {t('settings.updates.update_now', 'Update Now')}
                     </>
                   )}
@@ -247,7 +242,7 @@ const UpdateChecker: React.FC = () => {
               </div>
               {updateInfo.updateDownloaded && (
                 <Alert>
-                  <AlertCircle className="h-4 w-4" />
+                  <AlertCircle className="size-6" />
                   <AlertDescription className="text-sm">
                     {t(
                       'settings.updates.manual_install_required',

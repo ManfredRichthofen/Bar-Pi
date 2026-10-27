@@ -20,7 +20,6 @@ interface AuthState {
   reinitializeAuthState: () => void;
   setToken: (token: string | null) => void;
   setUser: (user: User | null) => void;
-  logout: () => void;
 }
 
 const useAuthStore = create<AuthState>((set) => ({
@@ -29,7 +28,6 @@ const useAuthStore = create<AuthState>((set) => ({
   user: null,
   setToken: (token) => set({ token }),
   setUser: (user) => set({ user }),
-  logout: () => set({ token: null, user: null }),
   error: null,
   loading: false,
 
@@ -43,7 +41,6 @@ const useAuthStore = create<AuthState>((set) => ({
       }
 
       const response = await AuthService.login(credentials, apiBaseUrl);
-      console.log('Login response:', response);
 
       localStorage.setItem('token', response.accessToken);
       localStorage.setItem('tokenExpiration', response.tokenExpiration);
@@ -67,13 +64,11 @@ const useAuthStore = create<AuthState>((set) => ({
 
   logoutUser: () => {
     try {
-      // Clear localStorage and sessionStorage
       localStorage.removeItem('token');
       localStorage.removeItem('tokenExpiration');
       sessionStorage.removeItem('token');
       sessionStorage.removeItem('tokenExpiration');
 
-      // Clear auth store state
       set({
         token: null,
         tokenExpiration: null,
@@ -87,7 +82,6 @@ const useAuthStore = create<AuthState>((set) => ({
       queryClient.removeQueries({ queryKey: ['glasses'] });
       queryClient.removeQueries({ queryKey: ['categories'] });
 
-      // Clear other stores
       const configStore = useConfigStore.getState();
       configStore.resetApiUrl();
       useCocktailProgressStore.getState().clearProgress();
@@ -97,7 +91,6 @@ const useAuthStore = create<AuthState>((set) => ({
       usePumpStore.getState().setAllowReversePumping(false);
       usePumpStore.getState().clearError();
 
-      // Disconnect websocket
       websocketService.disconnectWebsocket();
     } catch (error: any) {
       console.error('Logout error:', error);
@@ -108,12 +101,10 @@ const useAuthStore = create<AuthState>((set) => ({
   reinitializeAuthState: () => {
     const token = localStorage.getItem('token');
     const tokenExpiration = localStorage.getItem('tokenExpiration');
-    console.log('Reinitializing auth state:', { token, tokenExpiration });
 
     if (token && tokenExpiration) {
       const isTokenValid =
         new Date().getTime() < new Date(tokenExpiration).getTime();
-      console.log('Token valid:', isTokenValid);
 
       if (isTokenValid) {
         set({

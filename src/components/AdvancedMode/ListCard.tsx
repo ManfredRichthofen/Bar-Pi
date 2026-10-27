@@ -22,7 +22,7 @@ export const ListCard: React.FC<ListCardProps> = ({
 }) => {
   return (
     <div
-      className={`flex flex-col sm:flex-row sm:items-center justify-between p-3 sm:p-4 bg-card border rounded-lg hover:shadow-md transition-all duration-200 gap-3 sm:gap-0 ${
+      className={`flex flex-col sm:flex-row sm:items-center justify-between p-3 sm:p-4 bg-surface border rounded-lg hover:shadow-md transition-colors gap-3 sm:gap-0 ${
         onClick ? 'cursor-pointer' : ''
       } ${className}`}
       onClick={onClick}
@@ -35,7 +35,7 @@ export const ListCard: React.FC<ListCardProps> = ({
           {badges}
         </div>
         {description && (
-          <p className="text-xs sm:text-sm text-muted-foreground line-clamp-1 mt-1">
+          <p className="text-sm sm:text-sm text-foreground-muted line-clamp-1 mt-1">
             {description}
           </p>
         )}

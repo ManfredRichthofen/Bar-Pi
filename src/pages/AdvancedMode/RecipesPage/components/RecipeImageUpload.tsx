@@ -40,17 +40,17 @@ export const RecipeImageUpload: React.FC<RecipeImageUploadProps> = ({
               type="button"
               variant="destructive"
               size="icon"
-              className="absolute -top-2 -right-2 h-7 w-7 rounded-full shadow-md"
+              className="absolute -top-3 -right-3"
               onClick={onRemoveImage}
             >
-              <X className="h-4 w-4" />
+              <X className="size-6" />
             </Button>
           </div>
         ) : (
-          <label className="flex flex-col items-center justify-center w-full max-w-[220px] sm:w-40 sm:h-40 aspect-square border-2 border-dashed rounded-lg cursor-pointer hover:bg-accent hover:border-primary transition-all">
+          <label className="flex flex-col items-center justify-center w-full max-w-[220px] sm:w-40 sm:h-40 aspect-square border-2 border-dashed rounded-lg cursor-pointer hover:bg-primary-tint hover:border-primary transition-colors">
             <div className="flex flex-col items-center justify-center p-4">
-              <ImageIcon size={32} className="mb-2 text-muted-foreground" />
-              <p className="text-xs text-center text-muted-foreground leading-5">
+              <ImageIcon size={32} className="mb-2 text-foreground-muted" />
+              <p className="text-sm text-center text-foreground-muted leading-5">
                 <span className="font-semibold">Click to upload</span>
                 <br />
                 PNG, JPG (max 5MB)
@@ -70,7 +70,7 @@ export const RecipeImageUpload: React.FC<RecipeImageUploadProps> = ({
           <div className="flex items-center gap-2 pt-1">
             <input
               type="checkbox"
-              className="h-4 w-4"
+              className="size-6"
               checked={removeImage}
               onChange={(e) => onToggleRemoveImage?.(e.target.checked)}
             />

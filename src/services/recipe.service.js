@@ -1,6 +1,6 @@
-import axios from 'axios';
+import { API_PATHS } from '../constants';
+import axios from '../lib/apiClient';
 import { BaseService } from './base.service';
-import { API_PATHS, ERROR_MESSAGES } from '../constants';
 import JsUtils from './JsUtils.js';
 
 const API_PATH = API_PATHS.RECIPE;
@@ -17,9 +17,7 @@ class RecipeService extends BaseService {
       uploadData.append('image', image);
     }
     return axios
-      .post(API_PATH, uploadData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      })
+      .post(API_PATH, uploadData)
       .then((response) => this.afterRecipeLoad(response.data));
   }
 
@@ -102,13 +100,6 @@ class RecipeService extends BaseService {
       });
   }
 
-  getIngredientRecipes() {
-    return axios.get(API_PATH + 'ingredient').then((response) => {
-      response.data = response.data.map((x) => this.afterRecipeLoad(x));
-      return response.data;
-    });
-  }
-
   getRecipe(id, isIngredient = false, token) {
     let params = {
       isIngredient,
@@ -168,9 +159,6 @@ class RecipeService extends BaseService {
       .put(
         API_PATH + String(id) + '?removeImage=' + String(removeImage),
         uploadData,
-        {
-          headers: { 'Content-Type': 'multipart/form-data' },
-        },
       )
       .then((response) => this.afterRecipeLoad(response.data));
   }

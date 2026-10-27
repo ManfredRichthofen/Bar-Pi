@@ -1,3 +1,4 @@
+import { useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from '@tanstack/react-router';
 import { Download, Loader2, Plus } from 'lucide-react';
 import type React from 'react';
@@ -105,6 +106,7 @@ interface RecipeFormProps {
 
 export const RecipeForm: React.FC<RecipeFormProps> = ({ mode, recipeId }) => {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const token = useAuthStore((state) => state.token);
 
   const [loading, setLoading] = useState(true);
@@ -228,10 +230,13 @@ export const RecipeForm: React.FC<RecipeFormProps> = ({ mode, recipeId }) => {
         toast.success('Recipe created successfully');
       }
 
+      await queryClient.invalidateQueries({ queryKey: ['recipes'] });
       navigate({ to: '/recipes' });
     } catch (error) {
       console.error(
-        mode === 'edit' ? 'Failed to update recipe:' : 'Failed to create recipe:',
+        mode === 'edit'
+          ? 'Failed to update recipe:'
+          : 'Failed to create recipe:',
         error,
       );
       toast.error(
@@ -425,7 +430,7 @@ export const RecipeForm: React.FC<RecipeFormProps> = ({ mode, recipeId }) => {
                     <h3 className="text-base sm:text-lg font-semibold mb-1">
                       Import from CocktailDB
                     </h3>
-                    <p className="text-xs sm:text-sm text-muted-foreground">
+                    <p className="text-sm sm:text-sm text-foreground-muted">
                       Search and import cocktail recipes with ingredients,
                       instructions, and images from TheCocktailDB
                     </p>
@@ -436,7 +441,7 @@ export const RecipeForm: React.FC<RecipeFormProps> = ({ mode, recipeId }) => {
                     onClick={() => setShowImportDialog(true)}
                     className="w-full sm:w-auto shrink-0"
                   >
-                    <Download className="mr-2 h-4 w-4" />
+                    <Download className="mr-2 size-6" />
                     Import Recipe
                   </Button>
                 </div>
@@ -447,7 +452,7 @@ export const RecipeForm: React.FC<RecipeFormProps> = ({ mode, recipeId }) => {
 
         <form
           onSubmit={handleSubmit}
-          className="space-y-4 sm:space-y-6 pb-20 sm:pb-0"
+          className="space-y-4 sm:space-y-6"
         >
           <div id="basic-info">
             <RecipeBasicInfo
@@ -517,14 +522,14 @@ export const RecipeForm: React.FC<RecipeFormProps> = ({ mode, recipeId }) => {
                       size="sm"
                       className="w-full sm:w-auto"
                     >
-                      <Plus className="mr-2 h-4 w-4" />
+                      <Plus className="mr-2 size-6" />
                       Add Step
                     </Button>
                   </div>
                 </CardHeader>
                 <CardContent className="space-y-3 sm:space-y-4 px-4 sm:px-6">
                   {formData.productionSteps.length === 0 ? (
-                    <p className="text-sm text-muted-foreground text-center py-6 sm:py-4">
+                    <p className="text-sm text-foreground-muted text-center py-6 sm:py-4">
                       No production steps added yet. Click &quot;Add Step&quot;
                       to begin.
                     </p>
@@ -563,7 +568,7 @@ export const RecipeForm: React.FC<RecipeFormProps> = ({ mode, recipeId }) => {
                     <h3 className="font-semibold text-base sm:text-lg">
                       Production Steps
                     </h3>
-                    <p className="text-xs sm:text-sm text-muted-foreground mt-1">
+                    <p className="text-sm sm:text-sm text-foreground-muted mt-1">
                       Build the drink using ingredient steps and written
                       instructions
                     </p>
@@ -573,7 +578,7 @@ export const RecipeForm: React.FC<RecipeFormProps> = ({ mode, recipeId }) => {
                       type="button"
                       variant="outline"
                       size="sm"
-                      className="w-full sm:w-auto h-10"
+                      className="w-full sm:w-auto"
                       onClick={() => addProductionStep('addIngredients')}
                     >
                       + Add Ingredients
@@ -582,7 +587,7 @@ export const RecipeForm: React.FC<RecipeFormProps> = ({ mode, recipeId }) => {
                       type="button"
                       variant="outline"
                       size="sm"
-                      className="w-full sm:w-auto h-10"
+                      className="w-full sm:w-auto"
                       onClick={() => addProductionStep('writtenInstruction')}
                     >
                       + Add Instruction
@@ -625,11 +630,11 @@ export const RecipeForm: React.FC<RecipeFormProps> = ({ mode, recipeId }) => {
             <Button
               type="submit"
               disabled={saving}
-              className="flex-1 h-12 sm:h-10 text-base sm:text-sm"
+              className="flex-1 text-base sm:text-sm"
             >
               {saving ? (
                 <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  <Loader2 className="mr-2 size-6 animate-spin" />
                   {savingLabel}
                 </>
               ) : (
@@ -647,16 +652,16 @@ export const RecipeForm: React.FC<RecipeFormProps> = ({ mode, recipeId }) => {
           </div>
 
           {/* Mobile sticky action bar */}
-          <div className="sm:hidden fixed bottom-0 left-0 right-0 bg-background/95 backdrop-blur-sm border-t shadow-lg z-50 p-3">
+          <div className="sm:hidden fixed bottom-0 left-0 right-0 bg-background border-t shadow-lg z-30 p-3">
             <div className="flex gap-3">
               <Button
                 type="submit"
                 disabled={saving}
-                className="flex-1 h-12 text-base"
+                className="flex-1 text-base"
               >
                 {saving ? (
                   <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    <Loader2 className="mr-2 size-6 animate-spin" />
                     {savingLabel}
                   </>
                 ) : (

@@ -2,6 +2,10 @@ import axios from 'axios';
 
 const COCKTAILDB_API_BASE = 'https://www.thecocktaildb.com/api/json/v1/1';
 
+// Separate instance so the global interceptors (backend baseURL + Bearer token)
+// are not applied; TheCocktailDB's CORS policy rejects the Authorization header.
+const http = axios.create({ timeout: 15000 });
+
 class CocktailDBService {
   /**
    * Search cocktails by name
@@ -10,7 +14,7 @@ class CocktailDBService {
    */
   async searchCocktails(searchTerm) {
     try {
-      const response = await axios.get(`${COCKTAILDB_API_BASE}/search.php`, {
+      const response = await http.get(`${COCKTAILDB_API_BASE}/search.php`, {
         params: { s: searchTerm },
       });
       return response.data.drinks || [];
@@ -27,7 +31,7 @@ class CocktailDBService {
    */
   async getCocktailById(id) {
     try {
-      const response = await axios.get(`${COCKTAILDB_API_BASE}/lookup.php`, {
+      const response = await http.get(`${COCKTAILDB_API_BASE}/lookup.php`, {
         params: { i: id },
       });
       return response.data.drinks?.[0] || null;
@@ -43,7 +47,7 @@ class CocktailDBService {
    */
   async getRandomCocktail() {
     try {
-      const response = await axios.get(`${COCKTAILDB_API_BASE}/random.php`);
+      const response = await http.get(`${COCKTAILDB_API_BASE}/random.php`);
       return response.data.drinks?.[0] || null;
     } catch (error) {
       console.error('Failed to get random cocktail:', error);
@@ -97,7 +101,7 @@ class CocktailDBService {
    */
   async downloadImage(imageUrl) {
     try {
-      const response = await axios.get(imageUrl, {
+      const response = await http.get(imageUrl, {
         responseType: 'blob',
       });
       return response.data;

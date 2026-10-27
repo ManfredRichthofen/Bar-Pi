@@ -30,6 +30,9 @@ func (s *GlassService) GetByID(id int64) (*models.Glass, error) {
 
 // Create creates a new glass
 func (s *GlassService) Create(glass *models.Glass) error {
+	if glass.Size == 0 {
+		glass.Size = 250
+	}
 	if err := s.validateGlass(glass); err != nil {
 		return err
 	}
@@ -47,16 +50,23 @@ func (s *GlassService) Create(glass *models.Glass) error {
 
 // Update updates an existing glass
 func (s *GlassService) Update(glass *models.Glass) error {
-	if err := s.validateGlass(glass); err != nil {
-		return err
-	}
-
 	existing, err := s.repo.FindByID(glass.ID)
 	if err != nil {
 		return fmt.Errorf("failed to find glass: %w", err)
 	}
 	if existing == nil {
 		return errors.New("glass not found")
+	}
+
+	if glass.Size == 0 {
+		glass.Size = existing.Size
+		if glass.Size == 0 {
+			glass.Size = 250
+		}
+	}
+
+	if err := s.validateGlass(glass); err != nil {
+		return err
 	}
 
 	duplicate, err := s.repo.FindByName(glass.Name)

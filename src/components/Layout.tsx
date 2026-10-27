@@ -6,15 +6,13 @@ interface MainLayoutProps {
   children: React.ReactNode;
 }
 
-// Type for components that can receive sidebarCollapsed prop
 interface WithSidebarCollapsed {
   sidebarCollapsed?: boolean;
 }
 
 const Layout: React.FC<MainLayoutProps> = ({ children }) => {
-  const [collapsed, setCollapsed] = useState(false);
+  const [collapsed, setCollapsed] = useState(() => window.innerWidth < 640);
 
-  // Pass the collapsed state to children
   const childrenWithProps = React.Children.map(children, (child) => {
     if (React.isValidElement(child)) {
       return React.cloneElement(
@@ -35,11 +33,11 @@ const Layout: React.FC<MainLayoutProps> = ({ children }) => {
       />
       <Sidebar collapsed={collapsed} onCollapse={setCollapsed} />
       <main
-        className={`transition-all duration-300 min-h-screen ${
-          collapsed ? 'ml-0' : 'ml-72'
+        className={`transition-[margin] min-h-screen ${
+          collapsed ? 'ml-0' : 'ml-0 sm:ml-72'
         }`}
       >
-        <div className="p-4 sm:p-6 pt-24">{childrenWithProps}</div>
+        <div className="px-4 pb-6 pt-16 sm:px-6">{childrenWithProps}</div>
       </main>
     </div>
   );

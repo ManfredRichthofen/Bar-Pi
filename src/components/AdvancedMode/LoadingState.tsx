@@ -15,12 +15,12 @@ export const LoadingState: React.FC<LoadingStateProps> = ({
   if (fullScreen) {
     return (
       <div
-        className={`fixed inset-0 bg-background/80 backdrop-blur-sm flex justify-center items-center z-50 ${className}`}
+        className={`fixed inset-0 bg-background flex justify-center items-center z-50 ${className}`}
       >
         <div className="flex flex-col items-center gap-3">
           <Loader2 className="h-10 w-10 animate-spin" />
           {message && (
-            <p className="text-sm text-muted-foreground">{message}</p>
+            <p className="text-sm text-foreground-muted">{message}</p>
           )}
         </div>
       </div>
@@ -31,7 +31,7 @@ export const LoadingState: React.FC<LoadingStateProps> = ({
     <div className={`flex justify-center items-center py-12 ${className}`}>
       <div className="flex flex-col items-center gap-3">
         <Loader2 className="h-8 w-8 animate-spin" />
-        {message && <p className="text-sm text-muted-foreground">{message}</p>}
+        {message && <p className="text-sm text-foreground-muted">{message}</p>}
       </div>
     </div>
   );

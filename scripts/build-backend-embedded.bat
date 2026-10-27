@@ -53,7 +53,7 @@ echo [Build Backend Embedded] Building for linux/amd64 with embedded frontend...
 set GOOS=linux
 set GOARCH=amd64
 set CGO_ENABLED=0
-go build -ldflags="-s -w" -o "%DIST_DIR%\bar-pi-server-linux-amd64" ./cmd/server/main.go
+go build -tags=bundle -ldflags="-s -w" -o "%DIST_DIR%\bar-pi-server-linux-amd64" ./cmd/server/main.go
 if %ERRORLEVEL% EQU 0 (
     echo [Build Backend Embedded] ✓ Built bar-pi-server-linux-amd64
     set /a SUCCESS_COUNT+=1
@@ -66,7 +66,7 @@ echo [Build Backend Embedded] Building for linux/arm64 with embedded frontend...
 set GOOS=linux
 set GOARCH=arm64
 set CGO_ENABLED=0
-go build -ldflags="-s -w" -o "%DIST_DIR%\bar-pi-server-linux-arm64" ./cmd/server/main.go
+go build -tags=bundle -ldflags="-s -w" -o "%DIST_DIR%\bar-pi-server-linux-arm64" ./cmd/server/main.go
 if %ERRORLEVEL% EQU 0 (
     echo [Build Backend Embedded] ✓ Built bar-pi-server-linux-arm64
     set /a SUCCESS_COUNT+=1
@@ -80,7 +80,7 @@ set GOOS=linux
 set GOARCH=arm
 set GOARM=7
 set CGO_ENABLED=0
-go build -ldflags="-s -w" -o "%DIST_DIR%\bar-pi-server-linux-arm" ./cmd/server/main.go
+go build -tags=bundle -ldflags="-s -w" -o "%DIST_DIR%\bar-pi-server-linux-arm" ./cmd/server/main.go
 if %ERRORLEVEL% EQU 0 (
     echo [Build Backend Embedded] ✓ Built bar-pi-server-linux-arm
     set /a SUCCESS_COUNT+=1

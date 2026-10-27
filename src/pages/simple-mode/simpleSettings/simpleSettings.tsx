@@ -37,32 +37,27 @@ const SimpleSettings = () => {
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      {/* Header */}
-      <div className="sticky top-0 z-20 bg-background/95 backdrop-blur-md border-b border-border shadow-sm">
-        <div className="px-3 sm:px-4 py-3 sm:py-4 flex items-center justify-between">
+      <header className="sticky top-0 z-20 border-b-hairline border-border bg-background">
+        <div className="mx-auto max-w-4xl px-4 py-4 sm:px-6 flex items-center justify-between">
           <Button
             type="button"
             variant="ghost"
             size="icon"
-            className="rounded-xl transition-all duration-200 shadow-sm"
             onClick={() => navigate({ to: '/simple/drinks' })}
           >
-            <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5" />
+            <ArrowLeft className="size-6" />
           </Button>
-          <h1 className="text-lg sm:text-xl font-bold truncate flex-1 mx-2 sm:mx-3 text-center text-base-content">
+          <h1 className="text-xl font-bold truncate flex-1 mx-3 text-center text-foreground">
             {t('settings.title', 'Settings')}
           </h1>
-          <div className="w-8 sm:w-10" /> {/* Spacer for centering */}
+          <div className="size-control-md" />
         </div>
-      </div>
+      </header>
 
-      {/* Main Content */}
       <div className="flex-1 overflow-y-auto">
-        <div className="p-3 sm:p-4 space-y-4 sm:space-y-6 max-w-4xl mx-auto">
-          {/* Update Check Card */}
+        <div className="mx-auto max-w-3xl px-4 py-6 sm:px-6 space-y-6">
           <UpdateChecker />
 
-          {/* General Settings Card */}
           <GeneralSettings
             currentLanguage={i18n.language}
             languages={languages}
@@ -71,7 +66,6 @@ const SimpleSettings = () => {
             onLogout={handleLogout}
           />
 
-          {/* Theme Selector Card */}
           <ThemeSelector />
         </div>
       </div>

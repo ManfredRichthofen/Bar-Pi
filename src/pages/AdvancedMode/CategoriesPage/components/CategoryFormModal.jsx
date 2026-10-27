@@ -46,7 +46,7 @@ export const CategoryFormModal = ({
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="name">
-              Category Name <span className="text-destructive">*</span>
+              Category Name <span className="text-danger">*</span>
             </Label>
             <Input
               id="name"

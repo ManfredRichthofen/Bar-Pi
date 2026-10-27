@@ -1,7 +1,7 @@
 import { Navigate, useNavigate } from '@tanstack/react-router';
 import { debounce } from 'es-toolkit';
 import { ArrowUp, Filter } from 'lucide-react';
-import { motion, AnimatePresence } from 'motion/react';
+import { AnimatePresence, motion } from 'motion/react';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import FilterPanel from '@/components/ui/filter-panel.jsx';
@@ -49,12 +49,10 @@ function SimpleDrinks() {
     [filters, clearFilters, updateFilter],
   );
 
-  // Memoize the filter function to prevent unnecessary recalculations
   const filterRecipesMemo = useCallback(
     (recipes, activeFilters = filters, fabricable = fabricableRecipes) => {
       if (!recipes?.length) return [];
 
-      // Early return if no filters are active
       if (
         !activeFilters.automatic &&
         !activeFilters.manual &&
@@ -68,10 +66,8 @@ function SimpleDrinks() {
     [filters, fabricableRecipes],
   );
 
-  // Update recipes when filters change
   useEffect(() => {
     setSearchLoading(true);
-    // Reduced timeout for better responsiveness
     setTimeout(() => {
       setSearchLoading(false);
     }, 100);
@@ -99,7 +95,6 @@ function SimpleDrinks() {
   const handleFilterToggle = (e) => {
     e?.stopPropagation();
     setIsFilterPanelOpen(!isFilterPanelOpen);
-    // Make sure header is visible when opening filters
     if (!isFilterPanelOpen) {
       setIsHeaderVisible(true);
     }
@@ -113,7 +108,6 @@ function SimpleDrinks() {
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
 
-      // Don't hide header if filter panel is open
       if (isFilterPanelOpen) {
         setIsHeaderVisible(true);
         setLastScrollY(currentScrollY);
@@ -121,7 +115,6 @@ function SimpleDrinks() {
         return;
       }
 
-      // Hide header when scrolling down, show when scrolling up
       if (currentScrollY > lastScrollY && currentScrollY > 100) {
         setIsHeaderVisible(false);
       } else {
@@ -144,7 +137,6 @@ function SimpleDrinks() {
     });
   };
 
-  // Handle click outside to close filter panel
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (
@@ -168,34 +160,29 @@ function SimpleDrinks() {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
-      <div
-        className={`sticky top-0 z-20 bg-background/95 backdrop-blur-sm border-b border-border shadow-sm pt-2 transition-all duration-300 ${
-          isHeaderVisible
-            ? 'translate-y-0 opacity-100'
-            : '-translate-y-full opacity-0'
+      <header
+        className={`sticky top-0 z-20 border-b-hairline border-border bg-background transition-transform ${
+          isHeaderVisible ? 'translate-y-0' : '-translate-y-full'
         }`}
       >
-        <div className="px-3 sm:px-4 py-3 sm:py-4 space-y-4">
-          {/* Header Section */}
+        <div className="mx-auto max-w-7xl px-4 py-4 sm:px-6 space-y-4">
           <div className="flex items-center justify-between">
-            <h1 className="text-xl sm:text-2xl font-bold">Available Drinks</h1>
+            <h1 className="text-3xl sm:text-4xl">Drinks</h1>
             <Button
-              variant={isFilterPanelOpen ? 'default' : 'ghost'}
-              size="icon"
+              variant={isFilterPanelOpen ? 'default' : 'outline'}
               onClick={handleFilterToggle}
-              className="rounded-lg transition-all duration-200"
+              className="relative"
             >
-              <Filter className="h-4 w-4 sm:h-5 sm:w-5" />
+              <Filter />
+              Filters
               {Object.values(filters).some(Boolean) && (
-                <span className="absolute -top-1 -right-1 bg-primary text-primary-foreground rounded-full w-4 h-4 text-xs font-medium flex items-center justify-center">
+                <span className="flex size-6 items-center justify-center rounded-full bg-primary-tint font-mono text-sm text-primary-tint-ink">
                   {Object.values(filters).filter(Boolean).length}
                 </span>
               )}
             </Button>
           </div>
 
-          {/* Search Bar */}
           <SearchInput
             value={searchValue}
             onChange={handleSearchInput}
@@ -205,7 +192,6 @@ function SimpleDrinks() {
             debounceMs={500}
           />
 
-          {/* Filter Panel */}
           {isFilterPanelOpen && (
             <FilterPanel
               filters={filters}
@@ -217,9 +203,8 @@ function SimpleDrinks() {
             <ErrorMessage error={error} onDismiss={() => setError(null)} />
           )}
         </div>
-      </div>
+      </header>
 
-      {/* Main Content */}
       <VirtualGrid
         fabricableRecipes={fabricableRecipes}
         onCardClick={handleCardClick}
@@ -231,7 +216,6 @@ function SimpleDrinks() {
         onClearFilters={clearFilters}
       />
 
-      {/* Scroll to top button */}
       <AnimatePresence>
         {showScrollTop && (
           <motion.div
@@ -244,10 +228,10 @@ function SimpleDrinks() {
             <Button
               onClick={scrollToTop}
               size="icon"
-              className="rounded-full shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-110 active:scale-95"
+              className=""
               aria-label="Scroll to top"
             >
-              <ArrowUp className="w-5 h-5" />
+              <ArrowUp className="size-6" />
             </Button>
           </motion.div>
         )}

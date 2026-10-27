@@ -22,13 +22,13 @@ export const DeleteUserDialog = ({
       <DialogContent className="max-w-md">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <Trash2 className="h-5 w-5 text-destructive" />
+            <Trash2 className="size-6 text-danger" />
             Delete User
           </DialogTitle>
         </DialogHeader>
 
         <div className="space-y-4">
-          <p className="text-sm text-muted-foreground">
+          <p className="text-sm text-foreground-muted">
             Are you sure you want to delete the user{' '}
             <strong>"{userToDelete?.username}"</strong>? This action cannot be
             undone.
@@ -50,7 +50,7 @@ export const DeleteUserDialog = ({
             onClick={onConfirm}
             className="flex items-center gap-2"
           >
-            <Trash2 className="h-4 w-4" />
+            <Trash2 className="size-6" />
             Delete User
           </Button>
         </DialogFooter>

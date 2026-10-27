@@ -1,10 +1,12 @@
 package router
 
 import (
+	"encoding/json"
 	"io/fs"
 	"log"
 	"net/http"
 	"path/filepath"
+	"strconv"
 	"strings"
 
 	"github.com/ManfredRichthofen/Bar-Pi/backend-go/internal/auth"
@@ -20,12 +22,13 @@ import (
 	"gorm.io/gorm"
 )
 
-func Setup(cfg *config.Config, db *gorm.DB) *gin.Engine {
+func SetupWithCleanup(cfg *config.Config, db *gorm.DB) (*gin.Engine, func()) {
 	if cfg.Server.Port != 8080 {
 		gin.SetMode(gin.ReleaseMode)
 	}
 
 	r := gin.Default()
+	r.RedirectTrailingSlash = false
 	r.Use(middleware.CORS())
 
 	userRepo := repository.NewUserRepository(db)
@@ -34,50 +37,97 @@ func Setup(cfg *config.Config, db *gorm.DB) *gin.Engine {
 	glassRepo := repository.NewGlassRepository(db)
 	categoryRepo := repository.NewCategoryRepository(db)
 	pumpRepo := repository.NewPumpRepository(db)
+	gpioRepo := repository.NewGPIORepository(db)
+	collectionRepo := repository.NewCollectionRepository(db)
+
+	wsHub := websocket.NewHub()
+	go wsHub.Run()
+
+	// STOMP server for SockJS compatibility
+	stompServer := websocket.NewStompServer()
+	wsService := websocket.NewService(stompServer)
+
+	// Initialize GPIO service (may fail on non-Raspberry Pi systems)
+	gpioService, err := service.NewGPIOService()
+	if err != nil {
+		log.Printf("Warning: GPIO hardware service not available (%v) - running in software/simulated GPIO mode", err)
+	}
+
+	imagesDir := cfg.App.ImagesDir
+	if imagesDir == "" {
+		imagesDir = "./images"
+	}
 
 	userService := service.NewUserService(userRepo)
 	recipeService := service.NewRecipeService(recipeRepo)
 	ingredientService := service.NewIngredientService(ingredientRepo)
 	glassService := service.NewGlassService(glassRepo)
 	categoryService := service.NewCategoryService(categoryRepo)
-	pumpService := service.NewPumpService(pumpRepo, ingredientRepo)
-	systemService := service.NewSystemService(cfg)
-	cocktailService := service.NewCocktailService(recipeRepo, ingredientRepo, pumpRepo)
-	imageService := service.NewImageService("./images")
+	systemService := service.NewSystemService(cfg, db)
+	pumpService := service.NewPumpService(pumpRepo, ingredientRepo, gpioRepo, gpioService, wsService, systemService)
+	cocktailService := service.NewCocktailService(recipeRepo, ingredientRepo, pumpRepo, gpioService, wsService, db)
+	statisticsService := service.NewStatisticsService(db)
+	imageService := service.NewImageService(imagesDir)
 
-	if err := userService.EnsureDefaultAdmin(); err != nil {
-		panic(err)
+	// Push initial state immediately when a STOMP client subscribes to a topic
+	stompServer.OnSubscribe = func(client *websocket.StompClient, sub *websocket.Subscription) {
+		dest := sub.Destination
+		switch {
+		case dest == websocket.WS_COCKTAIL_DESTINATION || dest == "/user"+websocket.WS_COCKTAIL_DESTINATION:
+			prog := cocktailService.GetCurrentProgress()
+			if prog == nil {
+				stompServer.SendToSubscription(client, sub, "DELETE")
+			} else if data, err := json.Marshal(prog); err == nil {
+				stompServer.SendToSubscription(client, sub, string(data))
+			}
+
+		case dest == websocket.WS_PUMP_LAYOUT_DESTINATION || dest == "/user"+websocket.WS_PUMP_LAYOUT_DESTINATION:
+			if pumps, err := pumpService.GetAll(); err == nil {
+				if data, err := json.Marshal(pumps); err == nil {
+					stompServer.SendToSubscription(client, sub, string(data))
+				}
+			}
+
+		case strings.HasPrefix(dest, websocket.WS_PUMP_RUNNING_STATE_DESTINATION+"/") ||
+			strings.HasPrefix(dest, "/user"+websocket.WS_PUMP_RUNNING_STATE_DESTINATION+"/"):
+			parts := strings.Split(dest, "/")
+			if len(parts) > 0 {
+				if pumpID, err := strconv.ParseInt(parts[len(parts)-1], 10, 64); err == nil {
+					state := pumpService.GetJobState(pumpID)
+					if data, err := json.Marshal(state); err == nil {
+						stompServer.SendToSubscription(client, sub, string(data))
+					}
+				}
+			}
+		}
 	}
 
-	// Initialize GPIO service (may fail on non-Raspberry Pi systems)
-	gpioService, err := service.NewGPIOService()
-	if err != nil {
-		// Log warning but don't panic - GPIO may not be available
-		println("Warning: GPIO service not available:", err.Error())
+	cleanup := func() {
+		_ = cocktailService.CancelOrder(0, true)
+		_ = pumpService.StopPump(nil)
+		if gpioService != nil {
+			_ = gpioService.Close()
+		}
+	}
+
+	if err := userService.EnsureDefaultAdmin(); err != nil {
+		log.Printf("Error ensuring default admin user: %v", err)
 	}
 
 	jwtService := auth.NewJWTService(cfg)
 
 	authHandler := handlers.NewAuthHandler(userService, jwtService)
 	userHandler := handlers.NewUserHandler(userService)
-	recipeHandler := handlers.NewRecipeHandler(recipeService, imageService)
-	ingredientHandler := handlers.NewIngredientHandler(ingredientService)
+	recipeHandler := handlers.NewRecipeHandler(recipeService, imageService, wsService)
+	ingredientHandler := handlers.NewIngredientHandler(ingredientService, imageService)
 	glassHandler := handlers.NewGlassHandler(glassService)
 	categoryHandler := handlers.NewCategoryHandler(categoryService)
-	pumpHandler := handlers.NewPumpHandler(pumpService)
+	pumpHandler := handlers.NewPumpHandler(pumpService, systemService)
 	systemHandler := handlers.NewSystemHandler(systemService)
 	cocktailHandler := handlers.NewCocktailHandler(cocktailService)
-
-	var gpioHandler *handlers.GPIOHandler
-	if gpioService != nil {
-		gpioHandler = handlers.NewGPIOHandler(gpioService)
-	}
-
-	wsHub := websocket.NewHub()
-	go wsHub.Run()
-
-	// STOMP server for SockJS compatibility
-	stompServer := websocket.NewStompServer(wsHub)
+	gpioHandler := handlers.NewGPIOHandler(gpioService, gpioRepo)
+	statisticsHandler := handlers.NewStatisticsHandler(statisticsService)
+	collectionHandler := handlers.NewCollectionHandler(collectionRepo)
 
 	// WebSocket endpoints - support both /websocket (SockJS pattern) and /api/ws
 	r.GET("/websocket", func(c *gin.Context) {
@@ -95,36 +145,51 @@ func Setup(cfg *config.Config, db *gorm.DB) *gin.Engine {
 			authGroup.GET("/refreshToken", middleware.AuthMiddleware(jwtService), authHandler.RefreshToken)
 		}
 
-		userGroup := api.Group("/users")
-		userGroup.Use(middleware.AuthMiddleware(jwtService))
-		{
-			userGroup.GET("", middleware.RequireRole(models.RoleAdmin), userHandler.GetAll)
-			userGroup.GET("/:id", userHandler.GetByID)
-			userGroup.POST("", middleware.RequireRole(models.RoleAdmin), userHandler.Create)
-			userGroup.PUT("/:id/password", userHandler.UpdatePassword)
-			userGroup.DELETE("/:id", middleware.RequireRole(models.RoleAdmin), userHandler.Delete)
+		registerUserRoutes := func(group *gin.RouterGroup) {
+			group.Use(middleware.AuthMiddleware(jwtService))
+			group.GET("", middleware.RequireRole(models.RoleAdmin), userHandler.GetAll)
+			group.GET("/", middleware.RequireRole(models.RoleAdmin), userHandler.GetAll)
+			group.GET("/current", userHandler.GetCurrent)
+			group.PUT("/current", userHandler.UpdateCurrent)
+			group.GET("/:id", userHandler.GetByID)
+			group.POST("", middleware.RequireRole(models.RoleAdmin), userHandler.Create)
+			group.POST("/", middleware.RequireRole(models.RoleAdmin), userHandler.Create)
+			group.PUT("/:id", middleware.RequireRole(models.RoleAdmin), userHandler.Update)
+			group.PUT("/:id/password", userHandler.UpdatePassword)
+			group.DELETE("/:id", middleware.RequireRole(models.RoleAdmin), userHandler.Delete)
 		}
+		registerUserRoutes(api.Group("/user"))
+		registerUserRoutes(api.Group("/users"))
 
-		recipeGroup := api.Group("/recipes")
-		recipeGroup.Use(middleware.AuthMiddleware(jwtService))
-		{
-			recipeGroup.GET("", recipeHandler.GetAll)
-			recipeGroup.GET("/search", recipeHandler.Search)
-			recipeGroup.GET("/:id", recipeHandler.GetByID)
-			recipeGroup.POST("", recipeHandler.Create)
-			recipeGroup.PUT("/:id", recipeHandler.Update)
-			recipeGroup.DELETE("/:id", recipeHandler.Delete)
+		registerRecipeRoutes := func(group *gin.RouterGroup) {
+			group.Use(middleware.AuthMiddleware(jwtService))
+			group.GET("", recipeHandler.GetAll)
+			group.GET("/", recipeHandler.GetAll)
+			group.GET("/search", recipeHandler.Search)
+			group.GET("/ingredient", recipeHandler.GetIngredientRecipes)
+			group.GET("/:id", recipeHandler.GetByID)
+			group.GET("/:id/image", recipeHandler.GetImage)
+			group.POST("", middleware.RequireRole(models.RoleRecipeCreator), recipeHandler.Create)
+			group.POST("/", middleware.RequireRole(models.RoleRecipeCreator), recipeHandler.Create)
+			group.PUT("/:id", middleware.RequireRole(models.RoleRecipeCreator), recipeHandler.Update)
+			group.DELETE("/:id", middleware.RequireRole(models.RoleRecipeCreator), recipeHandler.Delete)
 		}
+		registerRecipeRoutes(api.Group("/recipe"))
+		registerRecipeRoutes(api.Group("/recipes"))
 
 		ingredientGroup := api.Group("/ingredient")
 		ingredientGroup.Use(middleware.AuthMiddleware(jwtService))
 		{
 			ingredientGroup.GET("", ingredientHandler.GetAll)
+			ingredientGroup.GET("/", ingredientHandler.GetAll)
+			ingredientGroup.GET("/boostable", ingredientHandler.GetBoostable)
+			ingredientGroup.GET("/export", middleware.RequireRole(models.RolePumpIngredientEditor), ingredientHandler.GetExport)
 			ingredientGroup.GET("/:id", ingredientHandler.GetByID)
-			ingredientGroup.POST("", middleware.RequireRole(models.RoleAdmin), ingredientHandler.Create)
-			ingredientGroup.PUT("/:id", middleware.RequireRole(models.RoleAdmin), ingredientHandler.Update)
-			ingredientGroup.DELETE("/:id", middleware.RequireRole(models.RoleAdmin), ingredientHandler.Delete)
-			ingredientGroup.GET("/export", middleware.RequireRole(models.RoleAdmin), ingredientHandler.GetExport)
+			ingredientGroup.GET("/:id/image", ingredientHandler.GetImage)
+			ingredientGroup.POST("", middleware.RequireRole(models.RoleRecipeCreator), ingredientHandler.Create)
+			ingredientGroup.POST("/", middleware.RequireRole(models.RoleRecipeCreator), ingredientHandler.Create)
+			ingredientGroup.PUT("/:id", middleware.RequireRole(models.RoleRecipeCreator), ingredientHandler.Update)
+			ingredientGroup.DELETE("/:id", middleware.RequireRole(models.RoleRecipeCreator), ingredientHandler.Delete)
 			ingredientGroup.PUT("/:id/bar", ingredientHandler.AddToBar)
 			ingredientGroup.DELETE("/:id/bar", ingredientHandler.RemoveFromBar)
 		}
@@ -133,8 +198,10 @@ func Setup(cfg *config.Config, db *gorm.DB) *gin.Engine {
 		glassGroup.Use(middleware.AuthMiddleware(jwtService))
 		{
 			glassGroup.GET("", glassHandler.GetAll)
+			glassGroup.GET("/", glassHandler.GetAll)
 			glassGroup.GET("/:id", glassHandler.GetByID)
 			glassGroup.POST("", middleware.RequireRole(models.RoleAdmin), glassHandler.Create)
+			glassGroup.POST("/", middleware.RequireRole(models.RoleAdmin), glassHandler.Create)
 			glassGroup.PUT("/:id", middleware.RequireRole(models.RoleAdmin), glassHandler.Update)
 			glassGroup.DELETE("/:id", middleware.RequireRole(models.RoleAdmin), glassHandler.Delete)
 		}
@@ -143,39 +210,74 @@ func Setup(cfg *config.Config, db *gorm.DB) *gin.Engine {
 		categoryGroup.Use(middleware.AuthMiddleware(jwtService))
 		{
 			categoryGroup.GET("", categoryHandler.GetAll)
+			categoryGroup.GET("/", categoryHandler.GetAll)
 			categoryGroup.GET("/:id", categoryHandler.GetByID)
-			categoryGroup.POST("", middleware.RequireRole(models.RoleAdmin), categoryHandler.Create)
-			categoryGroup.PUT("/:id", middleware.RequireRole(models.RoleAdmin), categoryHandler.Update)
-			categoryGroup.DELETE("/:id", middleware.RequireRole(models.RoleAdmin), categoryHandler.Delete)
+			categoryGroup.POST("", middleware.RequireRole(models.RoleRecipeCreator), categoryHandler.Create)
+			categoryGroup.POST("/", middleware.RequireRole(models.RoleRecipeCreator), categoryHandler.Create)
+			categoryGroup.PUT("/:id", middleware.RequireRole(models.RoleRecipeCreator), categoryHandler.Update)
+			categoryGroup.DELETE("/:id", middleware.RequireRole(models.RoleRecipeCreator), categoryHandler.Delete)
+		}
+
+		collectionGroup := api.Group("/collection")
+		collectionGroup.Use(middleware.AuthMiddleware(jwtService))
+		{
+			collectionGroup.GET("", collectionHandler.GetAll)
+			collectionGroup.GET("/", collectionHandler.GetAll)
+			collectionGroup.GET("/:id", collectionHandler.GetByID)
+			collectionGroup.POST("", collectionHandler.Create)
+			collectionGroup.POST("/", collectionHandler.Create)
+			collectionGroup.PUT("/:id", collectionHandler.Update)
+			collectionGroup.DELETE("/:id", collectionHandler.Delete)
+			collectionGroup.POST("/:id/add", collectionHandler.AddRecipe)
+			collectionGroup.DELETE("/:id/:recipeId", collectionHandler.RemoveRecipe)
 		}
 
 		pumpGroup := api.Group("/pump")
 		pumpGroup.Use(middleware.AuthMiddleware(jwtService))
 		{
 			pumpGroup.GET("", pumpHandler.GetAll)
+			pumpGroup.GET("/", pumpHandler.GetAll)
+			pumpGroup.GET("/jobmetrics/:id", pumpHandler.GetJobMetrics)
+			pumpGroup.PUT("/start", middleware.RequireRole(models.RolePumpIngredientEditor), pumpHandler.Start)
+			pumpGroup.PUT("/stop", middleware.RequireRole(models.RolePumpIngredientEditor), pumpHandler.Stop)
+
+			pumpSettingsGroup := pumpGroup.Group("/settings")
+			{
+				pumpSettingsGroup.GET("/reversepumping", pumpHandler.GetReversePumpSettings)
+				pumpSettingsGroup.PUT("/reversepumping", middleware.RequireRole(models.RoleAdmin), pumpHandler.SetReversePumpSettings)
+				pumpSettingsGroup.GET("/loadcell", pumpHandler.GetLoadCell)
+				pumpSettingsGroup.PUT("/loadcell", middleware.RequireRole(models.RoleAdmin), pumpHandler.SetLoadCell)
+				pumpSettingsGroup.GET("/loadcell/read", pumpHandler.ReadLoadCell)
+				pumpSettingsGroup.PUT("/loadcell/calibratezero", middleware.RequireRole(models.RoleAdmin), pumpHandler.CalibrateLoadCellZero)
+				pumpSettingsGroup.PUT("/loadcell/calibratereference", middleware.RequireRole(models.RoleAdmin), pumpHandler.CalibrateLoadCellReference)
+			}
+
 			pumpGroup.GET("/:id", pumpHandler.GetByID)
-			pumpGroup.POST("", middleware.RequireRole(models.RoleAdmin), pumpHandler.Create)
-			pumpGroup.PATCH("/:id", pumpHandler.Update)
-			pumpGroup.DELETE("/:id", middleware.RequireRole(models.RoleAdmin), pumpHandler.Delete)
-			pumpGroup.PUT("/:id/pumpup", pumpHandler.PumpUp)
-			pumpGroup.PUT("/:id/pumpback", pumpHandler.PumpBack)
-			pumpGroup.PUT("/start", pumpHandler.Start)
-			pumpGroup.PUT("/stop", pumpHandler.Stop)
+			pumpGroup.POST("", middleware.RequireRole(models.RolePumpIngredientEditor), pumpHandler.Create)
+			pumpGroup.POST("/", middleware.RequireRole(models.RolePumpIngredientEditor), pumpHandler.Create)
+			pumpGroup.PATCH("/:id", middleware.RequireRole(models.RolePumpIngredientEditor), pumpHandler.Update)
+			pumpGroup.PUT("/:id", middleware.RequireRole(models.RolePumpIngredientEditor), pumpHandler.Update)
+			pumpGroup.DELETE("/:id", middleware.RequireRole(models.RolePumpIngredientEditor), pumpHandler.Delete)
+			pumpGroup.PUT("/:id/pumpup", middleware.RequireRole(models.RolePumpIngredientEditor), pumpHandler.PumpUp)
+			pumpGroup.PUT("/:id/pumpback", middleware.RequireRole(models.RolePumpIngredientEditor), pumpHandler.PumpBack)
+			pumpGroup.PUT("/:id/runjob", middleware.RequireRole(models.RolePumpIngredientEditor), pumpHandler.RunJob)
 		}
 
 		cocktailGroup := api.Group("/cocktail")
 		cocktailGroup.Use(middleware.AuthMiddleware(jwtService))
 		{
+			cocktailGroup.GET("/progress", cocktailHandler.GetProgress)
+			cocktailGroup.POST("/continueproduction", cocktailHandler.ContinueProduction)
+			cocktailGroup.DELETE("", cocktailHandler.CancelCocktail)
+			cocktailGroup.DELETE("/", cocktailHandler.CancelCocktail)
 			cocktailGroup.PUT("/:recipeId", cocktailHandler.OrderCocktail)
 			cocktailGroup.PUT("/:recipeId/feasibility", cocktailHandler.CheckFeasibility)
-			cocktailGroup.DELETE("", cocktailHandler.CancelCocktail)
-			cocktailGroup.POST("/continueproduction", cocktailHandler.ContinueProduction)
-			cocktailGroup.GET("/progress", cocktailHandler.GetProgress)
 		}
 
 		systemGroup := api.Group("/system")
 		systemGroup.Use(middleware.AuthMiddleware(jwtService))
 		{
+			systemGroup.GET("/version", systemHandler.GetVersion)
 			systemGroup.GET("/settings/appearance", systemHandler.GetAppearance)
 			systemGroup.PUT("/settings/appearance", middleware.RequireRole(models.RoleAdmin), systemHandler.SetAppearance)
 			systemGroup.GET("/settings/appearance/language", systemHandler.GetLanguages)
@@ -189,17 +291,33 @@ func Setup(cfg *config.Config, db *gorm.DB) *gin.Engine {
 			systemGroup.PUT("/shutdown", middleware.RequireRole(models.RoleAdmin), systemHandler.Shutdown)
 		}
 
-		// GPIO routes (only if GPIO service is available)
-		if gpioHandler != nil {
-			gpioGroup := api.Group("/gpio")
-			gpioGroup.Use(middleware.AuthMiddleware(jwtService))
-			{
-				gpioGroup.GET("/status", gpioHandler.GetStatus)
-				gpioGroup.POST("/test", gpioHandler.TestPin)
-				gpioGroup.POST("/pump", gpioHandler.RunPump)
-				gpioGroup.GET("/pin/:pin", gpioHandler.GetPinValue)
-				gpioGroup.DELETE("/pin/:pin", gpioHandler.ReleasePin)
-			}
+		gpioGroup := api.Group("/gpio")
+		gpioGroup.Use(middleware.AuthMiddleware(jwtService))
+		{
+			gpioGroup.GET("", gpioHandler.GetBoards)
+			gpioGroup.GET("/", gpioHandler.GetBoards)
+			gpioGroup.POST("", middleware.RequireRole(models.RoleAdmin), gpioHandler.CreateBoard)
+			gpioGroup.POST("/", middleware.RequireRole(models.RoleAdmin), gpioHandler.CreateBoard)
+			gpioGroup.GET("/status", gpioHandler.GetStatus)
+			gpioGroup.POST("/test", middleware.RequireRole(models.RoleAdmin), gpioHandler.TestPin)
+			gpioGroup.POST("/pump", middleware.RequireRole(models.RoleAdmin), gpioHandler.RunPump)
+			gpioGroup.GET("/pin/:pin", gpioHandler.GetPinValue)
+			gpioGroup.DELETE("/pin/:pin", middleware.RequireRole(models.RoleAdmin), gpioHandler.ReleasePin)
+			gpioGroup.GET("/:id", gpioHandler.GetBoardByID)
+			gpioGroup.PUT("/:id", middleware.RequireRole(models.RoleAdmin), gpioHandler.UpdateBoard)
+			gpioGroup.DELETE("/:id", middleware.RequireRole(models.RoleAdmin), gpioHandler.DeleteBoard)
+			gpioGroup.GET("/:id/pin", gpioHandler.GetBoardPins)
+		}
+
+		statisticsGroup := api.Group("/statistics")
+		statisticsGroup.Use(middleware.AuthMiddleware(jwtService))
+		{
+			statisticsGroup.GET("", statisticsHandler.GetOverview)
+			statisticsGroup.GET("/", statisticsHandler.GetOverview)
+			statisticsGroup.GET("/recipes", statisticsHandler.GetTopRecipes)
+			statisticsGroup.GET("/ingredients", statisticsHandler.GetTopIngredients)
+			statisticsGroup.GET("/orders", statisticsHandler.GetRecentOrders)
+			statisticsGroup.DELETE("/orders", middleware.RequireRole(models.RoleAdmin), statisticsHandler.ClearOrderHistory)
 		}
 
 		api.GET("/ws", func(c *gin.Context) {
@@ -210,6 +328,7 @@ func Setup(cfg *config.Config, db *gorm.DB) *gin.Engine {
 	r.GET("/health", func(c *gin.Context) {
 		c.JSON(200, gin.H{
 			"status":  "ok",
+			"backend": "go",
 			"version": cfg.App.Version,
 			"name":    cfg.App.Name,
 		})
@@ -222,7 +341,7 @@ func Setup(cfg *config.Config, db *gorm.DB) *gin.Engine {
 		log.Println("Running in standalone mode - API-only, no frontend serving")
 	}
 
-	return r
+	return r, cleanup
 }
 
 // setupStaticFileServer configures serving of static frontend files
@@ -241,28 +360,23 @@ func setupStaticFileServer(r *gin.Engine) {
 		log.Println("Serving frontend files from external dist directory")
 	}
 
-	// Serve static files
 	r.NoRoute(func(c *gin.Context) {
 		path := c.Request.URL.Path
 
-		// Don't handle API routes
 		if strings.HasPrefix(path, "/api/") {
-			c.JSON(http.StatusNotFound, gin.H{"error": "API endpoint not found"})
+			c.JSON(http.StatusNotFound, gin.H{"error": "API endpoint not found", "message": "API endpoint not found"})
 			return
 		}
 
-		// Clean the path
-		path = filepath.Clean(path)
-		if path == "/" {
+		path = filepath.ToSlash(filepath.Clean(path))
+		if path == "/" || path == "." {
 			path = "index.html"
 		} else {
 			path = strings.TrimPrefix(path, "/")
 		}
 
-		// Try to serve the file
 		file, err := distFS.Open(path)
 		if err != nil {
-			// For SPA routing: if file not found and not an asset, serve index.html
 			if !strings.Contains(path, ".") {
 				indexFile, indexErr := distFS.Open("index.html")
 				if indexErr != nil {
@@ -281,20 +395,17 @@ func setupStaticFileServer(r *gin.Engine) {
 		}
 		defer file.Close()
 
-		// Get file info for content type and size
 		stat, err := file.(fs.File).Stat()
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to read file"})
 			return
 		}
 
-		// Determine content type based on file extension
 		contentType := getContentType(path)
 		c.DataFromReader(http.StatusOK, stat.Size(), contentType, file, nil)
 	})
 }
 
-// getContentType returns the MIME type for common file extensions
 func getContentType(path string) string {
 	ext := filepath.Ext(path)
 	switch ext {

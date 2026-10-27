@@ -83,7 +83,7 @@ export const PumpCard: React.FC<PumpCardProps> = ({ pump }) => {
     const getDisplayAttribute = (attr: any, suffix = '') => {
       const missingText = 'Missing';
       if ((attr === undefined || attr === null) && attr !== 0) {
-        return { className: 'text-destructive', label: missingText };
+        return { className: 'text-danger', label: missingText };
       } else {
         return {
           className: 'text-inherit',
@@ -95,7 +95,7 @@ export const PumpCard: React.FC<PumpCardProps> = ({ pump }) => {
     const getDisplayPin = (pin: any) => {
       const missingText = 'Missing';
       if (!pin) {
-        return { className: 'text-destructive', label: missingText };
+        return { className: 'text-danger', label: missingText };
       } else {
         return {
           className: 'text-inherit',
@@ -160,7 +160,7 @@ export const PumpCard: React.FC<PumpCardProps> = ({ pump }) => {
     const pumpedUpState = (() => {
       if (pump.pumpedUp) {
         return {
-          variant: 'default' as const,
+          variant: 'success' as const,
           label: t('pump.pump_card.state_pumped_up'),
         };
       } else {
@@ -172,8 +172,11 @@ export const PumpCard: React.FC<PumpCardProps> = ({ pump }) => {
     })();
 
     const pumpState = (() => {
-      let state: { variant: 'default' | 'destructive'; label: string } = {
-        variant: 'default',
+      let state: {
+        variant: 'success' | 'default' | 'destructive';
+        label: string;
+      } = {
+        variant: 'success',
         label: '',
       };
       if (pumpJobState.runningState) {
@@ -182,7 +185,7 @@ export const PumpCard: React.FC<PumpCardProps> = ({ pump }) => {
         switch (pump.state) {
           case 'READY':
             state = {
-              variant: 'default',
+              variant: 'success',
               label: t('pump_card.state_ready'),
             };
             break;
@@ -266,7 +269,7 @@ export const PumpCard: React.FC<PumpCardProps> = ({ pump }) => {
       transition={{ type: 'spring', stiffness: 400, damping: 25 }}
       className="h-full"
     >
-      <Card className="group h-full flex flex-col overflow-hidden border-border/50 hover:border-primary/20 hover:shadow-lg transition-all duration-300">
+      <Card className="group h-full flex flex-col overflow-hidden border-border hover:border-border-strong hover:shadow-lg transition-colors">
         <CardHeader className="p-4 pb-3 space-y-0">
           <div className="flex items-start justify-between gap-3">
             <div className="flex-1 min-w-0">
@@ -283,11 +286,11 @@ export const PumpCard: React.FC<PumpCardProps> = ({ pump }) => {
                       ease: 'easeInOut',
                     }}
                   >
-                    <Activity className="h-4 w-4 text-primary" />
+                    <Activity className="size-6 text-primary" />
                   </motion.div>
                 )}
               </div>
-              <div className="flex items-center gap-2 text-xs text-muted-foreground">
+              <div className="flex items-center gap-2 text-sm text-foreground-muted">
                 {pumpTypeInfo.PumpTypeIcon}
                 <span>{pumpTypeInfo.printPumpType}</span>
               </div>
@@ -302,7 +305,7 @@ export const PumpCard: React.FC<PumpCardProps> = ({ pump }) => {
               title={t('common.edit')}
               className="shrink-0"
             >
-              <Pencil className="h-4 w-4" />
+              <Pencil className="size-6" />
             </Button>
           </div>
         </CardHeader>
@@ -316,7 +319,7 @@ export const PumpCard: React.FC<PumpCardProps> = ({ pump }) => {
           />
         </CardContent>
 
-        <CardFooter className="p-4 pt-0 flex gap-2">
+        <CardFooter className="flex flex-wrap gap-2 p-4 pt-0">
           <PumpCardActions
             canControlDirection={!!pump.canControlDirection}
             isRunning={!!pumpJobState.runningState}

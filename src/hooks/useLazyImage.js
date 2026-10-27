@@ -1,10 +1,9 @@
-import axios from 'axios';
 import { useEffect, useRef, useState } from 'react';
+import axios from '../lib/apiClient';
 import useAuthStore from '../store/authStore';
 
 const API_PATH = 'api/recipe/';
 
-// Cache for loaded images
 const imageCache = new Map();
 
 export const useLazyImage = (recipeId, hasImage) => {
@@ -18,13 +17,11 @@ export const useLazyImage = (recipeId, hasImage) => {
   useEffect(() => {
     if (!hasImage || !recipeId) return;
 
-    // Check cache first
     if (imageCache.has(recipeId)) {
       setImageUrl(imageCache.get(recipeId));
       return;
     }
 
-    // Set up Intersection Observer for lazy loading
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
@@ -74,7 +71,6 @@ export const useLazyImage = (recipeId, hasImage) => {
       const contentType = response.headers['content-type'] || 'image/jpeg';
       const dataUrl = `data:${contentType};base64,${base64String}`;
 
-      // Cache the image
       imageCache.set(recipeId, dataUrl);
       setImageUrl(dataUrl);
     } catch (err) {

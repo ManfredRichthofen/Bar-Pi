@@ -15,11 +15,11 @@ import (
 )
 
 type StompServer struct {
-	hub      *Hub
-	upgrader websocket.Upgrader
-	clients  map[*StompClient]bool
-	mu       sync.RWMutex
-	topics   map[string]map[*StompClient]*Subscription
+	upgrader    websocket.Upgrader
+	clients     map[*StompClient]bool
+	mu          sync.RWMutex
+	topics      map[string]map[*StompClient]*Subscription
+	OnSubscribe func(client *StompClient, sub *Subscription)
 }
 
 type StompClient struct {
@@ -27,6 +27,8 @@ type StompClient struct {
 	subscriptions map[string]*Subscription // subscription ID -> Subscription
 	sessionID     string
 	username      string
+	isSockJS      bool
+	closed        bool
 	mu            sync.RWMutex
 	send          chan []byte
 }
@@ -37,9 +39,8 @@ type Subscription struct {
 	Client      *StompClient
 }
 
-func NewStompServer(hub *Hub) *StompServer {
+func NewStompServer() *StompServer {
 	return &StompServer{
-		hub: hub,
 		upgrader: websocket.Upgrader{
 			ReadBufferSize:  1024,
 			WriteBufferSize: 1024,
@@ -53,10 +54,8 @@ func NewStompServer(hub *Hub) *StompServer {
 }
 
 func (s *StompServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	// Check if this is a SockJS request
 	path := r.URL.Path
 	if strings.Contains(path, "/websocket") && !strings.HasSuffix(path, "/websocket") {
-		// SockJS info or iframe request
 		if strings.HasSuffix(path, "/info") {
 			s.handleSockJSInfo(w, r)
 			return
@@ -66,6 +65,8 @@ func (s *StompServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
+
+	isSockJS := strings.HasSuffix(path, "/websocket") && path != "/websocket"
 
 	conn, err := s.upgrader.Upgrade(w, r, nil)
 	if err != nil {
@@ -77,6 +78,7 @@ func (s *StompServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		conn:          conn,
 		subscriptions: make(map[string]*Subscription),
 		sessionID:     generateSessionID(),
+		isSockJS:      isSockJS,
 		send:          make(chan []byte, 256),
 	}
 
@@ -87,7 +89,7 @@ func (s *StompServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	defer func() {
 		s.mu.Lock()
 		delete(s.clients, client)
-		// Clean up all subscriptions
+		client.mu.Lock()
 		for _, sub := range client.subscriptions {
 			if subscribers, ok := s.topics[sub.Destination]; ok {
 				delete(subscribers, client)
@@ -96,12 +98,18 @@ func (s *StompServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 				}
 			}
 		}
-		s.mu.Unlock()
+		client.closed = true
 		close(client.send)
+		client.mu.Unlock()
+		s.mu.Unlock()
 		conn.Close()
 	}()
 
-	// Start write pump
+	if client.isSockJS {
+		// SockJS requires an initial "o" (open) frame immediately after WebSocket upgrade
+		client.send <- []byte("o")
+	}
+
 	go client.writePump()
 
 	s.handleClient(client)
@@ -123,10 +131,8 @@ func (s *StompServer) handleClient(client *StompClient) {
 			break
 		}
 
-		// Handle SockJS envelope if present
 		data := string(message)
 		if strings.HasPrefix(data, "[") && strings.HasSuffix(data, "]") {
-			// SockJS array format
 			var messages []string
 			if err := json.Unmarshal(message, &messages); err == nil {
 				for _, msg := range messages {
@@ -162,12 +168,8 @@ func (s *StompServer) handleFrame(client *StompClient, frame *StompFrame) {
 }
 
 func (s *StompServer) handleConnect(client *StompClient, frame *StompFrame) {
-	// Extract username from Authorization header if present
 	if authHeader, ok := frame.Headers["Authorization"]; ok {
-		// Simple extraction - in production, validate JWT token
 		if strings.HasPrefix(authHeader, "Bearer ") {
-			// For now, just mark as authenticated
-			// In production, decode JWT and extract username
 			client.username = "authenticated-user"
 		}
 	}
@@ -181,7 +183,7 @@ func (s *StompServer) handleConnect(client *StompClient, frame *StompFrame) {
 			"heart-beat": "0,0",
 		},
 	}
-	client.sendFrame(response)
+	_ = client.sendFrame(response)
 	log.Printf("Client connected with session: %s", client.sessionID)
 }
 
@@ -194,7 +196,6 @@ func (s *StompServer) handleSubscribe(client *StompClient, frame *StompFrame) {
 		return
 	}
 
-	// Create subscription object
 	sub := &Subscription{
 		ID:          id,
 		Destination: destination,
@@ -210,9 +211,31 @@ func (s *StompServer) handleSubscribe(client *StompClient, frame *StompFrame) {
 		s.topics[destination] = make(map[*StompClient]*Subscription)
 	}
 	s.topics[destination][client] = sub
+	onSub := s.OnSubscribe
 	s.mu.Unlock()
 
 	log.Printf("Client %s subscribed to %s with id %s", client.sessionID, destination, id)
+
+	if onSub != nil {
+		onSub(client, sub)
+	}
+}
+
+// SendToSubscription sends a message directly to a specific client subscription
+func (s *StompServer) SendToSubscription(client *StompClient, sub *Subscription, body string) {
+	if client == nil || sub == nil {
+		return
+	}
+	frame := &StompFrame{
+		Command: "MESSAGE",
+		Headers: map[string]string{
+			"destination":  sub.Destination,
+			"message-id":   generateMessageID(),
+			"subscription": sub.ID,
+		},
+		Body: body,
+	}
+	_ = client.sendFrame(frame)
 }
 
 func (s *StompServer) handleUnsubscribe(client *StompClient, frame *StompFrame) {
@@ -253,55 +276,45 @@ func (s *StompServer) handleSend(client *StompClient, frame *StompFrame) {
 	s.Broadcast(destination, frame.Body)
 }
 
-// Broadcast sends a message to all subscribers of a destination
+// Broadcast sends a message to all subscribers of a destination (and its /user/ prefixed variant)
 func (s *StompServer) Broadcast(destination string, message string) {
-	s.mu.RLock()
-	subscribers, ok := s.topics[destination]
-	s.mu.RUnlock()
-
-	if !ok || len(subscribers) == 0 {
-		return
+	destinations := []string{destination}
+	if !strings.HasPrefix(destination, "/user") {
+		destinations = append(destinations, "/user"+destination)
 	}
 
-	for client, sub := range subscribers {
+	type target struct {
+		client *StompClient
+		subID  string
+		dest   string
+	}
+	var targets []target
+
+	s.mu.RLock()
+	for _, dest := range destinations {
+		if subscribers, ok := s.topics[dest]; ok {
+			for client, sub := range subscribers {
+				targets = append(targets, target{
+					client: client,
+					subID:  sub.ID,
+					dest:   dest,
+				})
+			}
+		}
+	}
+	s.mu.RUnlock()
+
+	for _, t := range targets {
 		frame := &StompFrame{
 			Command: "MESSAGE",
 			Headers: map[string]string{
-				"destination":  destination,
+				"destination":  t.dest,
 				"message-id":   generateMessageID(),
-				"subscription": sub.ID, // Use the actual subscription ID
+				"subscription": t.subID,
 			},
 			Body: message,
 		}
-		go client.sendFrame(frame)
-	}
-}
-
-// BroadcastToUser sends a message to a specific user's destination
-func (s *StompServer) BroadcastToUser(username string, destination string, message string) {
-	// Convert /user/topic/xxx to /topic/xxx for matching
-	userDestination := "/user" + destination
-
-	s.mu.RLock()
-	subscribers, ok := s.topics[userDestination]
-	s.mu.RUnlock()
-
-	if !ok || len(subscribers) == 0 {
-		return
-	}
-
-	for client, sub := range subscribers {
-		// In production, check if client.username matches username
-		frame := &StompFrame{
-			Command: "MESSAGE",
-			Headers: map[string]string{
-				"destination":  userDestination,
-				"message-id":   generateMessageID(),
-				"subscription": sub.ID,
-			},
-			Body: message,
-		}
-		go client.sendFrame(frame)
+		_ = t.client.sendFrame(frame)
 	}
 }
 
@@ -330,6 +343,10 @@ type StompFrame struct {
 }
 
 func parseStompFrame(data string) *StompFrame {
+	trimmed := strings.TrimSpace(data)
+	if trimmed == "" {
+		return nil
+	}
 	lines := strings.Split(data, "\n")
 	if len(lines) == 0 {
 		return nil
@@ -342,7 +359,7 @@ func parseStompFrame(data string) *StompFrame {
 
 	bodyStart := -1
 	for i := 1; i < len(lines); i++ {
-		line := lines[i]
+		line := strings.TrimRight(lines[i], "\r")
 		if line == "" {
 			bodyStart = i + 1
 			break
@@ -380,8 +397,22 @@ func (c *StompClient) sendFrame(frame *StompFrame) error {
 	}
 	buf.WriteString("\x00")
 
+	payload := []byte(buf.String())
+	if c.isSockJS {
+		encoded, err := json.Marshal([]string{buf.String()})
+		if err == nil {
+			payload = append([]byte("a"), encoded...)
+		}
+	}
+
+	c.mu.RLock()
+	defer c.mu.RUnlock()
+	if c.closed {
+		return fmt.Errorf("client closed")
+	}
+
 	select {
-	case c.send <- []byte(buf.String()):
+	case c.send <- payload:
 		return nil
 	default:
 		return fmt.Errorf("send channel full")
@@ -389,7 +420,7 @@ func (c *StompClient) sendFrame(frame *StompFrame) error {
 }
 
 func (c *StompClient) writePump() {
-	ticker := time.NewTicker(54 * time.Second)
+	ticker := time.NewTicker(25 * time.Second)
 	defer func() {
 		ticker.Stop()
 		c.conn.Close()
@@ -399,19 +430,25 @@ func (c *StompClient) writePump() {
 		select {
 		case message, ok := <-c.send:
 			if !ok {
-				c.conn.WriteMessage(websocket.CloseMessage, []byte{})
+				_ = c.conn.WriteMessage(websocket.CloseMessage, []byte{})
 				return
 			}
 
-			c.conn.SetWriteDeadline(time.Now().Add(10 * time.Second))
+			_ = c.conn.SetWriteDeadline(time.Now().Add(10 * time.Second))
 			if err := c.conn.WriteMessage(websocket.TextMessage, message); err != nil {
 				return
 			}
 
 		case <-ticker.C:
-			c.conn.SetWriteDeadline(time.Now().Add(10 * time.Second))
-			if err := c.conn.WriteMessage(websocket.PingMessage, nil); err != nil {
-				return
+			_ = c.conn.SetWriteDeadline(time.Now().Add(10 * time.Second))
+			if c.isSockJS {
+				if err := c.conn.WriteMessage(websocket.TextMessage, []byte("h")); err != nil {
+					return
+				}
+			} else {
+				if err := c.conn.WriteMessage(websocket.PingMessage, nil); err != nil {
+					return
+				}
 			}
 		}
 	}
@@ -419,20 +456,24 @@ func (c *StompClient) writePump() {
 
 func generateSessionID() string {
 	b := make([]byte, 16)
-	rand.Read(b)
+	_, _ = rand.Read(b)
 	return fmt.Sprintf("session-%s", hex.EncodeToString(b))
 }
 
 func generateMessageID() string {
 	b := make([]byte, 16)
-	rand.Read(b)
+	_, _ = rand.Read(b)
 	return fmt.Sprintf("msg-%s-%d", hex.EncodeToString(b), time.Now().UnixNano())
 }
 
 // handleSockJSInfo handles SockJS info requests
 func (s *StompServer) handleSockJSInfo(w http.ResponseWriter, r *http.Request) {
+	origin := r.Header.Get("Origin")
+	if origin == "" {
+		origin = "*"
+	}
 	w.Header().Set("Content-Type", "application/json")
-	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Origin", origin)
 	w.Header().Set("Access-Control-Allow-Credentials", "true")
 
 	info := map[string]any{
@@ -442,12 +483,12 @@ func (s *StompServer) handleSockJSInfo(w http.ResponseWriter, r *http.Request) {
 		"entropy":       generateEntropy(),
 	}
 
-	json.NewEncoder(w).Encode(info)
+	_ = json.NewEncoder(w).Encode(info)
 }
 
 func generateEntropy() int64 {
 	b := make([]byte, 4)
-	rand.Read(b)
+	_, _ = rand.Read(b)
 	var entropy int64
 	for _, v := range b {
 		entropy = (entropy << 8) | int64(v)

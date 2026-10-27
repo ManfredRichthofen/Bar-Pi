@@ -16,7 +16,7 @@ func Initialize(cfg *config.Config) (*gorm.DB, error) {
 	// Use Dialector with DriverName to force pure Go SQLite (modernc.org/sqlite)
 	dialector := sqlite.Dialector{
 		DriverName: "sqlite",
-		DSN:        cfg.Database.Path + "?_foreign_keys=on&_busy_timeout=10000&_journal_mode=wal&_time_format=sqlite",
+		DSN:        cfg.Database.Path + "?_pragma=foreign_keys(1)&_pragma=busy_timeout(10000)&_pragma=journal_mode(WAL)&_time_format=sqlite",
 	}
 
 	db, err := gorm.Open(dialector, &gorm.Config{

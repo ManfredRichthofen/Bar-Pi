@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/ManfredRichthofen/Bar-Pi/backend-go/internal/middleware"
 	"github.com/ManfredRichthofen/Bar-Pi/backend-go/internal/models"
 	"github.com/ManfredRichthofen/Bar-Pi/backend-go/internal/service"
 	"github.com/gin-gonic/gin"
@@ -23,27 +24,29 @@ func NewCocktailHandler(service *service.CocktailService) *CocktailHandler {
 func (h *CocktailHandler) OrderCocktail(c *gin.Context) {
 	recipeID, err := strconv.ParseInt(c.Param("recipeId"), 10, 64)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid recipe ID"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid recipe ID", "message": "Invalid recipe ID"})
 		return
 	}
 
 	var config models.CocktailOrderConfiguration
 	if err := c.ShouldBindJSON(&config); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error(), "message": err.Error()})
 		return
 	}
 
-	// Get user info from context (set by auth middleware)
-	userID, _ := c.Get("userID")
-	username, _ := c.Get("username")
+	claims, ok := middleware.GetClaims(c)
+	if !ok {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized", "message": "Unauthorized"})
+		return
+	}
 
 	if err := h.service.OrderCocktail(
-		userID.(int64),
-		username.(string),
+		claims.UserID,
+		claims.Username,
 		recipeID,
 		config,
 	); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error(), "message": err.Error()})
 		return
 	}
 
@@ -54,19 +57,23 @@ func (h *CocktailHandler) OrderCocktail(c *gin.Context) {
 func (h *CocktailHandler) CheckFeasibility(c *gin.Context) {
 	recipeID, err := strconv.ParseInt(c.Param("recipeId"), 10, 64)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid recipe ID"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid recipe ID", "message": "Invalid recipe ID"})
 		return
 	}
 
 	var config models.CocktailOrderConfiguration
 	if err := c.ShouldBindJSON(&config); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error(), "message": err.Error()})
 		return
 	}
 
 	report, err := h.service.CheckFeasibility(recipeID, config)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		if err.Error() == "recipe not found" {
+			c.JSON(http.StatusNotFound, gin.H{"error": err.Error(), "message": err.Error()})
+			return
+		}
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error(), "message": err.Error()})
 		return
 	}
 
@@ -75,14 +82,19 @@ func (h *CocktailHandler) CheckFeasibility(c *gin.Context) {
 
 // CancelCocktail handles DELETE /api/cocktail
 func (h *CocktailHandler) CancelCocktail(c *gin.Context) {
-	userID, _ := c.Get("userID")
+	claims, ok := middleware.GetClaims(c)
+	if !ok {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized", "message": "Unauthorized"})
+		return
+	}
 
-	if err := h.service.CancelOrder(userID.(int64)); err != nil {
+	isAdmin := claims.Role.Level() >= models.RoleAdmin.Level()
+	if err := h.service.CancelOrder(claims.UserID, isAdmin); err != nil {
 		if err.Error() == "no active order to cancel" {
-			c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+			c.JSON(http.StatusNotFound, gin.H{"error": err.Error(), "message": err.Error()})
 			return
 		}
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error(), "message": err.Error()})
 		return
 	}
 
@@ -92,7 +104,7 @@ func (h *CocktailHandler) CancelCocktail(c *gin.Context) {
 // ContinueProduction handles POST /api/cocktail/continueproduction
 func (h *CocktailHandler) ContinueProduction(c *gin.Context) {
 	if err := h.service.ContinueProduction(); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error(), "message": err.Error()})
 		return
 	}
 
@@ -103,7 +115,7 @@ func (h *CocktailHandler) ContinueProduction(c *gin.Context) {
 func (h *CocktailHandler) GetProgress(c *gin.Context) {
 	progress := h.service.GetCurrentProgress()
 	if progress == nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "No active order"})
+		c.JSON(http.StatusNotFound, gin.H{"error": "No active order", "message": "No active order"})
 		return
 	}
 

@@ -79,9 +79,7 @@ export const PumpFormFields: React.FC<PumpFormFieldsProps> = ({
 
   const filteredIngredients = enableIngredientSearch
     ? ingredients.filter((ingredient) =>
-        ingredient.name
-          .toLowerCase()
-          .includes(ingredientSearch.toLowerCase()),
+        ingredient.name.toLowerCase().includes(ingredientSearch.toLowerCase()),
       )
     : ingredients;
 
@@ -92,7 +90,6 @@ export const PumpFormFields: React.FC<PumpFormFieldsProps> = ({
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 lg:gap-6">
-      {/* Basic Information */}
       <Card>
         <CardHeader>
           <CardTitle>Basic Information</CardTitle>
@@ -105,10 +102,10 @@ export const PumpFormFields: React.FC<PumpFormFieldsProps> = ({
               type="text"
               placeholder="Enter pump name"
               {...register('name', { required: 'Pump name is required' })}
-              className={errors.name ? 'border-destructive' : ''}
+              className={errors.name ? 'border-danger' : ''}
             />
             {errors.name && (
-              <p className="text-sm text-destructive">{errors.name.message}</p>
+              <p className="text-sm text-danger">{errors.name.message}</p>
             )}
           </div>
 
@@ -177,11 +174,10 @@ export const PumpFormFields: React.FC<PumpFormFieldsProps> = ({
         </CardContent>
       </Card>
 
-      {/* Hardware Configuration */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Zap className="h-5 w-5" />
+            <Zap className="size-6" />
             Hardware Configuration
           </CardTitle>
         </CardHeader>
@@ -227,17 +223,18 @@ export const PumpFormFields: React.FC<PumpFormFieldsProps> = ({
         </CardContent>
       </Card>
 
-      {/* Timing Configuration */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Timer className="h-5 w-5" />
+            <Timer className="size-6" />
             Timing Configuration
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="timePerCl">{t('add_pump_modal.time_per_cl_ms')}</Label>
+            <Label htmlFor="timePerCl">
+              {t('add_pump_modal.time_per_cl_ms')}
+            </Label>
             <Input
               id="timePerCl"
               type="number"
@@ -246,10 +243,10 @@ export const PumpFormFields: React.FC<PumpFormFieldsProps> = ({
                 min: { value: 1, message: 'Must be at least 1ms' },
                 required: 'Time per CL is required',
               })}
-              className={errors.timePerClInMs ? 'border-destructive' : ''}
+              className={errors.timePerClInMs ? 'border-danger' : ''}
             />
             {errors.timePerClInMs && (
-              <p className="text-sm text-destructive">
+              <p className="text-sm text-danger">
                 {errors.timePerClInMs.message}
               </p>
             )}
@@ -268,10 +265,10 @@ export const PumpFormFields: React.FC<PumpFormFieldsProps> = ({
                   {...register('acceleration', {
                     min: { value: 1, message: 'Must be at least 1' },
                   })}
-                  className={errors.acceleration ? 'border-destructive' : ''}
+                  className={errors.acceleration ? 'border-danger' : ''}
                 />
                 {errors.acceleration && (
-                  <p className="text-sm text-destructive">
+                  <p className="text-sm text-danger">
                     {errors.acceleration.message}
                   </p>
                 )}
@@ -288,12 +285,10 @@ export const PumpFormFields: React.FC<PumpFormFieldsProps> = ({
                   {...register('maxStepsPerSecond', {
                     min: { value: 1, message: 'Must be at least 1' },
                   })}
-                  className={
-                    errors.maxStepsPerSecond ? 'border-destructive' : ''
-                  }
+                  className={errors.maxStepsPerSecond ? 'border-danger' : ''}
                 />
                 {errors.maxStepsPerSecond && (
-                  <p className="text-sm text-destructive">
+                  <p className="text-sm text-danger">
                     {errors.maxStepsPerSecond.message}
                   </p>
                 )}
@@ -310,10 +305,10 @@ export const PumpFormFields: React.FC<PumpFormFieldsProps> = ({
                   {...register('stepsPerCl', {
                     min: { value: 1, message: 'Must be at least 1' },
                   })}
-                  className={errors.stepsPerCl ? 'border-destructive' : ''}
+                  className={errors.stepsPerCl ? 'border-danger' : ''}
                 />
                 {errors.stepsPerCl && (
-                  <p className="text-sm text-destructive">
+                  <p className="text-sm text-danger">
                     {errors.stepsPerCl.message}
                   </p>
                 )}
@@ -323,11 +318,10 @@ export const PumpFormFields: React.FC<PumpFormFieldsProps> = ({
         </CardContent>
       </Card>
 
-      {/* Capacity Configuration */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Package className="h-5 w-5" />
+            <Package className="size-6" />
             Capacity Configuration
           </CardTitle>
         </CardHeader>
@@ -344,10 +338,10 @@ export const PumpFormFields: React.FC<PumpFormFieldsProps> = ({
                 min: { value: 0, message: 'Must be at least 0' },
                 required: 'Tube capacity is required',
               })}
-              className={errors.tubeCapacityInMl ? 'border-destructive' : ''}
+              className={errors.tubeCapacityInMl ? 'border-danger' : ''}
             />
             {errors.tubeCapacityInMl && (
-              <p className="text-sm text-destructive">
+              <p className="text-sm text-danger">
                 {errors.tubeCapacityInMl.message}
               </p>
             )}
@@ -364,10 +358,10 @@ export const PumpFormFields: React.FC<PumpFormFieldsProps> = ({
               {...register('fillingLevelInMl', {
                 min: { value: 0, message: 'Must be at least 0' },
               })}
-              className={errors.fillingLevelInMl ? 'border-destructive' : ''}
+              className={errors.fillingLevelInMl ? 'border-danger' : ''}
             />
             {errors.fillingLevelInMl && (
-              <p className="text-sm text-destructive">
+              <p className="text-sm text-danger">
                 {errors.fillingLevelInMl.message}
               </p>
             )}

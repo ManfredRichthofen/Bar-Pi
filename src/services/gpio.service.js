@@ -1,5 +1,4 @@
-import axios from '../lib/apiClient';
-import authHeader from './auth-header';
+import axios, { authHeaders } from '../lib/apiClient';
 
 const API_PATH = 'api/gpio/';
 
@@ -13,7 +12,7 @@ class GpioService {
     return axios
       .get(API_PATH, {
         params: { dType },
-        headers: authHeader(token),
+        headers: authHeaders(token),
       })
       .then((x) => x.data);
   }
@@ -21,7 +20,7 @@ class GpioService {
   getBoards(token) {
     return axios
       .get(API_PATH, {
-        headers: authHeader(token),
+        headers: authHeaders(token),
       })
       .then((x) => x.data);
   }
@@ -29,33 +28,33 @@ class GpioService {
   getBoard(id, token) {
     return axios
       .get(API_PATH + id, {
-        headers: authHeader(token),
+        headers: authHeaders(token),
       })
       .then((x) => x.data);
   }
 
   createGpioBoard(gpioBoardDto, token) {
     return axios.post(API_PATH, gpioBoardDto, {
-      headers: authHeader(token),
+      headers: authHeaders(token),
     });
   }
 
   updateGpioBoard(id, gpioBoardDto, token) {
     return axios.put(API_PATH + id, gpioBoardDto, {
-      headers: authHeader(token),
+      headers: authHeaders(token),
     });
   }
 
   deleteGpioBoard(id, token) {
     return axios.delete(API_PATH + id, {
-      headers: authHeader(token),
+      headers: authHeaders(token),
     });
   }
 
   getBoardPins(boardId, token) {
     return axios
       .get(API_PATH + boardId + '/pin', {
-        headers: authHeader(token),
+        headers: authHeaders(token),
       })
       .then((x) => x.data);
   }
@@ -63,7 +62,7 @@ class GpioService {
   getGpioStatus(token) {
     return axios
       .get(API_PATH + 'status', {
-        headers: authHeader(token),
+        headers: authHeaders(token),
       })
       .then((x) => x.data);
   }

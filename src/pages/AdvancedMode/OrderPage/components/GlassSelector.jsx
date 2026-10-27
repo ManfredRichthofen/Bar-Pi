@@ -34,10 +34,10 @@ const GlassSelector = ({
           <GlassWater size={16} />
           Glass Size
         </Label>
-        <div className="flex items-center gap-3 p-3 sm:p-4 bg-card rounded-lg border">
-          <GlassWater size={18} className="text-muted-foreground" />
-          <Loader2 className="h-4 w-4 animate-spin" />
-          <span className="text-muted-foreground text-sm">
+        <div className="flex items-center gap-3 p-3 sm:p-4 bg-surface rounded-lg border">
+          <GlassWater size={18} className="text-foreground-muted" />
+          <Loader2 className="size-6 animate-spin" />
+          <span className="text-foreground-muted text-sm">
             Loading glasses...
           </span>
         </div>
@@ -52,11 +52,8 @@ const GlassSelector = ({
         Glass Size
       </Label>
 
-      <Select
-        value={selectedGlass?.id || ''}
-        onValueChange={selectGlassById}
-      >
-        <SelectTrigger className="w-full h-11 sm:h-12">
+      <Select value={selectedGlass?.id || ''} onValueChange={selectGlassById}>
+        <SelectTrigger className="w-full">
           <SelectValue placeholder="Select a glass">
             {selectedGlass ? (
               <div className="flex items-center justify-between w-full">
@@ -66,12 +63,12 @@ const GlassSelector = ({
                     {selectedGlass.name}
                   </span>
                 </div>
-                <Badge variant="secondary" className="ml-auto shrink-0 text-xs">
+                <Badge variant="secondary" className="ml-auto shrink-0 text-sm">
                   {getGlassSizeMl(selectedGlass)}ml
                 </Badge>
               </div>
             ) : (
-              <div className="flex items-center gap-2 text-muted-foreground">
+              <div className="flex items-center gap-2 text-foreground-muted">
                 <GlassWater size={16} />
                 <span className="text-sm sm:text-base">Select a glass</span>
               </div>
@@ -89,13 +86,13 @@ const GlassSelector = ({
                       {glass.name}
                     </div>
                     {glass.description && (
-                      <div className="text-xs text-muted-foreground line-clamp-1">
+                      <div className="text-sm text-foreground-muted line-clamp-1">
                         {glass.description}
                       </div>
                     )}
                   </div>
                 </div>
-                <Badge variant="outline" className="ml-auto shrink-0 text-xs">
+                <Badge variant="outline" className="ml-auto shrink-0 text-sm">
                   {getGlassSizeMl(glass)}ml
                 </Badge>
               </div>
@@ -105,14 +102,14 @@ const GlassSelector = ({
       </Select>
 
       {selectedGlass && selectedGlass.description && (
-        <div className="text-xs sm:text-sm text-muted-foreground mt-1.5">
+        <div className="text-sm sm:text-sm text-foreground-muted mt-1.5">
           {selectedGlass.description}
         </div>
       )}
 
       {glasses.length === 0 && !loading && (
         <Alert variant="destructive">
-          <GlassWater className="w-4 h-4" />
+          <GlassWater className="size-6" />
           <AlertDescription className="text-sm">
             No glasses available
           </AlertDescription>

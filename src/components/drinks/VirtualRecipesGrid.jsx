@@ -171,7 +171,7 @@ function VirtualRecipesGrid({
         <div className="flex items-center justify-center py-8">
           <div className="flex items-center gap-3">
             <Loader2 className="h-6 w-6 animate-spin" />
-            <span className="text-base text-muted-foreground">
+            <span className="text-base text-foreground-muted">
               {loadingLabel}
             </span>
           </div>
@@ -185,7 +185,7 @@ function VirtualRecipesGrid({
       <div className="px-4 py-2">
         <div className="flex justify-center">
           <Alert variant="destructive" className="max-w-2xl">
-            <AlertCircle className="w-4 h-4" />
+            <AlertCircle className="size-6" />
             <AlertDescription>Error: {error.message}</AlertDescription>
           </Alert>
         </div>
@@ -273,7 +273,7 @@ function VirtualRecipesGrid({
 
       {!hasNextPage && !isFetching && allRecipes.length > 0 && (
         <div className="flex items-center justify-center py-8 px-4">
-          <p className="text-center text-muted-foreground text-sm">
+          <p className="text-center text-foreground-muted text-sm">
             {noMoreLabel}
           </p>
         </div>
@@ -283,11 +283,11 @@ function VirtualRecipesGrid({
         !isFetching &&
         (renderEmpty?.({ searchTerm, filters }) ?? emptyFallback ?? (
           <div className="flex flex-col items-center justify-center py-12 px-4">
-            <div className="text-muted-foreground mb-4">
+            <div className="text-foreground-muted mb-4">
               <Search className="w-16 h-16" />
             </div>
             <h3 className="text-lg font-semibold mb-2">No drinks found</h3>
-            <p className="text-muted-foreground text-center text-sm">
+            <p className="text-foreground-muted text-center text-sm">
               Try adjusting your search or filters
             </p>
           </div>

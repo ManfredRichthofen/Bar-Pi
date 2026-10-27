@@ -1,11 +1,7 @@
 import { useInfiniteQuery } from '@tanstack/react-query';
 import RecipeService from '../services/recipe.service.js';
 
-/**
- * Stable query key for paginated recipe browsing.
- * Includes search, filters, and optional mode-specific deps so Advanced/Simple
- * (and future variants) do not collide when behavior diverges.
- */
+/** Stable query key for paginated recipe browsing across modes. */
 export function recipesInfiniteQueryKey({
   searchTerm = '',
   filters = {},
@@ -17,12 +13,7 @@ export function recipesInfiniteQueryKey({
   );
 }
 
-/**
- * Shared infinite recipes query used by Advanced and Simple drinks browsers.
- *
- * Fabricability + client-side filtering run inside the pageFn so each page of
- * results is checked/filtered before it lands in the virtualizer.
- */
+/** Shared infinite recipes query for Advanced and Simple drinks browsers. */
 export function useRecipesInfinite({
   token,
   searchTerm,

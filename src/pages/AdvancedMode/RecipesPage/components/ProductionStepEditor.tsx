@@ -61,7 +61,7 @@ export const ProductionStepEditor: React.FC<ProductionStepEditorProps> = ({
     <Card>
       <CardContent className="pt-4 px-3 sm:px-4 pb-4">
         <div className="flex items-start sm:items-center justify-between gap-2 mb-3">
-          <span className="font-medium text-xs sm:text-sm leading-5">
+          <span className="font-medium text-sm sm:text-sm leading-5">
             Step {stepIndex + 1} ·{' '}
             {step.type === 'addIngredients' ? 'Add ingredients' : 'Instruction'}
           </span>
@@ -69,15 +69,15 @@ export const ProductionStepEditor: React.FC<ProductionStepEditorProps> = ({
             type="button"
             variant="ghost"
             size="icon"
-            className="h-8 w-8 sm:h-9 sm:w-9 shrink-0"
+            className="w-8 sm:w-9 shrink-0"
             onClick={onRemoveStep}
           >
-            <Trash2 className="h-4 w-4 text-destructive" />
+            <Trash2 className="size-6 text-danger" />
           </Button>
         </div>
 
         {step.type === 'addIngredients' ? (
-          <div className="space-y-2 sm:space-y-3">
+          <div className="@container space-y-4">
             {step.stepIngredients?.map((ing, ingIndex) => (
               <IngredientSelector
                 key={ingIndex}
@@ -94,7 +94,7 @@ export const ProductionStepEditor: React.FC<ProductionStepEditorProps> = ({
               type="button"
               variant="outline"
               size="sm"
-              className="w-full mt-1 h-10"
+              className="w-full mt-1"
               onClick={onAddIngredient}
             >
               + Add Ingredient

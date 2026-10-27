@@ -23,6 +23,7 @@ import { Route as AdvancedOrderRouteImport } from './routes/_advanced.order'
 import { Route as AdvancedPumpsRouteImport } from './routes/_advanced.pumps'
 import { Route as AdvancedRecipesRouteImport } from './routes/_advanced.recipes'
 import { Route as AdvancedSettingsRouteImport } from './routes/_advanced.settings'
+import { Route as AdvancedStatisticsRouteImport } from './routes/_advanced.statistics'
 import { Route as AdvancedUsersRouteImport } from './routes/_advanced.users'
 import { Route as SimpleDrinksRouteImport } from './routes/simple.drinks'
 import { Route as SimpleOrderRouteImport } from './routes/simple.order'
@@ -103,6 +104,11 @@ const AdvancedSettingsRoute = AdvancedSettingsRouteImport.update({
   path: '/settings',
   getParentRoute: () => AdvancedRoute,
 } as any)
+const AdvancedStatisticsRoute = AdvancedStatisticsRouteImport.update({
+  id: '/statistics',
+  path: '/statistics',
+  getParentRoute: () => AdvancedRoute,
+} as any)
 const AdvancedUsersRoute = AdvancedUsersRouteImport.update({
   id: '/users',
   path: '/users',
@@ -169,6 +175,7 @@ export interface FileRoutesByFullPath {
   '/pumps': typeof AdvancedPumpsRouteWithChildren
   '/recipes': typeof AdvancedRecipesRouteWithChildren
   '/settings': typeof AdvancedSettingsRoute
+  '/statistics': typeof AdvancedStatisticsRoute
   '/users': typeof AdvancedUsersRoute
   '/simple/drinks': typeof SimpleDrinksRoute
   '/simple/order': typeof SimpleOrderRoute
@@ -194,6 +201,7 @@ export interface FileRoutesByTo {
   '/pumps': typeof AdvancedPumpsRouteWithChildren
   '/recipes': typeof AdvancedRecipesRouteWithChildren
   '/settings': typeof AdvancedSettingsRoute
+  '/statistics': typeof AdvancedStatisticsRoute
   '/users': typeof AdvancedUsersRoute
   '/simple/drinks': typeof SimpleDrinksRoute
   '/simple/order': typeof SimpleOrderRoute
@@ -221,6 +229,7 @@ export interface FileRoutesById {
   '/_advanced/pumps': typeof AdvancedPumpsRouteWithChildren
   '/_advanced/recipes': typeof AdvancedRecipesRouteWithChildren
   '/_advanced/settings': typeof AdvancedSettingsRoute
+  '/_advanced/statistics': typeof AdvancedStatisticsRoute
   '/_advanced/users': typeof AdvancedUsersRoute
   '/simple/drinks': typeof SimpleDrinksRoute
   '/simple/order': typeof SimpleOrderRoute
@@ -248,6 +257,7 @@ export interface FileRouteTypes {
     | '/pumps'
     | '/recipes'
     | '/settings'
+    | '/statistics'
     | '/users'
     | '/simple/drinks'
     | '/simple/order'
@@ -273,6 +283,7 @@ export interface FileRouteTypes {
     | '/pumps'
     | '/recipes'
     | '/settings'
+    | '/statistics'
     | '/users'
     | '/simple/drinks'
     | '/simple/order'
@@ -299,6 +310,7 @@ export interface FileRouteTypes {
     | '/_advanced/pumps'
     | '/_advanced/recipes'
     | '/_advanced/settings'
+    | '/_advanced/statistics'
     | '/_advanced/users'
     | '/simple/drinks'
     | '/simple/order'
@@ -417,6 +429,13 @@ declare module '@tanstack/react-router' {
       path: '/settings'
       fullPath: '/settings'
       preLoaderRoute: typeof AdvancedSettingsRouteImport
+      parentRoute: typeof AdvancedRoute
+    }
+    '/_advanced/statistics': {
+      id: '/_advanced/statistics'
+      path: '/statistics'
+      fullPath: '/statistics'
+      preLoaderRoute: typeof AdvancedStatisticsRouteImport
       parentRoute: typeof AdvancedRoute
     }
     '/_advanced/users': {
@@ -540,6 +559,7 @@ interface AdvancedRouteChildren {
   AdvancedPumpsRoute: typeof AdvancedPumpsRouteWithChildren
   AdvancedRecipesRoute: typeof AdvancedRecipesRouteWithChildren
   AdvancedSettingsRoute: typeof AdvancedSettingsRoute
+  AdvancedStatisticsRoute: typeof AdvancedStatisticsRoute
   AdvancedUsersRoute: typeof AdvancedUsersRoute
 }
 
@@ -553,6 +573,7 @@ const AdvancedRouteChildren: AdvancedRouteChildren = {
   AdvancedPumpsRoute: AdvancedPumpsRouteWithChildren,
   AdvancedRecipesRoute: AdvancedRecipesRouteWithChildren,
   AdvancedSettingsRoute: AdvancedSettingsRoute,
+  AdvancedStatisticsRoute: AdvancedStatisticsRoute,
   AdvancedUsersRoute: AdvancedUsersRoute,
 }
 
