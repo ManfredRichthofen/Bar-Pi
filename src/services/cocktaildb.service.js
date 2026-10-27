@@ -218,7 +218,14 @@ class CocktailDBService {
   /**
    * Look up ingredient details (type, alcohol, ABV) by name
    * @param {string} name - Ingredient name
-   * @returns {Promise<Object|null>} CocktailDB ingredient or null
+   * @returns {Promise<{
+   *   idIngredient?: string,
+   *   strIngredient?: string,
+   *   strDescription?: string | null,
+   *   strType?: string | null,
+   *   strAlcohol?: string | null,
+   *   strABV?: string | null,
+   * } | null>} CocktailDB ingredient or null
    */
   async getIngredientByName(name) {
     try {
