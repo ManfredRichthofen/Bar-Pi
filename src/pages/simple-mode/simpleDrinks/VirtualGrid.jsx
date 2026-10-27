@@ -22,12 +22,8 @@ function VirtualGrid({
       onCheckFabricability={onCheckFabricability}
       onFilterRecipes={onFilterRecipes}
       mode="simple"
-      renderCard={({ recipe, isFabricable }) => (
-        <SimpleDrinkCard
-          recipe={recipe}
-          isFabricable={isFabricable}
-          onCardClick={onCardClick}
-        />
+      renderCard={({ recipe }) => (
+        <SimpleDrinkCard recipe={recipe} onCardClick={onCardClick} />
       )}
       renderSkeleton={() => <SimpleDrinkCardSkeleton />}
       renderEmpty={({ searchTerm: term, filters: activeFilters }) => (

@@ -25,9 +25,8 @@ export const SettingsPage: React.FC = () => {
   const setAdvancedMode = useUIModeStore((state) => state.setAdvancedMode);
 
   const languages = [
-    { code: 'en-US', name: 'English' },
+    { code: 'en', name: 'English' },
     { code: 'es', name: 'Español' },
-    { code: 'fr', name: 'Français' },
     { code: 'de', name: 'Deutsch' },
   ];
 
@@ -73,7 +72,7 @@ export const SettingsPage: React.FC = () => {
                   {t('settings.general.language_label', 'Language')}
                 </label>
                 <Select
-                  value={i18n.language}
+                  value={i18n.resolvedLanguage ?? 'en'}
                   onValueChange={handleLanguageChange}
                 >
                   <SelectTrigger className="w-full">

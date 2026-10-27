@@ -52,7 +52,7 @@ function RootComponent() {
 
   // Language initialization
   useEffect(() => {
-    const savedLanguage = localStorage.getItem('i18nextLng') || 'en-US';
+    const savedLanguage = localStorage.getItem('i18nextLng') || 'en';
     i18n.changeLanguage(savedLanguage);
   }, [i18n]);
 

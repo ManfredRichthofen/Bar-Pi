@@ -1,38 +1,33 @@
-import { Filter, GlassWater, Search } from 'lucide-react';
+import { GlassWater, Search } from 'lucide-react';
 import { motion } from 'motion/react';
+import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 
 const EmptyState = ({ type = 'no-results', onClearFilters }) => {
+  const { t } = useTranslation();
   const states = {
     'no-results': {
       icon: Search,
-      title: 'No Drinks Found',
-      description:
+      title: t('simple_drinks.empty_results_title', 'No Drinks Found'),
+      description: t(
+        'simple_drinks.empty_results_description',
         "Try adjusting your search or filters to find what you're looking for.",
+      ),
       action: onClearFilters ? (
         <Button onClick={onClearFilters} variant="outline" size="lg">
-          Clear Filters
+          {t('simple_drinks.clear_search_filters', 'Clear search and filters')}
         </Button>
       ) : null,
     },
     'no-drinks': {
       icon: GlassWater,
-      title: 'No Drinks Available',
-      description:
+      title: t('simple_drinks.empty_none_title', 'No Drinks Available'),
+      description: t(
+        'simple_drinks.empty_none_description',
         'There are no drinks in the system yet. Please add some drinks to get started.',
+      ),
       action: null,
-    },
-    'filtered-out': {
-      icon: Filter,
-      title: 'All Drinks Filtered Out',
-      description:
-        'Your current filters have hidden all available drinks. Try adjusting your filters.',
-      action: onClearFilters ? (
-        <Button onClick={onClearFilters} variant="outline" size="lg">
-          Clear All Filters
-        </Button>
-      ) : null,
     },
   };
 

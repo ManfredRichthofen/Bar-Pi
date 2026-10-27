@@ -1,4 +1,5 @@
-import { Info, Loader2 } from 'lucide-react';
+import { GlassWater, Loader2 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { useLazyImage } from '@/hooks/useLazyImage';
 
 interface DrinkImageProps {
@@ -8,6 +9,7 @@ interface DrinkImageProps {
 }
 
 const DrinkImage = ({ recipeId, hasImage, name }: DrinkImageProps) => {
+  const { t } = useTranslation();
   const { imageUrl, loading, error, elementRef } = useLazyImage(
     recipeId,
     hasImage,
@@ -27,9 +29,11 @@ const DrinkImage = ({ recipeId, hasImage, name }: DrinkImageProps) => {
       ) : (
         <div className="w-full h-full bg-surface-sunken flex items-center justify-center">
           <div className="text-center p-4">
-            <Info className="w-10 h-10 sm:w-12 sm:h-12 text-foreground-muted mx-auto mb-2" />
+            <GlassWater className="w-10 h-10 sm:w-12 sm:h-12 text-foreground-muted mx-auto mb-2" />
             <span className="text-foreground-muted font-medium text-base">
-              {error ? 'Failed to load image' : 'No image available'}
+              {error
+                ? t('simple_drinks.image_failed_long', 'Failed to load image')
+                : t('simple_drinks.image_none_long', 'No image available')}
             </span>
           </div>
         </div>

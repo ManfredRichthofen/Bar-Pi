@@ -1,8 +1,9 @@
+import { useIsFetching } from '@tanstack/react-query';
 import { Navigate, useNavigate } from '@tanstack/react-router';
-import { debounce } from 'es-toolkit';
 import { ArrowUp, Filter } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import FilterPanel from '@/components/ui/filter-panel.jsx';
 import SearchInput from '@/components/ui/search-input.jsx';
@@ -10,23 +11,35 @@ import { useFabricableRecipes } from '@/hooks/useFabricableRecipes';
 import useAuthStore from '../../../store/authStore.js';
 import useFilterStore from '../../../store/filterStore.js';
 import { filterRecipes } from '../../../utils/recipeFilters.js';
-import ErrorMessage from './ErrorMessage.jsx';
 import VirtualGrid from './VirtualGrid.jsx';
 
+const SIMPLE_FILTER_KEYS = ['automatic', 'manual', 'available'];
+
 function SimpleDrinks() {
+  const { t } = useTranslation();
   const [searchTerm, setSearchTerm] = useState('');
-  const [searchValue, setSearchValue] = useState('');
-  const [searchLoading, setSearchLoading] = useState(false);
-  const [error, setError] = useState(null);
   const [isFilterPanelOpen, setIsFilterPanelOpen] = useState(false);
   const [isHeaderVisible, setIsHeaderVisible] = useState(true);
-  const [lastScrollY, setLastScrollY] = useState(0);
-  const { filters, updateFilter, clearFilters } = useFilterStore();
+  const [showScrollTop, setShowScrollTop] = useState(false);
+  const lastScrollYRef = useRef(0);
+  const headerRef = useRef(null);
+  const { filters: allFilters, updateFilter } = useFilterStore();
   const token = useAuthStore((state) => state.token);
   const navigate = useNavigate({ from: '/simple/drinks' });
-  const [showScrollTop, setShowScrollTop] = useState(false);
+  const isFetchingRecipes =
+    useIsFetching({ queryKey: ['recipes', 'simple'] }) > 0;
 
-  const filterPanelRef = useRef(null);
+  // Advanced-mode filters live in the same store; simple mode only shows and applies these.
+  const filters = useMemo(
+    () =>
+      Object.fromEntries(
+        SIMPLE_FILTER_KEYS.map((key) => [key, !!allFilters[key]]),
+      ),
+    [allFilters],
+  );
+  const activeFilterCount = SIMPLE_FILTER_KEYS.filter(
+    (key) => filters[key],
+  ).length;
 
   const handleUnauthorized = useCallback(() => {
     navigate({ to: '/login' });
@@ -37,27 +50,28 @@ function SimpleDrinks() {
     onUnauthorized: handleUnauthorized,
   });
 
+  const clearSimpleFilters = useCallback(() => {
+    for (const key of SIMPLE_FILTER_KEYS) {
+      updateFilter(key, false);
+    }
+  }, [updateFilter]);
+
   const handleFilterChange = useCallback(
     (filterName) => {
-      setSearchLoading(true);
       if (filterName === 'clear') {
-        clearFilters();
+        clearSimpleFilters();
       } else {
         updateFilter(filterName, !filters[filterName]);
       }
     },
-    [filters, clearFilters, updateFilter],
+    [filters, clearSimpleFilters, updateFilter],
   );
 
   const filterRecipesMemo = useCallback(
     (recipes, activeFilters = filters, fabricable = fabricableRecipes) => {
       if (!recipes?.length) return [];
 
-      if (
-        !activeFilters.automatic &&
-        !activeFilters.manual &&
-        !activeFilters.available
-      ) {
+      if (!SIMPLE_FILTER_KEYS.some((key) => activeFilters[key])) {
         return recipes;
       }
 
@@ -66,38 +80,15 @@ function SimpleDrinks() {
     [filters, fabricableRecipes],
   );
 
-  useEffect(() => {
-    setSearchLoading(true);
-    setTimeout(() => {
-      setSearchLoading(false);
-    }, 100);
-  }, [filters, filterRecipesMemo]);
-
-  const debouncedSearch = useCallback(
-    debounce((value) => {
-      setSearchTerm(value);
-    }, 500),
-    [],
-  );
-
   const handleSearch = (e) => {
     e.preventDefault();
-    const value = e.target.search.value;
-    setSearchValue(value);
-    debouncedSearch(value);
-  };
-
-  const handleSearchInput = (value) => {
-    setSearchValue(value);
-    debouncedSearch(value);
+    setSearchTerm(e.target.search.value);
   };
 
   const handleFilterToggle = (e) => {
     e?.stopPropagation();
-    setIsFilterPanelOpen(!isFilterPanelOpen);
-    if (!isFilterPanelOpen) {
-      setIsHeaderVisible(true);
-    }
+    setIsFilterPanelOpen((open) => !open);
+    setIsHeaderVisible(true);
   };
 
   const scrollToTop = () => {
@@ -107,27 +98,38 @@ function SimpleDrinks() {
   useEffect(() => {
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
+      const lastScrollY = lastScrollYRef.current;
 
       if (isFilterPanelOpen) {
         setIsHeaderVisible(true);
-        setLastScrollY(currentScrollY);
-        setShowScrollTop(currentScrollY > 400);
-        return;
-      }
-
-      if (currentScrollY > lastScrollY && currentScrollY > 100) {
+      } else if (currentScrollY > lastScrollY && currentScrollY > 100) {
         setIsHeaderVisible(false);
       } else {
         setIsHeaderVisible(true);
       }
 
-      setLastScrollY(currentScrollY);
+      lastScrollYRef.current = currentScrollY;
       setShowScrollTop(currentScrollY > 400);
     };
 
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
-  }, [lastScrollY, isFilterPanelOpen]);
+  }, [isFilterPanelOpen]);
+
+  useEffect(() => {
+    if (!isFilterPanelOpen) return;
+
+    const handleClickOutside = (event) => {
+      if (headerRef.current && !headerRef.current.contains(event.target)) {
+        setIsFilterPanelOpen(false);
+      }
+    };
+
+    document.addEventListener('pointerdown', handleClickOutside);
+    return () => {
+      document.removeEventListener('pointerdown', handleClickOutside);
+    };
+  }, [isFilterPanelOpen]);
 
   const handleCardClick = (recipe) => {
     navigate({
@@ -137,23 +139,6 @@ function SimpleDrinks() {
     });
   };
 
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (
-        filterPanelRef.current &&
-        !filterPanelRef.current.contains(event.target) &&
-        isFilterPanelOpen
-      ) {
-        setIsFilterPanelOpen(false);
-      }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, [isFilterPanelOpen]);
-
   if (!token) {
     return <Navigate to="/login" replace />;
   }
@@ -161,35 +146,39 @@ function SimpleDrinks() {
   return (
     <div className="min-h-screen bg-background">
       <header
+        ref={headerRef}
         className={`sticky top-0 z-20 border-b-hairline border-border bg-background transition-transform ${
           isHeaderVisible ? 'translate-y-0' : '-translate-y-full'
         }`}
       >
         <div className="mx-auto max-w-7xl px-4 py-4 sm:px-6 space-y-4">
           <div className="flex items-center justify-between">
-            <h1 className="text-3xl sm:text-4xl">Drinks</h1>
+            <h1 className="text-3xl sm:text-4xl">
+              {t('navigation.drinks', 'Drinks')}
+            </h1>
             <Button
               variant={isFilterPanelOpen ? 'default' : 'outline'}
               onClick={handleFilterToggle}
+              aria-expanded={isFilterPanelOpen}
               className="relative"
             >
               <Filter />
-              Filters
-              {Object.values(filters).some(Boolean) && (
+              {t('simple_drinks.filters', 'Filters')}
+              {activeFilterCount > 0 && (
                 <span className="flex size-6 items-center justify-center rounded-full bg-primary-tint font-mono text-sm text-primary-tint-ink">
-                  {Object.values(filters).filter(Boolean).length}
+                  {activeFilterCount}
                 </span>
               )}
             </Button>
           </div>
 
           <SearchInput
-            value={searchValue}
-            onChange={handleSearchInput}
+            value={searchTerm}
+            onChange={setSearchTerm}
             onSubmit={handleSearch}
-            loading={searchLoading}
-            placeholder="Search drinks..."
-            debounceMs={500}
+            loading={isFetchingRecipes}
+            placeholder={t('simple_drinks.search_placeholder', 'Search drinks...')}
+            debounceMs={400}
           />
 
           {isFilterPanelOpen && (
@@ -198,9 +187,6 @@ function SimpleDrinks() {
               onFilterChange={handleFilterChange}
               variant="simple"
             />
-          )}
-          {error && (
-            <ErrorMessage error={error} onDismiss={() => setError(null)} />
           )}
         </div>
       </header>
@@ -213,7 +199,10 @@ function SimpleDrinks() {
         filters={filters}
         onCheckFabricability={checkFabricability}
         onFilterRecipes={filterRecipesMemo}
-        onClearFilters={clearFilters}
+        onClearFilters={() => {
+          clearSimpleFilters();
+          setSearchTerm('');
+        }}
       />
 
       <AnimatePresence>
@@ -223,13 +212,12 @@ function SimpleDrinks() {
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.8, y: 20 }}
             transition={{ type: 'spring', stiffness: 300, damping: 25 }}
-            className="fixed bottom-24 right-4 z-[100]"
+            className="fixed bottom-[calc(var(--dock-height)+1rem)] right-4 z-[100]"
           >
             <Button
               onClick={scrollToTop}
               size="icon"
-              className=""
-              aria-label="Scroll to top"
+              aria-label={t('simple_drinks.scroll_top', 'Scroll to top')}
             >
               <ArrowUp className="size-6" />
             </Button>

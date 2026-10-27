@@ -18,7 +18,7 @@ const Dock: React.FC = () => {
   return (
     <nav
       aria-label="Main"
-      className="pointer-events-auto fixed inset-x-0 bottom-0 z-50 border-t-hairline border-border bg-background"
+      className="pointer-events-auto fixed inset-x-0 bottom-0 z-50 border-t-hairline border-border bg-background pb-[env(safe-area-inset-bottom,0px)]"
     >
       <ul className="mx-auto flex max-w-3xl items-stretch justify-center gap-2 p-2">
         {NAV.map(({ to, icon: Icon, label }) => {

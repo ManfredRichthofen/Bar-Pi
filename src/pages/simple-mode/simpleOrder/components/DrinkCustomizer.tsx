@@ -1,4 +1,5 @@
-import { AlertTriangle, BeakerIcon, PlusCircle, Settings } from 'lucide-react';
+import { BeakerIcon, Info, PlusCircle, Settings, X } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -22,12 +23,15 @@ interface DrinkCustomizerProps {
   availableIngredients?: Ingredient[];
 }
 
+const MAX_EXTRA_ML = 100;
+
 const DrinkCustomizer = ({
   disableBoosting = false,
   customisations,
   onCustomisationsChange,
   availableIngredients = [],
 }: DrinkCustomizerProps) => {
+  const { t } = useTranslation();
   const {
     addingIngredient,
     setAddingIngredient,
@@ -37,59 +41,78 @@ const DrinkCustomizer = ({
     handleBoostChange,
     handleAdditionalIngredientAmountChange,
     handleAddIngredient,
+    handleRemoveIngredient,
   } = useDrinkCustomizerActions({
     customizations: customisations,
     onCustomizationsChange: onCustomisationsChange,
   });
 
+  const boost = customisations?.boost ?? 100;
+
   const automatedIngredients = availableIngredients.filter(
     (ing) => ing.type === 'automated',
   );
+
+  const handleAmountInput = (ingredientId: string, raw: string) => {
+    const parsed = Number.parseFloat(raw);
+    const amount = Number.isFinite(parsed)
+      ? Math.min(Math.max(parsed, 0), MAX_EXTRA_ML)
+      : 0;
+    handleAdditionalIngredientAmountChange(ingredientId, amount);
+  };
 
   return (
     <div className="space-y-4 sm:space-y-5">
       <div className="flex items-center gap-3 mb-4">
         <Settings className="size-6 text-primary" />
         <h2 className="text-lg sm:text-xl lg:text-2xl font-bold">
-          Customize Your Drink
+          {t('simple_order.customize_title', 'Customize Your Drink')}
         </h2>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 lg:gap-5">
         <Card
-          className={`${automatedIngredients.length > 0 ? 'sm:col-span-1' : 'sm:col-span-2'} hover:shadow-md hover:border-border-strong transition-colors`}
+          className={`${automatedIngredients.length > 0 ? 'sm:col-span-1' : 'sm:col-span-2'} [@media(hover:hover)]:hover:border-border-strong transition-colors`}
         >
           <CardContent className="p-4 sm:p-5 lg:p-6">
             <div className="flex items-center gap-2 mb-4">
               <BeakerIcon className="size-6 text-primary" />
               <h3 className="text-base sm:text-lg font-bold">
-                Alcohol Strength
+                {t('simple_order.strength_title', 'Alcohol Strength')}
               </h3>
             </div>
 
             {disableBoosting ? (
               <Alert className="bg-primary-tint border-border-strong">
-                <AlertTriangle className="size-6 text-primary-tint-ink" />
+                <Info className="size-6 text-primary-tint-ink" />
                 <AlertDescription className="text-base">
-                  This drink's strength cannot be adjusted
+                  {t(
+                    'simple_order.strength_fixed',
+                    "This drink's strength cannot be adjusted",
+                  )}
                 </AlertDescription>
               </Alert>
             ) : (
               <div className="space-y-5 sm:space-y-6">
                 <div className="text-center">
                   <div className="text-3xl sm:text-4xl lg:text-5xl font-bold text-primary mb-2">
-                    {customisations?.boost === 100
-                      ? 'Normal'
-                      : `${customisations?.boost > 100 ? '+' : ''}${(customisations?.boost || 100) - 100}%`}
+                    {boost === 100
+                      ? t('simple_order.strength_normal', 'Normal')
+                      : boost === 0
+                        ? t('simple_order.strength_none', 'None')
+                        : `${boost}%`}
                   </div>
                   <p className="text-sm text-foreground-muted">
-                    Alcohol content adjustment
+                    {t(
+                      'simple_order.strength_hint',
+                      'Alcohol content adjustment',
+                    )}
                   </p>
                 </div>
 
                 <div className="px-2 sm:px-3">
                   <Slider
-                    value={[customisations?.boost || 100]}
+                    value={[boost]}
                     onValueChange={handleBoostChange}
                     min={0}
                     max={200}
@@ -103,19 +126,19 @@ const DrinkCustomizer = ({
                     <span className="block text-base sm:text-lg font-bold text-foreground">
                       0%
                     </span>
-                    None
+                    {t('simple_order.strength_none', 'None')}
                   </span>
                   <span className="font-medium text-center">
                     <span className="block text-base sm:text-lg font-bold text-primary">
                       100%
                     </span>
-                    Normal
+                    {t('simple_order.strength_normal', 'Normal')}
                   </span>
                   <span className="font-medium text-center">
                     <span className="block text-base sm:text-lg font-bold text-foreground">
                       200%
                     </span>
-                    Double
+                    {t('simple_order.strength_double', 'Double')}
                   </span>
                 </div>
               </div>
@@ -124,17 +147,20 @@ const DrinkCustomizer = ({
         </Card>
 
         {automatedIngredients.length > 0 && (
-          <Card className="sm:col-span-1 hover:shadow-md hover:border-border-strong transition-colors">
+          <Card className="sm:col-span-1 [@media(hover:hover)]:hover:border-border-strong transition-colors">
             <CardContent className="p-4 sm:p-5 lg:p-6">
               <div className="flex items-center gap-2 mb-4">
                 <PlusCircle className="size-6 text-primary" />
                 <h3 className="text-base sm:text-lg font-bold">
-                  Extra Ingredients
+                  {t('simple_order.extras_title', 'Extra Ingredients')}
                 </h3>
               </div>
 
               <p className="text-sm text-foreground-muted mb-4">
-                Add extra ingredients to personalize your drink
+                {t(
+                  'simple_order.extras_hint',
+                  'Add extra ingredients to personalize your drink',
+                )}
               </p>
 
               <div className="space-y-3">
@@ -143,29 +169,45 @@ const DrinkCustomizer = ({
                     key={ingredient.id}
                     className="flex items-center gap-3 p-3 bg-surface-sunken rounded-lg"
                   >
-                    <Label className="font-medium text-base flex-1">
+                    <Label
+                      htmlFor={`extra-${ingredient.id}`}
+                      className="font-medium text-base flex-1 min-w-0 break-words"
+                    >
                       {ingredient.name}
                     </Label>
-                    <Input
-                      type="number"
-                      min={0}
-                      max={100}
-                      value={amount}
-                      onChange={(e) =>
-                        handleAdditionalIngredientAmountChange(
-                          ingredient.id,
-                          parseFloat(e.target.value),
-                        )
-                      }
-                      className="w-24 text-base"
-                    />
+                    <div className="relative shrink-0">
+                      <Input
+                        id={`extra-${ingredient.id}`}
+                        type="number"
+                        inputMode="decimal"
+                        min={0}
+                        max={MAX_EXTRA_ML}
+                        value={amount}
+                        onChange={(e) =>
+                          handleAmountInput(ingredient.id, e.target.value)
+                        }
+                        className="w-28 pr-10 text-base"
+                      />
+                      <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-sm text-foreground-muted">
+                        ml
+                      </span>
+                    </div>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      aria-label={t('simple_order.extras_remove', 'Remove')}
+                      onClick={() => handleRemoveIngredient(ingredient.id)}
+                    >
+                      <X className="size-6" />
+                    </Button>
                   </div>
                 ))}
 
                 {addingIngredient ? (
                   <div className="space-y-3 p-3 border-2 border-dashed border-border-strong rounded-lg">
                     <Label className="font-medium text-base">
-                      Select Ingredient
+                      {t('simple_order.extras_select', 'Select Ingredient')}
                     </Label>
                     <Select
                       value={selectedIngredient?.id || ''}
@@ -177,7 +219,12 @@ const DrinkCustomizer = ({
                       }}
                     >
                       <SelectTrigger className="w-full">
-                        <SelectValue placeholder="Choose an ingredient..." />
+                        <SelectValue
+                          placeholder={t(
+                            'simple_order.extras_placeholder',
+                            'Choose an ingredient...',
+                          )}
+                        />
                       </SelectTrigger>
                       <SelectContent>
                         {automatedIngredients
@@ -200,7 +247,7 @@ const DrinkCustomizer = ({
                         disabled={!selectedIngredient}
                         className="flex-1"
                       >
-                        Add
+                        {t('simple_order.extras_add', 'Add')}
                       </Button>
                       <Button
                         variant="outline"
@@ -210,7 +257,7 @@ const DrinkCustomizer = ({
                         }}
                         className="flex-1"
                       >
-                        Cancel
+                        {t('common.cancel', 'Cancel')}
                       </Button>
                     </div>
                   </div>
@@ -221,7 +268,7 @@ const DrinkCustomizer = ({
                     className="w-full gap-2"
                   >
                     <PlusCircle className="size-6" />
-                    Add Ingredient
+                    {t('simple_order.extras_add_ingredient', 'Add Ingredient')}
                   </Button>
                 )}
               </div>

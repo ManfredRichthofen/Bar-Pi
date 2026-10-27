@@ -43,12 +43,13 @@ export function useGlasses({
     const currentDefault = defaultGlassRef.current;
     const currentSelected = selectedGlassRef.current;
 
-    if (currentDefault) {
-      const glass = glasses.find((g) => g.id === currentDefault.id);
-      if (glass) {
-        setSelectedGlassRef.current(glass);
-        onGlassChangeRef.current?.(glass);
-      }
+    const matchedDefault = currentDefault
+      ? glasses.find((g) => g.id === currentDefault.id)
+      : undefined;
+
+    if (matchedDefault) {
+      setSelectedGlassRef.current(matchedDefault);
+      onGlassChangeRef.current?.(matchedDefault);
     } else if (!currentSelected) {
       setSelectedGlassRef.current(glasses[0]);
       onGlassChangeRef.current?.(glasses[0]);

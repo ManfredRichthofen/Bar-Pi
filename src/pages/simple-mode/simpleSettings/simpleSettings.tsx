@@ -8,18 +8,17 @@ import useUIModeStore from '../../../store/uiModeStore';
 import GeneralSettings from './components/GeneralSettings';
 import ThemeSelector from './components/ThemeSelector';
 
+const LANGUAGES = [
+  { code: 'en', name: 'English' },
+  { code: 'es', name: 'Español' },
+  { code: 'de', name: 'Deutsch' },
+];
+
 const SimpleSettings = () => {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate({ from: '/simple/settings' });
   const logoutUser = useAuthStore((state) => state.logoutUser);
   const setAdvancedMode = useUIModeStore((state) => state.setAdvancedMode);
-
-  const languages = [
-    { code: 'en-US', name: 'English' },
-    { code: 'es', name: 'Español' },
-    { code: 'fr', name: 'Français' },
-    { code: 'de', name: 'Deutsch' },
-  ];
 
   const handleLanguageChange = (langCode: string) => {
     i18n.changeLanguage(langCode);
@@ -43,6 +42,7 @@ const SimpleSettings = () => {
             type="button"
             variant="ghost"
             size="icon"
+            aria-label={t('common.back', 'Back')}
             onClick={() => navigate({ to: '/simple/drinks' })}
           >
             <ArrowLeft className="size-6" />
@@ -59,8 +59,8 @@ const SimpleSettings = () => {
           <UpdateChecker />
 
           <GeneralSettings
-            currentLanguage={i18n.language}
-            languages={languages}
+            currentLanguage={i18n.resolvedLanguage ?? 'en'}
+            languages={LANGUAGES}
             onLanguageChange={handleLanguageChange}
             onAdvancedModeSwitch={handleAdvancedModeSwitch}
             onLogout={handleLogout}

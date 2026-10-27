@@ -9,6 +9,12 @@ i18n
   .use(initReactI18next)
   .init({
     fallbackLng: 'en',
+    // Must match the folders in public/locales
+    supportedLngs: ['en', 'es', 'de'],
+    nonExplicitSupportedLngs: true,
+    load: 'languageOnly',
+    // es/de files contain empty placeholders; fall back to English instead of blank text
+    returnEmptyString: false,
     debug: true,
 
     interpolation: {

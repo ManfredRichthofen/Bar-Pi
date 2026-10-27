@@ -1,6 +1,15 @@
 import { useNavigate } from '@tanstack/react-router';
-import { ArrowLeft, CheckCircle2, Clock, Loader2 } from 'lucide-react';
+import {
+  ArrowLeft,
+  CheckCircle2,
+  Clock,
+  GlassWater,
+  Loader2,
+  XCircle,
+} from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ConfirmationDialog } from '@/components/ui/confirmation-dialog';
@@ -10,7 +19,11 @@ import CocktailService from '../../../services/cocktail.service';
 import useAuthStore from '../../../store/authStore';
 import useCocktailProgressStore from '../../../store/cocktailProgressStore';
 
+// Progress arrives over the WebSocket right after subscribing when an order is running.
+const CONNECT_GRACE_MS = 1500;
+
 const SimpleOrderStatus = () => {
+  const { t } = useTranslation();
   const [confirming, setConfirming] = useState(false);
   const [canceling, setCanceling] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -22,7 +35,6 @@ const SimpleOrderStatus = () => {
 
   useWebSocket(token, { keepAlive: true });
 
-  // Fallback if WS never delivers progress
   useEffect(() => {
     if (progress) {
       setIsLoading(false);
@@ -31,14 +43,14 @@ const SimpleOrderStatus = () => {
 
     const timer = setTimeout(() => {
       setIsLoading(false);
-    }, 10000);
+    }, CONNECT_GRACE_MS);
 
     return () => clearTimeout(timer);
   }, [progress]);
 
-  const handleCancelClick = useCallback(() => {
-    setShowCancelDialog(true);
-  }, []);
+  const goToDrinks = useCallback(() => {
+    navigate({ to: '/simple/drinks' });
+  }, [navigate]);
 
   const handleCancelConfirm = useCallback(async () => {
     if (!token) return;
@@ -48,10 +60,11 @@ const SimpleOrderStatus = () => {
       await CocktailService.cancelCocktail(token);
     } catch (error) {
       console.error('Failed to cancel cocktail:', error);
+      toast.error(t('simple_status.cancel_failed', 'Could not cancel the order'));
     } finally {
       setCanceling(false);
     }
-  }, [token]);
+  }, [token, t]);
 
   const handleConfirmManualAdd = useCallback(async () => {
     if (!token) return;
@@ -60,33 +73,72 @@ const SimpleOrderStatus = () => {
       await CocktailService.continueProduction(token);
     } catch (error) {
       console.error('Failed to confirm manual ingredient add:', error);
+      toast.error(
+        t('simple_status.continue_failed', 'Could not continue the order'),
+      );
     } finally {
       setConfirming(false);
     }
-  }, [token]);
+  }, [token, t]);
 
   const getStateDisplay = (state: string) => {
     const stateMap: Record<string, { label: string; color: string }> = {
-      PREPARING: { label: 'Preparing', color: 'text-primary' },
-      PUMPING: { label: 'Pumping', color: 'text-primary' },
-      MANUAL_INGREDIENT_ADD: {
-        label: 'Manual Add Required',
-        color: 'text-primary-tint-ink',
+      PREPARING: {
+        label: t('simple_status.state_preparing', 'Preparing'),
+        color: 'text-primary',
       },
-      COMPLETED: { label: 'Completed', color: 'text-primary' },
-      CANCELLED: { label: 'Cancelled', color: 'text-danger' },
+      PUMPING: {
+        label: t('simple_status.state_pumping', 'Pumping'),
+        color: 'text-primary',
+      },
+      MANUAL_INGREDIENT_ADD: {
+        label: t('simple_status.state_manual', 'Manual Add Required'),
+        color: 'text-warning',
+      },
+      COMPLETED: {
+        label: t('simple_status.state_completed', 'Completed'),
+        color: 'text-success',
+      },
+      CANCELLED: {
+        label: t('simple_status.state_cancelled', 'Cancelled'),
+        color: 'text-danger',
+      },
     };
     return stateMap[state] || { label: state, color: 'text-foreground-muted' };
   };
 
+  const header = (
+    <header className="sticky top-0 z-20 border-b-hairline border-border bg-background">
+      <div className="mx-auto max-w-4xl px-4 py-4 sm:px-6 flex items-center justify-between">
+        <Button
+          variant="ghost"
+          size="icon"
+          aria-label={t('common.back', 'Back')}
+          onClick={goToDrinks}
+        >
+          <ArrowLeft className="size-6" />
+        </Button>
+        <h1 className="text-xl font-bold truncate flex-1 mx-3 text-center text-foreground">
+          {t('navigation.order_status', 'Order Status')}
+        </h1>
+        <div className="size-control-md" />
+      </div>
+    </header>
+  );
+
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4">
-        <Loader2 className="w-12 h-12 animate-spin text-primary mb-4" />
-        <h2 className="text-xl font-semibold mb-2">Connecting...</h2>
-        <p className="text-sm text-foreground-muted">
-          Fetching your order status
-        </p>
+      <div className="min-h-screen bg-background flex flex-col">
+        {header}
+        <div className="flex-1 flex flex-col items-center justify-center p-4">
+          <Loader2 className="size-12 animate-spin text-primary mb-4" />
+          <h2 className="text-xl font-semibold mb-2">
+            {t('simple_status.connecting', 'Connecting...')}
+          </h2>
+          <p className="text-sm text-foreground-muted">
+            {t('simple_status.connecting_hint', 'Fetching your order status')}
+          </p>
+        </div>
       </div>
     );
   }
@@ -94,35 +146,23 @@ const SimpleOrderStatus = () => {
   if (!progress) {
     return (
       <div className="min-h-screen bg-background flex flex-col">
-        <header className="sticky top-0 z-20 border-b-hairline border-border bg-background">
-          <div className="mx-auto max-w-4xl px-4 py-4 sm:px-6 flex items-center justify-between">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => navigate({ to: '/simple/drinks' })}
-            >
-              <ArrowLeft className="size-6" />
-            </Button>
-            <h1 className="text-xl font-bold truncate flex-1 mx-3 text-center text-foreground">
-              Order Status
-            </h1>
-            <div className="size-control-md" />
-          </div>
-        </header>
+        {header}
         <div className="flex-1 flex items-center justify-center p-4">
           <Card className="w-full max-w-md">
             <CardContent className="pt-6 text-center">
-              <Clock className="w-16 h-16 mx-auto mb-4 text-foreground-muted" />
-              <h2 className="text-xl font-bold mb-2">No Active Order</h2>
+              <Clock className="size-16 mx-auto mb-4 text-foreground-muted" />
+              <h2 className="text-xl font-bold mb-2">
+                {t('simple_status.no_order_title', 'No Active Order')}
+              </h2>
               <p className="text-foreground-muted mb-6">
-                There is currently no cocktail being prepared
+                {t(
+                  'simple_status.no_order_description',
+                  'There is currently no cocktail being prepared',
+                )}
               </p>
-              <Button
-                size="lg"
-                className="w-full"
-                onClick={() => navigate({ to: '/simple/drinks' })}
-              >
-                Order a Drink
+              <Button size="lg" className="w-full" onClick={goToDrinks}>
+                <GlassWater className="size-6" />
+                {t('simple_status.order_a_drink', 'Order a Drink')}
               </Button>
             </CardContent>
           </Card>
@@ -132,78 +172,82 @@ const SimpleOrderStatus = () => {
   }
 
   const stateDisplay = getStateDisplay(progress.state);
+  const isCompleted = progress.state === 'COMPLETED';
+  const isCancelled = progress.state === 'CANCELLED';
+  const isFinished = isCompleted || isCancelled;
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      <header className="sticky top-0 z-20 border-b-hairline border-border bg-background">
-        <div className="mx-auto max-w-4xl px-4 py-4 sm:px-6 flex items-center justify-between">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => navigate({ to: '/simple/drinks' })}
-          >
-            <ArrowLeft className="size-6" />
-          </Button>
-          <h1 className="text-xl font-bold truncate flex-1 mx-3 text-center text-foreground">
-            Order Status
-          </h1>
-          <div className="size-control-md" />
-        </div>
-      </header>
+      {header}
 
-      <div className="flex-1 overflow-y-auto pb-32">
+      <div className="flex-1 overflow-y-auto pb-8">
         <div className="mx-auto max-w-2xl px-4 py-6 sm:px-6 space-y-6">
           <Card>
             <CardHeader>
-              <div className="flex items-center justify-between">
-                <CardTitle className="text-2xl">
-                  {progress.recipe.name}
-                </CardTitle>
-                {progress.state === 'COMPLETED' && (
-                  <CheckCircle2 className="w-8 h-8 text-primary" />
+              <div className="flex items-center justify-between gap-3">
+                <CardTitle className="text-2xl">{progress.recipe.name}</CardTitle>
+                {isCompleted && (
+                  <CheckCircle2 className="size-8 shrink-0 text-success" />
+                )}
+                {isCancelled && (
+                  <XCircle className="size-8 shrink-0 text-danger" />
                 )}
               </div>
-              <div className="flex items-center gap-2 mt-2">
-                <span className={`text-sm font-semibold ${stateDisplay.color}`}>
-                  {stateDisplay.label}
-                </span>
-              </div>
+              <span
+                className={`mt-2 text-base font-semibold ${stateDisplay.color}`}
+                aria-live="polite"
+              >
+                {stateDisplay.label}
+              </span>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div
-                className={`space-y-2 ${
-                  progress.state === 'PREPARING' || progress.state === 'PUMPING'
-                    ? 'running-progress'
-                    : ''
-                }`}
-              >
-                <div className="flex justify-between text-base">
-                  <span className="text-foreground-muted">Progress</span>
-                  <span className="font-mono font-semibold">
-                    {Math.round(progress.progress)}%
-                  </span>
+              {!isCancelled && (
+                <div
+                  className={`space-y-2 ${
+                    progress.state === 'PREPARING' ||
+                    progress.state === 'PUMPING'
+                      ? 'running-progress'
+                      : ''
+                  }`}
+                >
+                  <div className="flex justify-between text-base">
+                    <span className="text-foreground-muted">
+                      {t('simple_status.progress', 'Progress')}
+                    </span>
+                    <span className="font-mono font-semibold">
+                      {Math.round(progress.progress)}%
+                    </span>
+                  </div>
+                  <Progress value={progress.progress} />
                 </div>
-                <Progress value={progress.progress} />
-              </div>
+              )}
 
               {progress.state === 'MANUAL_INGREDIENT_ADD' &&
                 progress.currentIngredientsToAddManually && (
-                  <Card className="bg-primary-tint border-border-strong">
+                  <Card className="bg-warning-tint border-warning">
                     <CardContent className="pt-6">
-                      <h3 className="font-semibold mb-3 text-primary-tint-ink">
-                        Please add the following ingredients manually:
+                      <h3 className="font-semibold mb-3">
+                        {t(
+                          'simple_status.manual_add_title',
+                          'Please add the following ingredients by hand:',
+                        )}
                       </h3>
                       <ul className="space-y-2 mb-4">
                         {progress.currentIngredientsToAddManually.map(
-                          (ing: any, idx: number) => (
+                          (ing: any) => (
                             <li
-                              key={idx}
+                              key={ing.id ?? ing.name}
                               className="flex items-center gap-2 text-base"
                             >
-                              <div className="w-2 h-2 rounded-full bg-primary-tint" />
-                              <span className="font-medium">{ing.name}</span>
-                              <span className="text-foreground-muted">
-                                - {ing.amount}ml
+                              <span
+                                aria-hidden="true"
+                                className="size-2 shrink-0 rounded-full bg-warning"
+                              />
+                              <span className="font-medium flex-1">
+                                {ing.name}
+                              </span>
+                              <span className="font-semibold">
+                                {ing.amount} {ing.unit ?? 'ml'}
                               </span>
                             </li>
                           ),
@@ -217,11 +261,14 @@ const SimpleOrderStatus = () => {
                       >
                         {confirming ? (
                           <>
-                            <Loader2 className="size-6 mr-2 animate-spin" />
-                            Confirming...
+                            <Loader2 className="size-6 animate-spin" />
+                            {t('simple_status.confirming', 'Confirming...')}
                           </>
                         ) : (
-                          "I've Added the Ingredients"
+                          t(
+                            'simple_status.confirm_added',
+                            "I've Added the Ingredients",
+                          )
                         )}
                       </Button>
                     </CardContent>
@@ -231,7 +278,7 @@ const SimpleOrderStatus = () => {
               {progress.recipe.description && (
                 <div className="pt-2">
                   <h3 className="font-semibold mb-2 text-sm text-foreground-muted">
-                    About
+                    {t('simple_status.about', 'About')}
                   </h3>
                   <p className="text-base">{progress.recipe.description}</p>
                 </div>
@@ -241,43 +288,52 @@ const SimpleOrderStatus = () => {
                 progress.recipe.ingredients.length > 0 && (
                   <div className="pt-2">
                     <h3 className="font-semibold mb-2 text-sm text-foreground-muted">
-                      Ingredients
+                      {t('ingredients_list.title', 'Ingredients')}
                     </h3>
                     <div className="grid grid-cols-2 gap-2">
-                      {progress.recipe.ingredients.map(
-                        (ing: any, idx: number) => (
-                          <div
-                            key={idx}
-                            className="flex items-center gap-2 text-base bg-surface-sunken rounded-lg p-2"
-                          >
-                            <div className="w-1.5 h-1.5 rounded-full bg-primary" />
-                            <span className="truncate">{ing.name}</span>
-                          </div>
-                        ),
-                      )}
+                      {progress.recipe.ingredients.map((ing: any) => (
+                        <div
+                          key={ing.id ?? ing.name}
+                          className="flex items-center gap-2 text-base bg-surface-sunken rounded-lg p-2"
+                        >
+                          <span
+                            aria-hidden="true"
+                            className="size-1.5 shrink-0 rounded-full bg-primary"
+                          />
+                          <span className="truncate">{ing.name}</span>
+                        </div>
+                      ))}
                     </div>
                   </div>
                 )}
 
-              {progress.state !== 'COMPLETED' &&
-                progress.state !== 'CANCELLED' && (
-                  <Button
-                    variant="destructive"
-                    onClick={handleCancelClick}
-                    disabled={canceling}
-                    className="w-full mt-4"
-                    size="lg"
-                  >
-                    {canceling ? (
-                      <>
-                        <Loader2 className="size-6 mr-2 animate-spin" />
-                        Canceling...
-                      </>
-                    ) : (
-                      'Cancel Order'
-                    )}
-                  </Button>
-                )}
+              {isFinished ? (
+                <Button
+                  onClick={goToDrinks}
+                  className="w-full mt-4"
+                  size="lg"
+                >
+                  <GlassWater className="size-6" />
+                  {t('simple_status.order_another', 'Order another drink')}
+                </Button>
+              ) : (
+                <Button
+                  variant="destructive"
+                  onClick={() => setShowCancelDialog(true)}
+                  disabled={canceling}
+                  className="w-full mt-4"
+                  size="lg"
+                >
+                  {canceling ? (
+                    <>
+                      <Loader2 className="size-6 animate-spin" />
+                      {t('simple_status.canceling', 'Canceling...')}
+                    </>
+                  ) : (
+                    t('simple_status.cancel_order', 'Cancel Order')
+                  )}
+                </Button>
+              )}
             </CardContent>
           </Card>
         </div>
@@ -286,10 +342,13 @@ const SimpleOrderStatus = () => {
       <ConfirmationDialog
         open={showCancelDialog}
         onOpenChange={setShowCancelDialog}
-        title="Cancel Order?"
-        description="Are you sure you want to cancel this drink order? This action cannot be undone."
-        confirmText="Yes, Cancel Order"
-        cancelText="Keep Order"
+        title={t('simple_status.cancel_title', 'Cancel Order?')}
+        description={t(
+          'simple_status.cancel_description',
+          'Are you sure you want to cancel this drink order? This action cannot be undone.',
+        )}
+        confirmText={t('simple_status.cancel_confirm', 'Yes, Cancel Order')}
+        cancelText={t('simple_status.cancel_keep', 'Keep Order')}
         onConfirm={handleCancelConfirm}
         variant="destructive"
       />

@@ -25,9 +25,9 @@ const IngredientsList = ({ ingredients }: IngredientsListProps) => {
           {ingredients.map((ingredient, index) => (
             <li
               key={`${ingredient.name}-${index}`}
-              className="flex items-center gap-3 sm:gap-4 p-2 sm:p-3 bg-background rounded-lg shadow-sm hover:shadow-md transition-shadow"
+              className="flex items-center gap-3 sm:gap-4 p-2 sm:p-3 bg-background rounded-lg shadow-sm"
             >
-              <span className="w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-primary-tint text-primary flex items-center justify-center text-base font-semibold shrink-0">
+              <span className="w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-primary-tint text-primary-tint-ink flex items-center justify-center text-base font-semibold shrink-0">
                 {index + 1}
               </span>
               <span className="flex-1 font-medium text-base min-w-0 break-words">

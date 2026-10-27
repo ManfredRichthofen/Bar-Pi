@@ -1,5 +1,6 @@
-import { GlassWater, Loader2 } from 'lucide-react';
+import { ChevronRight, GlassWater, Loader2 } from 'lucide-react';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -9,7 +10,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { useGlasses } from '@/hooks/useGlasses';
 import type { Glass } from '@/pages/Shared/order';
@@ -30,6 +30,7 @@ const GlassSelector = ({
   setSelectedGlass,
   onGlassChange,
 }: GlassSelectorProps) => {
+  const { t } = useTranslation();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { loading, glasses, selectGlass } = useGlasses({
     token,
@@ -41,18 +42,11 @@ const GlassSelector = ({
 
   if (loading) {
     return (
-      <div className="w-full space-y-2">
-        <Label className="flex items-center gap-2">
-          <GlassWater size={16} />
-          Glass Size
-        </Label>
-        <div className="flex items-center gap-3 p-4 bg-surface rounded-lg border">
-          <GlassWater size={24} className="text-foreground-muted" />
-          <Loader2 className="size-6 animate-spin" />
-          <span className="text-foreground-muted text-base">
-            Loading glass...
-          </span>
-        </div>
+      <div className="flex items-center gap-3 p-4 bg-surface rounded-lg border">
+        <Loader2 className="size-6 animate-spin text-foreground-muted" />
+        <span className="text-foreground-muted text-base">
+          {t('simple_order.glass_loading', 'Loading glasses...')}
+        </span>
       </div>
     );
   }
@@ -64,45 +58,40 @@ const GlassSelector = ({
 
   return (
     <>
-      <div className="w-full">
-        <Button
-          type="button"
-          variant="outline"
-          onClick={() => setIsModalOpen(true)}
-          className="w-full h-auto min-h-12 sm:min-h-14 justify-start text-left p-3 sm:p-4"
-        >
-          {selectedGlass ? (
-            <div className="flex items-center justify-between w-full gap-3">
-              <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
-                <GlassWater size={24} className="shrink-0 sm:w-5 sm:h-5" />
-                <div className="min-w-0 flex-1">
-                  <div className="font-semibold text-base truncate">
-                    {selectedGlass.name}
-                  </div>
-                  <div className="text-sm text-foreground-muted">
-                    {getGlassSizeMl(selectedGlass)}ml capacity
-                  </div>
-                </div>
-              </div>
-              <Badge className="shrink-0">
-                {getGlassSizeMl(selectedGlass)}ml
-              </Badge>
+      <Button
+        type="button"
+        variant="outline"
+        onClick={() => setIsModalOpen(true)}
+        className="w-full h-auto min-h-control-lg justify-start text-left p-3 sm:p-4"
+      >
+        {selectedGlass ? (
+          <div className="flex items-center justify-between w-full gap-3">
+            <div className="flex items-center gap-3 min-w-0 flex-1">
+              <GlassWater className="size-6 shrink-0" />
+              <span className="font-semibold text-base truncate">
+                {selectedGlass.name}
+              </span>
             </div>
-          ) : (
-            <div className="flex items-center gap-2 text-foreground-muted">
-              <GlassWater size={24} />
-              <span className="text-base">Select a glass</span>
-            </div>
-          )}
-        </Button>
-      </div>
+            <Badge className="shrink-0">{getGlassSizeMl(selectedGlass)}ml</Badge>
+            <ChevronRight className="size-6 shrink-0 text-foreground-muted" />
+          </div>
+        ) : (
+          <div className="flex items-center gap-3 text-foreground-muted w-full">
+            <GlassWater className="size-6" />
+            <span className="text-base flex-1">
+              {t('simple_order.glass_select', 'Select a glass')}
+            </span>
+            <ChevronRight className="size-6 shrink-0" />
+          </div>
+        )}
+      </Button>
 
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <GlassWater size={24} />
-              Select Glass Size
+              <GlassWater className="size-6" />
+              {t('simple_order.glass_dialog_title', 'Select Glass Size')}
             </DialogTitle>
           </DialogHeader>
 
@@ -122,7 +111,7 @@ const GlassSelector = ({
                   ${
                     selectedGlass?.id === glass.id
                       ? 'bg-primary text-primary-foreground shadow-lg ring-2 ring-primary'
-                      : 'bg-surface hover:bg-primary-tint hover:border-border-strong'
+                      : 'bg-surface [@media(hover:hover)]:hover:bg-primary-tint [@media(hover:hover)]:hover:border-border-strong'
                   }
                 `}
               >
@@ -158,7 +147,9 @@ const GlassSelector = ({
           {glasses.length === 0 && (
             <Alert>
               <GlassWater className="size-6" />
-              <AlertDescription>No glasses available</AlertDescription>
+              <AlertDescription>
+                {t('simple_order.glass_none', 'No glasses available')}
+              </AlertDescription>
             </Alert>
           )}
 
@@ -168,7 +159,7 @@ const GlassSelector = ({
               variant="outline"
               onClick={() => setIsModalOpen(false)}
             >
-              Close
+              {t('common.close', 'Close')}
             </Button>
           </div>
         </DialogContent>
