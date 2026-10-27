@@ -132,3 +132,4 @@ dist-bundle
 .pnp.*
 /.cursor
 /keys
+src/routeTree.gen.ts
