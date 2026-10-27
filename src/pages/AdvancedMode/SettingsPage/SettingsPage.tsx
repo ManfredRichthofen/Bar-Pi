@@ -1,6 +1,7 @@
 import { useNavigate } from '@tanstack/react-router';
 import { Globe, KeyRound, LogOut, Smartphone } from 'lucide-react';
-import React, { useEffect, useState } from 'react';
+import type React from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { PageHeader } from '@/components/AdvancedMode/PageHeader';
 import { Button } from '@/components/ui/button';
@@ -14,6 +15,7 @@ import {
 } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
 import { Switch } from '@/components/ui/switch';
+import AppUpdateChecker from '../../../components/AppUpdateChecker';
 import UpdateChecker from '../../../components/UpdateChecker';
 import SystemService from '../../../services/system.service';
 import useAuthStore from '../../../store/authStore';
@@ -27,6 +29,7 @@ export const SettingsPage: React.FC = () => {
   const token = useAuthStore((state) => state.token);
   const setAdvancedMode = useUIModeStore((state) => state.setAdvancedMode);
   const [requirePinAfterDrink, setRequirePinAfterDrink] = useState(false);
+  const [pinLoginEnabled, setPinLoginEnabled] = useState(false);
   const [policyLoading, setPolicyLoading] = useState(true);
   const [policySaving, setPolicySaving] = useState(false);
 
@@ -44,9 +47,13 @@ export const SettingsPage: React.FC = () => {
         return;
       }
       try {
-        const policy = await SystemService.getOrderingPolicy(token);
+        const [policy, loginSettings] = await Promise.all([
+          SystemService.getOrderingPolicy(token),
+          SystemService.getLoginSettings().catch(() => null),
+        ]);
         if (!cancelled) {
           setRequirePinAfterDrink(!!policy?.requirePinAfterDrink);
+          setPinLoginEnabled(!!loginSettings?.pinLoginEnabled);
         }
       } catch (error) {
         console.error('Failed to load ordering policy:', error);
@@ -96,6 +103,19 @@ export const SettingsPage: React.FC = () => {
     }
   };
 
+  const handlePinLoginToggle = async (checked: boolean) => {
+    setPinLoginEnabled(checked);
+    setPolicySaving(true);
+    try {
+      await SystemService.setLoginSettings({ pinLoginEnabled: checked }, token);
+    } catch (error) {
+      console.error('Failed to save login settings:', error);
+      setPinLoginEnabled(!checked);
+    } finally {
+      setPolicySaving(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <PageHeader
@@ -106,6 +126,7 @@ export const SettingsPage: React.FC = () => {
       <div className="container mx-auto px-4 py-6 sm:py-8 max-w-3xl">
         <div className="space-y-6">
           <UpdateChecker />
+          <AppUpdateChecker />
 
           <Card>
             <CardHeader>
@@ -114,8 +135,36 @@ export const SettingsPage: React.FC = () => {
                 {t('settings.ordering.title', 'Ordering')}
               </CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="space-y-6">
               <div className="flex items-center justify-between gap-4">
+                <div>
+                  <p className="font-medium">
+                    {t(
+                      'settings.ordering.enable_pin_login',
+                      'Enable PIN login',
+                    )}
+                  </p>
+                  <p className="text-sm text-foreground-muted">
+                    {t(
+                      'settings.ordering.enable_pin_login_help',
+                      'Show a PIN pad on the login screen. When off, users sign in with username and password.',
+                    )}
+                  </p>
+                </div>
+                <Switch
+                  checked={pinLoginEnabled}
+                  disabled={policyLoading || policySaving || !token}
+                  onCheckedChange={handlePinLoginToggle}
+                />
+              </div>
+
+              <Separator />
+
+              <div
+                className={`flex items-center justify-between gap-4 ${
+                  pinLoginEnabled ? '' : 'opacity-50'
+                }`}
+              >
                 <div>
                   <p className="font-medium">
                     {t(
@@ -131,8 +180,10 @@ export const SettingsPage: React.FC = () => {
                   </p>
                 </div>
                 <Switch
-                  checked={requirePinAfterDrink}
-                  disabled={policyLoading || policySaving || !token}
+                  checked={pinLoginEnabled && requirePinAfterDrink}
+                  disabled={
+                    policyLoading || policySaving || !token || !pinLoginEnabled
+                  }
                   onCheckedChange={handleRequirePinToggle}
                 />
               </div>

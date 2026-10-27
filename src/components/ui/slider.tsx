@@ -9,8 +9,10 @@ function Slider({
   value,
   min = 0,
   max = 100,
+  size = 'default',
   ...props
-}: SliderPrimitive.Root.Props) {
+}: SliderPrimitive.Root.Props & { size?: 'default' | 'lg' }) {
+  const isLarge = size === 'lg';
   const _values = React.useMemo(
     () =>
       Array.isArray(value)
@@ -35,12 +37,18 @@ function Slider({
       <SliderPrimitive.Control
         className={cn(
           'data-vertical:min-h-40 relative flex w-full touch-none items-center select-none data-disabled:opacity-45 data-vertical:h-full data-vertical:w-auto data-vertical:flex-col',
+          isLarge && 'py-4',
           className,
         )}
       >
         <SliderPrimitive.Track
           data-slot="slider-track"
-          className="bg-surface-sunken shadow-inset rounded-full data-horizontal:h-2.5 data-horizontal:w-full data-vertical:h-full data-vertical:w-2.5 relative overflow-hidden select-none"
+          className={cn(
+            'bg-surface-sunken shadow-inset rounded-full data-horizontal:w-full data-vertical:h-full relative overflow-hidden select-none',
+            isLarge
+              ? 'data-horizontal:h-3 data-vertical:w-3'
+              : 'data-horizontal:h-2.5 data-vertical:w-2.5',
+          )}
         >
           <SliderPrimitive.Indicator
             data-slot="slider-range"
@@ -51,7 +59,10 @@ function Slider({
           <SliderPrimitive.Thumb
             data-slot="slider-thumb"
             key={index}
-            className="block size-7 shrink-0 select-none rounded-full border-2 border-primary bg-surface shadow-sm transition-shadow active:shadow-pressed disabled:pointer-events-none disabled:opacity-45"
+            className={cn(
+              'block shrink-0 select-none rounded-full border-primary bg-surface shadow-sm transition-shadow active:shadow-pressed disabled:pointer-events-none disabled:opacity-45',
+              isLarge ? 'size-11 border-[3px]' : 'size-7 border-2',
+            )}
           />
         ))}
       </SliderPrimitive.Control>

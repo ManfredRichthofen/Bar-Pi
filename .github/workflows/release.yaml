@@ -101,7 +101,7 @@ jobs:
           retention-days: 3
 
   build-go:
-    needs: [meta, build-frontend]
+    needs: [ meta, build-frontend ]
     runs-on: ubuntu-latest
     timeout-minutes: 20
     strategy:
@@ -188,7 +188,7 @@ jobs:
           retention-days: 3
 
   collect-backend:
-    needs: [meta, build-frontend, build-go]
+    needs: [ meta, build-frontend, build-go ]
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
@@ -379,7 +379,7 @@ jobs:
           retention-days: 3
 
   release:
-    needs: [meta, collect-backend, build-android, build-windows]
+    needs: [ meta, collect-backend, build-android, build-windows ]
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:

@@ -4,17 +4,23 @@ import {
   CheckCircle2,
   Clock,
   GlassWater,
+  Info,
   Loader2,
   XCircle,
 } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
+import SimpleDisclosure from '@/components/simple-mode/SimpleDisclosure';
 import SimplePageEnter from '@/components/simple-mode/SimplePageEnter';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ConfirmationDialog } from '@/components/ui/confirmation-dialog';
-import { Progress } from '@/components/ui/progress';
+import {
+  Progress,
+  ProgressLabel,
+  ProgressValue,
+} from '@/components/ui/progress';
 import { useWebSocket } from '../../../hooks/useWebSocket';
 import CocktailService from '../../../services/cocktail.service';
 import useAuthStore from '../../../store/authStore';
@@ -183,6 +189,9 @@ const SimpleOrderStatus = () => {
   const isCompleted = progress.state === 'COMPLETED';
   const isCancelled = progress.state === 'CANCELLED';
   const isFinished = isCompleted || isCancelled;
+  const recipeIngredients = progress.recipe.ingredients ?? [];
+  const hasRecipeDetails =
+    !!progress.recipe.description || recipeIngredients.length > 0;
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
@@ -212,24 +221,20 @@ const SimpleOrderStatus = () => {
             </CardHeader>
             <CardContent className="space-y-4">
               {!isCancelled && (
-                <div
-                  className={`space-y-2 ${
+                <Progress
+                  value={progress.progress}
+                  className={
                     progress.state === 'PREPARING' ||
                     progress.state === 'PUMPING'
                       ? 'running-progress'
-                      : ''
-                  }`}
+                      : undefined
+                  }
                 >
-                  <div className="flex justify-between text-base">
-                    <span className="text-foreground-muted">
-                      {t('simple_status.progress', 'Progress')}
-                    </span>
-                    <span className="font-mono font-semibold">
-                      {Math.round(progress.progress)}%
-                    </span>
-                  </div>
-                  <Progress value={progress.progress} />
-                </div>
+                  <ProgressLabel className="text-foreground-muted font-normal">
+                    {t('simple_status.progress', 'Progress')}
+                  </ProgressLabel>
+                  <ProgressValue className="font-mono text-base font-semibold text-foreground" />
+                </Progress>
               )}
 
               {progress.state === 'MANUAL_INGREDIENT_ADD' &&
@@ -285,37 +290,49 @@ const SimpleOrderStatus = () => {
                   </Card>
                 )}
 
-              {progress.recipe.description && (
-                <div className="pt-2">
-                  <h3 className="font-semibold mb-2 text-sm text-foreground-muted">
-                    {t('simple_status.about', 'About')}
-                  </h3>
-                  <p className="text-base">{progress.recipe.description}</p>
-                </div>
-              )}
+              {hasRecipeDetails && (
+                <SimpleDisclosure
+                  key={isFinished ? 'finished' : 'active'}
+                  icon={Info}
+                  title={t('simple_status.recipe_details', 'Recipe details')}
+                  defaultOpen={isFinished}
+                >
+                  <div className="space-y-4">
+                    {progress.recipe.description && (
+                      <div>
+                        <h3 className="font-semibold mb-2 text-sm text-foreground-muted">
+                          {t('simple_status.about', 'About')}
+                        </h3>
+                        <p className="text-base">
+                          {progress.recipe.description}
+                        </p>
+                      </div>
+                    )}
 
-              {progress.recipe.ingredients &&
-                progress.recipe.ingredients.length > 0 && (
-                  <div className="pt-2">
-                    <h3 className="font-semibold mb-2 text-sm text-foreground-muted">
-                      {t('ingredients_list.title', 'Ingredients')}
-                    </h3>
-                    <div className="grid grid-cols-2 gap-2">
-                      {progress.recipe.ingredients.map((ing: any) => (
-                        <div
-                          key={ing.id ?? ing.name}
-                          className="flex items-center gap-2 text-base bg-surface-sunken rounded-lg p-2"
-                        >
-                          <span
-                            aria-hidden="true"
-                            className="size-1.5 shrink-0 rounded-full bg-primary"
-                          />
-                          <span className="truncate">{ing.name}</span>
+                    {recipeIngredients.length > 0 && (
+                      <div>
+                        <h3 className="font-semibold mb-2 text-sm text-foreground-muted">
+                          {t('ingredients_list.title', 'Ingredients')}
+                        </h3>
+                        <div className="grid grid-cols-2 gap-2">
+                          {recipeIngredients.map((ing: any) => (
+                            <div
+                              key={ing.id ?? ing.name}
+                              className="flex items-center gap-2 text-base bg-surface-sunken rounded-lg p-2"
+                            >
+                              <span
+                                aria-hidden="true"
+                                className="size-1.5 shrink-0 rounded-full bg-primary"
+                              />
+                              <span className="truncate">{ing.name}</span>
+                            </div>
+                          ))}
                         </div>
-                      ))}
-                    </div>
+                      </div>
+                    )}
                   </div>
-                )}
+                </SimpleDisclosure>
+              )}
 
               {isFinished ? (
                 <Button onClick={goToDrinks} className="w-full mt-4" size="lg">

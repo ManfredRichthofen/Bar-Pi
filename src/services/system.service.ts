@@ -28,6 +28,10 @@ export interface OrderingPolicySettings {
   requirePinAfterDrink: boolean;
 }
 
+export interface LoginSettings {
+  pinLoginEnabled: boolean;
+}
+
 const API_PATH = API_PATHS.SYSTEM || 'api/system/';
 const HEALTH_PATH = API_PATHS.HEALTH || 'health';
 
@@ -53,6 +57,22 @@ class SystemService extends BaseService {
   ): Promise<OrderingPolicySettings> {
     return this.put(
       `${API_PATH}settings/ordering`,
+      settings,
+      (token ?? undefined) as any,
+    );
+  }
+
+  /** Public endpoint: readable from the login screen before authentication. */
+  getLoginSettings(): Promise<LoginSettings> {
+    return this.get('api/auth/login/settings');
+  }
+
+  setLoginSettings(
+    settings: LoginSettings,
+    token: string | null = null,
+  ): Promise<LoginSettings> {
+    return this.put(
+      `${API_PATH}settings/login`,
       settings,
       (token ?? undefined) as any,
     );

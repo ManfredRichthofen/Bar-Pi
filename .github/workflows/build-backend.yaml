@@ -2,15 +2,15 @@ name: Build Backend Only
 
 on:
   push:
-    branches: ['main']
+    branches: [ "main" ]
     paths:
-      - 'backend-go/**'
-      - '.github/workflows/build-backend.yaml'
+      - "backend-go/**"
+      - ".github/workflows/build-backend.yaml"
   pull_request:
-    branches: ['main']
+    branches: [ "main" ]
     paths:
-      - 'backend-go/**'
-      - '.github/workflows/build-backend.yaml'
+      - "backend-go/**"
+      - ".github/workflows/build-backend.yaml"
   workflow_dispatch:
 
 concurrency:

@@ -27,6 +27,7 @@
     "loading_pins": "",
     "logout": "Abmelden",
     "optional": "",
+    "retry": "Erneut versuchen",
     "select_board": "",
     "select_pin": "",
     "show": "",
@@ -240,6 +241,12 @@
     "no_pins_available": ""
   },
   "settings": {
+    "app_updates": {
+      "auto_check_desc": "Bei jedem Öffnen der Einstellungen nach einer neuen App-Version suchen.",
+      "dev_build": "Dies ist ein Entwicklungs-Build der App. Installiere einen Release-Build, um Updates zu erhalten.",
+      "install_prompt": "Folge der Systemaufforderung, um die Installation abzuschließen.",
+      "title": "App-Updates"
+    },
     "appearance": {
       "title": "Darstellung"
     },
@@ -250,6 +257,8 @@
       "title": "Allgemeine Einstellungen"
     },
     "ordering": {
+      "enable_pin_login": "",
+      "enable_pin_login_help": "",
       "require_pin_after_drink": "",
       "require_pin_after_drink_help": "",
       "title": ""
@@ -260,13 +269,15 @@
       "auto_check_desc": "Regelmäßig auf GitHub nach neuen Versionen suchen.",
       "auto_install": "Automatisch installieren",
       "auto_install_desc": "Neue Versionen ohne Rückfrage herunterladen und installieren.",
+      "channel": "Update-Kanal",
+      "channel_desc": "Vorabversion bietet auch Beta- und Release-Candidate-Versionen an.",
+      "channel_prerelease": "Vorabversion",
+      "channel_release": "Stabil",
       "check": "Nach Updates suchen",
       "check_failed": "Suche nach Updates fehlgeschlagen",
       "checking": "Suche läuft...",
       "current_version": "Aktuelle Version",
       "downloading": "Update wird heruntergeladen...",
-      "include_prerelease": "Vorabversionen einbeziehen",
-      "include_prerelease_desc": "Auch Beta- und Release-Candidate-Versionen anbieten.",
       "install_failed": "Update fehlgeschlagen",
       "install_started": "Update wird installiert. Bar-Pi startet automatisch neu.",
       "installing": "Update wird installiert...",
@@ -294,29 +305,43 @@
       "window_start": "Von"
     }
   },
+  "simple_detail": {
+    "back_to_drinks": "Zurück zu den Getränken",
+    "load_failed": "Dieses Getränk konnte nicht geladen werden",
+    "load_failed_hint": "Es wurde vielleicht entfernt. Wähle ein anderes Getränk aus der Karte.",
+    "loading": "Getränk wird geladen..."
+  },
   "simple_drinks": {
     "clear_search_filters": "Suche und Filter zurücksetzen",
-    "empty_none_description": "Es sind noch keine Getränke im System. Füge welche hinzu, um loszulegen.",
+    "empty_none_description": "Es sind noch keine Getränke eingerichtet. Bitte den Gastgeber, welche hinzuzufügen.",
     "empty_none_title": "Keine Getränke vorhanden",
     "empty_results_description": "Passe Suche oder Filter an, um fündig zu werden.",
     "empty_results_title": "Keine Getränke gefunden",
+    "error_description": "Prüfe, ob die Bar eingeschaltet und verbunden ist, und versuche es erneut.",
+    "error_title": "Getränke konnten nicht geladen werden",
     "filters": "Filter",
+    "filters_active": "Filter, {{count}} aktiv",
     "image_failed": "Laden fehlgeschlagen",
     "image_failed_long": "Bild konnte nicht geladen werden",
     "image_none": "Kein Bild",
     "image_none_long": "Kein Bild verfügbar",
+    "loading": "Getränke werden geladen...",
+    "no_more": "Das sind alle Getränke",
     "scroll_top": "Nach oben",
     "search_placeholder": "Getränke suchen...",
-    "status_hand_pour": "Teils von Hand",
+    "status_hand_pour": "Von Hand",
     "status_ready": "Bereit",
     "status_unavailable": "Nicht verfügbar"
   },
   "simple_order": {
+    "attention_summary_one": "1 Zutat braucht Aufmerksamkeit",
+    "attention_summary_other": "{{count}} Zutaten brauchen Aufmerksamkeit",
     "automated_ingredients": "Automatisch eingeschenkt",
     "blocked_missing": "Einige Zutaten fehlen",
     "blocked_no_glass": "Wähle ein Glas, um fortzufahren",
     "blocked_unavailable": "Dieses Getränk kann gerade nicht zubereitet werden",
     "checking": "Zutaten werden geprüft...",
+    "customize_hint": "Optional: Stärke anpassen oder Extras hinzufügen",
     "customize_title": "Getränk anpassen",
     "extras_add": "Hinzufügen",
     "extras_add_ingredient": "Zutat hinzufügen",
@@ -328,9 +353,11 @@
     "glass_dialog_title": "Glasgröße wählen",
     "glass_loading": "Gläser werden geladen...",
     "glass_none": "Keine Gläser verfügbar",
+    "glass_none_hint": "Es sind noch keine Gläser eingerichtet. Bitte den Gastgeber, eins hinzuzufügen.",
     "glass_select": "Glas auswählen",
     "glass_title": "Glas",
     "ingredients_title": "Zutaten",
+    "loading": "Bestellung wird geladen...",
     "make_drink": "Getränk zubereiten",
     "making": "Wird zubereitet...",
     "manual_ingredients": "Von Hand hinzufügen",
@@ -354,7 +381,11 @@
     "advanced_title": "Zum erweiterten Modus wechseln",
     "logout_confirm_description": "Du musst dich erneut anmelden, um Getränke zu bestellen.",
     "logout_confirm_title": "Abmelden?",
-    "theme": "Design"
+    "theme": "Design",
+    "theme_dark": "Dunkel",
+    "theme_dark_description": "Blendfrei, fast schwarz",
+    "theme_light": "Hell",
+    "theme_light_description": "Klar und hell"
   },
   "simple_status": {
     "about": "Über",
@@ -376,6 +407,7 @@
     "order_a_drink": "Getränk bestellen",
     "order_another": "Noch ein Getränk bestellen",
     "progress": "Fortschritt",
+    "recipe_details": "Rezeptdetails",
     "state_cancelled": "Abgebrochen",
     "state_completed": "Fertig",
     "state_manual": "Manuelle Zugabe nötig",

@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import VirtualRecipesGrid from '@/components/drinks/VirtualRecipesGrid.jsx';
 import EmptyState from './EmptyState.jsx';
 import SimpleDrinkCard from './simpleDrinkCard.jsx';
@@ -13,6 +14,7 @@ function VirtualGrid({
   onFilterRecipes,
   onClearFilters,
 }) {
+  const { t } = useTranslation();
   return (
     <VirtualRecipesGrid
       token={token}
@@ -22,6 +24,9 @@ function VirtualGrid({
       onCheckFabricability={onCheckFabricability}
       onFilterRecipes={onFilterRecipes}
       mode="simple"
+      loadingLabel={t('simple_drinks.loading', 'Loading drinks...')}
+      noMoreLabel={t('simple_drinks.no_more', "That's every drink")}
+      renderError={({ retry }) => <EmptyState type="error" onRetry={retry} />}
       renderCard={({ recipe }) => (
         <SimpleDrinkCard recipe={recipe} onCardClick={onCardClick} />
       )}

@@ -1,24 +1,18 @@
 import { useLocation, useNavigate } from '@tanstack/react-router';
-import {
-  Delete,
-  Globe,
-  KeyRound,
-  Loader2,
-  Settings,
-  User,
-} from 'lucide-react';
+import { Delete, Globe, KeyRound, Loader2, Settings, User } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
-import { getDefaultApiUrl } from '../../../constants';
 import backgroundL from '../../../assets/login/background_l.jpg';
 import backgroundM from '../../../assets/login/background_m.jpg';
 import backgroundS from '../../../assets/login/background_s.jpg';
 import backgroundXL from '../../../assets/login/background_xl.jpg';
 import logoFull from '../../../assets/logo-full.svg';
+import { getDefaultApiUrl } from '../../../constants';
+import SystemService from '../../../services/system.service';
 import useAuthStore from '../../../store/authStore';
 import useConfigStore from '../../../store/configStore';
 
@@ -32,9 +26,27 @@ const Login = () => {
   const { loginUser, loginWithPin, loading, error } = useAuthStore();
   const { apiBaseUrl, setApiBaseUrl } = useConfigStore();
   const [showAdvanced, setShowAdvanced] = useState(false);
-  const [mode, setMode] = useState('pin');
+  const [pinLoginEnabled, setPinLoginEnabled] = useState(false);
+  const [mode, setMode] = useState('password');
   const [pin, setPin] = useState('');
   const [remember, setRemember] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    SystemService.getLoginSettings()
+      .then((settings) => {
+        if (cancelled) return;
+        const enabled = !!settings?.pinLoginEnabled;
+        setPinLoginEnabled(enabled);
+        setMode(enabled ? 'pin' : 'password');
+      })
+      .catch(() => {
+        if (!cancelled) setPinLoginEnabled(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const formatUrlForSubmit = (url) => {
     const fallback = getDefaultApiUrl() || 'http://localhost:8080';
@@ -45,7 +57,10 @@ const Login = () => {
     let formattedUrl = url.trim().replace(/\/+$/, '');
 
     if (!/^https?:\/\//i.test(formattedUrl)) {
-      if (formattedUrl.includes('localhost') || formattedUrl.includes('127.0.0.1')) {
+      if (
+        formattedUrl.includes('localhost') ||
+        formattedUrl.includes('127.0.0.1')
+      ) {
         formattedUrl = 'http://' + formattedUrl;
       } else {
         formattedUrl = 'https://' + formattedUrl;
@@ -85,7 +100,14 @@ const Login = () => {
         setPin('');
       }
     },
-    [apiBaseUrl, loading, loginWithPin, redirectAfterLogin, remember, setApiBaseUrl],
+    [
+      apiBaseUrl,
+      loading,
+      loginWithPin,
+      redirectAfterLogin,
+      remember,
+      setApiBaseUrl,
+    ],
   );
 
   useEffect(() => {
@@ -128,7 +150,20 @@ const Login = () => {
     return backgroundXL;
   };
 
-  const pinPadKeys = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '', '0', 'del'];
+  const pinPadKeys = [
+    '1',
+    '2',
+    '3',
+    '4',
+    '5',
+    '6',
+    '7',
+    '8',
+    '9',
+    '',
+    '0',
+    'del',
+  ];
 
   return (
     <div className="flex h-screen w-full">
@@ -167,18 +202,16 @@ const Login = () => {
           {mode === 'pin' ? (
             <div className="w-full mt-8">
               <div className="flex justify-center gap-3 mb-8 min-h-8">
-                {Array.from({ length: Math.max(pin.length, MIN_PIN_LENGTH) }).map(
-                  (_, index) => (
-                    <span
-                      key={index}
-                      className={`size-3 rounded-full ${
-                        index < pin.length
-                          ? 'bg-foreground'
-                          : 'bg-border-strong'
-                      }`}
-                    />
-                  ),
-                )}
+                {Array.from({
+                  length: Math.max(pin.length, MIN_PIN_LENGTH),
+                }).map((_, index) => (
+                  <span
+                    key={index}
+                    className={`size-3 rounded-full ${
+                      index < pin.length ? 'bg-foreground' : 'bg-border-strong'
+                    }`}
+                  />
+                ))}
               </div>
 
               <div className="grid grid-cols-3 gap-3">
@@ -372,14 +405,16 @@ const Login = () => {
                 )}
               </Button>
 
-              <Button
-                type="button"
-                variant="ghost"
-                className="mt-4 w-full"
-                onClick={() => setMode('pin')}
-              >
-                {t('login.use_pin', 'Use PIN instead')}
-              </Button>
+              {pinLoginEnabled && (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  className="mt-4 w-full"
+                  onClick={() => setMode('pin')}
+                >
+                  {t('login.use_pin', 'Use PIN instead')}
+                </Button>
+              )}
             </form>
           )}
 

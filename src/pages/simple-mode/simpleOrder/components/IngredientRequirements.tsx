@@ -18,32 +18,64 @@ const IngredientRequirements = ({
   const isRequiredIngredient = (item: RequiredIngredient) =>
     item && item.amountRequired > 0;
 
-  const automaticIngredients = requiredIngredients.filter(
-    (x) => isAutomatedIngredient(x.ingredient) && isRequiredIngredient(x),
-  );
+  const hasAutomatedProblem = (item: RequiredIngredient) =>
+    item.amountMissing > 0 || !item.ingredient.onPump;
+  const problemsFirst =
+    (hasProblem: (item: RequiredIngredient) => boolean) =>
+    (a: RequiredIngredient, b: RequiredIngredient) =>
+      Number(hasProblem(b)) - Number(hasProblem(a));
 
-  const manualIngredients = requiredIngredients.filter(
-    (x) => isManualIngredient(x.ingredient) && isRequiredIngredient(x),
-  );
+  const automaticIngredients = requiredIngredients
+    .filter(
+      (x) => isAutomatedIngredient(x.ingredient) && isRequiredIngredient(x),
+    )
+    .sort(problemsFirst(hasAutomatedProblem));
+
+  const manualIngredients = requiredIngredients
+    .filter((x) => isManualIngredient(x.ingredient) && isRequiredIngredient(x))
+    .sort(problemsFirst((x) => !x.ingredient.inBar));
 
   if (requiredIngredients.length === 0) {
     return null;
   }
 
+  const automatedProblemCount =
+    automaticIngredients.filter(hasAutomatedProblem).length;
+  const attentionCount =
+    automatedProblemCount +
+    manualIngredients.filter((x) => !x.ingredient.inBar).length;
+
   return (
     <div className="space-y-4 sm:space-y-6">
+      {attentionCount > 0 && (
+        <p
+          role="status"
+          className="flex items-center gap-2 rounded-lg bg-danger-tint p-3 text-base font-semibold text-danger-tint-ink"
+        >
+          <XCircle className="size-6 shrink-0" />
+          {t('simple_order.attention_summary', {
+            count: attentionCount,
+            defaultValue_one: '1 ingredient needs attention',
+            defaultValue_other: '{{count}} ingredients need attention',
+          })}
+        </p>
+      )}
+
       {automaticIngredients.length > 0 && (
         <div>
           <div className="flex items-center gap-2 mb-3 sm:mb-4">
-            <CheckCircle className="size-6 text-success" />
+            {automatedProblemCount > 0 ? (
+              <XCircle className="size-6 text-danger" />
+            ) : (
+              <CheckCircle className="size-6 text-success" />
+            )}
             <h4 className="font-semibold text-base">
               {t('simple_order.automated_ingredients', 'Poured automatically')}
             </h4>
           </div>
           <div className="space-y-2 sm:space-y-3">
             {automaticIngredients.map((item) => {
-              const hasProblem =
-                item.amountMissing > 0 || !item.ingredient.onPump;
+              const hasProblem = hasAutomatedProblem(item);
               return (
                 <div
                   key={item.ingredient.id}

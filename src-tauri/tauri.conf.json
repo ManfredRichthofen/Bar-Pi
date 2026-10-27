@@ -1,7 +1,7 @@
 {
   "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
   "productName": "Bar-Pi",
-  "version": "0.5.0",
+  "version": "../package.json",
   "identifier": "com.barpi.app",
   "build": {
     "frontendDist": "../dist",

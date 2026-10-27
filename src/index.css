@@ -125,7 +125,10 @@
   --control-lg: 56px;
   /* Simple-mode dock: control + p-2 top/bottom + hairline border + home-bar inset */
   --dock-height: calc(
-    var(--control-lg) + 1rem + 1px + env(safe-area-inset-bottom, 0px)
+    var(--control-lg) +
+    1rem +
+    1px +
+    env(safe-area-inset-bottom, 0px)
   );
   --radius-full: 9999px;
   --z-nav: 10;

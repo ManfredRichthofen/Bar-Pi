@@ -4,7 +4,6 @@ import {
   Download,
   ExternalLink,
   RefreshCw,
-  Settings2,
 } from 'lucide-react';
 import type React from 'react';
 import { useCallback, useEffect, useRef, useState } from 'react';
@@ -23,7 +22,13 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
-import { Switch } from '@/components/ui/switch';
+import {
+  ChannelSelect,
+  formatRelativeTime,
+  ReleaseNotes,
+  SettingRow,
+  UpdateSettingsSection,
+} from '@/components/updates/UpdateSettings';
 import { useCurrentUser } from '../hooks/useCurrentUser';
 import updateService, {
   UPDATE_STATUS_TOPIC,
@@ -48,31 +53,6 @@ const getErrorMessage = (error: unknown, fallback: string) => {
 
 const getErrorStatus = (error: unknown) =>
   (error as ApiError)?.response?.data?.status;
-
-const parseReleaseNotes = (notes?: string) => {
-  if (!notes) return [];
-
-  return notes
-    .split(/(?=^#{1,6}\s)/m)
-    .map((section) => section.trim())
-    .filter(Boolean)
-    .map((section, sectionIndex) => {
-      const [first, ...rest] = section.split('\n');
-      const hasHeader = first.startsWith('#');
-      const title = hasHeader ? first.replace(/^#+\s+/, '') : '';
-      const lines = (hasHeader ? rest : [first, ...rest])
-        .filter((line) => line.trim())
-        .map((line, lineIndex) => {
-          const trimmed = line.trim();
-          const text = trimmed.replace(/\[([^\]]+)\]\([^)]+\)/g, '$1');
-          return {
-            id: `${sectionIndex}-${lineIndex}`,
-            text: /^[-*]\s/.test(trimmed) ? `• ${text.substring(2)}` : text,
-          };
-        });
-      return { id: String(sectionIndex), title, lines };
-    });
-};
 
 const UpdateChecker: React.FC = () => {
   const { t, i18n } = useTranslation();
@@ -232,21 +212,10 @@ const UpdateChecker: React.FC = () => {
     }
   };
 
-  const formatLastChecked = () => {
-    if (!status.lastChecked) {
-      return t('settings.updates.never_checked', 'Never checked');
-    }
-    const diffMinutes = Math.round(
-      (new Date(status.lastChecked).getTime() - Date.now()) / 60000,
-    );
-    const rtf = new Intl.RelativeTimeFormat(i18n.resolvedLanguage, {
-      numeric: 'auto',
-    });
-    if (Math.abs(diffMinutes) < 60) return rtf.format(diffMinutes, 'minute');
-    if (Math.abs(diffMinutes) < 60 * 24)
-      return rtf.format(Math.round(diffMinutes / 60), 'hour');
-    return rtf.format(Math.round(diffMinutes / 1440), 'day');
-  };
+  const formatLastChecked = () =>
+    status.lastChecked
+      ? formatRelativeTime(new Date(status.lastChecked), i18n.resolvedLanguage)
+      : t('settings.updates.never_checked', 'Never checked');
 
   const unsupportedMessage = () => {
     switch (status.unsupportedReason) {
@@ -284,7 +253,6 @@ const UpdateChecker: React.FC = () => {
   };
 
   const formatHour = (h: number) => `${String(h).padStart(2, '0')}:00`;
-  const releaseNotes = parseReleaseNotes(status.releaseNotes);
 
   return (
     <Card className="w-full">
@@ -383,33 +351,7 @@ const UpdateChecker: React.FC = () => {
           <>
             <Separator />
             <div className="space-y-4">
-              <div>
-                <h3 className="font-semibold mb-3 flex items-center gap-2">
-                  <AlertCircle className="size-6" />
-                  {t('settings.updates.release_notes', 'Release Notes')}
-                </h3>
-                <div className="bg-surface-sunken rounded-lg p-4 space-y-4 max-h-80 overflow-y-auto">
-                  {releaseNotes.map((section) => (
-                    <div key={section.id} className="space-y-2">
-                      {section.title && (
-                        <h4 className="font-semibold text-sm text-primary">
-                          {section.title}
-                        </h4>
-                      )}
-                      <div className="space-y-1 ml-4">
-                        {section.lines.map((line) => (
-                          <div
-                            key={line.id}
-                            className="text-sm text-foreground-muted"
-                          >
-                            {line.text}
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
+              <ReleaseNotes notes={status.releaseNotes} />
               <div className="flex flex-col sm:flex-row justify-end gap-2">
                 {status.releaseUrl && (
                   <Button
@@ -449,11 +391,15 @@ const UpdateChecker: React.FC = () => {
         {settings && (
           <>
             <Separator />
-            <div className="space-y-4">
-              <h3 className="font-semibold flex items-center gap-2">
-                <Settings2 className="size-6" />
-                {t('settings.updates.settings_title', 'Update Settings')}
-              </h3>
+            <UpdateSettingsSection>
+              <ChannelSelect
+                value={settings.includePrerelease ? 'prerelease' : 'release'}
+                onChange={(channel) =>
+                  updateSetting({
+                    includePrerelease: channel === 'prerelease',
+                  })
+                }
+              />
 
               <SettingRow
                 title={t('settings.updates.auto_check', 'Automatic checks')}
@@ -477,19 +423,6 @@ const UpdateChecker: React.FC = () => {
                 checked={settings.autoInstall}
                 disabled={!settings.autoCheck || !status.supported}
                 onChange={(v) => updateSetting({ autoInstall: v })}
-              />
-
-              <SettingRow
-                title={t(
-                  'settings.updates.include_prerelease',
-                  'Include pre-releases',
-                )}
-                description={t(
-                  'settings.updates.include_prerelease_desc',
-                  'Also offer beta and release-candidate versions.',
-                )}
-                checked={settings.includePrerelease}
-                onChange={(v) => updateSetting({ includePrerelease: v })}
               />
 
               <SettingRow
@@ -519,33 +452,13 @@ const UpdateChecker: React.FC = () => {
                   />
                 </div>
               )}
-            </div>
+            </UpdateSettingsSection>
           </>
         )}
       </CardContent>
     </Card>
   );
 };
-
-const SettingRow: React.FC<{
-  title: string;
-  description: string;
-  checked: boolean;
-  disabled?: boolean;
-  onChange: (value: boolean) => void;
-}> = ({ title, description, checked, disabled, onChange }) => (
-  <div className="flex items-center justify-between gap-4">
-    <div className={disabled ? 'opacity-50' : undefined}>
-      <p className="font-medium">{title}</p>
-      <p className="text-sm text-foreground-muted">{description}</p>
-    </div>
-    <Switch
-      checked={checked}
-      disabled={disabled}
-      onCheckedChange={(value) => onChange(value)}
-    />
-  </div>
-);
 
 const HourSelect: React.FC<{
   label: string;

@@ -1,4 +1,4 @@
-import { GlassWater, Search } from 'lucide-react';
+import { GlassWater, RefreshCw, Search, WifiOff } from 'lucide-react';
 import { motion, useReducedMotion } from 'motion/react';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
@@ -10,7 +10,7 @@ import {
   noneTransition,
 } from '@/lib/simpleMotion';
 
-const EmptyState = ({ type = 'no-results', onClearFilters }) => {
+const EmptyState = ({ type = 'no-results', onClearFilters, onRetry }) => {
   const { t } = useTranslation();
   const reduceMotion = useReducedMotion();
   const states = {
@@ -32,9 +32,23 @@ const EmptyState = ({ type = 'no-results', onClearFilters }) => {
       title: t('simple_drinks.empty_none_title', 'No Drinks Available'),
       description: t(
         'simple_drinks.empty_none_description',
-        'There are no drinks in the system yet. Please add some drinks to get started.',
+        'No drinks are set up yet. Ask your host to add some to the bar.',
       ),
       action: null,
+    },
+    error: {
+      icon: WifiOff,
+      title: t('simple_drinks.error_title', "Couldn't load drinks"),
+      description: t(
+        'simple_drinks.error_description',
+        'Check that the bar is switched on and connected, then try again.',
+      ),
+      action: onRetry ? (
+        <Button onClick={onRetry} variant="outline" size="lg">
+          <RefreshCw />
+          {t('common.retry', 'Try again')}
+        </Button>
+      ) : null,
     },
   };
 

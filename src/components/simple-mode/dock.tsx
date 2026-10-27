@@ -14,6 +14,14 @@ const NAV = [
 
 const MotionLink = motion.create(Link);
 
+/** Drink detail and order own the bottom edge with their Make Drink bar, so the dock hides there. */
+export const isDocklessPath = (pathname: string) =>
+  pathname.startsWith('/simple/drink/') || pathname === '/simple/order';
+
+const isActive = (to: string, pathname: string) =>
+  pathname.startsWith(to) ||
+  (to === '/simple/drinks' && isDocklessPath(pathname));
+
 /** Bottom navigation: three 56px targets; the current page is an ink pill. */
 const Dock: React.FC = () => {
   const { t } = useTranslation();
@@ -27,7 +35,7 @@ const Dock: React.FC = () => {
     >
       <ul className="mx-auto flex max-w-3xl items-stretch justify-center gap-2 p-2">
         {NAV.map(({ to, icon: Icon, label }) => {
-          const active = pathname.startsWith(to);
+          const active = isActive(to, pathname);
           return (
             <li key={to} className="max-w-44 flex-1">
               <MotionLink

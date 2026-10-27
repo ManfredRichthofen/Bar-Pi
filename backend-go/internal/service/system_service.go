@@ -22,6 +22,7 @@ type SystemService struct {
 	loadCellSettings       *models.LoadCellSettings
 	updaterSettings        models.UpdaterSettings
 	orderingPolicySettings models.OrderingPolicySettings
+	loginSettings          models.LoginSettings
 }
 
 // NewSystemService creates a new system service
@@ -75,6 +76,9 @@ func NewSystemService(cfg *config.Config, db ...*gorm.DB) *SystemService {
 		orderingPolicySettings: models.OrderingPolicySettings{
 			RequirePinAfterDrink: false,
 		},
+		loginSettings: models.LoginSettings{
+			PinLoginEnabled: false,
+		},
 	}
 
 	s.loadFromDB()
@@ -91,6 +95,7 @@ func (s *SystemService) loadFromDB() {
 	s.loadJSON("reverse_pump", &s.reversePumpSettings)
 	s.loadJSON("updater", &s.updaterSettings)
 	s.loadJSON("ordering_policy", &s.orderingPolicySettings)
+	s.loadJSON("login", &s.loginSettings)
 
 	var lc models.LoadCellSettings
 	if s.loadJSON("load_cell", &lc) && lc.Enable {
@@ -337,6 +342,22 @@ func (s *SystemService) SetOrderingPolicySettings(settings models.OrderingPolicy
 	s.orderingPolicySettings = settings
 	s.saveJSON("ordering_policy", s.orderingPolicySettings)
 	return s.orderingPolicySettings
+}
+
+// GetLoginSettings returns login settings
+func (s *SystemService) GetLoginSettings() models.LoginSettings {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	return s.loginSettings
+}
+
+// SetLoginSettings updates login settings
+func (s *SystemService) SetLoginSettings(settings models.LoginSettings) models.LoginSettings {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	s.loginSettings = settings
+	s.saveJSON("login", s.loginSettings)
+	return s.loginSettings
 }
 
 // GetAvailableLanguages returns available languages

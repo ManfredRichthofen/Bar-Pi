@@ -130,6 +130,22 @@ func (h *SystemHandler) SetOrderingPolicy(c *gin.Context) {
 	c.JSON(http.StatusOK, h.service.SetOrderingPolicySettings(settings))
 }
 
+// GetLoginSettings handles GET /api/auth/login/settings (public) and /api/system/settings/login
+func (h *SystemHandler) GetLoginSettings(c *gin.Context) {
+	c.JSON(http.StatusOK, h.service.GetLoginSettings())
+}
+
+// SetLoginSettings handles PUT /api/system/settings/login
+func (h *SystemHandler) SetLoginSettings(c *gin.Context) {
+	var settings models.LoginSettings
+	if err := c.ShouldBindJSON(&settings); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error(), "message": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, h.service.SetLoginSettings(settings))
+}
+
 // Shutdown handles PUT /api/system/shutdown
 func (h *SystemHandler) Shutdown(c *gin.Context) {
 	isReboot := c.Query("isReboot") == "true"

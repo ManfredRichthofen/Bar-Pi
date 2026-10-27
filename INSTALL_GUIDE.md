@@ -54,22 +54,26 @@ scp install-go.sh pi@raspberrypi.local:~/
 The installer automatically detects your CPU architecture (`arm64`, `arm`, or `amd64`) and walks you through four choices:
 
 #### Build Type
-1. **Standalone Backend (`bar-pi-server`)** — Installs only the Go API server (~15–25MB). Choose this if you exclusively use the Android/Windows companion apps or host the frontend separately.
-2. **Complete Bundle (`bar-pi-bundle`)** *(Default)* — Includes both the Go backend and embedded React web frontend in a single binary (~30–40MB). The web UI is served automatically on the same port as the API.
 
-#### Touchscreen UI Setup *(Complete Bundle only)*
-1. **No touchscreen** *(Default)* — Standard web server only. Best when accessing Bar-Pi from another device (phone, tablet, PC) or when using the Android/Windows app. Lightest on system resources.
+1. **Standalone Backend (`bar-pi-server`)** — Installs only the Go API server (~15–25MB). Choose this if you exclusively use the Android/Windows companion apps or host the frontend separately.
+2. **Complete Bundle (`bar-pi-bundle`)** _(Default)_ — Includes both the Go backend and embedded React web frontend in a single binary (~30–40MB). The web UI is served automatically on the same port as the API.
+
+#### Touchscreen UI Setup _(Complete Bundle only)_
+
+1. **No touchscreen** _(Default)_ — Standard web server only. Best when accessing Bar-Pi from another device (phone, tablet, PC) or when using the Android/Windows app. Lightest on system resources.
 2. **Touchscreen - Basic** — Configures auto-login, the Wayfire Wayland compositor, and Chromium in full-screen kiosk mode. Good if you have a physical keyboard attached or don't need text entry on the device.
 3. **Touchscreen - Full** — Same as Basic, plus installs a Chrome on-screen keyboard extension for a standalone kiosk. **Requires a display connected during installation** so you can confirm the Chrome Web Store extension prompt within 100 seconds.
 
 #### Installation Source
-1. **Latest Release** *(Default)* — Automatically fetches the newest release from GitHub.
+
+1. **Latest Release** _(Default)_ — Automatically fetches the newest release from GitHub.
 2. **Specific Version** — Lets you pin to a specific release tag (e.g., `v0.5.0`).
 3. **Local Binary File** — Installs from a binary file already on disk (useful for offline installs or custom builds).
 
 #### System Service Setup
-- **Enable systemd service** *(Default: Yes)* — Configures Bar-Pi to start automatically on boot and restart on failure.
-- **Start Bar-Pi service now** *(Default: Yes)* — Launches Bar-Pi immediately and runs a `/health` check.
+
+- **Enable systemd service** _(Default: Yes)_ — Configures Bar-Pi to start automatically on boot and restart on failure.
+- **Start Bar-Pi service now** _(Default: Yes)_ — Launches Bar-Pi immediately and runs a `/health` check.
 
 ### 3. Command-Line Options & Unattended Installs
 
@@ -79,16 +83,16 @@ You can pass flags or environment variables to customize or automate installatio
 ./install-go.sh --help
 ```
 
-| Flag | Environment Variable | Default | Description |
-|------|----------------------|---------|-------------|
-| `-d, --dir DIR` | `BAR_PI_INSTALL_DIR` | `/opt/bar-pi` | Installation directory |
-| `-p, --port PORT` | `BAR_PI_PORT` | `8080` | HTTP server port |
-| `-b, --build TYPE` | `BAR_PI_BUILD_TYPE` | *(interactive)* | `bundle` or `standalone` |
-| `-v, --version TAG` | `BAR_PI_VERSION` | *(latest)* | Specific GitHub release tag (e.g., `v0.5.0`) |
-| `--touchscreen MODE` | `BAR_PI_TOUCHSCREEN` | *(interactive)* | `none`, `basic`, or `keyboard` |
-| `-y, --yes` | `BAR_PI_SKIP_PROMPTS` | `false` | Skip all prompts and use defaults |
-| `--no-service` | `BAR_PI_AUTO_START=no` | `yes` | Skip systemd service creation |
-| `-u, --uninstall` | — | — | Run the uninstaller |
+| Flag                 | Environment Variable   | Default         | Description                                  |
+| -------------------- | ---------------------- | --------------- | -------------------------------------------- |
+| `-d, --dir DIR`      | `BAR_PI_INSTALL_DIR`   | `/opt/bar-pi`   | Installation directory                       |
+| `-p, --port PORT`    | `BAR_PI_PORT`          | `8080`          | HTTP server port                             |
+| `-b, --build TYPE`   | `BAR_PI_BUILD_TYPE`    | _(interactive)_ | `bundle` or `standalone`                     |
+| `-v, --version TAG`  | `BAR_PI_VERSION`       | _(latest)_      | Specific GitHub release tag (e.g., `v0.5.0`) |
+| `--touchscreen MODE` | `BAR_PI_TOUCHSCREEN`   | _(interactive)_ | `none`, `basic`, or `keyboard`               |
+| `-y, --yes`          | `BAR_PI_SKIP_PROMPTS`  | `false`         | Skip all prompts and use defaults            |
+| `--no-service`       | `BAR_PI_AUTO_START=no` | `yes`           | Skip systemd service creation                |
+| `-u, --uninstall`    | —                      | —               | Run the uninstaller                          |
 
 **Example unattended install on port 3000 with basic touchscreen:**
 
@@ -228,24 +232,24 @@ The installer will replace `/opt/bar-pi/bar-pi-server` with the new binary while
 
 Configuration lives in `/opt/bar-pi/.env`:
 
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `SERVER_PORT` | `8080` | HTTP server port |
-| `DATABASE_PATH` | `cocktailpi-data.db` | Path to SQLite database file |
-| `JWT_SECRET` | *(auto-generated)* | Secret key used to sign JWT tokens |
-| `JWT_EXPIRATION` | `24h` | JWT token validity duration |
-| `SERVER_READ_TIMEOUT` | `15s` | HTTP read timeout |
-| `SERVER_WRITE_TIMEOUT` | `15s` | HTTP write timeout |
-| `SERVER_IDLE_TIMEOUT` | `60s` | HTTP idle timeout |
-| `DATABASE_MAX_OPEN_CONNS` | `1` | Max open SQLite connections |
-| `DATABASE_MAX_IDLE_CONNS` | `1` | Max idle SQLite connections |
-| `APP_NAME` | `CocktailPi` | Application name reported by API |
-| `APP_VERSION` | *(build version)* | Application version reported by API (the updater always uses the built-in version) |
-| `APP_DISABLE_DONATION` | `false` | Hide donation prompts |
-| `APP_HIDE_PROJECT_LINKS` | `false` | Hide external project links |
-| `APP_DISABLE_UPDATER` | `false` | Disable update checks and self-update entirely |
-| `APP_UPDATER_REPO` | `ManfredRichthofen/Bar-Pi` | GitHub `owner/repo` the updater pulls releases from |
-| `GITHUB_TOKEN` | *(empty)* | Optional token to raise GitHub API rate limits for update checks |
+| Variable                  | Default                    | Description                                                                        |
+| ------------------------- | -------------------------- | ---------------------------------------------------------------------------------- |
+| `SERVER_PORT`             | `8080`                     | HTTP server port                                                                   |
+| `DATABASE_PATH`           | `cocktailpi-data.db`       | Path to SQLite database file                                                       |
+| `JWT_SECRET`              | _(auto-generated)_         | Secret key used to sign JWT tokens                                                 |
+| `JWT_EXPIRATION`          | `24h`                      | JWT token validity duration                                                        |
+| `SERVER_READ_TIMEOUT`     | `15s`                      | HTTP read timeout                                                                  |
+| `SERVER_WRITE_TIMEOUT`    | `15s`                      | HTTP write timeout                                                                 |
+| `SERVER_IDLE_TIMEOUT`     | `60s`                      | HTTP idle timeout                                                                  |
+| `DATABASE_MAX_OPEN_CONNS` | `1`                        | Max open SQLite connections                                                        |
+| `DATABASE_MAX_IDLE_CONNS` | `1`                        | Max idle SQLite connections                                                        |
+| `APP_NAME`                | `CocktailPi`               | Application name reported by API                                                   |
+| `APP_VERSION`             | _(build version)_          | Application version reported by API (the updater always uses the built-in version) |
+| `APP_DISABLE_DONATION`    | `false`                    | Hide donation prompts                                                              |
+| `APP_HIDE_PROJECT_LINKS`  | `false`                    | Hide external project links                                                        |
+| `APP_DISABLE_UPDATER`     | `false`                    | Disable update checks and self-update entirely                                     |
+| `APP_UPDATER_REPO`        | `ManfredRichthofen/Bar-Pi` | GitHub `owner/repo` the updater pulls releases from                                |
+| `GITHUB_TOKEN`            | _(empty)_                  | Optional token to raise GitHub API rate limits for update checks                   |
 
 ### Changing the Port
 
@@ -256,19 +260,23 @@ Configuration lives in `/opt/bar-pi/.env`:
 ### Custom Database Location
 
 1. Create the directory and set ownership:
+
    ```bash
    sudo mkdir -p /var/lib/bar-pi
    sudo chown $USER:$USER /var/lib/bar-pi
    ```
 2. Edit `/opt/bar-pi/.env` and set:
+
    ```env
    DATABASE_PATH=/var/lib/bar-pi/cocktailpi-data.db
    ```
 3. Because the systemd service runs with `ProtectSystem=strict`, grant write access to the new path in `/etc/systemd/system/bar-pi.service`:
+
    ```ini
    ReadWritePaths=/opt/bar-pi /var/lib/bar-pi
    ```
 4. Reload and restart:
+
    ```bash
    sudo systemctl daemon-reload
    sudo systemctl restart bar-pi
@@ -310,6 +318,7 @@ chmod 600 /opt/bar-pi/.env             # Ensure config is readable by service us
 2. Test locally on the Pi: `curl http://localhost:8080/health`
 3. Verify you installed the **Complete Bundle** (the **Standalone Backend** only serves `/api/` and `/health`, not the web UI).
 4. If connecting from another device, check your Pi's IP (`hostname -I`) and firewall rules:
+
    ```bash
    sudo ufw status
    sudo ufw allow 8080/tcp

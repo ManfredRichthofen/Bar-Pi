@@ -153,7 +153,7 @@ func SetupWithOptions(cfg *config.Config, db *gorm.DB, opts Options) (*gin.Engin
 
 	jwtService := auth.NewJWTService(cfg)
 
-	authHandler := handlers.NewAuthHandler(userService, jwtService)
+	authHandler := handlers.NewAuthHandler(userService, jwtService, systemService)
 	userHandler := handlers.NewUserHandler(userService, systemService)
 	recipeHandler := handlers.NewRecipeHandler(recipeService, imageService, wsService)
 	ingredientHandler := handlers.NewIngredientHandler(ingredientService, imageService)
@@ -181,6 +181,7 @@ func SetupWithOptions(cfg *config.Config, db *gorm.DB, opts Options) (*gin.Engin
 		{
 			authGroup.POST("/login", authHandler.Login)
 			authGroup.POST("/login/pin", authHandler.LoginWithPin)
+			authGroup.GET("/login/settings", systemHandler.GetLoginSettings)
 			authGroup.GET("/refreshToken", middleware.AuthMiddleware(jwtService), authHandler.RefreshToken)
 		}
 
@@ -330,6 +331,8 @@ func SetupWithOptions(cfg *config.Config, db *gorm.DB, opts Options) (*gin.Engin
 			systemGroup.PUT("/settings/defaultfilter", middleware.RequireRole(models.RoleAdmin), systemHandler.SetDefaultFilter)
 			systemGroup.GET("/settings/ordering", systemHandler.GetOrderingPolicy)
 			systemGroup.PUT("/settings/ordering", middleware.RequireRole(models.RoleAdmin), systemHandler.SetOrderingPolicy)
+			systemGroup.GET("/settings/login", systemHandler.GetLoginSettings)
+			systemGroup.PUT("/settings/login", middleware.RequireRole(models.RoleAdmin), systemHandler.SetLoginSettings)
 			systemGroup.PUT("/shutdown", middleware.RequireRole(models.RoleAdmin), systemHandler.Shutdown)
 			systemGroup.GET("/settings/updater", middleware.RequireRole(models.RoleAdmin), updateHandler.GetSettings)
 			systemGroup.PUT("/settings/updater", middleware.RequireRole(models.RoleAdmin), updateHandler.SetSettings)

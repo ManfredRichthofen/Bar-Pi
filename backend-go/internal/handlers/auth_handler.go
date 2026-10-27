@@ -11,14 +11,16 @@ import (
 )
 
 type AuthHandler struct {
-	userService *service.UserService
-	jwtService  *auth.JWTService
+	userService   *service.UserService
+	jwtService    *auth.JWTService
+	systemService *service.SystemService
 }
 
-func NewAuthHandler(userService *service.UserService, jwtService *auth.JWTService) *AuthHandler {
+func NewAuthHandler(userService *service.UserService, jwtService *auth.JWTService, systemService *service.SystemService) *AuthHandler {
 	return &AuthHandler{
-		userService: userService,
-		jwtService:  jwtService,
+		userService:   userService,
+		jwtService:    jwtService,
+		systemService: systemService,
 	}
 }
 
@@ -82,6 +84,11 @@ func (h *AuthHandler) Login(c *gin.Context) {
 }
 
 func (h *AuthHandler) LoginWithPin(c *gin.Context) {
+	if h.systemService != nil && !h.systemService.GetLoginSettings().PinLoginEnabled {
+		c.JSON(http.StatusForbidden, gin.H{"error": "PIN login is disabled", "message": "PIN login is disabled"})
+		return
+	}
+
 	var req PinLoginRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error(), "message": err.Error()})

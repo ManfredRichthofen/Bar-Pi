@@ -26,15 +26,14 @@ import { filterRecipes } from '../../../utils/recipeFilters.js';
 import VirtualGrid from './VirtualGrid.jsx';
 
 const SIMPLE_FILTER_KEYS = ['automatic', 'manual', 'available'];
+const FILTER_PANEL_ID = 'simple-drinks-filters';
 
 function SimpleDrinks() {
   const { t } = useTranslation();
   const reduceMotion = useReducedMotion();
   const [searchTerm, setSearchTerm] = useState('');
   const [isFilterPanelOpen, setIsFilterPanelOpen] = useState(false);
-  const [isHeaderVisible, setIsHeaderVisible] = useState(true);
   const [showScrollTop, setShowScrollTop] = useState(false);
-  const lastScrollYRef = useRef(0);
   const headerRef = useRef(null);
   const { filters: allFilters, updateFilter } = useFilterStore();
   const token = useAuthStore((state) => state.token);
@@ -102,7 +101,6 @@ function SimpleDrinks() {
   const handleFilterToggle = (e) => {
     e?.stopPropagation();
     setIsFilterPanelOpen((open) => !open);
-    setIsHeaderVisible(true);
   };
 
   const scrollToTop = () => {
@@ -111,24 +109,12 @@ function SimpleDrinks() {
 
   useEffect(() => {
     const handleScroll = () => {
-      const currentScrollY = window.scrollY;
-      const lastScrollY = lastScrollYRef.current;
-
-      if (isFilterPanelOpen) {
-        setIsHeaderVisible(true);
-      } else if (currentScrollY > lastScrollY && currentScrollY > 100) {
-        setIsHeaderVisible(false);
-      } else {
-        setIsHeaderVisible(true);
-      }
-
-      lastScrollYRef.current = currentScrollY;
-      setShowScrollTop(currentScrollY > 400);
+      setShowScrollTop(window.scrollY > 400);
     };
 
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
-  }, [isFilterPanelOpen]);
+  }, []);
 
   useEffect(() => {
     if (!isFilterPanelOpen) return;
@@ -161,9 +147,7 @@ function SimpleDrinks() {
     <div className="min-h-screen bg-background">
       <header
         ref={headerRef}
-        className={`sticky top-0 z-20 border-b-hairline border-border bg-background transition-transform duration-150 ease-out ${
-          isHeaderVisible ? 'translate-y-0' : '-translate-y-full'
-        }`}
+        className="sticky top-0 z-20 border-b-hairline border-border bg-background"
       >
         <div className="mx-auto max-w-7xl px-4 py-4 sm:px-6 space-y-4">
           <div className="flex items-center justify-between">
@@ -174,12 +158,24 @@ function SimpleDrinks() {
               variant={isFilterPanelOpen ? 'default' : 'outline'}
               onClick={handleFilterToggle}
               aria-expanded={isFilterPanelOpen}
+              aria-controls={FILTER_PANEL_ID}
+              aria-label={
+                activeFilterCount > 0
+                  ? t('simple_drinks.filters_active', {
+                      count: activeFilterCount,
+                      defaultValue: 'Filters, {{count}} active',
+                    })
+                  : undefined
+              }
               className="relative"
             >
               <Filter />
               {t('simple_drinks.filters', 'Filters')}
               {activeFilterCount > 0 && (
-                <span className="flex size-6 items-center justify-center rounded-full bg-primary-tint font-mono text-sm text-primary-tint-ink">
+                <span
+                  aria-hidden="true"
+                  className="flex size-6 items-center justify-center rounded-full bg-primary-tint font-mono text-sm text-primary-tint-ink"
+                >
                   {activeFilterCount}
                 </span>
               )}
@@ -200,6 +196,7 @@ function SimpleDrinks() {
 
           {isFilterPanelOpen && (
             <FilterPanel
+              id={FILTER_PANEL_ID}
               filters={filters}
               onFilterChange={handleFilterChange}
               variant="simple"
@@ -208,19 +205,25 @@ function SimpleDrinks() {
         </div>
       </header>
 
-      <VirtualGrid
-        fabricableRecipes={fabricableRecipes}
-        onCardClick={handleCardClick}
-        token={token}
-        searchTerm={searchTerm}
-        filters={filters}
-        onCheckFabricability={checkFabricability}
-        onFilterRecipes={filterRecipesMemo}
-        onClearFilters={() => {
-          clearSimpleFilters();
-          setSearchTerm('');
-        }}
-      />
+      <motion.div
+        initial={reduceMotion ? false : { opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={reduceMotion ? noneTransition : enterTransition}
+      >
+        <VirtualGrid
+          fabricableRecipes={fabricableRecipes}
+          onCardClick={handleCardClick}
+          token={token}
+          searchTerm={searchTerm}
+          filters={filters}
+          onCheckFabricability={checkFabricability}
+          onFilterRecipes={filterRecipesMemo}
+          onClearFilters={() => {
+            clearSimpleFilters();
+            setSearchTerm('');
+          }}
+        />
+      </motion.div>
 
       <AnimatePresence>
         {showScrollTop && (
@@ -229,7 +232,7 @@ function SimpleDrinks() {
             animate={fadeAnimate}
             exit={reduceMotion ? undefined : fadeInitial}
             transition={fabTransition}
-            className="fixed bottom-[calc(var(--dock-height)+1rem)] right-4 z-[100]"
+            className="fixed bottom-[calc(var(--dock-height)+1rem)] right-4 z-40"
           >
             <Button
               onClick={scrollToTop}

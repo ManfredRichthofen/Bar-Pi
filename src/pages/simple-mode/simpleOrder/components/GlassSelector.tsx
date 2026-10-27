@@ -54,6 +54,20 @@ const GlassSelector = ({
     );
   }
 
+  if (glasses.length === 0) {
+    return (
+      <Alert className="bg-warning-tint border-warning">
+        <GlassWater className="size-6 text-warning-tint-ink" />
+        <AlertDescription className="text-base text-warning-tint-ink">
+          {t(
+            'simple_order.glass_none_hint',
+            'No glasses are set up yet. Ask your host to add one.',
+          )}
+        </AlertDescription>
+      </Alert>
+    );
+  }
+
   const handleGlassSelect = (glass: Glass) => {
     selectGlass(glass);
     setIsModalOpen(false);
@@ -149,15 +163,6 @@ const GlassSelector = ({
               </motion.label>
             ))}
           </RadioGroup>
-
-          {glasses.length === 0 && (
-            <Alert>
-              <GlassWater className="size-6" />
-              <AlertDescription>
-                {t('simple_order.glass_none', 'No glasses available')}
-              </AlertDescription>
-            </Alert>
-          )}
 
           <div className="flex justify-end">
             <Button

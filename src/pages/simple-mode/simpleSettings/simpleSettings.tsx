@@ -3,6 +3,8 @@ import { ArrowLeft } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import SimplePageEnter from '@/components/simple-mode/SimplePageEnter';
 import { Button } from '@/components/ui/button';
+import { useBackNavigation } from '@/hooks/useBackNavigation';
+import AppUpdateChecker from '../../../components/AppUpdateChecker';
 import UpdateChecker from '../../../components/UpdateChecker';
 import useAuthStore from '../../../store/authStore';
 import useUIModeStore from '../../../store/uiModeStore';
@@ -18,6 +20,7 @@ const LANGUAGES = [
 const SimpleSettings = () => {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate({ from: '/simple/settings' });
+  const goBack = useBackNavigation('/simple/drinks');
   const logoutUser = useAuthStore((state) => state.logoutUser);
   const setAdvancedMode = useUIModeStore((state) => state.setAdvancedMode);
 
@@ -44,7 +47,7 @@ const SimpleSettings = () => {
             variant="ghost"
             size="icon"
             aria-label={t('common.back', 'Back')}
-            onClick={() => navigate({ to: '/simple/drinks' })}
+            onClick={goBack}
           >
             <ArrowLeft className="size-6" />
           </Button>
@@ -58,6 +61,7 @@ const SimpleSettings = () => {
       <div className="flex-1 overflow-y-auto">
         <SimplePageEnter className="mx-auto max-w-3xl px-4 py-6 sm:px-6 space-y-6">
           <UpdateChecker />
+          <AppUpdateChecker />
 
           <GeneralSettings
             currentLanguage={i18n.resolvedLanguage ?? 'en'}

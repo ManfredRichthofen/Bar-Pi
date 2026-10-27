@@ -17,7 +17,7 @@ const getAvailability = (recipe, t) => {
   }
   if (requiresManual(recipe)) {
     return {
-      label: t('simple_drinks.status_hand_pour', 'Needs hand-pour'),
+      label: t('simple_drinks.status_hand_pour', 'Hand-pour'),
       color: 'bg-warning',
     };
   }
@@ -84,13 +84,13 @@ const SimpleDrinkCard = ({ recipe, onCardClick }) => {
             </div>
           )}
 
-          <div className="absolute bottom-3 right-3 z-10">
-            <div className="flex items-center gap-2 px-3 py-1.5 rounded-sm bg-background shadow-sm">
+          <div className="absolute inset-x-3 bottom-3 z-10 flex justify-end">
+            <div className="flex min-w-0 max-w-full items-center gap-2 px-3 py-1.5 rounded-sm bg-background shadow-sm">
               <span
                 aria-hidden="true"
-                className={`size-4 rounded-full ${availability.color}`}
+                className={`size-4 shrink-0 rounded-full ${availability.color}`}
               />
-              <span className="text-sm font-semibold text-foreground whitespace-nowrap">
+              <span className="truncate text-sm font-semibold text-foreground">
                 {availability.label}
               </span>
             </div>

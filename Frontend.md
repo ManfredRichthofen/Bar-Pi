@@ -358,15 +358,15 @@ Or specify a specific version:
 
 ## Comparison with Bundle Install
 
-| Feature | Frontend Only | Complete Bundle |
-|---------|--------------|-----------------|
-| Installation | Separate script | Part of install-go.sh |
-| Dependencies | Python 3 only | None (embedded) |
-| Ports | 5000 (frontend) + 8080 (backend) | 8080 (both) |
-| Services | 2 (frontend + backend) | 1 (combined) |
-| Memory Usage | ~30-40MB total | ~20-30MB total |
-| Updates | Update separately | Update together |
-| Use Case | Separate machines, dev work | Production, simplicity |
+| Feature      | Frontend Only                    | Complete Bundle        |
+| ------------ | -------------------------------- | ---------------------- |
+| Installation | Separate script                  | Part of install-go.sh  |
+| Dependencies | Python 3 only                    | None (embedded)        |
+| Ports        | 5000 (frontend) + 8080 (backend) | 8080 (both)            |
+| Services     | 2 (frontend + backend)           | 1 (combined)           |
+| Memory Usage | ~30-40MB total                   | ~20-30MB total         |
+| Updates      | Update separately                | Update together        |
+| Use Case     | Separate machines, dev work      | Production, simplicity |
 
 **Recommendation:** Use the Complete Bundle unless you specifically need separate frontend/backend installations.
 

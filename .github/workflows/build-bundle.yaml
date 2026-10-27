@@ -2,9 +2,9 @@ name: Build Bundle (Frontend + Backend)
 
 on:
   push:
-    branches: ['main']
+    branches: [ "main" ]
   pull_request:
-    branches: ['main']
+    branches: [ "main" ]
   workflow_dispatch:
 
 concurrency:
@@ -71,7 +71,7 @@ jobs:
         run: go test -v ./...
 
   build-bundle:
-    needs: [build-frontend, test-backend]
+    needs: [ build-frontend, test-backend ]
     runs-on: ubuntu-latest
     timeout-minutes: 15
     strategy:

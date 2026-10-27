@@ -1,12 +1,18 @@
-import Dock from './dock';
+import { useLocation } from '@tanstack/react-router';
+import Dock, { isDocklessPath } from './dock';
 
 const SimpleLayout = ({ children }) => {
+  const { pathname } = useLocation();
+  const showDock = !isDocklessPath(pathname);
+
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col">
-      <main className="flex-1 overflow-auto pb-[var(--dock-height)]">
+      <main
+        className={`flex-1 overflow-auto ${showDock ? 'pb-[var(--dock-height)]' : ''}`}
+      >
         {children}
       </main>
-      <Dock />
+      {showDock && <Dock />}
     </div>
   );
 };

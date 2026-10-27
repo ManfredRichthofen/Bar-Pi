@@ -23,8 +23,12 @@ export async function enforcePinAfterDrinkIfRequired(navigate) {
 
   let requirePin = false;
   try {
-    const policy = await SystemService.getOrderingPolicy(token);
-    requirePin = !!policy?.requirePinAfterDrink;
+    const [policy, loginSettings] = await Promise.all([
+      SystemService.getOrderingPolicy(token),
+      SystemService.getLoginSettings().catch(() => null),
+    ]);
+    requirePin =
+      !!policy?.requirePinAfterDrink && !!loginSettings?.pinLoginEnabled;
   } catch (error) {
     console.error('Failed to load ordering policy:', error);
     return false;

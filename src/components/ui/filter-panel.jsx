@@ -14,6 +14,7 @@ const FilterPanel = React.memo(
     variant = 'simple', // 'simple' or 'advanced'
     showCloseButton = true,
     className = '',
+    id,
   }) => {
     const { t } = useTranslation();
     const activeFilters =
@@ -57,13 +58,14 @@ const FilterPanel = React.memo(
 
     const renderFilterButton = (filter) => {
       const isActive = !!filters[filter];
+      const isSimple = variant === 'simple';
       return (
         <Button
           key={filter}
           variant={isActive ? 'default' : 'outline'}
-          size="sm"
+          size={isSimple ? 'default' : 'sm'}
           onClick={() => onFilterChange(filter)}
-          className="min-h-control-sm"
+          className={isSimple ? 'min-h-control-md' : 'min-h-control-sm'}
           title={filterDescriptions[filter]}
           aria-pressed={isActive}
         >
@@ -80,22 +82,36 @@ const FilterPanel = React.memo(
     };
 
     if (variant === 'simple') {
+      const selected = activeFilters.filter((filter) => filters[filter]);
       return (
-        <div className={`flex flex-col gap-3 ${className}`}>
+        <section
+          id={id}
+          aria-label={t('filters.title', 'Filters')}
+          className={`flex flex-col gap-3 ${className}`}
+        >
           <div className="flex flex-wrap gap-2">
             {activeFilters.map(renderFilterButton)}
           </div>
+          <ul className="space-y-1 text-sm text-foreground-muted">
+            {(selected.length > 0 ? selected : activeFilters).map((filter) => (
+              <li key={filter}>
+                <span className="font-semibold text-foreground">
+                  {filterLabels[filter]}:
+                </span>{' '}
+                {filterDescriptions[filter]}
+              </li>
+            ))}
+          </ul>
           {hasActiveFilters && (
             <Button
               variant="ghost"
-              size="sm"
               className="text-danger self-start"
               onClick={() => onFilterChange('clear')}
             >
               {t('filters.clear', 'Clear Filters')}
             </Button>
           )}
-        </div>
+        </section>
       );
     }
 

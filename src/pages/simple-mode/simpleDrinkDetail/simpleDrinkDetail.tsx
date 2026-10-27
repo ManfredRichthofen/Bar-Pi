@@ -1,9 +1,11 @@
 import { useQuery } from '@tanstack/react-query';
 import { useLocation, useNavigate, useParams } from '@tanstack/react-router';
-import { ArrowLeft, Beaker, Loader2 } from 'lucide-react';
+import { ArrowLeft, Beaker, GlassWater } from 'lucide-react';
 import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import { toast } from 'sonner';
 import SimplePageEnter from '@/components/simple-mode/SimplePageEnter';
+import SimpleStateCard from '@/components/simple-mode/SimpleStateCard';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { useBackNavigation } from '@/hooks/useBackNavigation';
@@ -64,16 +66,31 @@ const SimpleDrinkDetail = () => {
 
   useEffect(() => {
     if (!stateRecipe && isError) {
-      navigate({ to: '/simple/drinks' });
+      toast.error(t('simple_detail.load_failed', "Couldn't load this drink"));
     }
-  }, [stateRecipe, isError, navigate]);
+  }, [stateRecipe, isError, t]);
 
   if (!recipe) {
-    return isPending ? (
-      <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="size-10 animate-spin text-foreground-muted" />
-      </div>
-    ) : null;
+    if (isError || !isPending) {
+      return (
+        <SimpleStateCard
+          icon={GlassWater}
+          title={t('simple_detail.load_failed', "Couldn't load this drink")}
+          description={t(
+            'simple_detail.load_failed_hint',
+            'It may have been removed. Pick another drink from the menu.',
+          )}
+          actionLabel={t('simple_detail.back_to_drinks', 'Back to drinks')}
+          onAction={() => navigate({ to: '/simple/drinks' })}
+        />
+      );
+    }
+    return (
+      <SimpleStateCard
+        loading
+        title={t('simple_detail.loading', 'Loading drink...')}
+      />
+    );
   }
 
   return (
@@ -101,7 +118,7 @@ const SimpleDrinkDetail = () => {
       </header>
 
       <div className="flex-1 overflow-y-auto">
-        <SimplePageEnter className="mx-auto max-w-4xl px-4 pt-6 pb-32 sm:px-6 space-y-6">
+        <SimplePageEnter className="mx-auto max-w-4xl px-4 pt-6 pb-28 sm:px-6 space-y-6">
           <DrinkImage
             recipeId={recipe.id}
             hasImage={recipe.hasImage || false}
@@ -110,7 +127,6 @@ const SimpleDrinkDetail = () => {
 
           <DrinkInfo
             description={recipe.description}
-            alcoholic={recipe.alcoholic}
             defaultGlass={recipe.defaultGlass}
           />
 
@@ -118,7 +134,7 @@ const SimpleDrinkDetail = () => {
         </SimplePageEnter>
       </div>
 
-      <div className="fixed inset-x-0 bottom-[var(--dock-height)] z-40 border-t-hairline border-border bg-background shadow-lg">
+      <div className="fixed inset-x-0 bottom-0 z-40 border-t-hairline border-border bg-background pb-[env(safe-area-inset-bottom,0px)] shadow-lg">
         <div className="mx-auto max-w-4xl px-4 py-3 sm:px-6">
           <Button
             type="button"

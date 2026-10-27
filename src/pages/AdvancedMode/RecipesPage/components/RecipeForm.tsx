@@ -470,7 +470,9 @@ export const RecipeForm: React.FC<RecipeFormProps> = ({ mode, recipeId }) => {
     const instructionParts = [
       extras.length > 0 &&
         `You will also need: ${extras
-          .map((ing) => (ing.measure ? `${ing.name} (${ing.measure})` : ing.name))
+          .map((ing) =>
+            ing.measure ? `${ing.name} (${ing.measure})` : ing.name,
+          )
           .join(', ')}`,
       cocktailData.instructions?.trim(),
       garnishes.length > 0 &&
@@ -565,10 +567,7 @@ export const RecipeForm: React.FC<RecipeFormProps> = ({ mode, recipeId }) => {
           </div>
         )}
 
-        <form
-          onSubmit={handleSubmit}
-          className="space-y-4 sm:space-y-6"
-        >
+        <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
           <div id="basic-info">
             <RecipeBasicInfo
               name={formData.name}

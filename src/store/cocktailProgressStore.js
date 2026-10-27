@@ -9,9 +9,7 @@ const useCocktailProgressStore = create((set) => ({
     set((state) => ({
       progress,
       pendingPinAfterDrink:
-        progress?.state === 'COMPLETED'
-          ? true
-          : state.pendingPinAfterDrink,
+        progress?.state === 'COMPLETED' ? true : state.pendingPinAfterDrink,
     })),
   clearProgress: () => set({ progress: null }),
   setShowProgressDialog: (show) => set({ showProgressDialog: show }),

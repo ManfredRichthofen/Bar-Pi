@@ -157,7 +157,8 @@ func (h *UserHandler) GetCurrentOrdering(c *gin.Context) {
 
 	requirePin := false
 	if h.systemService != nil {
-		requirePin = h.systemService.GetOrderingPolicySettings().RequirePinAfterDrink
+		requirePin = h.systemService.GetOrderingPolicySettings().RequirePinAfterDrink &&
+			h.systemService.GetLoginSettings().PinLoginEnabled
 	}
 
 	c.JSON(http.StatusOK, gin.H{

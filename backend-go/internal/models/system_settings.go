@@ -76,6 +76,11 @@ type OrderingPolicySettings struct {
 	RequirePinAfterDrink bool `json:"requirePinAfterDrink"`
 }
 
+// LoginSettings controls which sign-in methods the login screen offers
+type LoginSettings struct {
+	PinLoginEnabled bool `json:"pinLoginEnabled"`
+}
+
 // LoadCellSettings represents load cell settings
 type LoadCellSettings struct {
 	Enable                 bool    `json:"enable"`

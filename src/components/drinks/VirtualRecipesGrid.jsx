@@ -71,6 +71,7 @@ function VirtualRecipesGrid({
   renderCard,
   renderSkeleton,
   renderEmpty,
+  renderError,
   loadingLabel = 'Loading drinks...',
   noMoreLabel = 'No more drinks to load',
   emptyFallback,
@@ -92,6 +93,7 @@ function VirtualRecipesGrid({
     isFetchingNextPage,
     fetchNextPage,
     hasNextPage,
+    refetch,
   } = useRecipesInfinite({
     token,
     searchTerm,
@@ -103,7 +105,6 @@ function VirtualRecipesGrid({
   });
 
   // Re-measure when status changes so simple-mode offsetTop is read after the list mounts
-  // biome-ignore lint/correctness/useExhaustiveDependencies: status gates when listRef is in the DOM
   useLayoutEffect(() => {
     parentOffsetRef.current =
       typeof layout.scrollMargin === 'function'
@@ -181,6 +182,9 @@ function VirtualRecipesGrid({
   }
 
   if (status === 'error') {
+    if (renderError) {
+      return renderError({ error, retry: () => refetch() });
+    }
     return (
       <div className="px-4 py-2">
         <div className="flex justify-center">
