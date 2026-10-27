@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { useNavigate } from '@tanstack/react-router';
 import { useEffect } from 'react';
-import { toast } from 'sonner';
+import { toast } from '@/components/ui/toast';
 import userService from '../services/user.service';
 import useAuthStore from '../store/authStore';
 import type { User } from '../types/user';

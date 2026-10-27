@@ -1,6 +1,6 @@
 import { Edit, PlusCircle, Trash2 } from 'lucide-react';
 import React, { useState } from 'react';
-import { toast } from 'sonner';
+import { toast } from '@/components/ui/toast';
 import {
   ActionButtons,
   EmptyState,

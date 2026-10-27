@@ -3,7 +3,7 @@ import { createRouter, RouterProvider } from '@tanstack/react-router';
 import { TanStackRouterDevtools } from '@tanstack/react-router-devtools';
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import { Toaster } from './components/ui/sonner';
+import { Toaster } from './components/ui/toast';
 import './lib/apiClient';
 import { queryClient } from './lib/queryClient';
 import './index.css';

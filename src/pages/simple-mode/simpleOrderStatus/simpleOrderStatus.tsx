@@ -10,7 +10,7 @@ import {
 } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { toast } from 'sonner';
+import { toast } from '@/components/ui/toast';
 import SimpleDisclosure from '@/components/simple-mode/SimpleDisclosure';
 import SimplePageEnter from '@/components/simple-mode/SimplePageEnter';
 import { Button } from '@/components/ui/button';
