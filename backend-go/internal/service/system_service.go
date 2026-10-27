@@ -14,12 +14,14 @@ type SystemService struct {
 	cfg                   *config.Config
 	db                    *gorm.DB
 	mu                    sync.RWMutex
-	appearanceSettings    models.AppearanceSettings
-	globalSettings        models.GlobalSettings
-	i2cSettings           models.I2CSettings
-	defaultFilterSettings models.DefaultFilterSettings
-	reversePumpSettings   models.ReversePumpSettings
-	loadCellSettings      *models.LoadCellSettings
+	appearanceSettings     models.AppearanceSettings
+	globalSettings         models.GlobalSettings
+	i2cSettings            models.I2CSettings
+	defaultFilterSettings  models.DefaultFilterSettings
+	reversePumpSettings    models.ReversePumpSettings
+	loadCellSettings       *models.LoadCellSettings
+	updaterSettings        models.UpdaterSettings
+	orderingPolicySettings models.OrderingPolicySettings
 }
 
 // NewSystemService creates a new system service
@@ -63,6 +65,16 @@ func NewSystemService(cfg *config.Config, db ...*gorm.DB) *SystemService {
 			Enable: false,
 		},
 		loadCellSettings: nil,
+		updaterSettings: models.UpdaterSettings{
+			AutoCheck:       true,
+			AutoInstall:     false,
+			WindowEnabled:   true,
+			WindowStartHour: 3,
+			WindowEndHour:   5,
+		},
+		orderingPolicySettings: models.OrderingPolicySettings{
+			RequirePinAfterDrink: false,
+		},
 	}
 
 	s.loadFromDB()
@@ -77,6 +89,8 @@ func (s *SystemService) loadFromDB() {
 	s.loadJSON("i2c", &s.i2cSettings)
 	s.loadJSON("default_filter", &s.defaultFilterSettings)
 	s.loadJSON("reverse_pump", &s.reversePumpSettings)
+	s.loadJSON("updater", &s.updaterSettings)
+	s.loadJSON("ordering_policy", &s.orderingPolicySettings)
 
 	var lc models.LoadCellSettings
 	if s.loadJSON("load_cell", &lc) && lc.Enable {
@@ -229,6 +243,34 @@ func (s *SystemService) SetReversePumpSettings(settings models.ReversePumpSettin
 	s.saveJSON("reverse_pump", s.reversePumpSettings)
 }
 
+// GetUpdaterSettings returns the automatic update settings
+func (s *SystemService) GetUpdaterSettings() models.UpdaterSettings {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	return s.updaterSettings
+}
+
+// SetUpdaterSettings updates the automatic update settings
+func (s *SystemService) SetUpdaterSettings(settings models.UpdaterSettings) models.UpdaterSettings {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	settings.WindowStartHour = clampHour(settings.WindowStartHour)
+	settings.WindowEndHour = clampHour(settings.WindowEndHour)
+	s.updaterSettings = settings
+	s.saveJSON("updater", s.updaterSettings)
+	return s.updaterSettings
+}
+
+func clampHour(h int) int {
+	if h < 0 {
+		return 0
+	}
+	if h > 23 {
+		return 23
+	}
+	return h
+}
+
 // GetLoadCellSettings returns load cell settings
 func (s *SystemService) GetLoadCellSettings() *models.LoadCellSettings {
 	s.mu.RLock()
@@ -279,6 +321,22 @@ func (s *SystemService) CalibrateLoadCellRef(weight float64) *models.LoadCellSet
 	s.saveJSON("load_cell", s.loadCellSettings)
 	cp := *s.loadCellSettings
 	return &cp
+}
+
+// GetOrderingPolicySettings returns ordering policy settings
+func (s *SystemService) GetOrderingPolicySettings() models.OrderingPolicySettings {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	return s.orderingPolicySettings
+}
+
+// SetOrderingPolicySettings updates ordering policy settings
+func (s *SystemService) SetOrderingPolicySettings(settings models.OrderingPolicySettings) models.OrderingPolicySettings {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	s.orderingPolicySettings = settings
+	s.saveJSON("ordering_policy", s.orderingPolicySettings)
+	return s.orderingPolicySettings
 }
 
 // GetAvailableLanguages returns available languages

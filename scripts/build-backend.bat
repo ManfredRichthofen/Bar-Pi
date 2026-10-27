@@ -19,6 +19,12 @@ set ROOT_DIR=%~dp0..
 set BACKEND_DIR=%ROOT_DIR%\backend-go
 set DIST_DIR=%ROOT_DIR%\dist-backend
 
+REM Read version from package.json for the binary's embedded version
+for /f "usebackq delims=" %%v in (`powershell -NoProfile -Command "(Get-Content -Raw '%ROOT_DIR%\package.json' | ConvertFrom-Json).version"`) do set APP_VERSION=%%v
+if "%APP_VERSION%"=="" set APP_VERSION=dev
+echo Version: %APP_VERSION%
+set LDFLAGS=-s -w -X github.com/ManfredRichthofen/Bar-Pi/backend-go/internal/version.Version=%APP_VERSION%
+
 REM Create dist directory
 if not exist "%DIST_DIR%" mkdir "%DIST_DIR%"
 
@@ -37,7 +43,7 @@ echo [Build Backend] Building for linux/amd64...
 set GOOS=linux
 set GOARCH=amd64
 set CGO_ENABLED=0
-go build -ldflags="-s -w" -o "%DIST_DIR%\bar-pi-server-linux-amd64" ./cmd/server/main.go
+go build -ldflags="%LDFLAGS%" -o "%DIST_DIR%\bar-pi-server-linux-amd64" ./cmd/server/main.go
 if %ERRORLEVEL% EQU 0 (
     echo [Build Backend] ✓ Built bar-pi-server-linux-amd64
     set /a SUCCESS_COUNT+=1
@@ -50,7 +56,7 @@ echo [Build Backend] Building for linux/arm64...
 set GOOS=linux
 set GOARCH=arm64
 set CGO_ENABLED=0
-go build -ldflags="-s -w" -o "%DIST_DIR%\bar-pi-server-linux-arm64" ./cmd/server/main.go
+go build -ldflags="%LDFLAGS%" -o "%DIST_DIR%\bar-pi-server-linux-arm64" ./cmd/server/main.go
 if %ERRORLEVEL% EQU 0 (
     echo [Build Backend] ✓ Built bar-pi-server-linux-arm64
     set /a SUCCESS_COUNT+=1
@@ -64,7 +70,7 @@ set GOOS=linux
 set GOARCH=arm
 set GOARM=7
 set CGO_ENABLED=0
-go build -ldflags="-s -w" -o "%DIST_DIR%\bar-pi-server-linux-arm" ./cmd/server/main.go
+go build -ldflags="%LDFLAGS%" -o "%DIST_DIR%\bar-pi-server-linux-arm" ./cmd/server/main.go
 if %ERRORLEVEL% EQU 0 (
     echo [Build Backend] ✓ Built bar-pi-server-linux-arm
     set /a SUCCESS_COUNT+=1

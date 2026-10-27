@@ -61,6 +61,21 @@ type ReversePumpSettings struct {
 	Settings *ReversePumpSettingsInner `json:"settings,omitempty"`
 }
 
+// UpdaterSettings represents the automatic update configuration
+type UpdaterSettings struct {
+	AutoCheck         bool `json:"autoCheck"`
+	AutoInstall       bool `json:"autoInstall"`
+	IncludePrerelease bool `json:"includePrerelease"`
+	WindowEnabled     bool `json:"windowEnabled"`
+	WindowStartHour   int  `json:"windowStartHour"` // 0-23 local time
+	WindowEndHour     int  `json:"windowEndHour"`
+}
+
+// OrderingPolicySettings controls PIN re-auth and related ordering rules
+type OrderingPolicySettings struct {
+	RequirePinAfterDrink bool `json:"requirePinAfterDrink"`
+}
+
 // LoadCellSettings represents load cell settings
 type LoadCellSettings struct {
 	Enable                 bool    `json:"enable"`

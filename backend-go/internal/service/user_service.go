@@ -3,11 +3,15 @@ package service
 import (
 	"errors"
 	"fmt"
+	"regexp"
+	"time"
 
 	"github.com/ManfredRichthofen/Bar-Pi/backend-go/internal/models"
 	"github.com/ManfredRichthofen/Bar-Pi/backend-go/internal/repository"
 	"golang.org/x/crypto/bcrypt"
 )
+
+var pinPattern = regexp.MustCompile(`^\d{4,8}$`)
 
 type UserService struct {
 	repo *repository.UserRepository
@@ -17,11 +21,22 @@ func NewUserService(repo *repository.UserRepository) *UserService {
 	return &UserService{repo: repo}
 }
 
+type UserPinOptions struct {
+	Pin               string
+	ClearPin          bool
+	MaxDrinksPerDay   *int
+	UpdateMaxDrinks   bool
+}
+
 func (s *UserService) Create(username, password string, role models.Role) (*models.User, error) {
-	return s.CreateWithLockState(username, password, role, true)
+	return s.CreateWithOptions(username, password, role, true, UserPinOptions{})
 }
 
 func (s *UserService) CreateWithLockState(username, password string, role models.Role, isAccountNonLocked bool) (*models.User, error) {
+	return s.CreateWithOptions(username, password, role, isAccountNonLocked, UserPinOptions{})
+}
+
+func (s *UserService) CreateWithOptions(username, password string, role models.Role, isAccountNonLocked bool, opts UserPinOptions) (*models.User, error) {
 	if username == "" {
 		return nil, errors.New("username is required")
 	}
@@ -47,6 +62,22 @@ func (s *UserService) CreateWithLockState(username, password string, role models
 		Password:           string(hashedPassword),
 		Role:               role,
 		IsAccountNonLocked: isAccountNonLocked,
+		MaxDrinksPerDay:    0,
+	}
+
+	if opts.UpdateMaxDrinks && opts.MaxDrinksPerDay != nil {
+		if *opts.MaxDrinksPerDay < 0 {
+			return nil, errors.New("max drinks per day cannot be negative")
+		}
+		user.MaxDrinksPerDay = *opts.MaxDrinksPerDay
+	}
+
+	if opts.Pin != "" {
+		pinHash, err := s.hashAndValidateUniquePin(opts.Pin, 0)
+		if err != nil {
+			return nil, err
+		}
+		user.PinHash = &pinHash
 	}
 
 	if err := s.repo.Create(user); err != nil {
@@ -76,6 +107,32 @@ func (s *UserService) Authenticate(username, password string) (*models.User, err
 	return user, nil
 }
 
+func (s *UserService) AuthenticateByPin(pin string) (*models.User, error) {
+	if !pinPattern.MatchString(pin) {
+		return nil, errors.New("invalid credentials")
+	}
+
+	users, err := s.repo.FindUsersWithPin()
+	if err != nil {
+		return nil, fmt.Errorf("failed to find users: %w", err)
+	}
+
+	for i := range users {
+		user := &users[i]
+		if !user.HasPin() {
+			continue
+		}
+		if err := bcrypt.CompareHashAndPassword([]byte(*user.PinHash), []byte(pin)); err == nil {
+			if !user.IsAccountNonLocked {
+				return nil, errors.New("account is locked")
+			}
+			return user, nil
+		}
+	}
+
+	return nil, errors.New("invalid credentials")
+}
+
 func (s *UserService) GetByID(id int64) (*models.User, error) {
 	return s.repo.FindByID(id)
 }
@@ -89,6 +146,10 @@ func (s *UserService) Update(user *models.User) error {
 }
 
 func (s *UserService) UpdateUserFull(id int64, username string, role models.Role, isAccountNonLocked bool, updatePassword bool, newPassword string) (*models.User, error) {
+	return s.UpdateUserFullWithOptions(id, username, role, isAccountNonLocked, updatePassword, newPassword, UserPinOptions{})
+}
+
+func (s *UserService) UpdateUserFullWithOptions(id int64, username string, role models.Role, isAccountNonLocked bool, updatePassword bool, newPassword string, opts UserPinOptions) (*models.User, error) {
 	user, err := s.repo.FindByID(id)
 	if err != nil {
 		return nil, fmt.Errorf("failed to find user: %w", err)
@@ -117,6 +178,23 @@ func (s *UserService) UpdateUserFull(id int64, username string, role models.Role
 			return nil, fmt.Errorf("failed to hash password: %w", err)
 		}
 		user.Password = string(hashedPassword)
+	}
+
+	if opts.ClearPin {
+		user.PinHash = nil
+	} else if opts.Pin != "" {
+		pinHash, err := s.hashAndValidateUniquePin(opts.Pin, id)
+		if err != nil {
+			return nil, err
+		}
+		user.PinHash = &pinHash
+	}
+
+	if opts.UpdateMaxDrinks && opts.MaxDrinksPerDay != nil {
+		if *opts.MaxDrinksPerDay < 0 {
+			return nil, errors.New("max drinks per day cannot be negative")
+		}
+		user.MaxDrinksPerDay = *opts.MaxDrinksPerDay
 	}
 
 	if err := s.repo.Update(user); err != nil {
@@ -154,6 +232,12 @@ func (s *UserService) Delete(id int64) error {
 	return s.repo.Delete(id)
 }
 
+func (s *UserService) CountCompletedOrdersToday(userID int64) (int64, error) {
+	now := time.Now()
+	dayStart := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, now.Location())
+	return s.repo.CountCompletedOrdersToday(userID, dayStart)
+}
+
 func (s *UserService) EnsureDefaultAdmin() error {
 	count, err := s.repo.Count()
 	if err != nil {
@@ -172,4 +256,30 @@ func (s *UserService) EnsureDefaultAdmin() error {
 	}
 
 	return nil
+}
+
+func (s *UserService) hashAndValidateUniquePin(pin string, excludeUserID int64) (string, error) {
+	if !pinPattern.MatchString(pin) {
+		return "", errors.New("PIN must be 4 to 8 digits")
+	}
+
+	users, err := s.repo.FindUsersWithPin()
+	if err != nil {
+		return "", fmt.Errorf("failed to check PIN uniqueness: %w", err)
+	}
+	for i := range users {
+		user := &users[i]
+		if user.ID == excludeUserID || !user.HasPin() {
+			continue
+		}
+		if err := bcrypt.CompareHashAndPassword([]byte(*user.PinHash), []byte(pin)); err == nil {
+			return "", errors.New("PIN is already in use")
+		}
+	}
+
+	hashed, err := bcrypt.GenerateFromPassword([]byte(pin), bcrypt.DefaultCost)
+	if err != nil {
+		return "", fmt.Errorf("failed to hash PIN: %w", err)
+	}
+	return string(hashed), nil
 }

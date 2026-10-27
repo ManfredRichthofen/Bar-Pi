@@ -35,3 +35,8 @@ func HasEmbeddedFiles() bool {
 func IsStandaloneMode() bool {
 	return false
 }
+
+// Variant returns the release asset variant name for this build
+func Variant() string {
+	return "bundle"
+}

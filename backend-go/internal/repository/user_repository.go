@@ -2,6 +2,7 @@ package repository
 
 import (
 	"errors"
+	"time"
 
 	"github.com/ManfredRichthofen/Bar-Pi/backend-go/internal/models"
 	"gorm.io/gorm"
@@ -60,5 +61,19 @@ func (r *UserRepository) Delete(id int64) error {
 func (r *UserRepository) Count() (int64, error) {
 	var count int64
 	err := r.db.Model(&models.User{}).Count(&count).Error
+	return count, err
+}
+
+func (r *UserRepository) FindUsersWithPin() ([]models.User, error) {
+	var users []models.User
+	err := r.db.Where("pin_hash IS NOT NULL AND pin_hash != ''").Find(&users).Error
+	return users, err
+}
+
+func (r *UserRepository) CountCompletedOrdersToday(userID int64, dayStart time.Time) (int64, error) {
+	var count int64
+	err := r.db.Table("cocktail_orders").
+		Where("user_id = ? AND status = ? AND completed_at >= ?", userID, "completed", dayStart).
+		Count(&count).Error
 	return count, err
 }

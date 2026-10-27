@@ -24,6 +24,10 @@ export interface GlobalSystemSettings {
   projectUrls?: Record<string, string>;
 }
 
+export interface OrderingPolicySettings {
+  requirePinAfterDrink: boolean;
+}
+
 const API_PATH = API_PATHS.SYSTEM || 'api/system/';
 const HEALTH_PATH = API_PATHS.HEALTH || 'health';
 
@@ -32,6 +36,26 @@ class SystemService extends BaseService {
     token: string | null = null,
   ): Promise<GlobalSystemSettings> {
     return this.get(`${API_PATH}settings/global`, (token ?? undefined) as any);
+  }
+
+  getOrderingPolicy(
+    token: string | null = null,
+  ): Promise<OrderingPolicySettings> {
+    return this.get(
+      `${API_PATH}settings/ordering`,
+      (token ?? undefined) as any,
+    );
+  }
+
+  setOrderingPolicy(
+    settings: OrderingPolicySettings,
+    token: string | null = null,
+  ): Promise<OrderingPolicySettings> {
+    return this.put(
+      `${API_PATH}settings/ordering`,
+      settings,
+      (token ?? undefined) as any,
+    );
   }
 
   getHealth(token: string | null = null): Promise<{

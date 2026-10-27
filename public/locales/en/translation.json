@@ -118,7 +118,7 @@
   "login": {
     "advanced_settings": "Advanced Settings",
     "api_url": "API URL",
-    "api_url_help": "Enter the URL of the API server. If you are using the default server, leave this field blank.",
+    "api_url_help": "Leave blank to use this server. Override only for remote API access.",
     "btn_label": "Sign in to your account",
     "btn_label_short": "Login",
     "create_account": "Create one here",
@@ -129,8 +129,12 @@
     "logging_in": "Signing you in...",
     "no_account": "Don't have an account?",
     "password_field_label": "Password",
+    "pin_delete": "Delete",
+    "pin_subtitle": "Enter your PIN to continue",
     "remember_me": "Remember me",
     "subtitle": "Please sign in to your account",
+    "use_password": "Use password instead",
+    "use_pin": "Use PIN instead",
     "username_field_label": "Username"
   },
   "manual_ingredient_prompt": {
@@ -245,16 +249,48 @@
       "sound_effects": "Sound Effects",
       "title": "General Settings"
     },
+    "ordering": {
+      "require_pin_after_drink": "Require PIN after every drink",
+      "require_pin_after_drink_help": "After a drink finishes, users must enter their PIN again before ordering another.",
+      "title": "Ordering"
+    },
     "title": "Settings",
     "updates": {
+      "auto_check": "Automatic checks",
+      "auto_check_desc": "Periodically look for new releases on GitHub.",
+      "auto_install": "Install automatically",
+      "auto_install_desc": "Download and install new releases without asking.",
       "check": "Check for Updates",
+      "check_failed": "Could not check for updates",
+      "checking": "Checking...",
       "current_version": "Current Version",
-      "downloaded": "Update Downloaded",
-      "manual_install_required": "Please check your downloads folder for the update package. Extract and replace your current installation files with the new ones.",
+      "downloading": "Downloading update...",
+      "include_prerelease": "Include pre-releases",
+      "include_prerelease_desc": "Also offer beta and release-candidate versions.",
+      "install_failed": "Update failed",
+      "install_started": "Installing update. Bar-Pi will restart automatically.",
+      "installing": "Installing update...",
+      "latest_version": "New Version",
+      "never_checked": "Never checked",
       "new_version_available": "Update Available",
+      "order_active_note": "Updates are not installed while a cocktail is being prepared.",
+      "prerelease": "Pre-release",
       "release_notes": "Release Notes",
+      "restart_complete": "Updated to {{version}}. Reloading...",
+      "restarting": "Restarting Bar-Pi...",
+      "settings_failed": "Failed to save update settings",
+      "settings_title": "Update Settings",
       "title": "Updates",
-      "update_now": "Update Now"
+      "unsupported_dev_build": "This is a development build. Automatic installation is only available for release builds.",
+      "unsupported_no_restart": "Automatic installation is not available for this server.",
+      "unsupported_os": "Automatic installation is only supported on Linux.",
+      "up_to_date": "You are up to date",
+      "update_now": "Update Now",
+      "view_release": "View on GitHub",
+      "window": "Install window",
+      "window_desc": "Only install automatic updates during these hours.",
+      "window_end": "Until",
+      "window_start": "From"
     }
   },
   "simple_drinks": {

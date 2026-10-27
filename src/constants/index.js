@@ -9,8 +9,15 @@ export const API_PATHS = {
   HEALTH: 'health',
 };
 
+export const getDefaultApiUrl = () =>
+  typeof window !== 'undefined' && window.location?.origin
+    ? window.location.origin
+    : '';
+
 export const DEFAULT_VALUES = {
-  API_URL: 'http://localhost:80',
+  get API_URL() {
+    return getDefaultApiUrl();
+  },
   UI_MODE: 'simple',
   TIMEOUT: 10000,
 };
@@ -24,4 +31,5 @@ export default {
   API_PATHS,
   DEFAULT_VALUES,
   UI_MODES,
+  getDefaultApiUrl,
 };

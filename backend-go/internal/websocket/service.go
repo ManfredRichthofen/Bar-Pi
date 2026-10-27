@@ -12,6 +12,7 @@ const (
 	WS_PUMP_LAYOUT_DESTINATION        = "/topic/pump/layout"
 	WS_PUMP_RUNNING_STATE_DESTINATION = "/topic/pump/runningstate"
 	WS_UI_STATE_INFOS                 = "/topic/uistateinfos"
+	WS_UPDATE_STATUS_DESTINATION      = "/topic/update/status"
 )
 
 // Service provides high-level WebSocket messaging functionality
@@ -53,6 +54,14 @@ func (s *Service) BroadcastPumpRunningState(pumpID int64, state any) {
 	}
 	destination := WS_PUMP_RUNNING_STATE_DESTINATION + "/" + strconv.FormatInt(pumpID, 10)
 	s.broadcastJSON(destination, state)
+}
+
+// BroadcastUpdateStatus broadcasts the self-updater status
+func (s *Service) BroadcastUpdateStatus(status any) {
+	if s == nil || s.stompServer == nil {
+		return
+	}
+	s.broadcastJSON(WS_UPDATE_STATUS_DESTINATION, status)
 }
 
 // InvalidateRecipeScrollCaches broadcasts a cache invalidation message

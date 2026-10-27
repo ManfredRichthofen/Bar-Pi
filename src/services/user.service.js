@@ -14,14 +14,35 @@ class UserService extends BaseService {
     ) {
       throw new Error('Password is required');
     }
+    if (userData.pin && userData.pin.trim() !== '') {
+      if (!/^\d{4,8}$/.test(userData.pin.trim())) {
+        throw new Error('PIN must be 4 to 8 digits');
+      }
+    }
   }
 
   createUserDto(userData) {
-    return {
+    const dto = {
       username: userData.username,
       adminLevel: userData.adminLevel || 0,
       accountNonLocked: userData.accountNonLocked !== false,
     };
+
+    if (userData.pin && userData.pin.trim() !== '') {
+      dto.pin = userData.pin.trim();
+    }
+    if (userData.clearPin) {
+      dto.clearPin = true;
+    }
+    if (
+      userData.maxDrinksPerDay !== undefined &&
+      userData.maxDrinksPerDay !== null &&
+      userData.maxDrinksPerDay !== ''
+    ) {
+      dto.maxDrinksPerDay = Number(userData.maxDrinksPerDay) || 0;
+    }
+
+    return dto;
   }
 
   getAllUsers() {
@@ -36,6 +57,11 @@ class UserService extends BaseService {
   getMe(headers = {}) {
     const token = localStorage.getItem('token');
     return this.get(API_PATH + 'current', token || undefined);
+  }
+
+  getOrderingStatus(token = null) {
+    const authToken = token || localStorage.getItem('token');
+    return this.get(API_PATH + 'current/ordering', authToken || undefined);
   }
 
   updateMe(updateRequest) {

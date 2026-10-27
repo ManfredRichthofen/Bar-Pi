@@ -1,126 +1,277 @@
-import { AlertCircle, CheckCircle2, Download, RefreshCw } from 'lucide-react';
+import {
+  AlertCircle,
+  CheckCircle2,
+  Download,
+  ExternalLink,
+  RefreshCw,
+  Settings2,
+} from 'lucide-react';
 import type React from 'react';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { toast } from 'sonner';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Progress } from '@/components/ui/progress';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
-import updateService from '../services/update.service';
+import { Switch } from '@/components/ui/switch';
+import { useCurrentUser } from '../hooks/useCurrentUser';
+import updateService, {
+  UPDATE_STATUS_TOPIC,
+  type UpdaterSettings,
+  type UpdateStatus,
+} from '../services/update.service';
+import WebsocketService from '../services/websocket.service';
+
+const ADMIN_LEVEL = 3;
+const BUSY_STATES = ['checking', 'downloading', 'installing', 'restarting'];
+const HOURS = Array.from({ length: 24 }, (_, h) => h);
+
+type ApiError = {
+  message?: string;
+  response?: { data?: { error?: string; status?: UpdateStatus } };
+};
+
+const getErrorMessage = (error: unknown, fallback: string) => {
+  const err = error as ApiError;
+  return err?.response?.data?.error || err?.message || fallback;
+};
+
+const getErrorStatus = (error: unknown) =>
+  (error as ApiError)?.response?.data?.status;
+
+const parseReleaseNotes = (notes?: string) => {
+  if (!notes) return [];
+
+  return notes
+    .split(/(?=^#{1,6}\s)/m)
+    .map((section) => section.trim())
+    .filter(Boolean)
+    .map((section, sectionIndex) => {
+      const [first, ...rest] = section.split('\n');
+      const hasHeader = first.startsWith('#');
+      const title = hasHeader ? first.replace(/^#+\s+/, '') : '';
+      const lines = (hasHeader ? rest : [first, ...rest])
+        .filter((line) => line.trim())
+        .map((line, lineIndex) => {
+          const trimmed = line.trim();
+          const text = trimmed.replace(/\[([^\]]+)\]\([^)]+\)/g, '$1');
+          return {
+            id: `${sectionIndex}-${lineIndex}`,
+            text: /^[-*]\s/.test(trimmed) ? `• ${text.substring(2)}` : text,
+          };
+        });
+      return { id: String(sectionIndex), title, lines };
+    });
+};
 
 const UpdateChecker: React.FC = () => {
-  const { t } = useTranslation();
-  const [updateInfo, setUpdateInfo] = useState<any>(null);
-  const [isChecking, setIsChecking] = useState(false);
-  const [isUpdating, setIsUpdating] = useState(false);
-  const [lastChecked, setLastChecked] = useState<Date | null>(null);
+  const { t, i18n } = useTranslation();
+  const { user } = useCurrentUser();
+  const isAdmin = (user?.adminLevel ?? 0) >= ADMIN_LEVEL;
 
-  useEffect(() => {
-    checkForUpdates();
+  const [status, setStatus] = useState<UpdateStatus | null>(null);
+  const [settings, setSettings] = useState<UpdaterSettings | null>(null);
+  const [unavailable, setUnavailable] = useState(false);
+  const [isRequesting, setIsRequesting] = useState(false);
+  const versionBeforeRestart = useRef<string | null>(null);
+
+  const loadStatus = useCallback(async () => {
+    const next = await updateService.getStatus();
+    setStatus(next);
+    return next;
   }, []);
 
+  useEffect(() => {
+    if (!isAdmin) return;
+    Promise.all([updateService.getStatus(), updateService.getSettings()])
+      .then(([s, cfg]) => {
+        setStatus(s);
+        setSettings(cfg);
+      })
+      .catch(() => setUnavailable(true));
+  }, [isAdmin]);
+
+  useEffect(() => {
+    if (!isAdmin) return;
+    WebsocketService.subscribe(
+      'updateChecker',
+      UPDATE_STATUS_TOPIC,
+      (message: { body: string }) => {
+        try {
+          setStatus(JSON.parse(message.body));
+        } catch {
+          // ignore malformed frames
+        }
+      },
+    );
+    return () =>
+      WebsocketService.unsubscribe('updateChecker', UPDATE_STATUS_TOPIC);
+  }, [isAdmin]);
+
+  const state = status?.state ?? 'idle';
+  const isBusy = BUSY_STATES.includes(state);
+
+  // Websocket drops while the server restarts, so poll until the new version answers
+  useEffect(() => {
+    if (!isBusy) return;
+    if (state === 'restarting' && !versionBeforeRestart.current) {
+      versionBeforeRestart.current = status?.currentVersion ?? null;
+    }
+    const id = setInterval(() => {
+      loadStatus().catch(() => {
+        // server is restarting
+      });
+    }, 2000);
+    return () => clearInterval(id);
+  }, [isBusy, state, status?.currentVersion, loadStatus]);
+
+  useEffect(() => {
+    const previous = versionBeforeRestart.current;
+    if (!previous || !status || status.currentVersion === previous) return;
+    versionBeforeRestart.current = null;
+    toast.success(
+      t('settings.updates.restart_complete', {
+        version: status.currentVersion,
+        defaultValue: 'Updated to {{version}}. Reloading...',
+      }),
+    );
+    setTimeout(() => window.location.reload(), 1500);
+  }, [status, t]);
+
+  if (!isAdmin || unavailable || !status || status.disabled) {
+    return null;
+  }
+
   const checkForUpdates = async () => {
-    setIsChecking(true);
+    setIsRequesting(true);
     try {
-      const info = await updateService.checkForUpdates();
-      setUpdateInfo(info);
-      setLastChecked(new Date());
+      const next = await updateService.checkForUpdates();
+      setStatus(next);
     } catch (error) {
-      console.error('Error checking for updates:', error);
+      const errorStatus = getErrorStatus(error);
+      if (errorStatus) setStatus(errorStatus);
+      toast.error(
+        getErrorMessage(
+          error,
+          t('settings.updates.check_failed', 'Could not check for updates'),
+        ),
+      );
     } finally {
-      setIsChecking(false);
+      setIsRequesting(false);
     }
   };
 
-  const parseReleaseNotes = (notes: string) => {
-    if (!notes) return [];
+  const installUpdate = async () => {
+    setIsRequesting(true);
+    versionBeforeRestart.current = status.currentVersion;
+    try {
+      const next = await updateService.install();
+      setStatus(next);
+      toast.info(
+        t(
+          'settings.updates.install_started',
+          'Installing update. Bar-Pi will restart automatically.',
+        ),
+      );
+    } catch (error) {
+      versionBeforeRestart.current = null;
+      const errorStatus = getErrorStatus(error);
+      if (errorStatus) setStatus(errorStatus);
+      toast.error(
+        getErrorMessage(
+          error,
+          t('settings.updates.install_failed', 'Update failed'),
+        ),
+      );
+    } finally {
+      setIsRequesting(false);
+    }
+  };
 
-    const sections = notes.split(/(?=^#{1,6}\s)/m);
-    const parsedSections: Array<{
-      type: 'feature' | 'bug' | 'improvement' | 'other';
-      title: string;
-      content: string[];
-    }> = [];
-
-    sections.forEach((section) => {
-      const trimmedSection = section.trim();
-      if (!trimmedSection) return;
-
-      const lines = trimmedSection.split('\n');
-      const headerLine = lines[0];
-      const contentLines = lines.slice(1);
-
-      if (headerLine.startsWith('#')) {
-        const title = headerLine.replace(/^#+\s+/, '');
-        const content = contentLines
-          .filter((line) => line.trim())
-          .map((line) => {
-            if (line.trim().startsWith('- ')) {
-              return `• ${line.trim().substring(2)}`;
-            }
-            return line.replace(/\[([^\]]+)\]\([^)]+\)/g, '$1');
-          });
-
-        let type: 'feature' | 'bug' | 'improvement' | 'other' = 'other';
-
-        const titleLower = title.toLowerCase();
-        if (
-          titleLower.includes('feature') ||
-          titleLower.includes('new') ||
-          titleLower.includes('add')
-        ) {
-          type = 'feature';
-        } else if (
-          titleLower.includes('fix') ||
-          titleLower.includes('bug') ||
-          titleLower.includes('issue')
-        ) {
-          type = 'bug';
-        } else if (
-          titleLower.includes('improve') ||
-          titleLower.includes('update') ||
-          titleLower.includes('enhance')
-        ) {
-          type = 'improvement';
-        }
-
-        parsedSections.push({ type, title, content });
-      }
-    });
-
-    return parsedSections;
+  const updateSetting = async (patch: Partial<UpdaterSettings>) => {
+    if (!settings) return;
+    const previous = settings;
+    const next = { ...settings, ...patch };
+    setSettings(next);
+    try {
+      setSettings(await updateService.saveSettings(next));
+    } catch (error) {
+      setSettings(previous);
+      toast.error(
+        getErrorMessage(
+          error,
+          t(
+            'settings.updates.settings_failed',
+            'Failed to save update settings',
+          ),
+        ),
+      );
+    }
   };
 
   const formatLastChecked = () => {
-    if (!lastChecked) return '';
-    const now = new Date();
-    const diff = now.getTime() - lastChecked.getTime();
-    const minutes = Math.floor(diff / 60000);
-
-    if (minutes < 1) return 'Just now';
-    if (minutes < 60) return `${minutes} minute${minutes > 1 ? 's' : ''} ago`;
-    const hours = Math.floor(minutes / 60);
-    if (hours < 24) return `${hours} hour${hours > 1 ? 's' : ''} ago`;
-    const days = Math.floor(hours / 24);
-    return `${days} day${days > 1 ? 's' : ''} ago`;
+    if (!status.lastChecked) {
+      return t('settings.updates.never_checked', 'Never checked');
+    }
+    const diffMinutes = Math.round(
+      (new Date(status.lastChecked).getTime() - Date.now()) / 60000,
+    );
+    const rtf = new Intl.RelativeTimeFormat(i18n.resolvedLanguage, {
+      numeric: 'auto',
+    });
+    if (Math.abs(diffMinutes) < 60) return rtf.format(diffMinutes, 'minute');
+    if (Math.abs(diffMinutes) < 60 * 24)
+      return rtf.format(Math.round(diffMinutes / 60), 'hour');
+    return rtf.format(Math.round(diffMinutes / 1440), 'day');
   };
 
-  const handleUpdate = async () => {
-    if (!updateInfo?.hasUpdate) return;
-
-    setIsUpdating(true);
-    try {
-      const success = await updateService.performUpdate();
-      if (success) {
-        setUpdateInfo((prev: any) => ({ ...prev, updateDownloaded: true }));
-      }
-    } catch (error) {
-      console.error('Error during update:', error);
-    } finally {
-      setIsUpdating(false);
+  const unsupportedMessage = () => {
+    switch (status.unsupportedReason) {
+      case 'dev_build':
+        return t(
+          'settings.updates.unsupported_dev_build',
+          'This is a development build. Automatic installation is only available for release builds.',
+        );
+      case 'unsupported_os':
+        return t(
+          'settings.updates.unsupported_os',
+          'Automatic installation is only supported on Linux.',
+        );
+      default:
+        return t(
+          'settings.updates.unsupported_no_restart',
+          'Automatic installation is not available for this server.',
+        );
     }
   };
+
+  const stateLabel = () => {
+    switch (state) {
+      case 'checking':
+        return t('settings.updates.checking', 'Checking...');
+      case 'downloading':
+        return t('settings.updates.downloading', 'Downloading update...');
+      case 'installing':
+        return t('settings.updates.installing', 'Installing update...');
+      case 'restarting':
+        return t('settings.updates.restarting', 'Restarting Bar-Pi...');
+      default:
+        return '';
+    }
+  };
+
+  const formatHour = (h: number) => `${String(h).padStart(2, '0')}:00`;
+  const releaseNotes = parseReleaseNotes(status.releaseNotes);
 
   return (
     <Card className="w-full">
@@ -131,7 +282,7 @@ const UpdateChecker: React.FC = () => {
             {t('settings.updates.title', 'Updates')}
           </CardTitle>
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
-            {updateInfo?.hasUpdate && (
+            {status.hasUpdate && (
               <Badge variant="default" className="w-fit">
                 {t(
                   'settings.updates.new_version_available',
@@ -139,11 +290,9 @@ const UpdateChecker: React.FC = () => {
                 )}
               </Badge>
             )}
-            {lastChecked && (
-              <span className="text-sm text-foreground-muted sm:ml-2">
-                {formatLastChecked()}
-              </span>
-            )}
+            <span className="text-sm text-foreground-muted sm:ml-2">
+              {formatLastChecked()}
+            </span>
           </div>
         </div>
       </CardHeader>
@@ -154,37 +303,70 @@ const UpdateChecker: React.FC = () => {
               {t('settings.updates.current_version', 'Current Version')}
             </p>
             <p className="text-sm text-foreground-muted">
-              {updateInfo?.currentVersion || 'Unknown'}
+              {status.currentVersion || 'Unknown'}
             </p>
-            {updateInfo?.hasUpdate && (
+            {status.hasUpdate ? (
               <p className="text-sm font-medium text-primary">
-                {t('settings.updates.new_version_available', 'New Version')}:{' '}
-                {updateInfo.latestVersion}
+                {t('settings.updates.latest_version', 'New Version')}:{' '}
+                {status.latestVersion}
+                {status.prerelease && (
+                  <Badge variant="outline" className="ml-2">
+                    {t('settings.updates.prerelease', 'Pre-release')}
+                  </Badge>
+                )}
               </p>
+            ) : (
+              status.latestVersion && (
+                <p className="text-sm text-foreground-muted flex items-center gap-1">
+                  <CheckCircle2 className="size-4" />
+                  {t('settings.updates.up_to_date', 'You are up to date')}
+                </p>
+              )
             )}
           </div>
           <Button
             onClick={checkForUpdates}
-            disabled={isChecking}
+            disabled={isBusy || isRequesting}
             variant="outline"
             size="sm"
             className="w-full sm:w-auto min-w-[140px]"
           >
-            {isChecking ? (
-              <>
-                <RefreshCw className="size-6 animate-spin mr-2" />
-                Checking...
-              </>
-            ) : (
-              <>
-                <RefreshCw className="size-6 mr-2" />
-                {t('settings.updates.check', 'Check for Updates')}
-              </>
-            )}
+            <RefreshCw
+              className={`size-6 mr-2 ${state === 'checking' ? 'animate-spin' : ''}`}
+            />
+            {state === 'checking'
+              ? t('settings.updates.checking', 'Checking...')
+              : t('settings.updates.check', 'Check for Updates')}
           </Button>
         </div>
 
-        {updateInfo?.hasUpdate && (
+        {state === 'error' && status.error && (
+          <Alert variant="destructive">
+            <AlertCircle className="size-6" />
+            <AlertDescription>{status.error}</AlertDescription>
+          </Alert>
+        )}
+
+        {!status.supported && (
+          <Alert variant="warning">
+            <AlertCircle className="size-6" />
+            <AlertDescription>{unsupportedMessage()}</AlertDescription>
+          </Alert>
+        )}
+
+        {(state === 'downloading' ||
+          state === 'installing' ||
+          state === 'restarting') && (
+          <div className="space-y-2">
+            <p className="text-sm font-medium flex items-center gap-2">
+              <RefreshCw className="size-4 animate-spin" />
+              {stateLabel()}
+            </p>
+            <Progress value={state === 'downloading' ? status.progress : 100} />
+          </div>
+        )}
+
+        {status.hasUpdate && (
           <>
             <Separator />
             <div className="space-y-4">
@@ -193,63 +375,136 @@ const UpdateChecker: React.FC = () => {
                   <AlertCircle className="size-6" />
                   {t('settings.updates.release_notes', 'Release Notes')}
                 </h3>
-                <div className="bg-surface-sunken rounded-lg p-4 space-y-4">
-                  {parseReleaseNotes(updateInfo.releaseNotes).map(
-                    (section, index) => (
-                      <div key={index} className="space-y-2">
+                <div className="bg-surface-sunken rounded-lg p-4 space-y-4 max-h-80 overflow-y-auto">
+                  {releaseNotes.map((section) => (
+                    <div key={section.id} className="space-y-2">
+                      {section.title && (
                         <h4 className="font-semibold text-sm text-primary">
                           {section.title}
                         </h4>
-                        <div className="space-y-1 ml-4">
-                          {section.content.map((line, lineIndex) => (
-                            <div
-                              key={lineIndex}
-                              className="text-sm text-foreground-muted"
-                            >
-                              {line}
-                            </div>
-                          ))}
-                        </div>
+                      )}
+                      <div className="space-y-1 ml-4">
+                        {section.lines.map((line) => (
+                          <div
+                            key={line.id}
+                            className="text-sm text-foreground-muted"
+                          >
+                            {line.text}
+                          </div>
+                        ))}
                       </div>
-                    ),
-                  )}
+                    </div>
+                  ))}
                 </div>
               </div>
               <div className="flex flex-col sm:flex-row justify-end gap-2">
-                <Button
-                  onClick={handleUpdate}
-                  disabled={isUpdating || updateInfo.updateDownloaded}
-                  variant={updateInfo.updateDownloaded ? 'outline' : 'default'}
-                  className="w-full sm:w-auto min-w-[140px]"
-                >
-                  {isUpdating ? (
-                    <>
-                      <RefreshCw className="size-6 animate-spin mr-2" />
-                      Updating...
-                    </>
-                  ) : updateInfo.updateDownloaded ? (
-                    <>
-                      <CheckCircle2 className="size-6 mr-2" />
-                      {t('settings.updates.downloaded', 'Update Downloaded')}
-                    </>
-                  ) : (
-                    <>
-                      <Download className="size-6 mr-2" />
-                      {t('settings.updates.update_now', 'Update Now')}
-                    </>
-                  )}
-                </Button>
+                {status.releaseUrl && (
+                  <Button
+                    variant="outline"
+                    className="w-full sm:w-auto"
+                    onClick={() =>
+                      window.open(status.releaseUrl, '_blank', 'noopener')
+                    }
+                  >
+                    <ExternalLink className="size-6 mr-2" />
+                    {t('settings.updates.view_release', 'View on GitHub')}
+                  </Button>
+                )}
+                {status.supported && (
+                  <Button
+                    onClick={installUpdate}
+                    disabled={isBusy || isRequesting}
+                    className="w-full sm:w-auto min-w-[140px]"
+                  >
+                    <Download className="size-6 mr-2" />
+                    {t('settings.updates.update_now', 'Update Now')}
+                  </Button>
+                )}
               </div>
-              {updateInfo.updateDownloaded && (
-                <Alert>
-                  <AlertCircle className="size-6" />
-                  <AlertDescription className="text-sm">
-                    {t(
-                      'settings.updates.manual_install_required',
-                      'Please check your downloads folder for the update package. Extract and replace your current installation files with the new ones.',
-                    )}
-                  </AlertDescription>
-                </Alert>
+              {status.supported && (
+                <p className="text-xs text-foreground-muted text-right">
+                  {t(
+                    'settings.updates.order_active_note',
+                    'Updates are not installed while a cocktail is being prepared.',
+                  )}
+                </p>
+              )}
+            </div>
+          </>
+        )}
+
+        {settings && (
+          <>
+            <Separator />
+            <div className="space-y-4">
+              <h3 className="font-semibold flex items-center gap-2">
+                <Settings2 className="size-6" />
+                {t('settings.updates.settings_title', 'Update Settings')}
+              </h3>
+
+              <SettingRow
+                title={t('settings.updates.auto_check', 'Automatic checks')}
+                description={t(
+                  'settings.updates.auto_check_desc',
+                  'Periodically look for new releases on GitHub.',
+                )}
+                checked={settings.autoCheck}
+                onChange={(v) => updateSetting({ autoCheck: v })}
+              />
+
+              <SettingRow
+                title={t(
+                  'settings.updates.auto_install',
+                  'Install automatically',
+                )}
+                description={t(
+                  'settings.updates.auto_install_desc',
+                  'Download and install new releases without asking.',
+                )}
+                checked={settings.autoInstall}
+                disabled={!settings.autoCheck || !status.supported}
+                onChange={(v) => updateSetting({ autoInstall: v })}
+              />
+
+              <SettingRow
+                title={t(
+                  'settings.updates.include_prerelease',
+                  'Include pre-releases',
+                )}
+                description={t(
+                  'settings.updates.include_prerelease_desc',
+                  'Also offer beta and release-candidate versions.',
+                )}
+                checked={settings.includePrerelease}
+                onChange={(v) => updateSetting({ includePrerelease: v })}
+              />
+
+              <SettingRow
+                title={t('settings.updates.window', 'Install window')}
+                description={t(
+                  'settings.updates.window_desc',
+                  'Only install automatic updates during these hours.',
+                )}
+                checked={settings.windowEnabled}
+                disabled={!settings.autoInstall}
+                onChange={(v) => updateSetting({ windowEnabled: v })}
+              />
+
+              {settings.windowEnabled && settings.autoInstall && (
+                <div className="grid grid-cols-2 gap-4 pl-1">
+                  <HourSelect
+                    label={t('settings.updates.window_start', 'From')}
+                    value={settings.windowStartHour}
+                    format={formatHour}
+                    onChange={(h) => updateSetting({ windowStartHour: h })}
+                  />
+                  <HourSelect
+                    label={t('settings.updates.window_end', 'Until')}
+                    value={settings.windowEndHour}
+                    format={formatHour}
+                    onChange={(h) => updateSetting({ windowEndHour: h })}
+                  />
+                </div>
               )}
             </div>
           </>
@@ -258,5 +513,51 @@ const UpdateChecker: React.FC = () => {
     </Card>
   );
 };
+
+const SettingRow: React.FC<{
+  title: string;
+  description: string;
+  checked: boolean;
+  disabled?: boolean;
+  onChange: (value: boolean) => void;
+}> = ({ title, description, checked, disabled, onChange }) => (
+  <div className="flex items-center justify-between gap-4">
+    <div className={disabled ? 'opacity-50' : undefined}>
+      <p className="font-medium">{title}</p>
+      <p className="text-sm text-foreground-muted">{description}</p>
+    </div>
+    <Switch
+      checked={checked}
+      disabled={disabled}
+      onCheckedChange={(value) => onChange(value)}
+    />
+  </div>
+);
+
+const HourSelect: React.FC<{
+  label: string;
+  value: number;
+  format: (h: number) => string;
+  onChange: (hour: number) => void;
+}> = ({ label, value, format, onChange }) => (
+  <div className="space-y-2">
+    <p className="text-sm font-medium">{label}</p>
+    <Select
+      value={String(value)}
+      onValueChange={(v) => v !== null && onChange(Number(v))}
+    >
+      <SelectTrigger className="w-full">
+        <SelectValue>{format(value)}</SelectValue>
+      </SelectTrigger>
+      <SelectContent>
+        {HOURS.map((h) => (
+          <SelectItem key={h} value={String(h)}>
+            {format(h)}
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
+  </div>
+);
 
 export default UpdateChecker;

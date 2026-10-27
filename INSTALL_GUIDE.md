@@ -195,7 +195,23 @@ cp /opt/bar-pi/.env ~/bar-pi-backup/
 sudo systemctl start bar-pi
 ```
 
-### Updating Bar-Pi
+### Automatic Updates
+
+The backend can update itself from [GitHub Releases](https://github.com/ManfredRichthofen/Bar-Pi/releases). Admins manage this under **Settings → Updates**:
+
+- **Automatic checks** — look for a new release every 6 hours (on by default).
+- **Install automatically** — download and install new releases without asking (off by default).
+- **Install window** — only auto-install between the chosen hours (default 03:00–05:00, local time).
+- **Include pre-releases** — also offer beta / release-candidate versions.
+
+You can also press **Update Now** at any time. The updater downloads the binary matching your build (`bundle` or `server`) and CPU architecture, verifies it against the release's `SHA256SUMS`, swaps it in place (keeping the previous binary as `bar-pi-server.bak` until the new one has run for a minute), and restarts. Updates are never installed while a cocktail is being prepared, and your `.env`, database and images are left untouched.
+
+Requirements and notes:
+- Only release builds on Linux can self-update; development builds show the latest version but cannot install it.
+- The service user must be able to write to the install directory. The default systemd unit from `install-go.sh` already allows this (`ReadWritePaths=/opt/bar-pi`).
+- Set `APP_DISABLE_UPDATER=true` to turn the updater off entirely. Set `GITHUB_TOKEN` if you hit GitHub API rate limits, and `APP_UPDATER_REPO` to update from a fork.
+
+### Updating Bar-Pi Manually
 
 To update to the latest release, simply re-run `install-go.sh`:
 
@@ -224,10 +240,12 @@ Configuration lives in `/opt/bar-pi/.env`:
 | `DATABASE_MAX_OPEN_CONNS` | `1` | Max open SQLite connections |
 | `DATABASE_MAX_IDLE_CONNS` | `1` | Max idle SQLite connections |
 | `APP_NAME` | `CocktailPi` | Application name reported by API |
-| `APP_VERSION` | `2.0.0` | Application version reported by API |
+| `APP_VERSION` | *(build version)* | Application version reported by API (the updater always uses the built-in version) |
 | `APP_DISABLE_DONATION` | `false` | Hide donation prompts |
 | `APP_HIDE_PROJECT_LINKS` | `false` | Hide external project links |
-| `APP_DISABLE_UPDATER` | `false` | Disable update checks |
+| `APP_DISABLE_UPDATER` | `false` | Disable update checks and self-update entirely |
+| `APP_UPDATER_REPO` | `ManfredRichthofen/Bar-Pi` | GitHub `owner/repo` the updater pulls releases from |
+| `GITHUB_TOKEN` | *(empty)* | Optional token to raise GitHub API rate limits for update checks |
 
 ### Changing the Port
 

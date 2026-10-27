@@ -6,6 +6,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/ManfredRichthofen/Bar-Pi/backend-go/internal/version"
 	"github.com/joho/godotenv"
 )
 
@@ -42,6 +43,8 @@ type AppConfig struct {
 	DisableDonation  bool
 	HideProjectLinks bool
 	DisableUpdater   bool
+	UpdaterRepo      string
+	GitHubToken      string
 }
 
 func Load() (*Config, error) {
@@ -71,11 +74,13 @@ func Load() (*Config, error) {
 		},
 		App: AppConfig{
 			Name:             getEnv("APP_NAME", "CocktailPi"),
-			Version:          getEnv("APP_VERSION", "2.0.0"),
+			Version:          getEnv("APP_VERSION", version.Version),
 			ImagesDir:        getEnv("IMAGES_DIR", "./images"),
 			DisableDonation:  getEnvAsBool("APP_DISABLE_DONATION", false),
 			HideProjectLinks: getEnvAsBool("APP_HIDE_PROJECT_LINKS", false),
 			DisableUpdater:   getEnvAsBool("APP_DISABLE_UPDATER", false),
+			UpdaterRepo:      getEnv("APP_UPDATER_REPO", "ManfredRichthofen/Bar-Pi"),
+			GitHubToken:      getEnv("GITHUB_TOKEN", ""),
 		},
 	}
 

@@ -1,6 +1,7 @@
 package router
 
 import (
+	"context"
 	"encoding/json"
 	"io/fs"
 	"log"
@@ -17,12 +18,24 @@ import (
 	"github.com/ManfredRichthofen/Bar-Pi/backend-go/internal/repository"
 	"github.com/ManfredRichthofen/Bar-Pi/backend-go/internal/service"
 	"github.com/ManfredRichthofen/Bar-Pi/backend-go/internal/static"
+	"github.com/ManfredRichthofen/Bar-Pi/backend-go/internal/version"
 	"github.com/ManfredRichthofen/Bar-Pi/backend-go/internal/websocket"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 )
 
+// Options holds optional process-level hooks for the router
+type Options struct {
+	// OnRestart is called by the self-updater after the binary was replaced.
+	// When nil, self-update installation is reported as unsupported.
+	OnRestart func()
+}
+
 func SetupWithCleanup(cfg *config.Config, db *gorm.DB) (*gin.Engine, func()) {
+	return SetupWithOptions(cfg, db, Options{})
+}
+
+func SetupWithOptions(cfg *config.Config, db *gorm.DB, opts Options) (*gin.Engine, func()) {
 	if cfg.Server.Port != 8080 {
 		gin.SetMode(gin.ReleaseMode)
 	}
@@ -65,9 +78,25 @@ func SetupWithCleanup(cfg *config.Config, db *gorm.DB) (*gin.Engine, func()) {
 	categoryService := service.NewCategoryService(categoryRepo)
 	systemService := service.NewSystemService(cfg, db)
 	pumpService := service.NewPumpService(pumpRepo, ingredientRepo, gpioRepo, gpioService, wsService, systemService)
-	cocktailService := service.NewCocktailService(recipeRepo, ingredientRepo, pumpRepo, gpioService, wsService, db)
+	cocktailService := service.NewCocktailService(recipeRepo, ingredientRepo, pumpRepo, gpioService, wsService, db, userService)
 	statisticsService := service.NewStatisticsService(db)
 	imageService := service.NewImageService(imagesDir)
+	updateService := service.NewUpdateService(service.UpdateServiceOptions{
+		Repo:           cfg.App.UpdaterRepo,
+		Token:          cfg.App.GitHubToken,
+		CurrentVersion: version.Version,
+		Variant:        static.Variant(),
+		Disabled:       cfg.App.DisableUpdater,
+		Settings:       systemService.GetUpdaterSettings,
+		IsBusy: func() bool {
+			p := cocktailService.GetCurrentProgress()
+			return p != nil && (p.Status == "pending" || p.Status == "in_progress" || p.Status == "paused")
+		},
+		Broadcast: func(st service.UpdateStatus) { wsService.BroadcastUpdateStatus(st) },
+		Restart:   opts.OnRestart,
+	})
+	updaterCtx, stopUpdater := context.WithCancel(context.Background())
+	updateService.Start(updaterCtx)
 
 	// Push initial state immediately when a STOMP client subscribes to a topic
 	stompServer.OnSubscribe = func(client *websocket.StompClient, sub *websocket.Subscription) {
@@ -88,6 +117,11 @@ func SetupWithCleanup(cfg *config.Config, db *gorm.DB) (*gin.Engine, func()) {
 				}
 			}
 
+		case dest == websocket.WS_UPDATE_STATUS_DESTINATION || dest == "/user"+websocket.WS_UPDATE_STATUS_DESTINATION:
+			if data, err := json.Marshal(updateService.Status()); err == nil {
+				stompServer.SendToSubscription(client, sub, string(data))
+			}
+
 		case strings.HasPrefix(dest, websocket.WS_PUMP_RUNNING_STATE_DESTINATION+"/") ||
 			strings.HasPrefix(dest, "/user"+websocket.WS_PUMP_RUNNING_STATE_DESTINATION+"/"):
 			parts := strings.Split(dest, "/")
@@ -103,6 +137,7 @@ func SetupWithCleanup(cfg *config.Config, db *gorm.DB) (*gin.Engine, func()) {
 	}
 
 	cleanup := func() {
+		stopUpdater()
 		_ = cocktailService.CancelOrder(0, true)
 		_ = pumpService.StopPump(nil)
 		if gpioService != nil {
@@ -117,13 +152,14 @@ func SetupWithCleanup(cfg *config.Config, db *gorm.DB) (*gin.Engine, func()) {
 	jwtService := auth.NewJWTService(cfg)
 
 	authHandler := handlers.NewAuthHandler(userService, jwtService)
-	userHandler := handlers.NewUserHandler(userService)
+	userHandler := handlers.NewUserHandler(userService, systemService)
 	recipeHandler := handlers.NewRecipeHandler(recipeService, imageService, wsService)
 	ingredientHandler := handlers.NewIngredientHandler(ingredientService, imageService)
 	glassHandler := handlers.NewGlassHandler(glassService)
 	categoryHandler := handlers.NewCategoryHandler(categoryService)
 	pumpHandler := handlers.NewPumpHandler(pumpService, systemService)
 	systemHandler := handlers.NewSystemHandler(systemService)
+	updateHandler := handlers.NewUpdateHandler(updateService, systemService)
 	cocktailHandler := handlers.NewCocktailHandler(cocktailService)
 	gpioHandler := handlers.NewGPIOHandler(gpioService, gpioRepo)
 	statisticsHandler := handlers.NewStatisticsHandler(statisticsService)
@@ -142,6 +178,7 @@ func SetupWithCleanup(cfg *config.Config, db *gorm.DB) (*gin.Engine, func()) {
 		authGroup := api.Group("/auth")
 		{
 			authGroup.POST("/login", authHandler.Login)
+			authGroup.POST("/login/pin", authHandler.LoginWithPin)
 			authGroup.GET("/refreshToken", middleware.AuthMiddleware(jwtService), authHandler.RefreshToken)
 		}
 
@@ -150,6 +187,7 @@ func SetupWithCleanup(cfg *config.Config, db *gorm.DB) (*gin.Engine, func()) {
 			group.GET("", middleware.RequireRole(models.RoleAdmin), userHandler.GetAll)
 			group.GET("/", middleware.RequireRole(models.RoleAdmin), userHandler.GetAll)
 			group.GET("/current", userHandler.GetCurrent)
+			group.GET("/current/ordering", userHandler.GetCurrentOrdering)
 			group.PUT("/current", userHandler.UpdateCurrent)
 			group.GET("/:id", userHandler.GetByID)
 			group.POST("", middleware.RequireRole(models.RoleAdmin), userHandler.Create)
@@ -288,7 +326,14 @@ func SetupWithCleanup(cfg *config.Config, db *gorm.DB) (*gin.Engine, func()) {
 			systemGroup.PUT("/settings/i2c", middleware.RequireRole(models.RoleAdmin), systemHandler.SetI2CSettings)
 			systemGroup.GET("/settings/defaultfilter", systemHandler.GetDefaultFilter)
 			systemGroup.PUT("/settings/defaultfilter", middleware.RequireRole(models.RoleAdmin), systemHandler.SetDefaultFilter)
+			systemGroup.GET("/settings/ordering", systemHandler.GetOrderingPolicy)
+			systemGroup.PUT("/settings/ordering", middleware.RequireRole(models.RoleAdmin), systemHandler.SetOrderingPolicy)
 			systemGroup.PUT("/shutdown", middleware.RequireRole(models.RoleAdmin), systemHandler.Shutdown)
+			systemGroup.GET("/settings/updater", middleware.RequireRole(models.RoleAdmin), updateHandler.GetSettings)
+			systemGroup.PUT("/settings/updater", middleware.RequireRole(models.RoleAdmin), updateHandler.SetSettings)
+			systemGroup.GET("/update/status", middleware.RequireRole(models.RoleAdmin), updateHandler.GetStatus)
+			systemGroup.POST("/update/check", middleware.RequireRole(models.RoleAdmin), updateHandler.Check)
+			systemGroup.POST("/update/install", middleware.RequireRole(models.RoleAdmin), updateHandler.Install)
 		}
 
 		gpioGroup := api.Group("/gpio")

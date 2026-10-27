@@ -46,7 +46,11 @@ func (h *CocktailHandler) OrderCocktail(c *gin.Context) {
 		recipeID,
 		config,
 	); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error(), "message": err.Error()})
+		status := http.StatusBadRequest
+		if err.Error() == "daily drink limit reached" {
+			status = http.StatusForbidden
+		}
+		c.JSON(status, gin.H{"error": err.Error(), "message": err.Error()})
 		return
 	}
 

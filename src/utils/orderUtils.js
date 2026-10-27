@@ -1,6 +1,7 @@
 import React from 'react';
 import { toast } from 'sonner';
 import cocktailService from '../services/cocktail.service';
+import { enforcePinAfterDrinkIfRequired } from './orderingPolicy';
 
 export const areAllIngredientsAvailable = (requiredIngredients) => {
   if (!requiredIngredients) return false;
@@ -44,6 +45,11 @@ export const orderDrink = async (
 ) => {
   setLoading(true);
   try {
+    const locked = await enforcePinAfterDrinkIfRequired(navigate);
+    if (locked) {
+      return false;
+    }
+
     const isFeasible = await checkFeasibility(
       recipeId,
       orderConfig,

@@ -1,4 +1,4 @@
-import { Lock, Shield } from 'lucide-react';
+import { KeyRound, Lock, Shield } from 'lucide-react';
 import React from 'react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
@@ -77,6 +77,68 @@ export const UserFormModal = ({
                 isEditing ? 'Leave blank to keep current password' : ''
               }
             />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="pin" className="flex items-center gap-2">
+              <KeyRound className="size-4" />
+              {isEditing
+                ? formData.hasPin
+                  ? 'New PIN (leave blank to keep current)'
+                  : 'PIN (optional)'
+                : 'PIN (optional)'}
+            </Label>
+            <Input
+              id="pin"
+              name="pin"
+              type="password"
+              inputMode="numeric"
+              pattern="[0-9]*"
+              autoComplete="off"
+              value={formData.pin}
+              onChange={onChange}
+              placeholder="4–8 digits"
+              disabled={formData.clearPin}
+            />
+            <p className="text-sm text-foreground-muted">
+              Used for quick PIN pad login. Must be unique across users.
+            </p>
+            {isEditing && formData.hasPin && (
+              <div className="flex items-center space-x-3 pt-1">
+                <input
+                  type="checkbox"
+                  id="clearPin"
+                  name="clearPin"
+                  checked={formData.clearPin}
+                  onChange={onChange}
+                  className="size-5 text-primary focus:ring-primary border-border rounded"
+                />
+                <Label
+                  htmlFor="clearPin"
+                  className="text-sm font-medium cursor-pointer"
+                >
+                  Clear existing PIN
+                </Label>
+              </div>
+            )}
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="maxDrinksPerDay">Max drinks per day</Label>
+            <Input
+              id="maxDrinksPerDay"
+              name="maxDrinksPerDay"
+              type="number"
+              min="0"
+              inputMode="numeric"
+              value={formData.maxDrinksPerDay}
+              onChange={onChange}
+              placeholder="0 = unlimited"
+            />
+            <p className="text-sm text-foreground-muted">
+              Limit completed drinks for this user each calendar day. Use 0 for
+              unlimited.
+            </p>
           </div>
 
           <div className="space-y-2">

@@ -10,6 +10,7 @@ require (
 	github.com/pressly/goose/v3 v3.28.0
 	github.com/warthog618/go-gpiocdev v0.9.2
 	golang.org/x/crypto v0.58.0
+	golang.org/x/mod v0.42.0
 	gorm.io/driver/sqlite v1.6.0
 	gorm.io/gorm v1.31.2
 	modernc.org/sqlite v1.60.1

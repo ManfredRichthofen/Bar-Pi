@@ -18,6 +18,7 @@ type CocktailService struct {
 	recipeRepo     *repository.RecipeRepository
 	ingredientRepo *repository.IngredientRepository
 	pumpRepo       *repository.PumpRepository
+	userService    *UserService
 	gpioService    *GPIOService
 	wsService      *websocket.Service
 	db             *gorm.DB
@@ -48,6 +49,8 @@ func NewCocktailService(
 			cs.wsService = v
 		case *gorm.DB:
 			cs.db = v
+		case *UserService:
+			cs.userService = v
 		}
 	}
 	return cs
@@ -284,6 +287,22 @@ func (s *CocktailService) OrderCocktail(userID int64, username string, recipeID 
 		return errors.New("another cocktail is already being made")
 	}
 	s.mu.Unlock()
+
+	if s.userService != nil {
+		user, err := s.userService.GetByID(userID)
+		if err != nil {
+			return fmt.Errorf("failed to load user: %w", err)
+		}
+		if user != nil && user.MaxDrinksPerDay > 0 {
+			count, err := s.userService.CountCompletedOrdersToday(userID)
+			if err != nil {
+				return fmt.Errorf("failed to check drink limit: %w", err)
+			}
+			if count >= int64(user.MaxDrinksPerDay) {
+				return errors.New("daily drink limit reached")
+			}
+		}
+	}
 
 	recipe, err := s.recipeRepo.FindByID(recipeID)
 	if err != nil {

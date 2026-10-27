@@ -94,7 +94,7 @@ jobs:
           GOOS: linux
           GOARCH: amd64
           CGO_ENABLED: 0
-        run: go build -ldflags="-s -w" -o ../dist-backend/bar-pi-server-linux-amd64 ./cmd/server/main.go
+        run: go build -ldflags="-s -w -X github.com/ManfredRichthofen/Bar-Pi/backend-go/internal/version.Version=${{ needs.meta.outputs.version }}" -o ../dist-backend/bar-pi-server-linux-amd64 ./cmd/server/main.go
 
       - name: Build backend - Linux ARM64
         working-directory: backend-go
@@ -102,7 +102,7 @@ jobs:
           GOOS: linux
           GOARCH: arm64
           CGO_ENABLED: 0
-        run: go build -ldflags="-s -w" -o ../dist-backend/bar-pi-server-linux-arm64 ./cmd/server/main.go
+        run: go build -ldflags="-s -w -X github.com/ManfredRichthofen/Bar-Pi/backend-go/internal/version.Version=${{ needs.meta.outputs.version }}" -o ../dist-backend/bar-pi-server-linux-arm64 ./cmd/server/main.go
 
       - name: Build backend - Linux ARM
         working-directory: backend-go
@@ -111,7 +111,7 @@ jobs:
           GOARCH: arm
           GOARM: 7
           CGO_ENABLED: 0
-        run: go build -ldflags="-s -w" -o ../dist-backend/bar-pi-server-linux-arm ./cmd/server/main.go
+        run: go build -ldflags="-s -w -X github.com/ManfredRichthofen/Bar-Pi/backend-go/internal/version.Version=${{ needs.meta.outputs.version }}" -o ../dist-backend/bar-pi-server-linux-arm ./cmd/server/main.go
 
       - name: Prepare bundle build
         run: |
@@ -125,7 +125,7 @@ jobs:
           GOOS: linux
           GOARCH: amd64
           CGO_ENABLED: 0
-        run: go build -tags=bundle -ldflags="-s -w" -o ../dist-backend/bar-pi-bundle-linux-amd64 ./cmd/server/main.go
+        run: go build -tags=bundle -ldflags="-s -w -X github.com/ManfredRichthofen/Bar-Pi/backend-go/internal/version.Version=${{ needs.meta.outputs.version }}" -o ../dist-backend/bar-pi-bundle-linux-amd64 ./cmd/server/main.go
 
       - name: Build bundle - Linux ARM64
         working-directory: backend-go
@@ -133,7 +133,7 @@ jobs:
           GOOS: linux
           GOARCH: arm64
           CGO_ENABLED: 0
-        run: go build -tags=bundle -ldflags="-s -w" -o ../dist-backend/bar-pi-bundle-linux-arm64 ./cmd/server/main.go
+        run: go build -tags=bundle -ldflags="-s -w -X github.com/ManfredRichthofen/Bar-Pi/backend-go/internal/version.Version=${{ needs.meta.outputs.version }}" -o ../dist-backend/bar-pi-bundle-linux-arm64 ./cmd/server/main.go
 
       - name: Build bundle - Linux ARM
         working-directory: backend-go
@@ -142,7 +142,13 @@ jobs:
           GOARCH: arm
           GOARM: 7
           CGO_ENABLED: 0
-        run: go build -tags=bundle -ldflags="-s -w" -o ../dist-backend/bar-pi-bundle-linux-arm ./cmd/server/main.go
+        run: go build -tags=bundle -ldflags="-s -w -X github.com/ManfredRichthofen/Bar-Pi/backend-go/internal/version.Version=${{ needs.meta.outputs.version }}" -o ../dist-backend/bar-pi-bundle-linux-arm ./cmd/server/main.go
+
+      - name: Generate checksums
+        working-directory: dist-backend
+        run: |
+          sha256sum bar-pi-* > SHA256SUMS
+          cat SHA256SUMS
 
       - name: Upload backend artifacts
         uses: actions/upload-artifact@v7
@@ -318,6 +324,8 @@ jobs:
             - `bar-pi-server-linux-arm64` - Raspberry(Arm64) Pi 64-bit
             - `bar-pi-server-linux-arm` - Raspberry(Arm) Pi 32-bit
 
+            `SHA256SUMS` contains checksums for all Linux binaries (used by the built-in auto updater).
+
             ### Frontend Only
             - `frontend-${{ needs.meta.outputs.version }}.zip` - Web application files
             - `wait-for-app-html.zip` - Loading screen
@@ -336,6 +344,7 @@ jobs:
             artifacts/dist-backend/bar-pi-server-linux-amd64
             artifacts/dist-backend/bar-pi-server-linux-arm64
             artifacts/dist-backend/bar-pi-server-linux-arm
+            artifacts/dist-backend/SHA256SUMS
             artifacts/frontend-${{ needs.meta.outputs.version }}.zip
             artifacts/wait-for-app-html.zip
           draft: false

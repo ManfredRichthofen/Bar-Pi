@@ -561,7 +561,7 @@ else
     echo -e "${GREEN}✓${NC} JWT secret generated using /dev/urandom"
 fi
 
-# Create .env file if it doesn't exist
+# Create .env file if it doesn't exist; otherwise apply requested port
 if [ ! -f "$INSTALL_DIR/.env" ]; then
     echo -e "${BLUE}⚙️${NC} Creating configuration file..."
     cat > "$INSTALL_DIR/.env" << EOF
@@ -593,7 +593,14 @@ EOF
     echo -e "${GREEN}✓${NC} Configuration file created at ${MAGENTA}$INSTALL_DIR/.env${NC}"
     echo -e "${GREEN}✓${NC} Secure JWT secret automatically configured"
 else
-    echo -e "${BLUE}ℹ${NC} Using existing configuration file"
+    echo -e "${BLUE}ℹ${NC} Updating existing configuration file"
+    if grep -qE '^SERVER_PORT=' "$INSTALL_DIR/.env"; then
+        sed -i.bak "s/^SERVER_PORT=.*/SERVER_PORT=$SERVER_PORT/" "$INSTALL_DIR/.env"
+        rm -f "$INSTALL_DIR/.env.bak"
+    else
+        printf '\nSERVER_PORT=%s\n' "$SERVER_PORT" >> "$INSTALL_DIR/.env"
+    fi
+    echo -e "${GREEN}✓${NC} SERVER_PORT set to ${MAGENTA}$SERVER_PORT${NC} in ${MAGENTA}$INSTALL_DIR/.env${NC}"
 fi
 echo ""
 
@@ -669,8 +676,9 @@ EOF
     fi
     
     if [[ "$START_NOW" =~ ^[Yy]$ ]]; then
-        echo -e "${BLUE}🚀${NC} Starting service..."
-        sudo systemctl start $SERVICE_NAME.service
+        echo -e "${BLUE}🚀${NC} Restarting service..."
+        # restart (not start) so an existing unit reloads EnvironmentFile / SERVER_PORT
+        sudo systemctl restart $SERVICE_NAME.service
         
         # Show progress while starting
         for i in {1..3}; do

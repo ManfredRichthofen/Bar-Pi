@@ -12,10 +12,17 @@ import (
 
 	"github.com/ManfredRichthofen/Bar-Pi/backend-go/internal/config"
 	"github.com/ManfredRichthofen/Bar-Pi/backend-go/internal/database"
+	"github.com/ManfredRichthofen/Bar-Pi/backend-go/internal/process"
 	"github.com/ManfredRichthofen/Bar-Pi/backend-go/internal/router"
+	"github.com/ManfredRichthofen/Bar-Pi/backend-go/internal/version"
 )
 
 func main() {
+	if len(os.Args) > 1 && (os.Args[1] == "--version" || os.Args[1] == "-v") {
+		fmt.Println(version.Version)
+		return
+	}
+
 	cfg, err := config.Load()
 	if err != nil {
 		log.Fatalf("Failed to load configuration: %v", err)
@@ -26,7 +33,15 @@ func main() {
 		log.Fatalf("Failed to initialize database: %v", err)
 	}
 
-	r, cleanup := router.SetupWithCleanup(cfg, db)
+	restart := make(chan struct{}, 1)
+	r, cleanup := router.SetupWithOptions(cfg, db, router.Options{
+		OnRestart: func() {
+			select {
+			case restart <- struct{}{}:
+			default:
+			}
+		},
+	})
 
 	srv := &http.Server{
 		Addr:         fmt.Sprintf(":%d", cfg.Server.Port),
@@ -37,7 +52,7 @@ func main() {
 	}
 
 	go func() {
-		log.Printf("Starting server on port %d", cfg.Server.Port)
+		log.Printf("Starting server %s on port %d", version.Version, cfg.Server.Port)
 		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			log.Fatalf("Failed to start server: %v", err)
 		}
@@ -45,7 +60,13 @@ func main() {
 
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
-	<-quit
+
+	restarting := false
+	select {
+	case <-quit:
+	case <-restart:
+		restarting = true
+	}
 
 	log.Println("Shutting down server...")
 
@@ -62,6 +83,15 @@ func main() {
 
 	if sqlDB, err := db.DB(); err == nil && sqlDB != nil {
 		_ = sqlDB.Close()
+	}
+
+	if restarting {
+		log.Println("Restarting into updated binary...")
+		if err := process.Reexec(); err != nil {
+			// Exit non-zero so a supervisor (systemd Restart=always) starts the new binary
+			log.Printf("Re-exec failed: %v", err)
+			os.Exit(1)
+		}
 	}
 
 	log.Println("Server exited")

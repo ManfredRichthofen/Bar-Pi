@@ -1,6 +1,6 @@
 import { useNavigate } from '@tanstack/react-router';
-import { Globe, LogOut, Smartphone } from 'lucide-react';
-import React from 'react';
+import { Globe, KeyRound, LogOut, Smartphone } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { PageHeader } from '@/components/AdvancedMode/PageHeader';
 import { Button } from '@/components/ui/button';
@@ -13,7 +13,9 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
+import { Switch } from '@/components/ui/switch';
 import UpdateChecker from '../../../components/UpdateChecker';
+import SystemService from '../../../services/system.service';
 import useAuthStore from '../../../store/authStore';
 import useUIModeStore from '../../../store/uiModeStore';
 import ThemeSelector from '../../simple-mode/simpleSettings/components/ThemeSelector';
@@ -22,13 +24,43 @@ export const SettingsPage: React.FC = () => {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate({ from: '/settings' });
   const logoutUser = useAuthStore((state) => state.logoutUser);
+  const token = useAuthStore((state) => state.token);
   const setAdvancedMode = useUIModeStore((state) => state.setAdvancedMode);
+  const [requirePinAfterDrink, setRequirePinAfterDrink] = useState(false);
+  const [policyLoading, setPolicyLoading] = useState(true);
+  const [policySaving, setPolicySaving] = useState(false);
 
   const languages = [
     { code: 'en', name: 'English' },
     { code: 'es', name: 'Español' },
     { code: 'de', name: 'Deutsch' },
   ];
+
+  useEffect(() => {
+    let cancelled = false;
+    const loadPolicy = async () => {
+      if (!token) {
+        setPolicyLoading(false);
+        return;
+      }
+      try {
+        const policy = await SystemService.getOrderingPolicy(token);
+        if (!cancelled) {
+          setRequirePinAfterDrink(!!policy?.requirePinAfterDrink);
+        }
+      } catch (error) {
+        console.error('Failed to load ordering policy:', error);
+      } finally {
+        if (!cancelled) {
+          setPolicyLoading(false);
+        }
+      }
+    };
+    loadPolicy();
+    return () => {
+      cancelled = true;
+    };
+  }, [token]);
 
   const handleLanguageChange = (langCode: string | null) => {
     if (langCode) {
@@ -48,6 +80,22 @@ export const SettingsPage: React.FC = () => {
     navigate({ to: '/login' });
   };
 
+  const handleRequirePinToggle = async (checked: boolean) => {
+    setRequirePinAfterDrink(checked);
+    setPolicySaving(true);
+    try {
+      await SystemService.setOrderingPolicy(
+        { requirePinAfterDrink: checked },
+        token,
+      );
+    } catch (error) {
+      console.error('Failed to save ordering policy:', error);
+      setRequirePinAfterDrink(!checked);
+    } finally {
+      setPolicySaving(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <PageHeader
@@ -58,6 +106,38 @@ export const SettingsPage: React.FC = () => {
       <div className="container mx-auto px-4 py-6 sm:py-8 max-w-3xl">
         <div className="space-y-6">
           <UpdateChecker />
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <KeyRound className="size-6" />
+                {t('settings.ordering.title', 'Ordering')}
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-center justify-between gap-4">
+                <div>
+                  <p className="font-medium">
+                    {t(
+                      'settings.ordering.require_pin_after_drink',
+                      'Require PIN after every drink',
+                    )}
+                  </p>
+                  <p className="text-sm text-foreground-muted">
+                    {t(
+                      'settings.ordering.require_pin_after_drink_help',
+                      'After a drink finishes, users must enter their PIN again before ordering another.',
+                    )}
+                  </p>
+                </div>
+                <Switch
+                  checked={requirePinAfterDrink}
+                  disabled={policyLoading || policySaving || !token}
+                  onCheckedChange={handleRequirePinToggle}
+                />
+              </div>
+            </CardContent>
+          </Card>
 
           <Card>
             <CardHeader>

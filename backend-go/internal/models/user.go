@@ -71,10 +71,16 @@ type User struct {
 	ID                 int64     `gorm:"primaryKey;autoIncrement" json:"id"`
 	Username           string    `gorm:"unique;not null" json:"username"`
 	Password           string    `gorm:"not null" json:"-"`
+	PinHash            *string   `gorm:"column:pin_hash" json:"-"`
+	MaxDrinksPerDay    int       `gorm:"not null;default:0" json:"maxDrinksPerDay"`
 	Role               Role      `gorm:"not null" json:"role"`
 	IsAccountNonLocked bool      `gorm:"not null;default:true" json:"isAccountNonLocked"`
 	CreatedAt          time.Time `gorm:"autoCreateTime" json:"createdAt"`
 	UpdatedAt          time.Time `gorm:"autoUpdateTime" json:"updatedAt"`
+}
+
+func (u *User) HasPin() bool {
+	return u.PinHash != nil && *u.PinHash != ""
 }
 
 func (User) TableName() string {
@@ -91,9 +97,11 @@ func (u User) MarshalJSON() ([]byte, error) {
 		Alias
 		AdminLevel       int  `json:"adminLevel"`
 		AccountNonLocked bool `json:"accountNonLocked"`
+		HasPin           bool `json:"hasPin"`
 	}{
 		Alias:            (Alias)(u),
 		AdminLevel:       u.Role.Level(),
 		AccountNonLocked: u.IsAccountNonLocked,
+		HasPin:           u.HasPin(),
 	})
 }

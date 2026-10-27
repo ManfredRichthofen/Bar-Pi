@@ -22,3 +22,8 @@ func HasEmbeddedFiles() bool {
 func IsStandaloneMode() bool {
 	return true
 }
+
+// Variant returns the release asset variant name for this build
+func Variant() string {
+	return "server"
+}

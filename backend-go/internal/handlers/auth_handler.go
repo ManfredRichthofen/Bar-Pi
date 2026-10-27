@@ -28,6 +28,11 @@ type LoginRequest struct {
 	Remember bool   `json:"remember"`
 }
 
+type PinLoginRequest struct {
+	Pin      string `json:"pin" binding:"required"`
+	Remember bool   `json:"remember"`
+}
+
 type LoginResponse struct {
 	AccessToken     string       `json:"accessToken"`
 	TokenExpiration int64        `json:"tokenExpiration"`
@@ -53,6 +58,43 @@ func (h *AuthHandler) Login(c *gin.Context) {
 	user, err := h.userService.Authenticate(req.Username, req.Password)
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid credentials", "message": "Invalid credentials"})
+		return
+	}
+
+	token, expiresAt, err := h.jwtService.GenerateToken(user, req.Remember)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate token", "message": "Failed to generate token"})
+		return
+	}
+
+	c.JSON(http.StatusOK, LoginResponse{
+		AccessToken:     token,
+		TokenExpiration: expiresAt.UnixMilli(),
+		TokenType:       "Bearer",
+		User: UserResponse{
+			ID:               user.ID,
+			Username:         user.Username,
+			Role:             string(user.Role),
+			AdminLevel:       user.Role.Level(),
+			AccountNonLocked: user.IsAccountNonLocked,
+		},
+	})
+}
+
+func (h *AuthHandler) LoginWithPin(c *gin.Context) {
+	var req PinLoginRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error(), "message": err.Error()})
+		return
+	}
+
+	user, err := h.userService.AuthenticateByPin(req.Pin)
+	if err != nil {
+		status := http.StatusUnauthorized
+		if err.Error() == "account is locked" {
+			status = http.StatusForbidden
+		}
+		c.JSON(status, gin.H{"error": err.Error(), "message": err.Error()})
 		return
 	}
 

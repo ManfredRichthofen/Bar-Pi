@@ -114,6 +114,22 @@ func (h *SystemHandler) SetDefaultFilter(c *gin.Context) {
 	c.JSON(http.StatusOK, h.service.GetDefaultFilterSettings())
 }
 
+// GetOrderingPolicy handles GET /api/system/settings/ordering
+func (h *SystemHandler) GetOrderingPolicy(c *gin.Context) {
+	c.JSON(http.StatusOK, h.service.GetOrderingPolicySettings())
+}
+
+// SetOrderingPolicy handles PUT /api/system/settings/ordering
+func (h *SystemHandler) SetOrderingPolicy(c *gin.Context) {
+	var settings models.OrderingPolicySettings
+	if err := c.ShouldBindJSON(&settings); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error(), "message": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, h.service.SetOrderingPolicySettings(settings))
+}
+
 // Shutdown handles PUT /api/system/shutdown
 func (h *SystemHandler) Shutdown(c *gin.Context) {
 	isReboot := c.Query("isReboot") == "true"

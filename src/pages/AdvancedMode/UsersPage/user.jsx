@@ -31,12 +31,17 @@ const UserPage = () => {
   const [editingUser, setEditingUser] = useState(null);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [userToDelete, setUserToDelete] = useState(null);
-  const [formData, setFormData] = useState({
+  const emptyForm = {
     username: '',
     password: '',
+    pin: '',
+    clearPin: false,
+    hasPin: false,
+    maxDrinksPerDay: 0,
     adminLevel: 0,
     accountLocked: false,
-  });
+  };
+  const [formData, setFormData] = useState(emptyForm);
   const [error, setError] = useState('');
 
   useEffect(() => {
@@ -78,6 +83,10 @@ const UserPage = () => {
     setFormData({
       username: user.username,
       password: '',
+      pin: '',
+      clearPin: false,
+      hasPin: !!user.hasPin,
+      maxDrinksPerDay: user.maxDrinksPerDay || 0,
       adminLevel: user.adminLevel,
       accountLocked: user.accountNonLocked === false,
     });
@@ -109,35 +118,36 @@ const UserPage = () => {
     try {
       const token = localStorage.getItem('token');
       if (editingUser) {
-        // Update existing user
         const updateData = {
           username: formData.username,
           adminLevel: formData.adminLevel,
           accountNonLocked: !formData.accountLocked,
+          maxDrinksPerDay: Number(formData.maxDrinksPerDay) || 0,
+          clearPin: !!formData.clearPin,
         };
-        // Only include password if provided and not empty
         if (formData.password && formData.password.trim() !== '') {
           updateData.password = formData.password;
         }
+        if (formData.pin && formData.pin.trim() !== '' && !formData.clearPin) {
+          updateData.pin = formData.pin.trim();
+        }
         await UserService.updateUser(editingUser.id, updateData, token);
       } else {
-        // Create new user
         const createData = {
           username: formData.username,
           password: formData.password,
           adminLevel: formData.adminLevel,
           accountNonLocked: !formData.accountLocked,
+          maxDrinksPerDay: Number(formData.maxDrinksPerDay) || 0,
         };
+        if (formData.pin && formData.pin.trim() !== '') {
+          createData.pin = formData.pin.trim();
+        }
         await UserService.createUser(createData, token);
       }
 
       await loadUsers();
-      setFormData({
-        username: '',
-        password: '',
-        adminLevel: 1,
-        accountLocked: false,
-      });
+      setFormData({ ...emptyForm, adminLevel: 1 });
       setEditingUser(null);
       setIsModalOpen(false);
     } catch (err) {
@@ -224,6 +234,16 @@ const UserPage = () => {
                             Active
                           </Badge>
                         )}
+                        {user.hasPin && (
+                          <Badge variant="outline" className="text-sm">
+                            PIN
+                          </Badge>
+                        )}
+                        {user.maxDrinksPerDay > 0 && (
+                          <Badge variant="outline" className="text-sm">
+                            {user.maxDrinksPerDay}/day
+                          </Badge>
+                        )}
                       </>
                     }
                     actions={
@@ -262,12 +282,7 @@ const UserPage = () => {
         onClose={() => {
           setIsModalOpen(false);
           setEditingUser(null);
-          setFormData({
-            username: '',
-            password: '',
-            adminLevel: 1,
-            accountLocked: false,
-          });
+          setFormData({ ...emptyForm, adminLevel: 1 });
         }}
         onSubmit={handleSubmit}
         formData={formData}

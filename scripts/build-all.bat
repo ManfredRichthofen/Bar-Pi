@@ -27,6 +27,12 @@ if not exist "%FRONTEND_DIST%" (
     exit /b 1
 )
 
+REM Read version from package.json for the binary's embedded version
+for /f "usebackq delims=" %%v in (`powershell -NoProfile -Command "(Get-Content -Raw '%ROOT_DIR%\package.json' | ConvertFrom-Json).version"`) do set APP_VERSION=%%v
+if "%APP_VERSION%"=="" set APP_VERSION=dev
+echo Version: %APP_VERSION%
+set LDFLAGS=-s -w -X github.com/ManfredRichthofen/Bar-Pi/backend-go/internal/version.Version=%APP_VERSION%
+
 REM Create dist directory
 if not exist "%DIST_DIR%" mkdir "%DIST_DIR%"
 
@@ -53,7 +59,7 @@ echo [Build All] Building for linux/amd64 with embedded frontend...
 set GOOS=linux
 set GOARCH=amd64
 set CGO_ENABLED=0
-go build -tags=bundle -ldflags="-s -w" -o "%DIST_DIR%\bar-pi-bundle-linux-amd64" ./cmd/server/main.go
+go build -tags=bundle -ldflags="%LDFLAGS%" -o "%DIST_DIR%\bar-pi-bundle-linux-amd64" ./cmd/server/main.go
 if %ERRORLEVEL% EQU 0 (
     echo [Build All] ✓ Built bar-pi-server-linux-amd64
     set /a SUCCESS_COUNT+=1
@@ -66,7 +72,7 @@ echo [Build All] Building for linux/arm64 with embedded frontend...
 set GOOS=linux
 set GOARCH=arm64
 set CGO_ENABLED=0
-go build -tags=bundle -ldflags="-s -w" -o "%DIST_DIR%\bar-pi-bundle-linux-arm64" ./cmd/server/main.go
+go build -tags=bundle -ldflags="%LDFLAGS%" -o "%DIST_DIR%\bar-pi-bundle-linux-arm64" ./cmd/server/main.go
 if %ERRORLEVEL% EQU 0 (
     echo [Build All] ✓ Built bar-pi-server-linux-arm64
     set /a SUCCESS_COUNT+=1
@@ -80,7 +86,7 @@ set GOOS=linux
 set GOARCH=arm
 set GOARM=7
 set CGO_ENABLED=0
-go build -tags=bundle -ldflags="-s -w" -o "%DIST_DIR%\bar-pi-bundle-linux-arm" ./cmd/server/main.go
+go build -tags=bundle -ldflags="%LDFLAGS%" -o "%DIST_DIR%\bar-pi-bundle-linux-arm" ./cmd/server/main.go
 if %ERRORLEVEL% EQU 0 (
     echo [Build All] ✓ Built bar-pi-server-linux-arm
     set /a SUCCESS_COUNT+=1

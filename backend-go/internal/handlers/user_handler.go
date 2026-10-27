@@ -11,16 +11,24 @@ import (
 )
 
 type UserHandler struct {
-	userService *service.UserService
+	userService   *service.UserService
+	systemService *service.SystemService
 }
 
-func NewUserHandler(userService *service.UserService) *UserHandler {
-	return &UserHandler{userService: userService}
+func NewUserHandler(userService *service.UserService, systemService ...*service.SystemService) *UserHandler {
+	h := &UserHandler{userService: userService}
+	if len(systemService) > 0 {
+		h.systemService = systemService[0]
+	}
+	return h
 }
 
 type UserDtoPayload struct {
 	Username           string `json:"username"`
 	Password           string `json:"password"`
+	Pin                string `json:"pin"`
+	ClearPin           *bool  `json:"clearPin"`
+	MaxDrinksPerDay    *int   `json:"maxDrinksPerDay"`
 	Role               string `json:"role"`
 	AdminLevel         *int   `json:"adminLevel"`
 	AccountNonLocked   *bool  `json:"accountNonLocked"`
@@ -28,43 +36,70 @@ type UserDtoPayload struct {
 }
 
 type CreateOrUpdateUserEnvelope struct {
-	UpdatePassword *bool           `json:"updatePassword"`
-	UserDto        *UserDtoPayload `json:"userDto"`
-	Username       string          `json:"username"`
-	Password       string          `json:"password"`
-	Role           string          `json:"role"`
-	AdminLevel     *int            `json:"adminLevel"`
-	AccountNonLocked   *bool       `json:"accountNonLocked"`
-	IsAccountNonLocked *bool       `json:"isAccountNonLocked"`
+	UpdatePassword     *bool           `json:"updatePassword"`
+	UserDto            *UserDtoPayload `json:"userDto"`
+	Username           string          `json:"username"`
+	Password           string          `json:"password"`
+	Pin                string          `json:"pin"`
+	ClearPin           *bool           `json:"clearPin"`
+	MaxDrinksPerDay    *int            `json:"maxDrinksPerDay"`
+	Role               string          `json:"role"`
+	AdminLevel         *int            `json:"adminLevel"`
+	AccountNonLocked   *bool           `json:"accountNonLocked"`
+	IsAccountNonLocked *bool           `json:"isAccountNonLocked"`
 }
 
-func extractUserFields(env CreateOrUpdateUserEnvelope) (username, password string, role models.Role, nonLocked bool, updatePwd bool) {
+type extractedUserFields struct {
+	Username    string
+	Password    string
+	Role        models.Role
+	NonLocked   bool
+	UpdatePwd   bool
+	PinOpts     service.UserPinOptions
+}
+
+func extractUserFields(env CreateOrUpdateUserEnvelope) extractedUserFields {
 	dto := env.UserDto
 	if dto == nil {
 		dto = &UserDtoPayload{
 			Username:           env.Username,
 			Password:           env.Password,
+			Pin:                env.Pin,
+			ClearPin:           env.ClearPin,
+			MaxDrinksPerDay:    env.MaxDrinksPerDay,
 			Role:               env.Role,
 			AdminLevel:         env.AdminLevel,
 			AccountNonLocked:   env.AccountNonLocked,
 			IsAccountNonLocked: env.IsAccountNonLocked,
 		}
 	}
-	username = dto.Username
-	password = dto.Password
-	role = models.ParseRole(dto.Role, dto.AdminLevel)
-	nonLocked = true
+
+	fields := extractedUserFields{
+		Username:  dto.Username,
+		Password:  dto.Password,
+		Role:      models.ParseRole(dto.Role, dto.AdminLevel),
+		NonLocked: true,
+	}
 	if dto.AccountNonLocked != nil {
-		nonLocked = *dto.AccountNonLocked
+		fields.NonLocked = *dto.AccountNonLocked
 	} else if dto.IsAccountNonLocked != nil {
-		nonLocked = *dto.IsAccountNonLocked
+		fields.NonLocked = *dto.IsAccountNonLocked
 	}
 	if env.UpdatePassword != nil {
-		updatePwd = *env.UpdatePassword
+		fields.UpdatePwd = *env.UpdatePassword
 	} else {
-		updatePwd = password != "" && password != "dummy_password_for_update"
+		fields.UpdatePwd = fields.Password != "" && fields.Password != "dummy_password_for_update"
 	}
-	return
+
+	fields.PinOpts = service.UserPinOptions{
+		Pin:     dto.Pin,
+		ClearPin: dto.ClearPin != nil && *dto.ClearPin,
+	}
+	if dto.MaxDrinksPerDay != nil {
+		fields.PinOpts.MaxDrinksPerDay = dto.MaxDrinksPerDay
+		fields.PinOpts.UpdateMaxDrinks = true
+	}
+	return fields
 }
 
 type UpdatePasswordRequest struct {
@@ -101,6 +136,38 @@ func (h *UserHandler) GetCurrent(c *gin.Context) {
 	c.JSON(http.StatusOK, user)
 }
 
+func (h *UserHandler) GetCurrentOrdering(c *gin.Context) {
+	claims, ok := middleware.GetClaims(c)
+	if !ok {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized", "message": "Unauthorized"})
+		return
+	}
+
+	user, err := h.userService.GetByID(claims.UserID)
+	if err != nil || user == nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "User not found", "message": "User not found"})
+		return
+	}
+
+	drinksToday, err := h.userService.CountCompletedOrdersToday(claims.UserID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch drink count", "message": "Failed to fetch drink count"})
+		return
+	}
+
+	requirePin := false
+	if h.systemService != nil {
+		requirePin = h.systemService.GetOrderingPolicySettings().RequirePinAfterDrink
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"drinksToday":          drinksToday,
+		"maxDrinksPerDay":      user.MaxDrinksPerDay,
+		"requirePinAfterDrink": requirePin,
+		"hasPin":               user.HasPin(),
+	})
+}
+
 func (h *UserHandler) UpdateCurrent(c *gin.Context) {
 	claims, ok := middleware.GetClaims(c)
 	if !ok {
@@ -120,18 +187,20 @@ func (h *UserHandler) UpdateCurrent(c *gin.Context) {
 		return
 	}
 
-	username, password, _, _, updatePwd := extractUserFields(env)
+	fields := extractUserFields(env)
+	username := fields.Username
 	if username == "" {
 		username = existing.Username
 	}
 
-	updated, err := h.userService.UpdateUserFull(
+	updated, err := h.userService.UpdateUserFullWithOptions(
 		claims.UserID,
 		username,
 		existing.Role,
 		existing.IsAccountNonLocked,
-		updatePwd,
-		password,
+		fields.UpdatePwd,
+		fields.Password,
+		fields.PinOpts,
 	)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error(), "message": err.Error()})
@@ -178,8 +247,8 @@ func (h *UserHandler) Create(c *gin.Context) {
 		return
 	}
 
-	username, password, role, nonLocked, _ := extractUserFields(env)
-	user, err := h.userService.CreateWithLockState(username, password, role, nonLocked)
+	fields := extractUserFields(env)
+	user, err := h.userService.CreateWithOptions(fields.Username, fields.Password, fields.Role, fields.NonLocked, fields.PinOpts)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error(), "message": err.Error()})
 		return
@@ -201,8 +270,8 @@ func (h *UserHandler) Update(c *gin.Context) {
 		return
 	}
 
-	username, password, role, nonLocked, updatePwd := extractUserFields(env)
-	updated, err := h.userService.UpdateUserFull(id, username, role, nonLocked, updatePwd, password)
+	fields := extractUserFields(env)
+	updated, err := h.userService.UpdateUserFullWithOptions(id, fields.Username, fields.Role, fields.NonLocked, fields.UpdatePwd, fields.Password, fields.PinOpts)
 	if err != nil {
 		if err.Error() == "user not found" {
 			c.JSON(http.StatusNotFound, gin.H{"error": err.Error(), "message": err.Error()})

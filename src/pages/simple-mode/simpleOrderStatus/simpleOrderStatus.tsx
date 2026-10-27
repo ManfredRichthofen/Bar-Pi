@@ -18,6 +18,7 @@ import { useWebSocket } from '../../../hooks/useWebSocket';
 import CocktailService from '../../../services/cocktail.service';
 import useAuthStore from '../../../store/authStore';
 import useCocktailProgressStore from '../../../store/cocktailProgressStore';
+import { enforcePinAfterDrinkIfRequired } from '../../../utils/orderingPolicy';
 
 // Progress arrives over the WebSocket right after subscribing when an order is running.
 const CONNECT_GRACE_MS = 1500;
@@ -48,7 +49,11 @@ const SimpleOrderStatus = () => {
     return () => clearTimeout(timer);
   }, [progress]);
 
-  const goToDrinks = useCallback(() => {
+  const goToDrinks = useCallback(async () => {
+    const locked = await enforcePinAfterDrinkIfRequired(navigate);
+    if (locked) {
+      return;
+    }
     navigate({ to: '/simple/drinks' });
   }, [navigate]);
 
