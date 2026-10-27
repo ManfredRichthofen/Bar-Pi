@@ -71,6 +71,7 @@ export function mapUnit(unit?: string | null): string {
     cl: 'milliliter',
     oz: 'milliliter',
     g: 'grams',
+    piece: 'pieces',
     tsp: 'teaspoons',
     tbsp: 'tablespoons',
   };
@@ -328,13 +329,62 @@ export const RecipeForm: React.FC<RecipeFormProps> = ({ mode, recipeId }) => {
     });
   };
 
-  const handleImportFromCocktailDB = (cocktailData: {
+  const findIngredientByName = (list: Ingredient[], name: string) => {
+    const target = cocktailDBService.normalizeName(name);
+    const singular = (value: string) => value.replace(/s$/, '');
+    return (
+      list.find((i) => cocktailDBService.normalizeName(i.name) === target) ||
+      list.find(
+        (i) =>
+          singular(cocktailDBService.normalizeName(i.name)) ===
+          singular(target),
+      ) ||
+      null
+    );
+  };
+
+  const createImportedIngredient = async (name: string, scale: string) => {
+    const info = await cocktailDBService.getIngredientByName(name);
+    const abv = parseFloat(info?.strABV ?? '');
+
+    let image: File | null = null;
+    try {
+      const blob = await cocktailDBService.downloadImage(
+        cocktailDBService.getIngredientImageUrl(info?.strIngredient || name),
+      );
+      image = new File([blob], `${name}.png`, { type: 'image/png' });
+    } catch {
+      // Not every CocktailDB ingredient has an image
+    }
+
+    await ingredientService.createIngredient(
+      {
+        type: 'manual',
+        name,
+        parentGroupId: null,
+        unit: scale === 'pieces' ? 'piece' : 'ml',
+        alcoholContent: Number.isFinite(abv)
+          ? Math.min(Math.max(abv, 0), 100)
+          : 0,
+      },
+      image,
+      token,
+    );
+  };
+
+  const handleImportFromCocktailDB = async (cocktailData: {
     name?: string;
     instructions?: string;
     description?: string;
     imageFile?: File;
     glass?: string;
-    ingredients?: Array<{ name: string; measure: string }>;
+    ingredients?: Array<{
+      name: string;
+      measure: string;
+      amount: number | null;
+      scale: string | null;
+      garnish: boolean;
+    }>;
   }) => {
     setFormData((prev) => ({
       ...prev,
@@ -350,34 +400,99 @@ export const RecipeForm: React.FC<RecipeFormProps> = ({ mode, recipeId }) => {
       }));
     }
 
-    if (cocktailData.ingredients && cocktailData.ingredients.length > 0) {
-      const stepIngredients = cocktailData.ingredients.map((ing) => {
-        const matchedIngredient = ingredients.find(
-          (i) => i.name.toLowerCase() === ing.name.toLowerCase(),
-        );
+    type ImportedIngredient = NonNullable<
+      typeof cocktailData.ingredients
+    >[number];
+    type MeasuredIngredient = ImportedIngredient & {
+      amount: number;
+      scale: string;
+    };
 
-        const measurement = cocktailDBService.parseMeasurement(ing.measure) as {
-          amount: number;
-          unit: string;
-        };
+    const imported = cocktailData.ingredients || [];
+    const measured = imported.filter(
+      (ing): ing is MeasuredIngredient =>
+        ing.amount != null && !!ing.scale && !ing.garnish,
+    );
+    const unmeasured = imported.filter(
+      (ing) => !measured.includes(ing as MeasuredIngredient),
+    );
 
-        return {
-          ingredient: matchedIngredient || null,
-          amount: measurement.amount,
-          scale: measurement.unit,
+    let availableIngredients = ingredients;
+    const created: string[] = [];
+    const failed: string[] = [];
+
+    const missing = measured.filter(
+      (ing, index) =>
+        !findIngredientByName(availableIngredients, ing.name) &&
+        measured.findIndex(
+          (other) =>
+            cocktailDBService.normalizeName(other.name) ===
+            cocktailDBService.normalizeName(ing.name),
+        ) === index,
+    );
+
+    for (const ing of missing) {
+      try {
+        await createImportedIngredient(ing.name, ing.scale);
+        created.push(ing.name);
+      } catch (error) {
+        console.error(`Failed to create ingredient "${ing.name}":`, error);
+        failed.push(ing.name);
+      }
+    }
+
+    if (created.length > 0) {
+      try {
+        availableIngredients = await ingredientService.getIngredients(token);
+        setIngredients(availableIngredients);
+        await queryClient.invalidateQueries({ queryKey: ['ingredients'] });
+      } catch (error) {
+        console.error('Failed to reload ingredients:', error);
+      }
+    }
+
+    const productionSteps: ProductionStep[] = [];
+
+    if (measured.length > 0) {
+      productionSteps.push({
+        type: 'addIngredients',
+        stepIngredients: measured.map((ing) => ({
+          ingredient: findIngredientByName(availableIngredients, ing.name),
+          amount: ing.amount,
+          scale: ing.scale,
           boostable: false,
-        };
+        })),
       });
+    }
 
-      setFormData((prev) => ({
-        ...prev,
-        productionSteps: [
-          {
-            type: 'addIngredients',
-            stepIngredients,
-          },
-        ],
-      }));
+    const garnishes = unmeasured.filter((ing) => ing.garnish);
+    const extras = unmeasured.filter((ing) => !ing.garnish);
+    const instructionParts = [
+      extras.length > 0 &&
+        `You will also need: ${extras
+          .map((ing) => (ing.measure ? `${ing.name} (${ing.measure})` : ing.name))
+          .join(', ')}`,
+      cocktailData.instructions?.trim(),
+      garnishes.length > 0 &&
+        `Garnish with ${garnishes.map((ing) => ing.name).join(', ')}.`,
+    ].filter(Boolean);
+
+    if (instructionParts.length > 0) {
+      productionSteps.push({
+        type: 'writtenInstruction',
+        message: instructionParts.join('\n\n'),
+      });
+    }
+
+    setFormData((prev) => ({ ...prev, productionSteps }));
+
+    if (created.length > 0) {
+      toast.info(`Created ingredients: ${created.join(', ')}`);
+    }
+    if (failed.length > 0) {
+      toast.warning(
+        `Could not create: ${failed.join(', ')}. Select them manually.`,
+      );
     }
 
     if (cocktailData.glass && glasses.length > 0) {

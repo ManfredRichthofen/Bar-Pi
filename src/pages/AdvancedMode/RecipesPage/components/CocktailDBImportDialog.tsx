@@ -20,7 +20,13 @@ interface ConvertedRecipe {
   alcoholic: boolean;
   glass: string;
   imageUrl: string;
-  ingredients: Array<{ name: string; measure: string }>;
+  ingredients: Array<{
+    name: string;
+    measure: string;
+    amount: number | null;
+    scale: string | null;
+    garnish: boolean;
+  }>;
   instructions: string;
   tags: string[];
   cocktailDbId: string;
@@ -31,7 +37,7 @@ interface ConvertedRecipe {
 interface CocktailDBImportDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onImport: (cocktailData: ConvertedRecipe) => void;
+  onImport: (cocktailData: ConvertedRecipe) => void | Promise<void>;
 }
 
 export function CocktailDBImportDialog({
@@ -44,6 +50,7 @@ export function CocktailDBImportDialog({
   const [results, setResults] = useState<any[]>([]);
   const [selectedCocktail, setSelectedCocktail] = useState<any>(null);
   const [showDetail, setShowDetail] = useState(false);
+  const [importingId, setImportingId] = useState<string | null>(null);
 
   const handleSearch = async () => {
     if (!searchTerm.trim()) {
@@ -68,7 +75,9 @@ export function CocktailDBImportDialog({
   };
 
   const handleImport = async (cocktail: any) => {
+    if (importingId) return;
     try {
+      setImportingId(cocktail.idDrink);
       const convertedRecipe = cocktailDBService.convertToRecipeFormat(
         cocktail,
       ) as ConvertedRecipe;
@@ -91,12 +100,14 @@ export function CocktailDBImportDialog({
         }
       }
 
-      onImport({ ...convertedRecipe, imageFile });
+      await onImport({ ...convertedRecipe, imageFile });
       onOpenChange(false);
-      toast.success(`Imported "${convertedRecipe?.name}" from CocktailDB`);
+      handleBackToResults();
     } catch (error) {
       console.error('Import failed:', error);
       toast.error('Failed to import cocktail');
+    } finally {
+      setImportingId(null);
     }
   };
 
@@ -225,13 +236,15 @@ export function CocktailDBImportDialog({
 
                 <Button
                   className="w-full"
-                  onClick={() => {
-                    handleImport(selectedCocktail);
-                    handleBackToResults();
-                  }}
+                  disabled={!!importingId}
+                  onClick={() => handleImport(selectedCocktail)}
                 >
-                  <Download className="size-6 mr-2" />
-                  Import This Cocktail
+                  {importingId ? (
+                    <Loader2 className="size-6 mr-2 animate-spin" />
+                  ) : (
+                    <Download className="size-6 mr-2" />
+                  )}
+                  {importingId ? 'Importing...' : 'Import This Cocktail'}
                 </Button>
               </div>
             ) : results.length === 0 ? (
@@ -274,13 +287,20 @@ export function CocktailDBImportDialog({
                       <Button
                         size="sm"
                         className="mt-2 sm:mt-3 w-full"
+                        disabled={!!importingId}
                         onClick={(e) => {
                           e.stopPropagation();
                           handleImport(cocktail);
                         }}
                       >
-                        <Download className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-2" />
-                        Import
+                        {importingId === cocktail.idDrink ? (
+                          <Loader2 className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-2 animate-spin" />
+                        ) : (
+                          <Download className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-2" />
+                        )}
+                        {importingId === cocktail.idDrink
+                          ? 'Importing...'
+                          : 'Import'}
                       </Button>
                     </div>
                   </div>
