@@ -1,6 +1,5 @@
-import { Menu } from 'lucide-react';
 import React, { useState } from 'react';
-import { Button } from '@/components/ui/button';
+import HeaderBar from './HeaderBar';
 import Sidebar from './Sidebar';
 
 interface MainLayoutProps {
@@ -28,24 +27,17 @@ const Layout: React.FC<MainLayoutProps> = ({ children }) => {
 
   return (
     <div className="min-h-screen bg-background">
-      {collapsed && (
-        <Button
-          onClick={() => setCollapsed(false)}
-          variant="outline"
-          size="icon"
-          aria-label="Open sidebar"
-          className="fixed top-3 left-3 z-50 shadow-md"
-        >
-          <Menu />
-        </Button>
-      )}
+      <HeaderBar
+        collapsed={collapsed}
+        onToggle={() => setCollapsed(!collapsed)}
+      />
       <Sidebar collapsed={collapsed} onCollapse={setCollapsed} />
       <main
         className={`min-h-screen transition-[margin] ${
           collapsed ? 'ml-0' : 'ml-0 sm:ml-72'
         }`}
       >
-        <div className="px-4 pb-6 pt-4 sm:px-6">{childrenWithProps}</div>
+        <div className="px-4 pb-6 pt-16 sm:px-6">{childrenWithProps}</div>
       </main>
     </div>
   );
