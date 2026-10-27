@@ -15,6 +15,7 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as ReversepumpsettingsRouteImport } from './routes/reversepumpsettings'
 import { Route as SimpleRouteImport } from './routes/simple'
 import { Route as AdvancedCategoriesRouteImport } from './routes/_advanced.categories'
+import { Route as AdvancedCollectionsRouteImport } from './routes/_advanced.collections'
 import { Route as AdvancedDrinksRouteImport } from './routes/_advanced.drinks'
 import { Route as AdvancedFavoritesRouteImport } from './routes/_advanced.favorites'
 import { Route as AdvancedGlassesRouteImport } from './routes/_advanced.glasses'
@@ -63,6 +64,11 @@ const SimpleRoute = SimpleRouteImport.update({
 const AdvancedCategoriesRoute = AdvancedCategoriesRouteImport.update({
   id: '/categories',
   path: '/categories',
+  getParentRoute: () => AdvancedRoute,
+} as any)
+const AdvancedCollectionsRoute = AdvancedCollectionsRouteImport.update({
+  id: '/collections',
+  path: '/collections',
   getParentRoute: () => AdvancedRoute,
 } as any)
 const AdvancedDrinksRoute = AdvancedDrinksRouteImport.update({
@@ -173,6 +179,7 @@ export interface FileRoutesByFullPath {
   '/reversepumpsettings': typeof ReversepumpsettingsRoute
   '/simple': typeof SimpleRouteWithChildren
   '/categories': typeof AdvancedCategoriesRoute
+  '/collections': typeof AdvancedCollectionsRoute
   '/drinks': typeof AdvancedDrinksRouteWithChildren
   '/favorites': typeof AdvancedFavoritesRoute
   '/glasses': typeof AdvancedGlassesRoute
@@ -200,6 +207,7 @@ export interface FileRoutesByTo {
   '/reversepumpsettings': typeof ReversepumpsettingsRoute
   '/simple': typeof SimpleRouteWithChildren
   '/categories': typeof AdvancedCategoriesRoute
+  '/collections': typeof AdvancedCollectionsRoute
   '/drinks': typeof AdvancedDrinksRouteWithChildren
   '/favorites': typeof AdvancedFavoritesRoute
   '/glasses': typeof AdvancedGlassesRoute
@@ -229,6 +237,7 @@ export interface FileRoutesById {
   '/reversepumpsettings': typeof ReversepumpsettingsRoute
   '/simple': typeof SimpleRouteWithChildren
   '/_advanced/categories': typeof AdvancedCategoriesRoute
+  '/_advanced/collections': typeof AdvancedCollectionsRoute
   '/_advanced/drinks': typeof AdvancedDrinksRouteWithChildren
   '/_advanced/favorites': typeof AdvancedFavoritesRoute
   '/_advanced/glasses': typeof AdvancedGlassesRoute
@@ -258,6 +267,7 @@ export interface FileRouteTypes {
     | '/reversepumpsettings'
     | '/simple'
     | '/categories'
+    | '/collections'
     | '/drinks'
     | '/favorites'
     | '/glasses'
@@ -285,6 +295,7 @@ export interface FileRouteTypes {
     | '/reversepumpsettings'
     | '/simple'
     | '/categories'
+    | '/collections'
     | '/drinks'
     | '/favorites'
     | '/glasses'
@@ -313,6 +324,7 @@ export interface FileRouteTypes {
     | '/reversepumpsettings'
     | '/simple'
     | '/_advanced/categories'
+    | '/_advanced/collections'
     | '/_advanced/drinks'
     | '/_advanced/favorites'
     | '/_advanced/glasses'
@@ -385,6 +397,13 @@ declare module '@tanstack/react-router' {
       path: '/categories'
       fullPath: '/categories'
       preLoaderRoute: typeof AdvancedCategoriesRouteImport
+      parentRoute: typeof AdvancedRoute
+    }
+    '/_advanced/collections': {
+      id: '/_advanced/collections'
+      path: '/collections'
+      fullPath: '/collections'
+      preLoaderRoute: typeof AdvancedCollectionsRouteImport
       parentRoute: typeof AdvancedRoute
     }
     '/_advanced/drinks': {
@@ -570,6 +589,7 @@ const AdvancedRecipesRouteWithChildren = AdvancedRecipesRoute._addFileChildren(
 
 interface AdvancedRouteChildren {
   AdvancedCategoriesRoute: typeof AdvancedCategoriesRoute
+  AdvancedCollectionsRoute: typeof AdvancedCollectionsRoute
   AdvancedDrinksRoute: typeof AdvancedDrinksRouteWithChildren
   AdvancedFavoritesRoute: typeof AdvancedFavoritesRoute
   AdvancedGlassesRoute: typeof AdvancedGlassesRoute
@@ -585,6 +605,7 @@ interface AdvancedRouteChildren {
 
 const AdvancedRouteChildren: AdvancedRouteChildren = {
   AdvancedCategoriesRoute: AdvancedCategoriesRoute,
+  AdvancedCollectionsRoute: AdvancedCollectionsRoute,
   AdvancedDrinksRoute: AdvancedDrinksRouteWithChildren,
   AdvancedFavoritesRoute: AdvancedFavoritesRoute,
   AdvancedGlassesRoute: AdvancedGlassesRoute,

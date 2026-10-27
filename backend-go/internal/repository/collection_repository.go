@@ -42,7 +42,10 @@ func (r *CollectionRepository) FindAll(ownerID *int64) ([]models.Collection, err
 }
 
 func (r *CollectionRepository) Update(collection *models.Collection) error {
-	return r.db.Save(collection).Error
+	return r.db.Model(&models.Collection{}).Where("id = ?", collection.ID).Updates(map[string]any{
+		"name":        collection.Name,
+		"description": collection.Description,
+	}).Error
 }
 
 func (r *CollectionRepository) Delete(id int64) error {
