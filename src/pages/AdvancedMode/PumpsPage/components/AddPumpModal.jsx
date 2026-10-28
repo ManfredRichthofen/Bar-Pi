@@ -158,6 +158,8 @@ const AddPumpModal = ({ show, onClose, pumpType = null }) => {
         return 'Stepper Motor';
       case 'valve':
         return 'Control Valve';
+      case 'virtual':
+        return 'Virtual Pump';
       default:
         return 'Unknown';
     }

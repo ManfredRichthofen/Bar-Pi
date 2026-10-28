@@ -124,6 +124,8 @@ export const PumpCard: React.FC<PumpCardProps> = ({ pump }) => {
           return t('pump.pump_card.type_stepper');
         case 'valve':
           return t('pump.pump_card.type_valve');
+        case 'virtual':
+          return t('pump.pump_card.type_virtual', 'Virtual');
         default:
           return '';
       }

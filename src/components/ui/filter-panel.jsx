@@ -10,7 +10,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { useCollectionsList } from '@/hooks/useCollections';
-import { CLIENT_FILTER_KEYS, hasActiveClientFilters } from '@/utils/recipeFilters';
+import { FILTER_GROUPS, hasActiveClientFilters } from '@/utils/recipeFilters';
 
 const ALL_COLLECTIONS = 'all';
 
@@ -33,37 +33,41 @@ const FilterPanel = React.memo(
 
     const filterLabels = {
       automatic: t('filters.automatic', 'Automatic'),
-      manual: t('filters.manual', 'Manual'),
-      available: t('filters.available', 'Available'),
+      manual: t('filters.manual', 'Needs hands-on steps'),
+      available: t('filters.available', 'In stock'),
+      fabricable: t('filters.fabricable', 'Craftable'),
       alcoholic: t('filters.alcoholic', 'Alcoholic'),
-      nonAlcoholic: t('filters.non_alcoholic', 'Non-Alcoholic'),
-      favorited: t('filters.favorited', 'Favorited'),
-      fabricable: t('filters.fabricable', 'Can Make'),
+      nonAlcoholic: t('filters.non_alcoholic', 'Non-alcoholic'),
+      favorited: t('filters.favorited', 'Favorites only'),
     };
 
     const filterDescriptions = {
       automatic: t(
         'filters.automatic_description',
-        'Show drinks with all automated ingredients',
+        'The pumps make it all, nothing to add by hand',
       ),
       manual: t(
         'filters.manual_description',
-        'Show drinks that require manual preparation',
+        'You add at least one ingredient by hand',
       ),
       available: t(
         'filters.available_description',
-        'Show drinks with ingredients on pumps or in the bar',
+        'Every ingredient is on a pump or marked in the bar',
       ),
-      alcoholic: t('filters.alcoholic_description', 'Show alcoholic drinks'),
-      nonAlcoholic: t(
-        'filters.non_alcoholic_description',
-        'Show non-alcoholic drinks',
-      ),
-      favorited: t('filters.favorited_description', 'Show favorited drinks'),
       fabricable: t(
         'filters.fabricable_description',
-        'Show drinks you can make with available ingredients',
+        'Verified makeable right now: nothing missing and every automated ingredient is on a pump',
       ),
+      alcoholic: t('filters.alcoholic_description', 'Contains alcohol'),
+      nonAlcoholic: t('filters.non_alcoholic_description', 'No alcohol'),
+      favorited: t('filters.favorited_description', 'Only drinks you favorited'),
+    };
+
+    const groupLabels = {
+      alcohol: t('filters.group_alcohol', 'Alcohol'),
+      preparation: t('filters.group_preparation', 'Preparation'),
+      stock: t('filters.group_stock', 'Ingredients'),
+      other: t('filters.group_other', 'Other'),
     };
 
     const renderFilterButton = (filter) => {
@@ -78,15 +82,27 @@ const FilterPanel = React.memo(
           title={filterDescriptions[filter]}
           aria-pressed={isActive}
         >
-          <span className="flex items-center gap-1.5">
-            {isSimple && (
-              <span
-                className={`size-2 rounded-full ${isActive ? 'bg-primary-foreground' : 'bg-foreground-muted'}`}
-              />
-            )}
-            {filterLabels[filter]}
-          </span>
+          {filterLabels[filter]}
         </Button>
+      );
+    };
+
+    const renderGroup = (group) => {
+      const active = group.filters.find((filter) => filters[filter]);
+      return (
+        <div key={group.id} className="space-y-1.5">
+          {group.id !== 'other' && (
+            <div className="text-sm font-medium">{groupLabels[group.id]}</div>
+          )}
+          <div className="flex flex-wrap gap-2">
+            {group.filters.map(renderFilterButton)}
+          </div>
+          {active && (
+            <p className="text-sm text-foreground-muted">
+              {filterDescriptions[active]}
+            </p>
+          )}
+        </div>
       );
     };
 
@@ -95,10 +111,10 @@ const FilterPanel = React.memo(
     );
 
     const collectionSelect = collections.length > 0 && (
-      <div className="flex items-center gap-3">
-        <span className="text-sm font-medium">
+      <div className="space-y-1.5">
+        <div className="text-sm font-medium">
           {t('filters.collection', 'Collection')}
-        </span>
+        </div>
         <Select
           value={
             filters.collectionId != null
@@ -129,30 +145,21 @@ const FilterPanel = React.memo(
       </div>
     );
 
+    const body = (
+      <div className="grid gap-4 sm:grid-cols-2">
+        {FILTER_GROUPS.map(renderGroup)}
+        {collectionSelect}
+      </div>
+    );
+
     if (isSimple) {
-      const selected = CLIENT_FILTER_KEYS.filter((filter) => filters[filter]);
       return (
         <section
           id={id}
           aria-label={t('filters.title', 'Filters')}
-          className={`flex flex-col gap-3 ${className}`}
+          className={`flex flex-col gap-4 ${className}`}
         >
-          <div className="flex flex-wrap gap-2">
-            {CLIENT_FILTER_KEYS.map(renderFilterButton)}
-          </div>
-          {collectionSelect}
-          <ul className="space-y-1 text-sm text-foreground-muted">
-            {(selected.length > 0 ? selected : CLIENT_FILTER_KEYS).map(
-              (filter) => (
-                <li key={filter}>
-                  <span className="font-semibold text-foreground">
-                    {filterLabels[filter]}:
-                  </span>{' '}
-                  {filterDescriptions[filter]}
-                </li>
-              ),
-            )}
-          </ul>
+          {body}
           {hasActiveFilters && (
             <Button
               variant="ghost"
@@ -179,14 +186,16 @@ const FilterPanel = React.memo(
             </h3>
           </div>
           <div className="flex items-center gap-2">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => onFilterChange('clear')}
-              className="text-foreground-muted hover:text-foreground transition-colors"
-            >
-              {t('filters.clear_all', 'Clear All')}
-            </Button>
+            {hasActiveFilters && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => onFilterChange('clear')}
+                className="text-foreground-muted hover:text-foreground transition-colors"
+              >
+                {t('filters.clear_all', 'Clear All')}
+              </Button>
+            )}
             {showCloseButton && (
               <Button
                 variant="ghost"
@@ -200,10 +209,7 @@ const FilterPanel = React.memo(
             )}
           </div>
         </div>
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          {CLIENT_FILTER_KEYS.map(renderFilterButton)}
-        </div>
-        {collectionSelect}
+        {body}
       </div>
     );
   },
