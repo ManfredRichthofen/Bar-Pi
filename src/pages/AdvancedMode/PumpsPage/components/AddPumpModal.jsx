@@ -27,12 +27,10 @@ import GpioService from '../../../../services/gpio.service';
 import IngredientService from '../../../../services/ingredient.service';
 import PumpService from '../../../../services/pump.service';
 import useAuthStore from '../../../../store/authStore';
-import { usePumpStore } from '../../../../store/pumpStore';
 
 const AddPumpModal = ({ show, onClose, pumpType = null }) => {
   const { t } = useTranslation();
   const token = useAuthStore((state) => state.token);
-  const { addPump } = usePumpStore();
 
   const {
     register,
@@ -106,10 +104,7 @@ const AddPumpModal = ({ show, onClose, pumpType = null }) => {
       setSaving(true);
       setError(null);
 
-      const response = await PumpService.createPump(data, token);
-      const newPump = response.data;
-
-      addPump(newPump);
+      await PumpService.createPump(data, token);
 
       setSuccess('Pump created successfully');
       toast.success('Pump created successfully');

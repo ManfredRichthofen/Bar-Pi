@@ -108,7 +108,7 @@ The codebase is organized for clarity:
 
 ## Frontend Conventions
 
-**Fetching and caching.** Server data is cached with TanStack Query (default `staleTime` is 5 minutes). Any successful `POST`, `PATCH` or `DELETE` made through the shared axios client (`src/lib/apiClient.ts`) automatically marks all cached queries stale, so lists refresh after you add, edit or delete something. `PUT` requests do not trigger this. If a `PUT` changes data a list shows, call `queryClient.invalidateQueries({ queryKey: [...] })` yourself. Do not copy query results into Zustand stores unless you need them outside React (WebSocket updates are the existing exception).
+**Fetching and caching.** Server data is cached with TanStack Query (default `staleTime` is 5 minutes). Any successful `POST`, `PATCH` or `DELETE` made through the shared axios client (`src/lib/apiClient.ts`) automatically marks all cached queries stale, so lists refresh after you add, edit or delete something. `PUT` requests do not trigger this. If a `PUT` changes data a list shows, call `queryClient.invalidateQueries({ queryKey: [...] })` yourself. Do not copy query results into Zustand stores; read them with the query hook (for example `usePumps`).
 
 **Authentication on load.** The saved token is restored in `src/main.tsx` before the router starts, because route guards (`beforeLoad`) run before React mounts. Read auth state in guards with `useAuthStore.getState()`.
 
