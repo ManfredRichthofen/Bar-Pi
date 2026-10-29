@@ -8,14 +8,14 @@ import {
 } from 'lucide-react';
 import {
   AnimatePresence,
-  motion,
+  m,
   useReducedMotion,
 } from 'motion/react';
 import { useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { create } from 'zustand';
 
-import { enterTransition } from '@/lib/simpleMotion';
+import { enterTransition } from '@/lib/motionPresets';
 import { cn } from '@/lib/utils';
 
 type ToastVariant = 'default' | 'success' | 'info' | 'warning' | 'error';
@@ -129,7 +129,7 @@ function ToastCard({ item }: { item: ToastItem }) {
   }, [dismiss, item.duration, item.id]);
 
   return (
-    <motion.div
+    <m.div
       layout={!reduceMotion}
       role={item.variant === 'error' ? 'alert' : 'status'}
       aria-live={item.variant === 'error' ? 'assertive' : 'polite'}
@@ -153,7 +153,7 @@ function ToastCard({ item }: { item: ToastItem }) {
       >
         <XIcon className="size-5" />
       </button>
-    </motion.div>
+    </m.div>
   );
 }
 

@@ -1,5 +1,6 @@
 import { QueryClientProvider } from '@tanstack/react-query';
 import { createRouter, RouterProvider } from '@tanstack/react-router';
+import { domAnimation, LazyMotion } from 'motion/react';
 import React, { lazy, Suspense } from 'react';
 import ReactDOM from 'react-dom/client';
 import { Toaster } from './components/ui/toast';
@@ -60,7 +61,10 @@ if (!rootElement.innerHTML) {
   root.render(
     <React.StrictMode>
       <QueryClientProvider client={queryClient}>
-        <RouterProvider router={router} />
+        <LazyMotion features={domAnimation} strict>
+          <RouterProvider router={router} />
+          <Toaster />
+        </LazyMotion>
         <Suspense fallback={null}>
           <TanStackRouterDevtools router={router} />
         </Suspense>

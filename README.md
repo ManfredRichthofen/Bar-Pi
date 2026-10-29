@@ -117,6 +117,7 @@ The codebase is organized for clarity:
 - Routes are code-split automatically. Keep heavy libraries (charts, editors) inside the page that uses them, and import them lazily if they are large.
 - Use `@tanstack/react-virtual` for long lists (recipes, ingredients) instead of rendering every row.
 - Select only what you need from a Zustand store (`useStore((s) => s.field)`) so components do not re-render on unrelated changes.
+- Animations: use `m` from `motion/react` (never `motion`); `LazyMotion` in `src/main.tsx` loads the animation features on demand and `strict` mode errors if `motion` is used. Take durations and values from `src/lib/motionPresets.ts`, use the `usePress` hook for hover/press feedback on cards and buttons, and honour `useReducedMotion()` for looping animations. Do not add per-component springs or ad-hoc durations.
 - Dev-only tools such as the router devtools must stay behind `import.meta.env.DEV`.
 - Serve images at the size they are shown, and lazy-load them (`useLazyImage`). The login backgrounds are the largest files in `dist/`.
 - The Raspberry Pi kiosk browser is the slowest target. Check changes there, and prefer opacity/transform animations over animating layout.

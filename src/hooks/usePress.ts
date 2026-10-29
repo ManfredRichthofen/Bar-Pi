@@ -4,10 +4,10 @@ import {
   noneTransition,
   pressHover,
   pressTap,
-} from '@/lib/simpleMotion';
+} from '@/lib/motionPresets';
 
-/** Shared press/lift props for simple-mode interactive surfaces. */
-export function useSimplePress(options?: { lift?: boolean }) {
+/** Shared press/lift props for interactive surfaces (simple and advanced mode). */
+export function usePress(options?: { lift?: boolean }) {
   const reduceMotion = useReducedMotion();
   const lift = options?.lift !== false;
 
