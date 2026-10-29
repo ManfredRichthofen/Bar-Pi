@@ -8,6 +8,7 @@ import './lib/apiClient';
 // Applies the saved theme to <html> on startup, not only when Settings opens.
 import './store/themeStore';
 import { queryClient } from './lib/queryClient';
+import useAuthStore from './store/authStore';
 import './index.css';
 import './i18n';
 
@@ -19,6 +20,8 @@ window.addEventListener('beforeunload', () => {
   const currentPath = window.location.pathname + window.location.search;
   localStorage.setItem('lastRoute', currentPath);
 });
+
+useAuthStore.getState().reinitializeAuthState();
 
 // Create a new router instance
 const router = createRouter({ routeTree });
