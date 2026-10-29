@@ -85,10 +85,12 @@ class UserService extends BaseService {
         ? updateRequest.password
         : 'dummy_password_for_update';
 
+    // Java CocktailPi reads `password` from the top level, the Go backend from userDto
     const requestBody = {
       updatePassword: !!(
         updateRequest.password && updateRequest.password.trim() !== ''
       ),
+      password: userDto.password,
       userDto,
     };
 
@@ -105,7 +107,11 @@ class UserService extends BaseService {
       password: createUser.password,
     };
 
-    return this.post(API_PATH, { userDto }, authToken);
+    return this.post(
+      API_PATH,
+      { password: userDto.password, userDto },
+      authToken,
+    );
   }
 }
 

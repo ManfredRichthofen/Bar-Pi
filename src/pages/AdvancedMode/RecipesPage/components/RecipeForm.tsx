@@ -93,7 +93,8 @@ export function mapProductionStepsForSubmit(steps: ProductionStep[]) {
         step.stepIngredients?.map((si) => ({
           ingredient: si.ingredient ? { id: si.ingredient.id } : null,
           amount: si.amount,
-          scale: si.scale,
+          // CocktailPi's Java DTO declares `scale` as a boolean (scale with glass size)
+          scale: true,
           boostable: si.boostable,
         })) || [],
     };
