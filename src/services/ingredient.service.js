@@ -67,7 +67,13 @@ class IngredientService {
       });
   }
 
-  async updateIngredient(id, updateIngredient, image, token, removeImage = false) {
+  async updateIngredient(
+    id,
+    updateIngredient,
+    image,
+    token,
+    removeImage = false,
+  ) {
     const uploadData = new FormData();
     const stringIngredient = JSON.stringify(updateIngredient);
     const blobIngredient = new Blob([stringIngredient], {
