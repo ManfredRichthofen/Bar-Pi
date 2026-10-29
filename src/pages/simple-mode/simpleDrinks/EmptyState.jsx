@@ -1,5 +1,5 @@
 import { GlassWater, RefreshCw, Search, WifiOff } from 'lucide-react';
-import { motion, useReducedMotion } from 'motion/react';
+import { m, useReducedMotion } from 'motion/react';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -8,7 +8,7 @@ import {
   enterInitial,
   enterTransition,
   noneTransition,
-} from '@/lib/simpleMotion';
+} from '@/lib/motionPresets';
 
 const EmptyState = ({ type = 'no-results', onClearFilters, onRetry }) => {
   const { t } = useTranslation();
@@ -57,7 +57,7 @@ const EmptyState = ({ type = 'no-results', onClearFilters, onRetry }) => {
 
   return (
     <div className="flex items-center justify-center min-h-[60vh] p-4">
-      <motion.div
+      <m.div
         initial={reduceMotion ? false : enterInitial}
         animate={enterAnimate}
         transition={reduceMotion ? noneTransition : enterTransition}
@@ -80,7 +80,7 @@ const EmptyState = ({ type = 'no-results', onClearFilters, onRetry }) => {
             {state.action}
           </CardContent>
         </Card>
-      </motion.div>
+      </m.div>
     </div>
   );
 };

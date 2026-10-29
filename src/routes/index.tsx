@@ -8,7 +8,7 @@ export const Route = createFileRoute('/')({
 
 function IndexRoute() {
   const token = useAuthStore((state) => state.token);
-  const { isAdvancedMode } = useUIModeStore();
+  const isAdvancedMode = useUIModeStore((s) => s.isAdvancedMode);
 
   // If not authenticated, redirect to login
   if (!token) {

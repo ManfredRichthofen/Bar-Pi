@@ -124,6 +124,7 @@ func (s *PumpService) Create(pump *models.Pump) error {
 		"DcPump":      true,
 		"StepperPump": true,
 		"Valve":       true,
+		"VirtualPump": true,
 	}
 	if !validTypes[pump.DType] {
 		return fmt.Errorf("invalid pump type: %s", pump.DType)
@@ -131,6 +132,18 @@ func (s *PumpService) Create(pump *models.Pump) error {
 
 	if pump.Name != nil && *pump.Name == "" {
 		pump.Name = nil
+	}
+
+	// Virtual pumps have no pins to configure, so make them usable immediately.
+	if pump.DType == "VirtualPump" {
+		if pump.TubeCapacity == nil {
+			capacity := 100.0
+			pump.TubeCapacity = &capacity
+		}
+		if pump.TimePerClInMs == nil {
+			timePerCl := 1000
+			pump.TimePerClInMs = &timePerCl
+		}
 	}
 
 	if err := s.validatePumpRanges(pump); err != nil {

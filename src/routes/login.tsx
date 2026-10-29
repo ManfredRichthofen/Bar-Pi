@@ -9,7 +9,7 @@ export const Route = createFileRoute('/login')({
 
 function LoginRoute() {
   const token = useAuthStore((state) => state.token);
-  const { isAdvancedMode } = useUIModeStore();
+  const isAdvancedMode = useUIModeStore((s) => s.isAdvancedMode);
 
   // If user is already authenticated, redirect to appropriate page
   if (token) {

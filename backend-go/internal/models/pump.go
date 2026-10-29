@@ -44,6 +44,8 @@ func PumpDTypeToFrontendType(dtype string) string {
 		return "stepper"
 	case "Valve", "valve":
 		return "valve"
+	case "VirtualPump", "virtual":
+		return "virtual"
 	default:
 		return "dc"
 	}
@@ -57,6 +59,8 @@ func FrontendTypeToPumpDType(t string) string {
 		return "StepperPump"
 	case "valve", "Valve":
 		return "Valve"
+	case "virtual", "VirtualPump":
+		return "VirtualPump"
 	default:
 		return t
 	}
@@ -71,6 +75,12 @@ func (p Pump) ComputeState() string {
 		return "READY"
 	case "Valve", "valve":
 		if p.DcPinBoard == nil || p.DcPinNr == nil || p.TimePerClInMs == nil || p.TubeCapacity == nil {
+			return "INCOMPLETE"
+		}
+		return "READY"
+	case "VirtualPump", "virtual":
+		// No hardware: only needs enough config to simulate a run.
+		if p.TimePerClInMs == nil || p.TubeCapacity == nil {
 			return "INCOMPLETE"
 		}
 		return "READY"

@@ -1,5 +1,5 @@
 import { useNavigate } from '@tanstack/react-router';
-import { Droplet, Hexagon, Loader2 } from 'lucide-react';
+import { Cpu, Droplet, Hexagon, Loader2 } from 'lucide-react';
 import type React from 'react';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -31,10 +31,11 @@ export const PumpSelector: React.FC<PumpSelectorProps> = ({
   const [stepperLoading, setStepperLoading] = useState(false);
   const [valveLoading, setValveLoading] = useState(false);
   const [dcLoading, setDcLoading] = useState(false);
+  const [virtualLoading, setVirtualLoading] = useState(false);
 
-  const loading = stepperLoading || valveLoading || dcLoading;
+  const loading = stepperLoading || valveLoading || dcLoading || virtualLoading;
 
-  const onClickAddPump = (type: 'dc' | 'valve' | 'stepper') => {
+  const onClickAddPump = (type: 'dc' | 'valve' | 'stepper' | 'virtual') => {
     if (loading) return;
 
     switch (type) {
@@ -46,6 +47,9 @@ export const PumpSelector: React.FC<PumpSelectorProps> = ({
         break;
       case 'stepper':
         setStepperLoading(true);
+        break;
+      case 'virtual':
+        setVirtualLoading(true);
         break;
       default:
         throw new Error(`Unknown pump type: ${type}`);
@@ -64,6 +68,7 @@ export const PumpSelector: React.FC<PumpSelectorProps> = ({
         setStepperLoading(false);
         setValveLoading(false);
         setDcLoading(false);
+        setVirtualLoading(false);
       });
   };
 
@@ -78,6 +83,7 @@ export const PumpSelector: React.FC<PumpSelectorProps> = ({
       setStepperLoading(false);
       setValveLoading(false);
       setDcLoading(false);
+      setVirtualLoading(false);
     }
   }, [show]);
 
@@ -94,6 +100,32 @@ export const PumpSelector: React.FC<PumpSelectorProps> = ({
         </DialogHeader>
 
         <div className="block sm:hidden space-y-4">
+          <Card
+            className={`cursor-pointer hover:shadow-lg transition-colors ${
+              loading ? 'opacity-50 pointer-events-none' : ''
+            }`}
+            onClick={() => onClickAddPump('virtual')}
+          >
+            <CardContent className="p-6 flex flex-row items-center justify-start gap-4">
+              {virtualLoading ? (
+                <Loader2 className="animate-spin" size={32} />
+              ) : (
+                <Cpu size={32} />
+              )}
+              <div className="flex-1">
+                <p className="font-bold text-lg">
+                  {t('pump_selector.virtual', 'Virtual Pump')}
+                </p>
+                <p className="text-sm text-foreground-muted">
+                  {t(
+                    'pump_selector.virtual_description',
+                    'No hardware, for testing',
+                  )}
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+
           <Card
             className={`cursor-pointer hover:shadow-lg transition-colors ${
               loading ? 'opacity-50 pointer-events-none' : ''
@@ -162,7 +194,31 @@ export const PumpSelector: React.FC<PumpSelectorProps> = ({
           </Card>
         </div>
 
-        <div className="hidden sm:grid sm:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
+        <div className="hidden sm:grid sm:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
+          <Card
+            className={`cursor-pointer hover:shadow-lg transition-colors ${
+              loading ? 'opacity-50 pointer-events-none' : ''
+            }`}
+            onClick={() => onClickAddPump('virtual')}
+          >
+            <CardContent className="flex flex-col items-center justify-center p-4 sm:p-6">
+              {virtualLoading ? (
+                <Loader2 className="animate-spin mb-3 sm:mb-4" size={40} />
+              ) : (
+                <Cpu size={40} className="mb-3 sm:mb-4" />
+              )}
+              <p className="font-bold text-center text-base sm:text-lg">
+                {t('pump_selector.virtual', 'Virtual Pump')}
+              </p>
+              <p className="text-sm sm:text-sm text-foreground-muted text-center mt-1">
+                {t(
+                  'pump_selector.virtual_description',
+                  'No hardware, for testing',
+                )}
+              </p>
+            </CardContent>
+          </Card>
+
           <Card
             className={`cursor-pointer hover:shadow-lg transition-colors ${
               loading ? 'opacity-50 pointer-events-none' : ''

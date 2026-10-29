@@ -156,14 +156,13 @@ func (h *IngredientHandler) GetImage(c *gin.Context) {
 		return
 	}
 
-	filename := "ingredient_" + strconv.FormatInt(id, 10) + ".jpg"
-	data, err := h.imageService.GetImage(filename)
-	if err != nil || data == nil {
+	img, err := h.imageService.GetEntityImage("ingredient", id)
+	if err != nil || img == nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Image not found"})
 		return
 	}
 
-	c.Data(http.StatusOK, "image/jpeg", data)
+	serveStoredImage(c, img)
 }
 
 // Create handles POST /api/ingredient
@@ -223,7 +222,7 @@ func (h *IngredientHandler) Update(c *gin.Context) {
 	if c.Query("removeImage") == "true" {
 		ingredient.HasImage = false
 		if h.imageService != nil {
-			_ = h.imageService.DeleteImage("ingredient_" + strconv.FormatInt(id, 10) + ".jpg")
+			_ = h.imageService.DeleteEntityImage("ingredient", id)
 		}
 	}
 	if len(imageBytes) > 0 && h.imageService != nil {
@@ -262,7 +261,7 @@ func (h *IngredientHandler) Delete(c *gin.Context) {
 	}
 
 	if h.imageService != nil {
-		_ = h.imageService.DeleteImage("ingredient_" + strconv.FormatInt(id, 10) + ".jpg")
+		_ = h.imageService.DeleteEntityImage("ingredient", id)
 	}
 
 	c.JSON(http.StatusOK, gin.H{"message": "Ingredient deleted successfully"})

@@ -39,7 +39,7 @@ function RootComponent() {
   );
   const { i18n } = useTranslation();
   const [isAuthInitialized, setIsAuthInitialized] = useState(false);
-  const { isInitialized: isUIModeInitialized } = useUIModeStore();
+  const isUIModeInitialized = useUIModeStore((s) => s.isInitialized);
 
   // Auth initialization
   useEffect(() => {

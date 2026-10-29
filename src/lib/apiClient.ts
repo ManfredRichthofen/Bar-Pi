@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { DEFAULT_VALUES } from '../constants';
 import useConfigStore from '../store/configStore';
+import { queryClient } from './queryClient';
 
 /**
  * Shared axios setup: dynamic baseURL from configStore and Bearer token
@@ -27,6 +28,14 @@ axios.interceptors.request.use(
   },
   (error) => Promise.reject(error),
 );
+
+const WRITE_METHODS = new Set(['post', 'patch', 'delete']);
+axios.interceptors.response.use((response) => {
+  if (WRITE_METHODS.has(response.config.method ?? '')) {
+    void queryClient.invalidateQueries();
+  }
+  return response;
+});
 
 /** Auth-only headers. Do not set Content-Type — axios sets it from the body
  *  (JSON vs multipart FormData with boundary). */

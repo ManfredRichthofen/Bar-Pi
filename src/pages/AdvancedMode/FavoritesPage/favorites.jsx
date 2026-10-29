@@ -22,7 +22,9 @@ import useFavoritesStore from '../../../store/favoritesStore';
 const Favorites = ({ sidebarCollapsed = false }) => {
   const token = useAuthStore((state) => state.token);
   const navigate = useNavigate({ from: '/favorites' });
-  const { favorites, removeFavorite, clearFavorites } = useFavoritesStore();
+  const favorites = useFavoritesStore((s) => s.favorites);
+  const removeFavorite = useFavoritesStore((s) => s.removeFavorite);
+  const clearFavorites = useFavoritesStore((s) => s.clearFavorites);
   const [showClearConfirm, setShowClearConfirm] = useState(false);
   const [favoritesWithImages, setFavoritesWithImages] = useState([]);
   const [loadingImages, setLoadingImages] = useState(false);
