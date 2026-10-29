@@ -12,8 +12,10 @@ import useFavoritesStore from '@/store/favoritesStore';
 const DrinkCard = ({ recipe }) => {
   const navigate = useNavigate({ from: '/drinks' });
   const press = usePress({ lift: true });
-  const { toggleFavorite, isFavorite } = useFavoritesStore();
-  const favorited = isFavorite(recipe.id);
+  const toggleFavorite = useFavoritesStore((s) => s.toggleFavorite);
+  const favorited = useFavoritesStore((s) =>
+    s.favorites.some((fav) => fav.id === recipe.id),
+  );
 
   const {
     imageUrl,
