@@ -1,4 +1,5 @@
 import axios, { authHeaders } from '../lib/apiClient';
+import { compressImage } from '../utils/compressImage';
 
 const API_PATH = 'api/ingredient/';
 
@@ -66,7 +67,7 @@ class IngredientService {
       });
   }
 
-  updateIngredient(id, updateIngredient, image, token, removeImage = false) {
+  async updateIngredient(id, updateIngredient, image, token, removeImage = false) {
     const uploadData = new FormData();
     const stringIngredient = JSON.stringify(updateIngredient);
     const blobIngredient = new Blob([stringIngredient], {
@@ -74,7 +75,7 @@ class IngredientService {
     });
     uploadData.append('ingredient', blobIngredient);
     if (image) {
-      uploadData.append('image', image);
+      uploadData.append('image', await compressImage(image));
     }
     return axios.put(
       API_PATH + String(id) + '?removeImage=' + String(removeImage),
@@ -86,7 +87,7 @@ class IngredientService {
     );
   }
 
-  createIngredient(createIngredient, image, token) {
+  async createIngredient(createIngredient, image, token) {
     const uploadData = new FormData();
     const stringIngredient = JSON.stringify(createIngredient);
     const blobIngredient = new Blob([stringIngredient], {
@@ -94,7 +95,7 @@ class IngredientService {
     });
     uploadData.append('ingredient', blobIngredient);
     if (image) {
-      uploadData.append('image', image);
+      uploadData.append('image', await compressImage(image));
     }
 
     return axios

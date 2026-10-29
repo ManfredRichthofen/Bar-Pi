@@ -6,7 +6,6 @@ import {
   pressTap,
 } from '@/lib/motionPresets';
 
-/** Shared press/lift props for interactive surfaces (simple and advanced mode). */
 export function usePress(options?: { lift?: boolean }) {
   const reduceMotion = useReducedMotion();
   const lift = options?.lift !== false;

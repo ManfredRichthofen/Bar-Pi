@@ -26,7 +26,6 @@ export const imageFadeVariants: Variants = {
   visible: { opacity: 1, transition: enterTransition },
 };
 
-/** Looping "activity" pulse (e.g. a running pump). Gate on reduced motion. */
 export const pulseAnimate = { scale: [1, 1.2, 1] };
 export const pulseTransition: Transition = {
   duration: 1.5,
