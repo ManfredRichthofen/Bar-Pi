@@ -1,9 +1,9 @@
 import { Link, useLocation } from '@tanstack/react-router';
 import { Clock, GlassWater, Settings } from 'lucide-react';
-import { motion } from 'motion/react';
+import { m } from 'motion/react';
 import type React from 'react';
 import { useTranslation } from 'react-i18next';
-import { useSimplePress } from '@/hooks/useSimplePress';
+import { usePress } from '@/hooks/usePress';
 import { cn } from '@/lib/utils';
 
 const NAV = [
@@ -12,7 +12,7 @@ const NAV = [
   { to: '/simple/settings', icon: Settings, label: 'navigation.settings' },
 ] as const;
 
-const MotionLink = motion.create(Link);
+const MotionLink = m.create(Link);
 
 /** Drink detail and order own the bottom edge with their Make Drink bar, so the dock hides there. */
 export const isDocklessPath = (pathname: string) =>
@@ -26,7 +26,7 @@ const isActive = (to: string, pathname: string) =>
 const Dock: React.FC = () => {
   const { t } = useTranslation();
   const { pathname } = useLocation();
-  const press = useSimplePress({ lift: false });
+  const press = usePress({ lift: false });
 
   return (
     <nav

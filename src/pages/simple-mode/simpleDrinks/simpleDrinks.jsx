@@ -1,7 +1,7 @@
 import { useIsFetching } from '@tanstack/react-query';
 import { Navigate, useNavigate } from '@tanstack/react-router';
 import { ArrowUp, Filter } from 'lucide-react';
-import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
+import { AnimatePresence, m, useReducedMotion } from 'motion/react';
 import React, {
   useCallback,
   useEffect,
@@ -19,7 +19,7 @@ import {
   fadeAnimate,
   fadeInitial,
   noneTransition,
-} from '@/lib/simpleMotion';
+} from '@/lib/motionPresets';
 import useAuthStore from '../../../store/authStore.js';
 import useFilterStore from '../../../store/filterStore.js';
 import {
@@ -198,7 +198,7 @@ function SimpleDrinks() {
         </div>
       </header>
 
-      <motion.div
+      <m.div
         initial={reduceMotion ? false : { opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={reduceMotion ? noneTransition : enterTransition}
@@ -216,11 +216,11 @@ function SimpleDrinks() {
             setSearchTerm('');
           }}
         />
-      </motion.div>
+      </m.div>
 
       <AnimatePresence>
         {showScrollTop && (
-          <motion.div
+          <m.div
             initial={reduceMotion ? false : fadeInitial}
             animate={fadeAnimate}
             exit={reduceMotion ? undefined : fadeInitial}
@@ -234,7 +234,7 @@ function SimpleDrinks() {
             >
               <ArrowUp className="size-6" />
             </Button>
-          </motion.div>
+          </m.div>
         )}
       </AnimatePresence>
     </div>

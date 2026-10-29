@@ -93,7 +93,9 @@ export function mapProductionStepsForSubmit(steps: ProductionStep[]) {
         step.stepIngredients?.map((si) => ({
           ingredient: si.ingredient ? { id: si.ingredient.id } : null,
           amount: si.amount,
-          scale: si.scale,
+          // LEGACY (Java CocktailPi backend): `scale` is a boolean there; the
+          // unit string is rejected. The Go backend ignores non-numeric values.
+          scale: true,
           boostable: si.boostable,
         })) || [],
     };

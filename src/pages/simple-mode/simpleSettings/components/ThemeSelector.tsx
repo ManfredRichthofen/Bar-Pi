@@ -1,17 +1,17 @@
 import { Check, Palette } from 'lucide-react';
-import { motion } from 'motion/react';
+import { m } from 'motion/react';
 import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
-import { useSimplePress } from '@/hooks/useSimplePress';
+import { usePress } from '@/hooks/usePress';
 import { cn } from '@/lib/utils';
 import useThemeStore, { THEMES } from '@/store/themeStore';
 
 const ThemeSelector = ({ children }: { children?: ReactNode }) => {
   const { t } = useTranslation();
   const { theme, setTheme } = useThemeStore();
-  const press = useSimplePress({ lift: false });
+  const press = usePress({ lift: false });
 
   return (
     <Card>
@@ -35,7 +35,7 @@ const ThemeSelector = ({ children }: { children?: ReactNode }) => {
             {THEMES.map((option) => {
               const selected = theme === option.id;
               return (
-                <motion.label
+                <m.label
                   key={option.id}
                   data-theme={option.id}
                   {...press}
@@ -71,7 +71,7 @@ const ThemeSelector = ({ children }: { children?: ReactNode }) => {
                       option.description,
                     )}
                   </span>
-                </motion.label>
+                </m.label>
               );
             })}
           </div>

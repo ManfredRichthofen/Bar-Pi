@@ -401,6 +401,10 @@
     "connecting": "Conectando...",
     "connecting_hint": "Obteniendo el estado del pedido",
     "continue_failed": "No se pudo continuar el pedido",
+    "headline_active": "Preparando tu {{name}}",
+    "headline_cancelled": "{{name}} se canceló",
+    "headline_completed": "Tu {{name}} está listo",
+    "headline_manual": "Tu {{name}} necesita una mano",
     "manual_add_title": "Añade a mano los siguientes ingredientes:",
     "no_order_description": "Ahora mismo no se está preparando ningún cóctel",
     "no_order_title": "No hay pedido activo",
@@ -409,10 +413,10 @@
     "progress": "Progreso",
     "recipe_details": "Detalles de la receta",
     "state_cancelled": "Cancelado",
-    "state_completed": "Completado",
+    "state_completed": "Listo",
     "state_manual": "Añadir a mano",
-    "state_preparing": "Preparando",
-    "state_pumping": "Bombeando"
+    "state_preparing": "Preparándose",
+    "state_pumping": "Sirviendo"
   },
   "virtual_drinks_grid": {
     "loading_drinks": "",

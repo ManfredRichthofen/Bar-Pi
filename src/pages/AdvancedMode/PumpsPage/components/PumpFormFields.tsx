@@ -125,6 +125,9 @@ export const PumpFormFields: React.FC<PumpFormFieldsProps> = ({
                   <SelectItem value="dc">DC Pump</SelectItem>
                   <SelectItem value="stepper">Stepper Motor</SelectItem>
                   <SelectItem value="valve">Control Valve</SelectItem>
+                  <SelectItem value="virtual">
+                    Virtual Pump (testing)
+                  </SelectItem>
                 </SelectContent>
               </Select>
             </div>

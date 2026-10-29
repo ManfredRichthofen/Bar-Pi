@@ -358,6 +358,15 @@ Configuration is managed through environment variables. See `.env.example` for a
 ### Health Check
 - `GET /health` - Server health status
 
+## Images
+
+Uploaded recipe and ingredient images are decoded (JPEG, PNG, GIF, WebP or AVIF are accepted) and stored as AVIF (`recipe_<id>.avif`, `ingredient_<id>.avif`) in the images directory. Encoding is pure Go (WebAssembly via wazero), so it works with `CGO_ENABLED=0` cross-compiles for the Pi. If AVIF encoding ever fails, the image is saved as JPEG instead, so an upload never fails because of the encoder.
+
+- Images saved before this change (`.jpg`) keep working. They are replaced by an AVIF the next time the recipe or ingredient image is re-uploaded.
+- `GET /api/recipe/:id/image` and `GET /api/ingredient/:id/image` return the stored format with an `ETag`, so browsers get a `304` for unchanged images.
+- The web UI also downscales (max 1280px) and converts images to WebP before upload to save bandwidth. The server does not rely on this.
+- Hashed frontend files under `/assets/` are served with long-lived `immutable` caching; `index.html` and other files use `no-cache`.
+
 ## Database
 
 ### Schema

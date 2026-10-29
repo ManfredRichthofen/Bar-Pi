@@ -32,7 +32,7 @@ const Recipes = ({ sidebarCollapsed = false }) => {
   const token = useAuthStore((state) => state.token);
   const navigate = useNavigate({ from: '/recipes' });
   const favorites = useFavoritesStore((state) => state.favorites);
-  const { toggleFavorite } = useFavoritesStore();
+  const toggleFavorite = useFavoritesStore((state) => state.toggleFavorite);
   const [searchTerm, setSearchTerm] = useState('');
   const [isHeaderVisible, setIsHeaderVisible] = useState(true);
   const lastScrollYRef = useRef(0);

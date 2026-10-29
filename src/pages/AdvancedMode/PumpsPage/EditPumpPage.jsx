@@ -22,7 +22,6 @@ import GpioService from '../../../services/gpio.service';
 import IngredientService from '../../../services/ingredient.service';
 import PumpService from '../../../services/pump.service';
 import useAuthStore from '../../../store/authStore';
-import { usePumpStore } from '../../../store/pumpStore';
 
 const EditPumpPage = () => {
   const navigate = useNavigate({ from: '/pumps/$pumpId/edit' });
@@ -30,7 +29,6 @@ const EditPumpPage = () => {
   const pumpId = params?.pumpId;
   console.log('EditPumpPage rendering, pumpId:', pumpId);
   const token = useAuthStore((state) => state.token);
-  const { updatePump, removePump } = usePumpStore();
 
   const {
     register,
@@ -125,9 +123,7 @@ const EditPumpPage = () => {
         removeFields: [],
       };
 
-      const updatedPump = await PumpService.patchPump(pumpId, pumpData, token);
-
-      updatePump(pumpId, updatedPump);
+      await PumpService.patchPump(pumpId, pumpData, token);
 
       setSuccess('Pump updated successfully');
       toast.success('Pump updated successfully');
@@ -160,8 +156,6 @@ const EditPumpPage = () => {
       setError(null);
 
       await PumpService.deletePump(pumpId, token);
-
-      removePump(pumpId);
 
       toast.success('Pump deleted successfully');
 
@@ -196,6 +190,8 @@ const EditPumpPage = () => {
         return 'Stepper Motor';
       case 'valve':
         return 'Control Valve';
+      case 'virtual':
+        return 'Virtual Pump';
       default:
         return 'Unknown';
     }

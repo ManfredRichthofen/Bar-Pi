@@ -1,13 +1,14 @@
 import { QueryClientProvider } from '@tanstack/react-query';
 import { createRouter, RouterProvider } from '@tanstack/react-router';
-import { TanStackRouterDevtools } from '@tanstack/react-router-devtools';
-import React from 'react';
+import { domAnimation, LazyMotion } from 'motion/react';
+import React, { lazy, Suspense } from 'react';
 import ReactDOM from 'react-dom/client';
 import { Toaster } from './components/ui/toast';
 import './lib/apiClient';
 // Applies the saved theme to <html> on startup, not only when Settings opens.
 import './store/themeStore';
 import { queryClient } from './lib/queryClient';
+import useAuthStore from './store/authStore';
 import './index.css';
 import './i18n';
 
@@ -19,6 +20,16 @@ window.addEventListener('beforeunload', () => {
   const currentPath = window.location.pathname + window.location.search;
   localStorage.setItem('lastRoute', currentPath);
 });
+
+useAuthStore.getState().reinitializeAuthState();
+
+const TanStackRouterDevtools = import.meta.env.DEV
+  ? lazy(() =>
+      import('@tanstack/react-router-devtools').then((m) => ({
+        default: m.TanStackRouterDevtools,
+      })),
+    )
+  : () => null;
 
 // Create a new router instance
 const router = createRouter({ routeTree });
@@ -50,8 +61,13 @@ if (!rootElement.innerHTML) {
   root.render(
     <React.StrictMode>
       <QueryClientProvider client={queryClient}>
-        <RouterProvider router={router} />
-        <TanStackRouterDevtools router={router} />
+        <LazyMotion features={domAnimation} strict>
+          <RouterProvider router={router} />
+          <Toaster />
+        </LazyMotion>
+        <Suspense fallback={null}>
+          <TanStackRouterDevtools router={router} />
+        </Suspense>
         <Toaster />
       </QueryClientProvider>
     </React.StrictMode>,

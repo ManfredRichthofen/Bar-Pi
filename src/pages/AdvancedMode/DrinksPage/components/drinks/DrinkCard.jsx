@@ -1,17 +1,21 @@
 import { useNavigate } from '@tanstack/react-router';
 import { GlassWater, Heart, Loader2 } from 'lucide-react';
-import { motion } from 'motion/react';
+import { m } from 'motion/react';
 import React from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { useLazyImage } from '@/hooks/useLazyImage';
+import { usePress } from '@/hooks/usePress';
 import useFavoritesStore from '@/store/favoritesStore';
 
 const DrinkCard = ({ recipe }) => {
   const navigate = useNavigate({ from: '/drinks' });
-  const { toggleFavorite, isFavorite } = useFavoritesStore();
-  const favorited = isFavorite(recipe.id);
+  const press = usePress({ lift: true });
+  const toggleFavorite = useFavoritesStore((s) => s.toggleFavorite);
+  const favorited = useFavoritesStore((s) =>
+    s.favorites.some((fav) => fav.id === recipe.id),
+  );
 
   const {
     imageUrl,
@@ -36,12 +40,7 @@ const DrinkCard = ({ recipe }) => {
   const ingredientCount = recipe.ingredients?.length || 0;
 
   return (
-    <motion.div
-      whileHover={{ y: -4, scale: 1.02 }}
-      whileTap={{ scale: 0.98 }}
-      transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-      className="h-full"
-    >
+    <m.div {...press} className="h-full">
       <Card
         onClick={handleCardClick}
         className="group cursor-pointer h-full overflow-hidden border-border hover:border-border hover:shadow-lg transition-colors p-0"
@@ -144,7 +143,7 @@ const DrinkCard = ({ recipe }) => {
           </CardContent>
         </div>
       </Card>
-    </motion.div>
+    </m.div>
   );
 };
 

@@ -401,6 +401,10 @@
     "connecting": "Verbinde...",
     "connecting_hint": "Bestellstatus wird abgerufen",
     "continue_failed": "Bestellung konnte nicht fortgesetzt werden",
+    "headline_active": "{{name}} wird zubereitet",
+    "headline_cancelled": "{{name}} wurde abgebrochen",
+    "headline_completed": "Dein {{name}} ist fertig",
+    "headline_manual": "Dein {{name}} braucht eine helfende Hand",
     "manual_add_title": "Bitte folgende Zutaten von Hand hinzufügen:",
     "no_order_description": "Derzeit wird kein Cocktail zubereitet",
     "no_order_title": "Keine aktive Bestellung",
@@ -410,9 +414,9 @@
     "recipe_details": "Rezeptdetails",
     "state_cancelled": "Abgebrochen",
     "state_completed": "Fertig",
-    "state_manual": "Manuelle Zugabe nötig",
-    "state_preparing": "Vorbereitung",
-    "state_pumping": "Wird gepumpt"
+    "state_manual": "Von Hand zugeben",
+    "state_preparing": "Gleich geht’s los",
+    "state_pumping": "Wird eingeschenkt"
   },
   "virtual_drinks_grid": {
     "loading_drinks": "",

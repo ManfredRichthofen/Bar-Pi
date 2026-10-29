@@ -1,31 +1,24 @@
 import { useNavigate } from '@tanstack/react-router';
-import {
-  ArrowLeft,
-  CheckCircle2,
-  Clock,
-  GlassWater,
-  Info,
-  Loader2,
-  XCircle,
-} from 'lucide-react';
+import { ArrowLeft, Clock, GlassWater, Info, Loader2 } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { toast } from '@/components/ui/toast';
 import SimpleDisclosure from '@/components/simple-mode/SimpleDisclosure';
 import SimplePageEnter from '@/components/simple-mode/SimplePageEnter';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { ConfirmationDialog } from '@/components/ui/confirmation-dialog';
 import {
   Progress,
   ProgressLabel,
   ProgressValue,
 } from '@/components/ui/progress';
+import { toast } from '@/components/ui/toast';
 import { useWebSocket } from '../../../hooks/useWebSocket';
 import CocktailService from '../../../services/cocktail.service';
 import useAuthStore from '../../../store/authStore';
 import useCocktailProgressStore from '../../../store/cocktailProgressStore';
 import { enforcePinAfterDrinkIfRequired } from '../../../utils/orderingPolicy';
+import PourHero from './PourHero';
 
 // Progress arrives over the WebSocket right after subscribing when an order is running.
 const CONNECT_GRACE_MS = 1500;
@@ -98,19 +91,19 @@ const SimpleOrderStatus = () => {
   const getStateDisplay = (state: string) => {
     const stateMap: Record<string, { label: string; color: string }> = {
       PREPARING: {
-        label: t('simple_status.state_preparing', 'Preparing'),
+        label: t('simple_status.state_preparing', 'Getting ready'),
         color: 'text-primary',
       },
       PUMPING: {
-        label: t('simple_status.state_pumping', 'Pumping'),
+        label: t('simple_status.state_pumping', 'Pouring'),
         color: 'text-primary',
       },
       MANUAL_INGREDIENT_ADD: {
-        label: t('simple_status.state_manual', 'Manual Add Required'),
+        label: t('simple_status.state_manual', 'Add by hand'),
         color: 'text-warning',
       },
       COMPLETED: {
-        label: t('simple_status.state_completed', 'Completed'),
+        label: t('simple_status.state_completed', 'Ready'),
         color: 'text-success',
       },
       CANCELLED: {
@@ -189,6 +182,18 @@ const SimpleOrderStatus = () => {
   const isCompleted = progress.state === 'COMPLETED';
   const isCancelled = progress.state === 'CANCELLED';
   const isFinished = isCompleted || isCancelled;
+  const name = progress.recipe.name;
+  const headline = isCompleted
+    ? t('simple_status.headline_completed', 'Your {{name}} is ready', { name })
+    : isCancelled
+      ? t('simple_status.headline_cancelled', '{{name}} was cancelled', {
+          name,
+        })
+      : progress.state === 'MANUAL_INGREDIENT_ADD'
+        ? t('simple_status.headline_manual', 'Your {{name}} needs a hand', {
+            name,
+          })
+        : t('simple_status.headline_active', 'Making your {{name}}', { name });
   const recipeIngredients = progress.recipe.ingredients ?? [];
   const hasRecipeDetails =
     !!progress.recipe.description || recipeIngredients.length > 0;
@@ -198,167 +203,158 @@ const SimpleOrderStatus = () => {
       {header}
 
       <div className="flex-1 overflow-y-auto pb-8">
-        <SimplePageEnter className="mx-auto max-w-2xl px-4 py-6 sm:px-6 space-y-6">
-          <Card>
-            <CardHeader>
-              <div className="flex items-center justify-between gap-3">
-                <CardTitle className="text-2xl">
-                  {progress.recipe.name}
-                </CardTitle>
-                {isCompleted && (
-                  <CheckCircle2 className="size-8 shrink-0 text-success" />
+        <SimplePageEnter className="mx-auto max-w-2xl px-4 py-6 sm:px-6 space-y-5">
+          <PourHero
+            recipeId={progress.recipe.id}
+            hasImage={!!progress.recipe.hasImage}
+            name={progress.recipe.name}
+            progress={progress.progress}
+            cancelled={isCancelled}
+          />
+
+          <div className="space-y-1" aria-live="polite">
+            <h2
+              className={`text-3xl font-bold text-balance ${isCancelled ? 'text-foreground-muted' : 'text-foreground'}`}
+            >
+              {headline}
+            </h2>
+            <p className={`text-base font-medium ${stateDisplay.color}`}>
+              {stateDisplay.label}
+            </p>
+          </div>
+
+          {!isCancelled && (
+            <Progress
+              value={progress.progress}
+              className={
+                progress.state === 'PREPARING' || progress.state === 'PUMPING'
+                  ? 'running-progress'
+                  : undefined
+              }
+            >
+              <ProgressLabel className="text-foreground-muted font-normal">
+                {t('simple_status.progress', 'Progress')}
+              </ProgressLabel>
+              <ProgressValue className="font-mono text-base font-semibold text-foreground tabular-nums" />
+            </Progress>
+          )}
+
+          {progress.state === 'MANUAL_INGREDIENT_ADD' &&
+            progress.currentIngredientsToAddManually && (
+              <Card className="bg-warning-tint border-warning" role="alert">
+                <CardContent className="pt-6">
+                  <h3 className="font-semibold mb-3">
+                    {t(
+                      'simple_status.manual_add_title',
+                      'Please add the following ingredients by hand:',
+                    )}
+                  </h3>
+                  <ul className="space-y-2 mb-4">
+                    {progress.currentIngredientsToAddManually.map(
+                      (ing: any) => (
+                        <li
+                          key={ing.id ?? ing.name}
+                          className="flex items-center gap-2 text-base"
+                        >
+                          <span
+                            aria-hidden="true"
+                            className="size-2 shrink-0 rounded-full bg-warning"
+                          />
+                          <span className="font-medium flex-1">{ing.name}</span>
+                          <span className="font-semibold">
+                            {ing.amount} {ing.unit ?? 'ml'}
+                          </span>
+                        </li>
+                      ),
+                    )}
+                  </ul>
+                  <Button
+                    onClick={handleConfirmManualAdd}
+                    disabled={confirming}
+                    className="w-full"
+                    size="lg"
+                  >
+                    {confirming ? (
+                      <>
+                        <Loader2 className="size-6 animate-spin" />
+                        {t('simple_status.confirming', 'Confirming...')}
+                      </>
+                    ) : (
+                      t(
+                        'simple_status.confirm_added',
+                        "I've Added the Ingredients",
+                      )
+                    )}
+                  </Button>
+                </CardContent>
+              </Card>
+            )}
+
+          {hasRecipeDetails && (
+            <SimpleDisclosure
+              key={isFinished ? 'finished' : 'active'}
+              icon={Info}
+              title={t('simple_status.recipe_details', 'Recipe details')}
+              defaultOpen={false}
+            >
+              <div className="space-y-4">
+                {progress.recipe.description && (
+                  <div>
+                    <h3 className="font-semibold mb-2 text-sm text-foreground-muted">
+                      {t('simple_status.about', 'About')}
+                    </h3>
+                    <p className="text-base">{progress.recipe.description}</p>
+                  </div>
                 )}
-                {isCancelled && (
-                  <XCircle className="size-8 shrink-0 text-danger" />
+
+                {recipeIngredients.length > 0 && (
+                  <div>
+                    <h3 className="font-semibold mb-2 text-sm text-foreground-muted">
+                      {t('ingredients_list.title', 'Ingredients')}
+                    </h3>
+                    <div className="grid grid-cols-2 gap-2">
+                      {recipeIngredients.map((ing: any) => (
+                        <div
+                          key={ing.id ?? ing.name}
+                          className="flex items-center gap-2 text-base bg-surface-sunken rounded-lg p-2"
+                        >
+                          <span
+                            aria-hidden="true"
+                            className="size-1.5 shrink-0 rounded-full bg-primary"
+                          />
+                          <span className="truncate">{ing.name}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
                 )}
               </div>
-              <span
-                className={`mt-2 text-base font-semibold ${stateDisplay.color}`}
-                aria-live="polite"
-              >
-                {stateDisplay.label}
-              </span>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {!isCancelled && (
-                <Progress
-                  value={progress.progress}
-                  className={
-                    progress.state === 'PREPARING' ||
-                    progress.state === 'PUMPING'
-                      ? 'running-progress'
-                      : undefined
-                  }
-                >
-                  <ProgressLabel className="text-foreground-muted font-normal">
-                    {t('simple_status.progress', 'Progress')}
-                  </ProgressLabel>
-                  <ProgressValue className="font-mono text-base font-semibold text-foreground" />
-                </Progress>
-              )}
+            </SimpleDisclosure>
+          )}
 
-              {progress.state === 'MANUAL_INGREDIENT_ADD' &&
-                progress.currentIngredientsToAddManually && (
-                  <Card className="bg-warning-tint border-warning">
-                    <CardContent className="pt-6">
-                      <h3 className="font-semibold mb-3">
-                        {t(
-                          'simple_status.manual_add_title',
-                          'Please add the following ingredients by hand:',
-                        )}
-                      </h3>
-                      <ul className="space-y-2 mb-4">
-                        {progress.currentIngredientsToAddManually.map(
-                          (ing: any) => (
-                            <li
-                              key={ing.id ?? ing.name}
-                              className="flex items-center gap-2 text-base"
-                            >
-                              <span
-                                aria-hidden="true"
-                                className="size-2 shrink-0 rounded-full bg-warning"
-                              />
-                              <span className="font-medium flex-1">
-                                {ing.name}
-                              </span>
-                              <span className="font-semibold">
-                                {ing.amount} {ing.unit ?? 'ml'}
-                              </span>
-                            </li>
-                          ),
-                        )}
-                      </ul>
-                      <Button
-                        onClick={handleConfirmManualAdd}
-                        disabled={confirming}
-                        className="w-full"
-                        size="lg"
-                      >
-                        {confirming ? (
-                          <>
-                            <Loader2 className="size-6 animate-spin" />
-                            {t('simple_status.confirming', 'Confirming...')}
-                          </>
-                        ) : (
-                          t(
-                            'simple_status.confirm_added',
-                            "I've Added the Ingredients",
-                          )
-                        )}
-                      </Button>
-                    </CardContent>
-                  </Card>
-                )}
-
-              {hasRecipeDetails && (
-                <SimpleDisclosure
-                  key={isFinished ? 'finished' : 'active'}
-                  icon={Info}
-                  title={t('simple_status.recipe_details', 'Recipe details')}
-                  defaultOpen={isFinished}
-                >
-                  <div className="space-y-4">
-                    {progress.recipe.description && (
-                      <div>
-                        <h3 className="font-semibold mb-2 text-sm text-foreground-muted">
-                          {t('simple_status.about', 'About')}
-                        </h3>
-                        <p className="text-base">
-                          {progress.recipe.description}
-                        </p>
-                      </div>
-                    )}
-
-                    {recipeIngredients.length > 0 && (
-                      <div>
-                        <h3 className="font-semibold mb-2 text-sm text-foreground-muted">
-                          {t('ingredients_list.title', 'Ingredients')}
-                        </h3>
-                        <div className="grid grid-cols-2 gap-2">
-                          {recipeIngredients.map((ing: any) => (
-                            <div
-                              key={ing.id ?? ing.name}
-                              className="flex items-center gap-2 text-base bg-surface-sunken rounded-lg p-2"
-                            >
-                              <span
-                                aria-hidden="true"
-                                className="size-1.5 shrink-0 rounded-full bg-primary"
-                              />
-                              <span className="truncate">{ing.name}</span>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </SimpleDisclosure>
-              )}
-
-              {isFinished ? (
-                <Button onClick={goToDrinks} className="w-full mt-4" size="lg">
-                  <GlassWater className="size-6" />
-                  {t('simple_status.order_another', 'Order another drink')}
-                </Button>
+          {isFinished ? (
+            <Button onClick={goToDrinks} className="w-full" size="lg">
+              <GlassWater className="size-6" />
+              {t('simple_status.order_another', 'Order another drink')}
+            </Button>
+          ) : (
+            <Button
+              variant="destructive"
+              onClick={() => setShowCancelDialog(true)}
+              disabled={canceling}
+              className="w-full"
+              size="lg"
+            >
+              {canceling ? (
+                <>
+                  <Loader2 className="size-6 animate-spin" />
+                  {t('simple_status.canceling', 'Canceling...')}
+                </>
               ) : (
-                <Button
-                  variant="destructive"
-                  onClick={() => setShowCancelDialog(true)}
-                  disabled={canceling}
-                  className="w-full mt-4"
-                  size="lg"
-                >
-                  {canceling ? (
-                    <>
-                      <Loader2 className="size-6 animate-spin" />
-                      {t('simple_status.canceling', 'Canceling...')}
-                    </>
-                  ) : (
-                    t('simple_status.cancel_order', 'Cancel Order')
-                  )}
-                </Button>
+                t('simple_status.cancel_order', 'Cancel Order')
               )}
-            </CardContent>
-          </Card>
+            </Button>
+          )}
         </SimplePageEnter>
       </div>
 

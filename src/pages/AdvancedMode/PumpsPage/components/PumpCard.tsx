@@ -1,11 +1,13 @@
 import { useNavigate } from '@tanstack/react-router';
 import { Activity, Droplet, Hexagon, Pencil } from 'lucide-react';
-import { motion } from 'motion/react';
+import { m, useReducedMotion } from 'motion/react';
 import type React from 'react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { toast } from '@/components/ui/toast';
 import { Button } from '@/components/ui/button';
+import { usePress } from '@/hooks/usePress';
+import { pulseAnimate, pulseTransition } from '@/lib/motionPresets';
 import {
   Card,
   CardContent,
@@ -25,6 +27,8 @@ interface PumpCardProps {
 }
 
 export const PumpCard: React.FC<PumpCardProps> = ({ pump }) => {
+  const press = usePress({ lift: true });
+  const reduceMotion = useReducedMotion();
   const { t } = useTranslation();
   const navigate = useNavigate({ from: '/pumps' });
   const token = useAuthStore((state) => state.token);
@@ -124,6 +128,8 @@ export const PumpCard: React.FC<PumpCardProps> = ({ pump }) => {
           return t('pump.pump_card.type_stepper');
         case 'valve':
           return t('pump.pump_card.type_valve');
+        case 'virtual':
+          return t('pump.pump_card.type_virtual', 'Virtual');
         default:
           return '';
       }
@@ -264,9 +270,9 @@ export const PumpCard: React.FC<PumpCardProps> = ({ pump }) => {
   );
 
   return (
-    <motion.div
-      whileHover={{ y: -4 }}
-      transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+    <m.div
+      whileHover={press.whileHover}
+      transition={press.transition}
       className="h-full"
     >
       <Card className="group h-full flex flex-col overflow-hidden border-border hover:border-border-strong hover:shadow-lg transition-colors">
@@ -278,16 +284,12 @@ export const PumpCard: React.FC<PumpCardProps> = ({ pump }) => {
                   {displayName}
                 </CardTitle>
                 {pumpJobState.runningState && (
-                  <motion.div
-                    animate={{ scale: [1, 1.2, 1] }}
-                    transition={{
-                      duration: 1.5,
-                      repeat: Number.POSITIVE_INFINITY,
-                      ease: 'easeInOut',
-                    }}
+                  <m.div
+                    animate={reduceMotion ? undefined : pulseAnimate}
+                    transition={pulseTransition}
                   >
                     <Activity className="size-6 text-primary" />
-                  </motion.div>
+                  </m.div>
                 )}
               </div>
               <div className="flex items-center gap-2 text-sm text-foreground-muted">
@@ -332,6 +334,6 @@ export const PumpCard: React.FC<PumpCardProps> = ({ pump }) => {
           />
         </CardFooter>
       </Card>
-    </motion.div>
+    </m.div>
   );
 };
