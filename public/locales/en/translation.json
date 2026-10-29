@@ -405,6 +405,10 @@
     "connecting": "Connecting...",
     "connecting_hint": "Fetching your order status",
     "continue_failed": "Could not continue the order",
+    "headline_active": "Making your {{name}}",
+    "headline_cancelled": "{{name}} was cancelled",
+    "headline_completed": "Your {{name}} is ready",
+    "headline_manual": "Your {{name}} needs a hand",
     "manual_add_title": "Please add the following ingredients by hand:",
     "no_order_description": "There is currently no cocktail being prepared",
     "no_order_title": "No Active Order",
@@ -413,10 +417,10 @@
     "progress": "Progress",
     "recipe_details": "Recipe details",
     "state_cancelled": "Cancelled",
-    "state_completed": "Completed",
-    "state_manual": "Manual Add Required",
-    "state_preparing": "Preparing",
-    "state_pumping": "Pumping"
+    "state_completed": "Ready",
+    "state_manual": "Add by hand",
+    "state_preparing": "Getting ready",
+    "state_pumping": "Pouring"
   },
   "statistics": {
     "categories": "Categories Distribution",
