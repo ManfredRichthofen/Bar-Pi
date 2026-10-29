@@ -1,6 +1,7 @@
 const MAX_DIMENSION = 1280;
 const WEBP_QUALITY = 0.8;
 
+export async function compressImage(file) {
   if (!(file instanceof Blob) || !file.type.startsWith('image/')) return file;
 
   try {
