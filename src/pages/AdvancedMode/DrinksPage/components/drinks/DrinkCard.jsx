@@ -40,10 +40,7 @@ const DrinkCard = ({ recipe }) => {
   const ingredientCount = recipe.ingredients?.length || 0;
 
   return (
-    <m.div
-      {...press}
-      className="h-full"
-    >
+    <m.div {...press} className="h-full">
       <Card
         onClick={handleCardClick}
         className="group cursor-pointer h-full overflow-hidden border-border hover:border-border hover:shadow-lg transition-colors p-0"
