@@ -13,13 +13,13 @@ import {
 } from '@/components/ui/collapsible';
 import PumpSettingsService from '../../../../services/pumpsettings.service';
 import useAuthStore from '../../../../store/authStore';
-import { usePumpStore } from '../../../../store/pumpStore';
+import { usePumps } from '../../../../hooks/usePumps';
 
 export const PumpStatus: React.FC = () => {
   const { t } = useTranslation();
   const navigate = useNavigate({ from: '/pumps' });
   const token = useAuthStore((state) => state.token);
-  const pumps = usePumpStore((state) => state.pumps);
+  const { pumps } = usePumps();
 
   const [reversePumpSettings, setReversePumpSettings] = useState<any>({});
   const [loadCellSettings, setLoadCellSettings] = useState({

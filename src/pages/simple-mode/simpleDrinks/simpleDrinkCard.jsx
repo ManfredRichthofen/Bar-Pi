@@ -1,11 +1,11 @@
 import { GlassWater, Loader2 } from 'lucide-react';
-import { motion, useReducedMotion } from 'motion/react';
+import { m, useReducedMotion } from 'motion/react';
 import { useTranslation } from 'react-i18next';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { useLazyImage } from '@/hooks/useLazyImage';
-import { useSimplePress } from '@/hooks/useSimplePress';
-import { imageFadeVariants } from '@/lib/simpleMotion';
+import { usePress } from '@/hooks/usePress';
+import { imageFadeVariants } from '@/lib/motionPresets';
 import { isAvailable, requiresManual } from '@/utils/recipeFilters.js';
 
 const getAvailability = (recipe, t) => {
@@ -30,7 +30,7 @@ const getAvailability = (recipe, t) => {
 const SimpleDrinkCard = ({ recipe, onCardClick }) => {
   const { t } = useTranslation();
   const reduceMotion = useReducedMotion();
-  const press = useSimplePress({ lift: true });
+  const press = usePress({ lift: true });
   const {
     imageUrl,
     loading: imageLoading,
@@ -41,7 +41,7 @@ const SimpleDrinkCard = ({ recipe, onCardClick }) => {
   const availability = getAvailability(recipe, t);
 
   return (
-    <motion.button
+    <m.button
       type="button"
       {...press}
       onClick={() => onCardClick(recipe)}
@@ -58,7 +58,7 @@ const SimpleDrinkCard = ({ recipe, onCardClick }) => {
               <Loader2 className="size-8 animate-spin text-foreground-muted" />
             </div>
           ) : imageUrl ? (
-            <motion.img
+            <m.img
               key={imageUrl}
               src={imageUrl}
               alt=""
@@ -103,7 +103,7 @@ const SimpleDrinkCard = ({ recipe, onCardClick }) => {
           </h3>
         </CardContent>
       </Card>
-    </motion.button>
+    </m.button>
   );
 };
 

@@ -30,7 +30,7 @@ interface HeaderBarProps {
 
 const HeaderBar: React.FC<HeaderBarProps> = ({ collapsed, onToggle }) => {
   const { user: userData, loading } = useCurrentUser({ logoutOn401: true });
-  const { logoutUser } = useAuthStore();
+  const logoutUser = useAuthStore((s) => s.logoutUser);
   const setAdvancedMode = useUIModeStore((state) => state.setAdvancedMode);
   const navigate = useNavigate();
 

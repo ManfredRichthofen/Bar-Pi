@@ -23,7 +23,7 @@ const RecipeDetailPage = () => {
 
   console.log('RecipeDetailPage loaded, recipe:', recipe);
 
-  const { toggleFavorite, isFavorite } = useFavoritesStore();
+  const toggleFavorite = useFavoritesStore((s) => s.toggleFavorite);
   const token = useAuthStore((state) => state.token);
 
   const {
@@ -86,7 +86,9 @@ const RecipeDetailPage = () => {
 
   const ingredientCount = recipe?.ingredients?.length || 0;
   const stepCount = recipe?.productionSteps?.length || 0;
-  const favorited = recipe ? isFavorite(recipe.id) : false;
+  const favorited = useFavoritesStore((s) =>
+    recipe ? s.favorites.some((fav) => fav.id === recipe.id) : false,
+  );
 
   if (!recipe) {
     return (

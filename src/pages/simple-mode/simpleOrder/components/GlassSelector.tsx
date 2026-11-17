@@ -1,5 +1,5 @@
 import { ChevronRight, GlassWater, Loader2 } from 'lucide-react';
-import { motion } from 'motion/react';
+import { m } from 'motion/react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -13,7 +13,7 @@ import {
 } from '@/components/ui/dialog';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { useGlasses } from '@/hooks/useGlasses';
-import { useSimplePress } from '@/hooks/useSimplePress';
+import { usePress } from '@/hooks/usePress';
 import type { Glass } from '@/pages/Shared/order';
 import { getGlassSizeMl } from '@/pages/Shared/order';
 
@@ -33,7 +33,7 @@ const GlassSelector = ({
   onGlassChange,
 }: GlassSelectorProps) => {
   const { t } = useTranslation();
-  const press = useSimplePress({ lift: false });
+  const press = usePress({ lift: false });
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { loading, glasses, selectGlass } = useGlasses({
     token,
@@ -123,7 +123,7 @@ const GlassSelector = ({
             className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-96 overflow-y-auto"
           >
             {glasses.map((glass) => (
-              <motion.label
+              <m.label
                 key={glass.id}
                 {...press}
                 className={`
@@ -160,7 +160,7 @@ const GlassSelector = ({
                     )}
                   </div>
                 </div>
-              </motion.label>
+              </m.label>
             ))}
           </RadioGroup>
 

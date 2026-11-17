@@ -493,6 +493,12 @@ func setupStaticFileServer(r *gin.Engine) {
 			return
 		}
 
+		if strings.HasPrefix(path, "assets/") {
+			c.Header("Cache-Control", "public, max-age=31536000, immutable")
+		} else {
+			c.Header("Cache-Control", "no-cache")
+		}
+
 		contentType := getContentType(path)
 		c.DataFromReader(http.StatusOK, stat.Size(), contentType, file, nil)
 	})
@@ -527,6 +533,8 @@ func getContentType(path string) string {
 		return "font/ttf"
 	case ".webp":
 		return "image/webp"
+	case ".avif":
+		return "image/avif"
 	case ".webmanifest":
 		return "application/manifest+json"
 	default:

@@ -2,11 +2,12 @@ import { API_PATHS } from '../constants';
 import axios from '../lib/apiClient';
 import { BaseService } from './base.service';
 import JsUtils from './JsUtils.js';
+import { compressImage } from '../utils/compressImage';
 
 const API_PATH = API_PATHS.RECIPE;
 
 class RecipeService extends BaseService {
-  createRecipe(createRecipe, image) {
+  async createRecipe(createRecipe, image) {
     const uploadData = new FormData();
     const stringRecipe = JSON.stringify(createRecipe);
     const blobRecipe = new Blob([stringRecipe], {
@@ -14,7 +15,7 @@ class RecipeService extends BaseService {
     });
     uploadData.append('recipe', blobRecipe);
     if (image) {
-      uploadData.append('image', image);
+      uploadData.append('image', await compressImage(image));
     }
     return axios
       .post(API_PATH, uploadData)
@@ -145,7 +146,7 @@ class RecipeService extends BaseService {
       });
   }
 
-  updateRecipe(id, createRecipe, image, removeImage) {
+  async updateRecipe(id, createRecipe, image, removeImage) {
     const uploadData = new FormData();
     const stringRecipe = JSON.stringify(createRecipe);
     const blobRecipe = new Blob([stringRecipe], {
@@ -153,7 +154,7 @@ class RecipeService extends BaseService {
     });
     uploadData.append('recipe', blobRecipe);
     if (image) {
-      uploadData.append('image', image);
+      uploadData.append('image', await compressImage(image));
     }
     return axios
       .put(

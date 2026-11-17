@@ -245,14 +245,13 @@ func (h *RecipeHandler) GetImage(c *gin.Context) {
 		return
 	}
 
-	filename := "recipe_" + strconv.FormatInt(id, 10) + ".jpg"
-	data, err := h.imageService.GetImage(filename)
-	if err != nil || data == nil {
+	img, err := h.imageService.GetEntityImage("recipe", id)
+	if err != nil || img == nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Image not found"})
 		return
 	}
 
-	c.Data(http.StatusOK, "image/jpeg", data)
+	serveStoredImage(c, img)
 }
 
 func (h *RecipeHandler) Create(c *gin.Context) {
@@ -337,7 +336,7 @@ func (h *RecipeHandler) Update(c *gin.Context) {
 	if removeImage {
 		recipe.HasImage = false
 		if h.imageService != nil {
-			_ = h.imageService.DeleteImage("recipe_" + strconv.FormatInt(id, 10) + ".jpg")
+			_ = h.imageService.DeleteEntityImage("recipe", id)
 		}
 	}
 	if len(imageBytes) > 0 && h.imageService != nil {
@@ -383,7 +382,7 @@ func (h *RecipeHandler) Delete(c *gin.Context) {
 	}
 
 	if h.imageService != nil {
-		_ = h.imageService.DeleteImage("recipe_" + strconv.FormatInt(id, 10) + ".jpg")
+		_ = h.imageService.DeleteEntityImage("recipe", id)
 	}
 	if h.wsService != nil {
 		h.wsService.InvalidateRecipeScrollCaches()

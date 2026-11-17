@@ -26,4 +26,11 @@ export const imageFadeVariants: Variants = {
   visible: { opacity: 1, transition: enterTransition },
 };
 
+export const pulseAnimate = { scale: [1, 1.2, 1] };
+export const pulseTransition: Transition = {
+  duration: 1.5,
+  repeat: Number.POSITIVE_INFINITY,
+  ease: 'easeInOut',
+};
+
 export const noneTransition: Transition = { duration: 0 };

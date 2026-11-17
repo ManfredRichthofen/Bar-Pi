@@ -7,7 +7,6 @@ import type { User } from '../types/user';
 import useCocktailProgressStore from './cocktailProgressStore';
 import useConfigStore from './configStore';
 import useFilterStore from './filterStore';
-import { usePumpStore } from './pumpStore';
 
 interface AuthState {
   token: string | null;
@@ -130,9 +129,6 @@ const useAuthStore = create<AuthState>((set) => ({
       useCocktailProgressStore.getState().clearPendingPinAfterDrink();
       useCocktailProgressStore.getState().setShowProgressDialog(false);
       useFilterStore.getState().clearFilters();
-      usePumpStore.getState().setPumps([]);
-      usePumpStore.getState().setAllowReversePumping(false);
-      usePumpStore.getState().clearError();
 
       websocketService.disconnectWebsocket();
     } catch (error: any) {

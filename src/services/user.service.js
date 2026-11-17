@@ -3,6 +3,14 @@ import { BaseService } from './base.service';
 
 const API_PATH = API_PATHS.USER;
 
+/**
+ * LEGACY (Java CocktailPi backend): it reads `password` from the top level of
+ * the request body. The Go backend reads it from `userDto`, so it is sent in both.
+ */
+function withLegacyPassword(body, password) {
+  return { ...body, password };
+}
+
 class UserService extends BaseService {
   validateUserData(userData, requirePassword = false) {
     if (!userData || !userData.username) {
@@ -85,12 +93,15 @@ class UserService extends BaseService {
         ? updateRequest.password
         : 'dummy_password_for_update';
 
-    const requestBody = {
-      updatePassword: !!(
-        updateRequest.password && updateRequest.password.trim() !== ''
-      ),
-      userDto,
-    };
+    const requestBody = withLegacyPassword(
+      {
+        updatePassword: !!(
+          updateRequest.password && updateRequest.password.trim() !== ''
+        ),
+        userDto,
+      },
+      userDto.password,
+    );
 
     return this.put(API_PATH + String(userId), requestBody, authToken);
   }
@@ -105,7 +116,11 @@ class UserService extends BaseService {
       password: createUser.password,
     };
 
-    return this.post(API_PATH, { userDto }, authToken);
+    return this.post(
+      API_PATH,
+      withLegacyPassword({ userDto }, userDto.password),
+      authToken,
+    );
   }
 }
 

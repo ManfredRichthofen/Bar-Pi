@@ -80,6 +80,33 @@ export const DEFAULT_FILTERS = {
   collectionId: null,
 };
 
+/**
+ * How the filters are presented. Filters inside one group are mutually
+ * exclusive (selecting one clears the others), so contradictory combinations
+ * like Alcoholic + Non-Alcoholic can't be chosen.
+ */
+export const FILTER_GROUPS = [
+  { id: 'alcohol', filters: ['alcoholic', 'nonAlcoholic'] },
+  { id: 'preparation', filters: ['automatic', 'manual'] },
+  { id: 'stock', filters: ['available', 'fabricable'] },
+  { id: 'other', filters: ['favorited'] },
+];
+
+/**
+ * Returns new filters with `name` set to `value`, clearing the other filters
+ * in its group when it is switched on.
+ */
+export const applyFilterChange = (filters, name, value) => {
+  const next = { ...filters, [name]: value };
+  if (value) {
+    const group = FILTER_GROUPS.find((g) => g.filters.includes(name));
+    for (const sibling of group?.filters ?? []) {
+      if (sibling !== name) next[sibling] = false;
+    }
+  }
+  return next;
+};
+
 export const countActiveFilters = (filters) =>
   Object.values(filters ?? {}).filter(Boolean).length;
 

@@ -1,7 +1,7 @@
 {
   "name": "bar-pi",
   "private": true,
-  "version": "0.5.5",
+  "version": "0.5.6",
   "type": "module",
   "packageManager": "bun@1.4.4",
   "scripts": {
@@ -26,8 +26,8 @@
     "@stomp/stompjs": "^7.5.0",
     "@tanstack/react-query": "^5.105.0",
     "@tanstack/react-router": "^1.170.46",
-    "@tanstack/react-virtual": "^3.14.23",
-    "@tauri-apps/api": "^2",
+    "@tanstack/react-virtual": "^3.14.24",
+    "@tauri-apps/api": "^2.12.4",
     "axios": "^1.21.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
@@ -35,7 +35,7 @@
     "i18next": "^26.5.11",
     "i18next-browser-languagedetector": "^8.2.3",
     "i18next-http-backend": "^4.0.6",
-    "lucide-react": "^1.62.0",
+    "lucide-react": "^1.64.0",
     "motion": "^14.7.1",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
@@ -46,19 +46,19 @@
     "zustand": "^5.0.16"
   },
   "devDependencies": {
-    "@biomejs/biome": "^2.6.3",
+    "@biomejs/biome": "^2.6.4",
     "@tailwindcss/vite": "^4.3.3",
     "@tanstack/react-router-devtools": "^1.167.2",
     "@tanstack/router-plugin": "^1.168.48",
     "@tauri-apps/cli": "^2.12.4",
-    "@types/node": "^26.0.0",
+    "@types/node": "^26.6.6",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
     "@vitejs/plugin-react": "^6.1.2",
     "i18next-cli": "^1.80.5",
     "tailwindcss": "^4.3.3",
     "tailwindcss-animate": "^1.0.7",
-    "typescript": "~7.0.0",
+    "typescript": "~7.0.2",
     "vite": "^8.3.5"
   }
 }

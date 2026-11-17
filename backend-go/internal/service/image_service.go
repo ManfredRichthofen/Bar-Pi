@@ -10,7 +10,26 @@ import (
 	_ "image/png"
 	"os"
 	"path/filepath"
+	"time"
+
+	"github.com/gen2brain/avif"
+	_ "golang.org/x/image/webp"
 )
+
+const (
+	extAVIF = ".avif"
+	extJPEG = ".jpg"
+
+	avifQuality = 58
+	avifSpeed   = 8
+	jpegQuality = 85
+)
+
+type StoredImage struct {
+	Data        []byte
+	ContentType string
+	ModTime     time.Time
+}
 
 // ImageService handles image operations
 type ImageService struct {
@@ -23,61 +42,68 @@ func NewImageService(storageDir string) *ImageService {
 	return &ImageService{storageDir: storageDir}
 }
 
-// SaveImage saves an image file and returns the filename
 func (s *ImageService) SaveImage(data []byte, entityType string, entityID int64) (string, error) {
 	img, _, err := image.Decode(bytes.NewReader(data))
 	if err != nil {
 		return "", errors.New("invalid image format")
 	}
 
-	safeEntityType := filepath.Base(entityType)
-	filename := fmt.Sprintf("%s_%d.jpg", safeEntityType, entityID)
-	fullPath := filepath.Join(s.storageDir, filename)
-
-	file, err := os.Create(fullPath)
-	if err != nil {
-		return "", fmt.Errorf("failed to create file: %w", err)
+	var buf bytes.Buffer
+	ext := extAVIF
+	if err := avif.Encode(&buf, img, avif.Options{Quality: avifQuality, Speed: avifSpeed}); err != nil {
+		buf.Reset()
+		ext = extJPEG
+		if err := jpeg.Encode(&buf, img, &jpeg.Options{Quality: jpegQuality}); err != nil {
+			return "", fmt.Errorf("failed to encode image: %w", err)
+		}
 	}
-	defer file.Close()
 
-	if err := jpeg.Encode(file, img, &jpeg.Options{Quality: 85}); err != nil {
-		return "", fmt.Errorf("failed to encode image: %w", err)
+	filename := s.filename(entityType, entityID, ext)
+	if err := os.WriteFile(filepath.Join(s.storageDir, filename), buf.Bytes(), 0644); err != nil {
+		return "", fmt.Errorf("failed to write image: %w", err)
 	}
+
+	other := extJPEG
+	if ext == extJPEG {
+		other = extAVIF
+	}
+	_ = os.Remove(filepath.Join(s.storageDir, s.filename(entityType, entityID, other)))
 
 	return filename, nil
 }
 
-// GetImage retrieves an image by filename
-func (s *ImageService) GetImage(filename string) ([]byte, error) {
-	safeFilename := filepath.Base(filename)
-	if safeFilename == "." || safeFilename == "/" || safeFilename == "" {
-		return nil, errors.New("invalid filename")
-	}
-	fullPath := filepath.Join(s.storageDir, safeFilename)
-
-	data, err := os.ReadFile(fullPath)
-	if err != nil {
-		if os.IsNotExist(err) {
-			return nil, nil
+func (s *ImageService) GetEntityImage(entityType string, entityID int64) (*StoredImage, error) {
+	for _, candidate := range []struct{ ext, contentType string }{
+		{extAVIF, "image/avif"},
+		{extJPEG, "image/jpeg"},
+	} {
+		path := filepath.Join(s.storageDir, s.filename(entityType, entityID, candidate.ext))
+		data, err := os.ReadFile(path)
+		if err != nil {
+			if os.IsNotExist(err) {
+				continue
+			}
+			return nil, fmt.Errorf("failed to read image: %w", err)
 		}
-		return nil, fmt.Errorf("failed to read image: %w", err)
+		info, err := os.Stat(path)
+		if err != nil {
+			return nil, fmt.Errorf("failed to stat image: %w", err)
+		}
+		return &StoredImage{Data: data, ContentType: candidate.contentType, ModTime: info.ModTime()}, nil
 	}
-
-	return data, nil
+	return nil, nil
 }
 
-// DeleteImage deletes an image file
-func (s *ImageService) DeleteImage(filename string) error {
-	safeFilename := filepath.Base(filename)
-	if safeFilename == "." || safeFilename == "/" || safeFilename == "" {
-		return errors.New("invalid filename")
+func (s *ImageService) DeleteEntityImage(entityType string, entityID int64) error {
+	for _, ext := range []string{extAVIF, extJPEG} {
+		err := os.Remove(filepath.Join(s.storageDir, s.filename(entityType, entityID, ext)))
+		if err != nil && !os.IsNotExist(err) {
+			return fmt.Errorf("failed to delete image: %w", err)
+		}
 	}
-	fullPath := filepath.Join(s.storageDir, safeFilename)
-
-	err := os.Remove(fullPath)
-	if err != nil && !os.IsNotExist(err) {
-		return fmt.Errorf("failed to delete image: %w", err)
-	}
-
 	return nil
+}
+
+func (s *ImageService) filename(entityType string, entityID int64, ext string) string {
+	return fmt.Sprintf("%s_%d%s", filepath.Base(entityType), entityID, ext)
 }
