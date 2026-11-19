@@ -12,7 +12,7 @@ require (
 	github.com/mochi-mqtt/server/v2 v2.7.9
 	github.com/pressly/goose/v3 v3.30.1
 	github.com/warthog618/go-gpiocdev v0.10.0
-	golang.org/x/crypto v0.58.0
+	golang.org/x/crypto v0.59.0
 	golang.org/x/image v0.47.0
 	golang.org/x/mod v0.42.0
 	gorm.io/driver/sqlite v1.6.0
