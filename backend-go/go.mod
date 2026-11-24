@@ -3,7 +3,7 @@ module github.com/ManfredRichthofen/Bar-Pi/backend-go
 go 1.26.0
 
 require (
-	github.com/eclipse/paho.mqtt.golang v1.5.1
+	github.com/eclipse/paho.mqtt.golang v1.5.2
 	github.com/gen2brain/avif v0.6.0
 	github.com/gin-gonic/gin v1.12.0
 	github.com/golang-jwt/jwt/v5 v5.3.1
