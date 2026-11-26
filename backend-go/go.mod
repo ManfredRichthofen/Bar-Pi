@@ -10,7 +10,7 @@ require (
 	github.com/gorilla/websocket v1.5.3
 	github.com/joho/godotenv v1.5.1
 	github.com/mochi-mqtt/server/v2 v2.7.9
-	github.com/pressly/goose/v3 v3.30.1
+	github.com/pressly/goose/v3 v3.30.2
 	github.com/warthog618/go-gpiocdev v0.10.0
 	golang.org/x/crypto v0.59.0
 	golang.org/x/image v0.48.0
